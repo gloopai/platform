@@ -3,6 +3,7 @@ package svc
 import (
 	"database/sql"
 
+	"github.com/gloopai/pay/common/consulconfig"
 	"github.com/gloopai/pay/order/internal/config"
 	"github.com/gloopai/pay/order/internal/store"
 	_ "github.com/go-sql-driver/mysql"
@@ -10,10 +11,11 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
-	Sql    *sql.DB
-	Redis  *redis.Client
-	Orders *store.OrdersStore
+	Config        config.Config
+	Sql           *sql.DB
+	Redis         *redis.Client
+	Orders        *store.OrdersStore
+	RuntimeConfig *consulconfig.Store
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -29,10 +31,16 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Password: c.BizRedis.Password,
 		DB:       c.BizRedis.DB,
 	})
+	var runtimeCfg *consulconfig.Store
+	if cfg, err := consulconfig.NewStore("", consulconfig.GlobalPrefix(), consulconfig.ServicePrefix(c.Name)); err == nil {
+		cfg.Start()
+		runtimeCfg = cfg
+	}
 	return &ServiceContext{
-		Config: c,
-		Sql:    sqlDB,
-		Redis:  rdb,
-		Orders: store.NewOrdersStore(sqlDB),
+		Config:        c,
+		Sql:           sqlDB,
+		Redis:         rdb,
+		Orders:        store.NewOrdersStore(sqlDB),
+		RuntimeConfig: runtimeCfg,
 	}
 }

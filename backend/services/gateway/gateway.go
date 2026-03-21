@@ -34,6 +34,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	consul.SetBaseConfig(consul.BaseConfig{Addr: c.Consul.Addr})
 
 	server := rest.MustNewServer(c.RestConf)
 	server.Use(middleware.NewTraceHeaderMiddleware().Handle)

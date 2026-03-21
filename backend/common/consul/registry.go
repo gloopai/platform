@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/url"
 	"strings"
 
 	"github.com/hashicorp/consul/api"
@@ -46,7 +45,7 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 
 	checkHost := host
 	if host == "127.0.0.1" || host == "localhost" {
-		client, err := newClient(consulAddr)
+		client, err := NewClient(consulAddr)
 		if err != nil {
 			return nil, err
 		}
@@ -71,7 +70,7 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		return &Registrar{serviceID: serviceID, client: client}, nil
 	}
 
-	client, err := newClient(consulAddr)
+	client, err := NewClient(consulAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -110,26 +109,6 @@ func parsePort(s string) (int, error) {
 		return 0, fmt.Errorf("invalid port: %d", p)
 	}
 	return p, nil
-}
-
-func newClient(consulAddr string) (*api.Client, error) {
-	cfg := api.DefaultConfig()
-	consulAddr = strings.TrimSpace(consulAddr)
-	if consulAddr != "" {
-		if strings.HasPrefix(consulAddr, "http://") || strings.HasPrefix(consulAddr, "https://") {
-			u, err := url.Parse(consulAddr)
-			if err != nil {
-				return nil, err
-			}
-			if u.Scheme != "" {
-				cfg.Scheme = u.Scheme
-			}
-			cfg.Address = u.Host
-		} else {
-			cfg.Address = consulAddr
-		}
-	}
-	return api.NewClient(cfg)
 }
 
 func consulNodeName(client *api.Client) string {

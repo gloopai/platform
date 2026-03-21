@@ -34,6 +34,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	consul.SetBaseConfig(consul.BaseConfig{Addr: c.Consul.Addr})
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

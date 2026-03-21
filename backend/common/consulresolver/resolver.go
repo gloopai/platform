@@ -3,11 +3,11 @@ package consulresolver
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/gloopai/pay/common/consul"
 	"github.com/hashicorp/consul/api"
 	"google.golang.org/grpc/resolver"
 )
@@ -30,7 +30,7 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, _ resolv
 	if service == "" {
 		service = strings.TrimSpace(target.Endpoint())
 	}
-	client, err := newClient(consulAddr)
+	client, err := consul.NewClient(consulAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -126,24 +126,4 @@ func (r *consulResolver) resolve(lastIndex uint64) (uint64, error) {
 		return lastIndex, nil
 	}
 	return meta.LastIndex, nil
-}
-
-func newClient(consulAddr string) (*api.Client, error) {
-	cfg := api.DefaultConfig()
-	consulAddr = strings.TrimSpace(consulAddr)
-	if consulAddr != "" {
-		if strings.HasPrefix(consulAddr, "http://") || strings.HasPrefix(consulAddr, "https://") {
-			u, err := url.Parse(consulAddr)
-			if err != nil {
-				return nil, err
-			}
-			if u.Scheme != "" {
-				cfg.Scheme = u.Scheme
-			}
-			cfg.Address = u.Host
-		} else {
-			cfg.Address = consulAddr
-		}
-	}
-	return api.NewClient(cfg)
 }

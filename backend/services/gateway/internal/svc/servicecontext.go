@@ -7,6 +7,7 @@ import (
 	"database/sql"
 
 	"github.com/gloopai/pay/channel/channelclient"
+	"github.com/gloopai/pay/common/consulconfig"
 	"github.com/gloopai/pay/common/consulresolver"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
@@ -39,6 +40,8 @@ type ServiceContext struct {
 	MerchantRpc merchantclient.Merchant
 
 	NsqProducer *nsq.Producer
+
+	RuntimeConfig *consulconfig.Store
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -70,6 +73,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	notifyLogsStore := store.NewNotifyLogsStore(sqlDB)
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	sessionsStore := store.NewSessionsStore(sqlDB)
+	var runtimeCfg *consulconfig.Store
+	if cfg, err := consulconfig.NewStore("", consulconfig.GlobalPrefix(), consulconfig.ServicePrefix(c.Name)); err == nil {
+		cfg.Start()
+		runtimeCfg = cfg
+	}
 
 	return &ServiceContext{
 		Config: c,
@@ -89,6 +97,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		ChannelRpc:  channelclient.NewChannel(channelCli),
 		MerchantRpc: merchantclient.NewMerchant(merchantCli),
 
-		NsqProducer: producer,
+		NsqProducer:   producer,
+		RuntimeConfig: runtimeCfg,
 	}
 }

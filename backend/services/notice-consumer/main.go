@@ -43,6 +43,8 @@ func main() {
 	)
 	flag.Parse()
 
+	consul.SetBaseConfig(consul.BaseConfig{Addr: *consulAddr})
+
 	db, err := sql.Open("mysql", *mysqlDSN)
 	if err != nil {
 		panic(err)
