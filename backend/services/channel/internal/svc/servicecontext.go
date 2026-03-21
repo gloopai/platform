@@ -5,7 +5,7 @@ import (
 
 	"github.com/gloopai/pay/channel/internal/config"
 	"github.com/gloopai/pay/channel/internal/store"
-	"github.com/gloopai/pay/common/consulconfig"
+	consulconfig "github.com/gloopai/pay/common/consul/config"
 	_ "github.com/go-sql-driver/mysql"
 )
 

@@ -3,7 +3,7 @@ package svc
 import (
 	"database/sql"
 
-	"github.com/gloopai/pay/common/consulconfig"
+	consulconfig "github.com/gloopai/pay/common/consul/config"
 	"github.com/gloopai/pay/merchant/internal/config"
 	"github.com/gloopai/pay/merchant/internal/store"
 	_ "github.com/go-sql-driver/mysql"

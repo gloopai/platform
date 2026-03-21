@@ -1,4 +1,4 @@
-package consulresolver
+package resolver
 
 import (
 	"context"
@@ -9,14 +9,14 @@ import (
 
 	"github.com/gloopai/pay/common/consul"
 	"github.com/hashicorp/consul/api"
-	"google.golang.org/grpc/resolver"
+	grpcresolver "google.golang.org/grpc/resolver"
 )
 
 var once sync.Once
 
 func Register() {
 	once.Do(func() {
-		resolver.Register(&builder{})
+		grpcresolver.Register(&builder{})
 	})
 }
 
@@ -24,7 +24,7 @@ type builder struct{}
 
 func (b *builder) Scheme() string { return "consul" }
 
-func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, _ resolver.BuildOptions) (resolver.Resolver, error) {
+func (b *builder) Build(target grpcresolver.Target, cc grpcresolver.ClientConn, _ grpcresolver.BuildOptions) (grpcresolver.Resolver, error) {
 	consulAddr := strings.TrimSpace(target.URL.Host)
 	service := strings.TrimPrefix(strings.TrimSpace(target.URL.Path), "/")
 	if service == "" {
@@ -46,12 +46,12 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, _ resolv
 
 type consulResolver struct {
 	service string
-	cc      resolver.ClientConn
+	cc      grpcresolver.ClientConn
 	client  *api.Client
 	closeCh chan struct{}
 }
 
-func (r *consulResolver) ResolveNow(resolver.ResolveNowOptions) {}
+func (r *consulResolver) ResolveNow(grpcresolver.ResolveNowOptions) {}
 
 func (r *consulResolver) Close() { close(r.closeCh) }
 
@@ -106,7 +106,7 @@ func (r *consulResolver) resolve(lastIndex uint64) (uint64, error) {
 		return lastIndex, err
 	}
 
-	addrs := make([]resolver.Address, 0, len(entries))
+	addrs := make([]grpcresolver.Address, 0, len(entries))
 	for _, e := range entries {
 		host := ""
 		if e.Service != nil {
@@ -118,9 +118,9 @@ func (r *consulResolver) resolve(lastIndex uint64) (uint64, error) {
 		if e.Service == nil || host == "" || e.Service.Port <= 0 {
 			continue
 		}
-		addrs = append(addrs, resolver.Address{Addr: fmt.Sprintf("%s:%d", host, e.Service.Port)})
+		addrs = append(addrs, grpcresolver.Address{Addr: fmt.Sprintf("%s:%d", host, e.Service.Port)})
 	}
-	_ = r.cc.UpdateState(resolver.State{Addresses: addrs})
+	_ = r.cc.UpdateState(grpcresolver.State{Addresses: addrs})
 
 	if meta == nil || meta.LastIndex == 0 {
 		return lastIndex, nil
