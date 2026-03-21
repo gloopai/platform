@@ -1,5 +1,8 @@
 Name: settle.rpc
 ListenOn: 0.0.0.0:8082
+Middlewares:
+  Trace: true
+  Stat: true
 Consul:
   Addr: 127.0.0.1:8500
   Service: settle.rpc

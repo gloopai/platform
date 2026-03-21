@@ -17,12 +17,19 @@ import (
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 var configFile = flag.String("f", "etc/gateway-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
+
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)

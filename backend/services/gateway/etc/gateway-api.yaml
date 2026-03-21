@@ -10,12 +10,20 @@ AdminToken: admin_token_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/
 OrderRpc:
   Target: consul://127.0.0.1:8500/order.rpc
+  Middlewares:
+    Trace: true
 SettleRpc:
   Target: consul://127.0.0.1:8500/settle.rpc
+  Middlewares:
+    Trace: true
 ChannelRpc:
   Target: consul://127.0.0.1:8500/channel.rpc
+  Middlewares:
+    Trace: true
 MerchantRpc:
   Target: consul://127.0.0.1:8500/merchant.rpc
+  Middlewares:
+    Trace: true
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice

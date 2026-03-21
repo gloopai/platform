@@ -1,5 +1,8 @@
 Name: channel.rpc
 ListenOn: 0.0.0.0:8083
+Middlewares:
+  Trace: true
+  Stat: true
 Consul:
   Addr: 127.0.0.1:8500
   Service: channel.rpc

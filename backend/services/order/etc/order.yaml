@@ -1,5 +1,8 @@
 Name: order.rpc
 ListenOn: 0.0.0.0:8081
+Middlewares:
+  Trace: true
+  Stat: true
 Consul:
   Addr: 127.0.0.1:8500
   Service: order.rpc
