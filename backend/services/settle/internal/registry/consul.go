@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -46,20 +47,28 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		serviceID = fmt.Sprintf("%s-%s-%d", serviceName, host, port)
 	}
 
+	client := &http.Client{Timeout: 3 * time.Second}
+	checkHost := host
+	if host == "127.0.0.1" || host == "localhost" {
+		nodeName := consulNodeName(client, consulAddr)
+		if isLikelyDockerNodeName(nodeName) {
+			checkHost = "host.docker.internal"
+		}
+	}
+
 	payload := map[string]any{
 		"Name":    serviceName,
 		"ID":      serviceID,
 		"Address": host,
 		"Port":    port,
 		"Check": map[string]any{
-			"TCP":                           fmt.Sprintf("%s:%d", host, port),
+			"TCP":                           fmt.Sprintf("%s:%d", checkHost, port),
 			"Interval":                      "10s",
 			"DeregisterCriticalServiceAfter": "1m",
 		},
 	}
 	body, _ := json.Marshal(payload)
 
-	client := &http.Client{Timeout: 3 * time.Second}
 	req, err := http.NewRequest(http.MethodPut, "http://"+consulAddr+"/v1/agent/service/register", bytes.NewReader(body))
 	if err != nil {
 		return nil, err
@@ -79,6 +88,42 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		serviceID:  serviceID,
 		client:     client,
 	}, nil
+}
+
+func consulNodeName(client *http.Client, consulAddr string) string {
+	req, err := http.NewRequest(http.MethodGet, "http://"+consulAddr+"/v1/agent/self", nil)
+	if err != nil {
+		return ""
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return ""
+	}
+
+	var body struct {
+		Config struct {
+			NodeName string `json:"NodeName"`
+		} `json:"Config"`
+	}
+	_ = json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&body)
+	return strings.TrimSpace(body.Config.NodeName)
+}
+
+func isLikelyDockerNodeName(s string) bool {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if len(s) != 12 {
+		return false
+	}
+	for _, c := range s {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 func (r *Registrar) Deregister() error {
