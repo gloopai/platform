@@ -2,14 +2,13 @@ package consulresolver
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"strconv"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/hashicorp/consul/api"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -31,23 +30,25 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, _ resolv
 	if service == "" {
 		service = strings.TrimSpace(target.Endpoint())
 	}
+	client, err := newClient(consulAddr)
+	if err != nil {
+		return nil, err
+	}
 	r := &consulResolver{
-		consulAddr: consulAddr,
-		service:    service,
-		cc:         cc,
-		client:     &http.Client{},
-		closeCh:    make(chan struct{}),
+		service: service,
+		cc:      cc,
+		client:  client,
+		closeCh: make(chan struct{}),
 	}
 	go r.watch()
 	return r, nil
 }
 
 type consulResolver struct {
-	consulAddr string
-	service    string
-	cc         resolver.ClientConn
-	client     *http.Client
-	closeCh    chan struct{}
+	service string
+	cc      resolver.ClientConn
+	client  *api.Client
+	closeCh chan struct{}
 }
 
 func (r *consulResolver) ResolveNow(resolver.ResolveNowOptions) {}
@@ -89,64 +90,60 @@ func (r *consulResolver) watch() {
 }
 
 func (r *consulResolver) resolve(lastIndex uint64) (uint64, error) {
-	if r.consulAddr == "" || r.service == "" {
-		return lastIndex, fmt.Errorf("invalid consul target: %q %q", r.consulAddr, r.service)
+	if r.client == nil || r.service == "" {
+		return lastIndex, fmt.Errorf("invalid consul target: %q", r.service)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 310*time.Second)
 	defer cancel()
 
-	url := fmt.Sprintf("http://%s/v1/health/service/%s?passing=true&wait=300s&index=%d",
-		r.consulAddr,
-		strings.TrimPrefix(r.service, "/"),
-		lastIndex,
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	opts := &api.QueryOptions{
+		WaitIndex: lastIndex,
+		WaitTime:  300 * time.Second,
+	}
+	entries, meta, err := r.client.Health().Service(strings.TrimPrefix(r.service, "/"), "", true, opts.WithContext(ctx))
 	if err != nil {
-		return lastIndex, err
-	}
-	resp, err := r.client.Do(req)
-	if err != nil {
-		return lastIndex, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return lastIndex, fmt.Errorf("consul query failed: %s", resp.Status)
-	}
-
-	var entries []struct {
-		Node struct {
-			Address string `json:"Address"`
-		} `json:"Node"`
-		Service struct {
-			Address string `json:"Address"`
-			Port    int    `json:"Port"`
-		} `json:"Service"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&entries); err != nil {
 		return lastIndex, err
 	}
 
 	addrs := make([]resolver.Address, 0, len(entries))
 	for _, e := range entries {
-		host := strings.TrimSpace(e.Service.Address)
+		host := ""
+		if e.Service != nil {
+			host = strings.TrimSpace(e.Service.Address)
+		}
 		if host == "" {
 			host = strings.TrimSpace(e.Node.Address)
 		}
-		if host == "" || e.Service.Port <= 0 {
+		if e.Service == nil || host == "" || e.Service.Port <= 0 {
 			continue
 		}
 		addrs = append(addrs, resolver.Address{Addr: fmt.Sprintf("%s:%d", host, e.Service.Port)})
 	}
 	_ = r.cc.UpdateState(resolver.State{Addresses: addrs})
 
-	headerIndex := strings.TrimSpace(resp.Header.Get("X-Consul-Index"))
-	if headerIndex == "" {
+	if meta == nil || meta.LastIndex == 0 {
 		return lastIndex, nil
 	}
-	v, err := strconv.ParseUint(headerIndex, 10, 64)
-	if err != nil {
-		return lastIndex, nil
+	return meta.LastIndex, nil
+}
+
+func newClient(consulAddr string) (*api.Client, error) {
+	cfg := api.DefaultConfig()
+	consulAddr = strings.TrimSpace(consulAddr)
+	if consulAddr != "" {
+		if strings.HasPrefix(consulAddr, "http://") || strings.HasPrefix(consulAddr, "https://") {
+			u, err := url.Parse(consulAddr)
+			if err != nil {
+				return nil, err
+			}
+			if u.Scheme != "" {
+				cfg.Scheme = u.Scheme
+			}
+			cfg.Address = u.Host
+		} else {
+			cfg.Address = consulAddr
+		}
 	}
-	return v, nil
+	return api.NewClient(cfg)
 }

@@ -1,21 +1,18 @@
 package consul
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net"
-	"net/http"
+	"net/url"
 	"strings"
-	"time"
+
+	"github.com/hashicorp/consul/api"
 )
 
 type Registrar struct {
-	consulAddr string
-	serviceID  string
-	client     *http.Client
+	serviceID string
+	client    *api.Client
 }
 
 func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Registrar, error) {
@@ -47,63 +44,60 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		serviceID = fmt.Sprintf("%s-%s-%d", serviceName, host, port)
 	}
 
-	client := &http.Client{Timeout: 3 * time.Second}
 	checkHost := host
 	if host == "127.0.0.1" || host == "localhost" {
-		nodeName := consulNodeName(client, consulAddr)
+		client, err := newClient(consulAddr)
+		if err != nil {
+			return nil, err
+		}
+		nodeName := consulNodeName(client)
 		if isLikelyDockerNodeName(nodeName) {
 			checkHost = "host.docker.internal"
 		}
+		reg := &api.AgentServiceRegistration{
+			Name:    serviceName,
+			ID:      serviceID,
+			Address: host,
+			Port:    port,
+			Check: &api.AgentServiceCheck{
+				TCP:                            fmt.Sprintf("%s:%d", checkHost, port),
+				Interval:                       "10s",
+				DeregisterCriticalServiceAfter: "1m",
+			},
+		}
+		if err := client.Agent().ServiceRegister(reg); err != nil {
+			return nil, err
+		}
+		return &Registrar{serviceID: serviceID, client: client}, nil
 	}
 
-	payload := map[string]any{
-		"Name":    serviceName,
-		"ID":      serviceID,
-		"Address": host,
-		"Port":    port,
-		"Check": map[string]any{
-			"TCP":                            fmt.Sprintf("%s:%d", checkHost, port),
-			"Interval":                       "10s",
-			"DeregisterCriticalServiceAfter": "1m",
+	client, err := newClient(consulAddr)
+	if err != nil {
+		return nil, err
+	}
+	reg := &api.AgentServiceRegistration{
+		Name:    serviceName,
+		ID:      serviceID,
+		Address: host,
+		Port:    port,
+		Check: &api.AgentServiceCheck{
+			TCP:                            fmt.Sprintf("%s:%d", checkHost, port),
+			Interval:                       "10s",
+			DeregisterCriticalServiceAfter: "1m",
 		},
 	}
-	body, _ := json.Marshal(payload)
-
-	req, err := http.NewRequest(http.MethodPut, "http://"+consulAddr+"/v1/agent/service/register", bytes.NewReader(body))
-	if err != nil {
+	if err := client.Agent().ServiceRegister(reg); err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	_ = resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("consul register failed: %s", resp.Status)
-	}
 
-	return &Registrar{
-		consulAddr: consulAddr,
-		serviceID:  serviceID,
-		client:     client,
-	}, nil
+	return &Registrar{serviceID: serviceID, client: client}, nil
 }
 
 func (r *Registrar) Deregister() error {
-	if r == nil || r.serviceID == "" || r.consulAddr == "" {
+	if r == nil || r.serviceID == "" || r.client == nil {
 		return nil
 	}
-	req, err := http.NewRequest(http.MethodPut, "http://"+r.consulAddr+"/v1/agent/service/deregister/"+r.serviceID, nil)
-	if err != nil {
-		return err
-	}
-	resp, err := r.client.Do(req)
-	if err != nil {
-		return err
-	}
-	_ = resp.Body.Close()
-	return nil
+	return r.client.Agent().ServiceDeregister(r.serviceID)
 }
 
 func parsePort(s string) (int, error) {
@@ -118,27 +112,40 @@ func parsePort(s string) (int, error) {
 	return p, nil
 }
 
-func consulNodeName(client *http.Client, consulAddr string) string {
-	req, err := http.NewRequest(http.MethodGet, "http://"+consulAddr+"/v1/agent/self", nil)
-	if err != nil {
-		return ""
+func newClient(consulAddr string) (*api.Client, error) {
+	cfg := api.DefaultConfig()
+	consulAddr = strings.TrimSpace(consulAddr)
+	if consulAddr != "" {
+		if strings.HasPrefix(consulAddr, "http://") || strings.HasPrefix(consulAddr, "https://") {
+			u, err := url.Parse(consulAddr)
+			if err != nil {
+				return nil, err
+			}
+			if u.Scheme != "" {
+				cfg.Scheme = u.Scheme
+			}
+			cfg.Address = u.Host
+		} else {
+			cfg.Address = consulAddr
+		}
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return ""
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return ""
-	}
+	return api.NewClient(cfg)
+}
 
-	var body struct {
-		Config struct {
-			NodeName string `json:"NodeName"`
-		} `json:"Config"`
+func consulNodeName(client *api.Client) string {
+	if client == nil {
+		return ""
 	}
-	_ = json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&body)
-	return strings.TrimSpace(body.Config.NodeName)
+	self, err := client.Agent().Self()
+	if err != nil {
+		return ""
+	}
+	cfg, ok := self["Config"]
+	if !ok {
+		return ""
+	}
+	nodeName, _ := cfg["NodeName"].(string)
+	return strings.TrimSpace(nodeName)
 }
 
 func isLikelyDockerNodeName(s string) bool {
