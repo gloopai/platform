@@ -1,0 +1,16 @@
+Name: gateway-api
+Host: 0.0.0.0
+Port: 8080
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
+AdminToken: admin_token_change_me
+CheckoutBaseUrl: http://127.0.0.1:5174/
+OrderRpc:
+  Target: consul://127.0.0.1:8500/order.rpc
+SettleRpc:
+  Target: consul://127.0.0.1:8500/settle.rpc
+ChannelRpc:
+  Target: consul://127.0.0.1:8500/channel.rpc
+Nsq:
+  NsqdTCPAddr: 127.0.0.1:4150
+  Topic: merchant_notice

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package channel;
+option go_package="./channel";
+
+service Channel {
+  rpc Route(RouteReq) returns(RouteResp);
+}
+
+message RouteReq {
+  int64 amount = 1;
+  string pay_type = 2;
+}
+
+message RouteResp {
+  int64 channel_id = 1;
+}

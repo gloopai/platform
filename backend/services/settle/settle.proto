@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package settle;
+option go_package="./settle";
+
+service Settle {
+  rpc Credit(CreditReq) returns(CreditResp);
+}
+
+message CreditReq {
+  string merchant_id = 1;
+  string order_no = 2;
+  int64 amount = 3;
+  string reason = 4;
+}
+
+message CreditResp {
+  bool changed = 1;
+  int64 balance = 2;
+}

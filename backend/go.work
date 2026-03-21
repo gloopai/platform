@@ -1,0 +1,9 @@
+go 1.25.1
+
+use (
+	./services/channel
+	./services/gateway
+	./services/notice-consumer
+	./services/order
+	./services/settle
+)

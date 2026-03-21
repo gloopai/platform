@@ -1,0 +1,11 @@
+Name: order.rpc
+ListenOn: 0.0.0.0:8081
+Consul:
+  Addr: 127.0.0.1:8500
+  Service: order.rpc
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
+Redis:
+  Addr: 127.0.0.1:6379
+  Password: ""
+  DB: 0

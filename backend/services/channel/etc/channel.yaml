@@ -1,0 +1,7 @@
+Name: channel.rpc
+ListenOn: 0.0.0.0:8083
+Consul:
+  Addr: 127.0.0.1:8500
+  Service: channel.rpc
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local

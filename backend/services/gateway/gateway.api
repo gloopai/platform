@@ -1,0 +1,91 @@
+syntax = "v1"
+
+@server (
+	middleware: MerchantSignMiddleware
+)
+service gateway-api {
+	@handler CreateOrderHandler
+	post /v1/pay/order (CreateOrderReq) returns (CreateOrderResp)
+
+	@handler QueryOrderHandler
+	get /v1/pay/query (QueryOrderReq) returns (QueryOrderResp)
+}
+
+service gateway-api {
+	@handler UpstreamNotifyHandler
+	post /v1/callback/notify (UpstreamNotifyReq) returns (UpstreamNotifyResp)
+}
+
+service gateway-api {
+	@handler TerminalOrderHandler
+	get /v1/terminal/order (TerminalOrderReq) returns (TerminalOrderResp)
+}
+
+type CreateOrderReq {
+	MerchantId      string `json:"merchant_id"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency,optional"`
+	Subject         string `json:"subject,optional"`
+	ReturnUrl       string `json:"return_url,optional"`
+	NotifyUrl       string `json:"notify_url,optional"`
+	PayType         string `json:"pay_type,optional"`
+	ChannelId       int64  `json:"channel_id,optional"`
+	Timestamp       int64  `json:"timestamp,optional"`
+	Nonce           string `json:"nonce,optional"`
+	Sign            string `json:"sign"`
+}
+
+type CreateOrderResp {
+	OrderNo     string `json:"order_no"`
+	Status      int32  `json:"status"`
+	ChannelId   int64  `json:"channel_id"`
+	CheckoutUrl string `json:"checkout_url"`
+}
+
+type QueryOrderReq {
+	MerchantId      string `form:"merchant_id"`
+	OrderNo         string `form:"order_no,optional"`
+	MerchantOrderNo string `form:"merchant_order_no,optional"`
+	Timestamp       int64  `form:"timestamp,optional"`
+	Nonce           string `form:"nonce,optional"`
+	Sign            string `form:"sign"`
+}
+
+type QueryOrderResp {
+	Order OrderInfo `json:"order"`
+}
+
+type OrderInfo {
+	OrderNo         string `json:"order_no"`
+	MerchantId      string `json:"merchant_id"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency"`
+	Status          int32  `json:"status"`
+	ChannelId       int64  `json:"channel_id"`
+	ReturnUrl       string `json:"return_url"`
+	NotifyUrl       string `json:"notify_url"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
+}
+
+type UpstreamNotifyReq {
+	OrderNo         string `json:"order_no"`
+	PaidAmount      int64  `json:"paid_amount"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
+	ChannelId       int64  `json:"channel_id"`
+	Sign            string `json:"sign"`
+}
+
+type UpstreamNotifyResp {
+	Ok bool `json:"ok"`
+}
+
+type TerminalOrderReq {
+	OrderNo string `form:"order_no"`
+}
+
+type TerminalOrderResp {
+	Order OrderInfo `json:"order"`
+}
+
