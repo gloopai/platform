@@ -7,8 +7,8 @@ import (
 	"database/sql"
 
 	"github.com/gloopai/pay/channel/channelclient"
+	"github.com/gloopai/pay/common/consulresolver"
 	"github.com/gloopai/pay/gateway/internal/config"
-	"github.com/gloopai/pay/gateway/internal/consulresolver"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/merchant/merchantclient"

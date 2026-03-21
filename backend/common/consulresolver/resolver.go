@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -34,7 +35,7 @@ func (b *builder) Build(target resolver.Target, cc resolver.ClientConn, _ resolv
 		consulAddr: consulAddr,
 		service:    service,
 		cc:         cc,
-		client:     &http.Client{Timeout: 3 * time.Second},
+		client:     &http.Client{},
 		closeCh:    make(chan struct{}),
 	}
 	go r.watch()
@@ -54,35 +55,63 @@ func (r *consulResolver) ResolveNow(resolver.ResolveNowOptions) {}
 func (r *consulResolver) Close() { close(r.closeCh) }
 
 func (r *consulResolver) watch() {
-	_ = r.resolve()
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
+	var (
+		lastIndex uint64
+		backoff   = 200 * time.Millisecond
+	)
 	for {
 		select {
-		case <-ticker.C:
-			_ = r.resolve()
 		case <-r.closeCh:
 			return
+		default:
+		}
+
+		nextIndex, err := r.resolve(lastIndex)
+		if err != nil {
+			timer := time.NewTimer(backoff)
+			select {
+			case <-timer.C:
+			case <-r.closeCh:
+				timer.Stop()
+				return
+			}
+			if backoff < 5*time.Second {
+				backoff *= 2
+			}
+			continue
+		}
+
+		backoff = 200 * time.Millisecond
+		if nextIndex > lastIndex {
+			lastIndex = nextIndex
 		}
 	}
 }
 
-func (r *consulResolver) resolve() error {
+func (r *consulResolver) resolve(lastIndex uint64) (uint64, error) {
 	if r.consulAddr == "" || r.service == "" {
-		return fmt.Errorf("invalid consul target: %q %q", r.consulAddr, r.service)
+		return lastIndex, fmt.Errorf("invalid consul target: %q %q", r.consulAddr, r.service)
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://"+r.consulAddr+"/v1/health/service/"+r.service+"?passing=true", nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 310*time.Second)
+	defer cancel()
+
+	url := fmt.Sprintf("http://%s/v1/health/service/%s?passing=true&wait=300s&index=%d",
+		r.consulAddr,
+		strings.TrimPrefix(r.service, "/"),
+		lastIndex,
+	)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return lastIndex, err
 	}
 	resp, err := r.client.Do(req)
 	if err != nil {
-		return err
+		return lastIndex, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("consul query failed: %s", resp.Status)
+		return lastIndex, fmt.Errorf("consul query failed: %s", resp.Status)
 	}
 
 	var entries []struct {
@@ -95,7 +124,7 @@ func (r *consulResolver) resolve() error {
 		} `json:"Service"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&entries); err != nil {
-		return err
+		return lastIndex, err
 	}
 
 	addrs := make([]resolver.Address, 0, len(entries))
@@ -109,6 +138,15 @@ func (r *consulResolver) resolve() error {
 		}
 		addrs = append(addrs, resolver.Address{Addr: fmt.Sprintf("%s:%d", host, e.Service.Port)})
 	}
-	return r.cc.UpdateState(resolver.State{Addresses: addrs})
-}
+	_ = r.cc.UpdateState(resolver.State{Addresses: addrs})
 
+	headerIndex := strings.TrimSpace(resp.Header.Get("X-Consul-Index"))
+	if headerIndex == "" {
+		return lastIndex, nil
+	}
+	v, err := strconv.ParseUint(headerIndex, 10, 64)
+	if err != nil {
+		return lastIndex, nil
+	}
+	return v, nil
+}

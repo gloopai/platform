@@ -1,6 +1,7 @@
 go 1.25.1
 
 use (
+	./common
 	./services/channel
 	./services/gateway
 	./services/merchant

@@ -10,8 +10,11 @@ replace github.com/gloopai/pay/settle => ../settle
 
 replace github.com/gloopai/pay/merchant => ../merchant
 
+replace github.com/gloopai/pay/common => ../../common
+
 require (
 	github.com/gloopai/pay/channel v0.0.0-00010101000000-000000000000
+	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/merchant v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/order v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/settle v0.0.0-00010101000000-000000000000

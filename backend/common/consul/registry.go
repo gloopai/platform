@@ -1,4 +1,4 @@
-package registry
+package consul
 
 import (
 	"bytes"
@@ -62,8 +62,8 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		"Address": host,
 		"Port":    port,
 		"Check": map[string]any{
-			"TCP":                           fmt.Sprintf("%s:%d", checkHost, port),
-			"Interval":                      "10s",
+			"TCP":                            fmt.Sprintf("%s:%d", checkHost, port),
+			"Interval":                       "10s",
 			"DeregisterCriticalServiceAfter": "1m",
 		},
 	}
@@ -88,6 +88,34 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 		serviceID:  serviceID,
 		client:     client,
 	}, nil
+}
+
+func (r *Registrar) Deregister() error {
+	if r == nil || r.serviceID == "" || r.consulAddr == "" {
+		return nil
+	}
+	req, err := http.NewRequest(http.MethodPut, "http://"+r.consulAddr+"/v1/agent/service/deregister/"+r.serviceID, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := r.client.Do(req)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+	return nil
+}
+
+func parsePort(s string) (int, error) {
+	var p int
+	_, err := fmt.Sscanf(s, "%d", &p)
+	if err != nil {
+		return 0, err
+	}
+	if p <= 0 || p > 65535 {
+		return 0, fmt.Errorf("invalid port: %d", p)
+	}
+	return p, nil
 }
 
 func consulNodeName(client *http.Client, consulAddr string) string {
@@ -124,32 +152,4 @@ func isLikelyDockerNodeName(s string) bool {
 		}
 	}
 	return true
-}
-
-func (r *Registrar) Deregister() error {
-	if r == nil || r.serviceID == "" || r.consulAddr == "" {
-		return nil
-	}
-	req, err := http.NewRequest(http.MethodPut, "http://"+r.consulAddr+"/v1/agent/service/deregister/"+r.serviceID, nil)
-	if err != nil {
-		return err
-	}
-	resp, err := r.client.Do(req)
-	if err != nil {
-		return err
-	}
-	_ = resp.Body.Close()
-	return nil
-}
-
-func parsePort(s string) (int, error) {
-	var p int
-	_, err := fmt.Sscanf(s, "%d", &p)
-	if err != nil {
-		return 0, err
-	}
-	if p <= 0 || p > 65535 {
-		return 0, fmt.Errorf("invalid port: %d", p)
-	}
-	return p, nil
 }

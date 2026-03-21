@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gloopai/pay/common/consul"
 	"github.com/gloopai/pay/order/internal/config"
-	"github.com/gloopai/pay/order/internal/registry"
 	"github.com/gloopai/pay/order/internal/server"
 	"github.com/gloopai/pay/order/internal/svc"
 	orderpb "github.com/gloopai/pay/order/order/order"
@@ -46,7 +46,7 @@ func main() {
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 
-	reg, err := registry.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, c.ListenOn, c.Consul.Host)
+	reg, err := consul.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, c.ListenOn, c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}

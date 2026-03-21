@@ -10,10 +10,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gloopai/pay/common/consul"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/handler"
 	"github.com/gloopai/pay/gateway/internal/middleware"
-	"github.com/gloopai/pay/gateway/internal/registry"
 	"github.com/gloopai/pay/gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -43,7 +43,7 @@ func main() {
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 
-	reg, err := registry.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, fmt.Sprintf("%s:%d", c.Host, c.Port), c.Consul.Host)
+	reg, err := consul.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, fmt.Sprintf("%s:%d", c.Host, c.Port), c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}
