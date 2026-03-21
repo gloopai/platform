@@ -13,8 +13,14 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
-	AdminToken string `json:",optional"`
+	AdminToken      string `json:",optional"`
 	CheckoutBaseUrl string `json:",optional"`
+	Consul          struct {
+		Addr    string
+		Service string
+		ID      string `json:",optional"`
+		Host    string `json:",optional"`
+	}
 	OrderRpc   zrpc.RpcClientConf
 	SettleRpc  zrpc.RpcClientConf
 	ChannelRpc zrpc.RpcClientConf

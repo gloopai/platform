@@ -8,11 +8,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"os/signal"
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,11 +30,16 @@ type noticeMsg struct {
 
 func main() {
 	var (
-		nsqdAddr = flag.String("nsqd", "127.0.0.1:4150", "nsqd tcp addr")
-		topic    = flag.String("topic", "merchant_notice", "nsq topic")
-		channel  = flag.String("channel", "notice", "nsq channel")
-		mysqlDSN = flag.String("mysql_dsn", "root:password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local", "mysql dsn")
-		timeout  = flag.Duration("timeout", 5*time.Second, "http timeout")
+		nsqdAddr     = flag.String("nsqd", "127.0.0.1:4150", "nsqd tcp addr")
+		topic        = flag.String("topic", "merchant_notice", "nsq topic")
+		channel      = flag.String("channel", "notice", "nsq channel")
+		mysqlDSN     = flag.String("mysql_dsn", "root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local", "mysql dsn")
+		timeout      = flag.Duration("timeout", 5*time.Second, "http timeout")
+		consulAddr   = flag.String("consul_addr", "127.0.0.1:8500", "consul addr")
+		consulSvc    = flag.String("consul_service", "notice-consumer", "consul service name")
+		consulID     = flag.String("consul_id", "", "consul service id")
+		consulHost   = flag.String("consul_host", "", "consul service host (optional)")
+		healthListen = flag.String("health_listen", "0.0.0.0:8090", "health http listen addr")
 	)
 	flag.Parse()
 
@@ -43,6 +52,31 @@ func main() {
 	}
 
 	httpClient := &http.Client{Timeout: *timeout}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	})
+	healthSrv := &http.Server{
+		Addr:              *healthListen,
+		Handler:           mux,
+		ReadHeaderTimeout: 2 * time.Second,
+	}
+	go func() {
+		ln, err := net.Listen("tcp", healthSrv.Addr)
+		if err != nil {
+			panic(err)
+		}
+		if err := healthSrv.Serve(ln); err != nil && err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
+
+	reg, err := registerConsul(*consulAddr, *consulSvc, *consulID, healthSrv.Addr, *consulHost)
+	if err != nil {
+		panic(err)
+	}
 
 	cfg := nsq.NewConfig()
 	cfg.MaxAttempts = 6
@@ -115,7 +149,18 @@ func main() {
 	if err := consumer.ConnectToNSQD(*nsqdAddr); err != nil {
 		panic(err)
 	}
-	select {}
+
+	signalCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	<-signalCtx.Done()
+
+	consumer.Stop()
+	select {
+	case <-consumer.StopChan:
+	case <-time.After(3 * time.Second):
+	}
+	_ = reg.Deregister()
+	_ = healthSrv.Shutdown(context.Background())
 }
 
 type orderRow struct {
@@ -228,4 +273,146 @@ func md5Sign(params map[string]string, secret string) string {
 	b.WriteString(secret)
 	sum := md5.Sum([]byte(b.String()))
 	return hex.EncodeToString(sum[:])
+}
+
+type consulRegistrar struct {
+	consulAddr string
+	serviceID  string
+	client     *http.Client
+}
+
+func registerConsul(consulAddr, serviceName, serviceID, listenOn, host string) (*consulRegistrar, error) {
+	consulAddr = strings.TrimSpace(consulAddr)
+	if consulAddr == "" {
+		return nil, fmt.Errorf("consul addr required")
+	}
+	serviceName = strings.TrimSpace(serviceName)
+	if serviceName == "" {
+		return nil, fmt.Errorf("consul service name required")
+	}
+
+	lh, lp, err := net.SplitHostPort(listenOn)
+	if err != nil {
+		return nil, err
+	}
+	if host == "" || host == "0.0.0.0" {
+		if lh != "" && lh != "0.0.0.0" {
+			host = lh
+		} else {
+			host = "127.0.0.1"
+		}
+	}
+	port, err := parsePort(lp)
+	if err != nil {
+		return nil, err
+	}
+	if serviceID == "" {
+		serviceID = fmt.Sprintf("%s-%s-%d", serviceName, host, port)
+	}
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	checkHost := host
+	if host == "127.0.0.1" || host == "localhost" {
+		nodeName := consulNodeName(client, consulAddr)
+		if isLikelyDockerNodeName(nodeName) {
+			checkHost = "host.docker.internal"
+		}
+	}
+
+	payload := map[string]any{
+		"Name":    serviceName,
+		"ID":      serviceID,
+		"Address": host,
+		"Port":    port,
+		"Check": map[string]any{
+			"TCP":                            fmt.Sprintf("%s:%d", checkHost, port),
+			"Interval":                       "10s",
+			"DeregisterCriticalServiceAfter": "1m",
+		},
+	}
+	body, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest(http.MethodPut, "http://"+consulAddr+"/v1/agent/service/register", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	_ = resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("consul register failed: %s", resp.Status)
+	}
+
+	return &consulRegistrar{
+		consulAddr: consulAddr,
+		serviceID:  serviceID,
+		client:     client,
+	}, nil
+}
+
+func (r *consulRegistrar) Deregister() error {
+	if r == nil || r.serviceID == "" || r.consulAddr == "" {
+		return nil
+	}
+	req, err := http.NewRequest(http.MethodPut, "http://"+r.consulAddr+"/v1/agent/service/deregister/"+r.serviceID, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := r.client.Do(req)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+	return nil
+}
+
+func parsePort(s string) (int, error) {
+	var p int
+	_, err := fmt.Sscanf(s, "%d", &p)
+	if err != nil {
+		return 0, err
+	}
+	if p <= 0 || p > 65535 {
+		return 0, fmt.Errorf("invalid port: %d", p)
+	}
+	return p, nil
+}
+
+func consulNodeName(client *http.Client, consulAddr string) string {
+	req, err := http.NewRequest(http.MethodGet, "http://"+consulAddr+"/v1/agent/self", nil)
+	if err != nil {
+		return ""
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return ""
+	}
+
+	var body struct {
+		Config struct {
+			NodeName string `json:"NodeName"`
+		} `json:"Config"`
+	}
+	_ = json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&body)
+	return strings.TrimSpace(body.Config.NodeName)
+}
+
+func isLikelyDockerNodeName(s string) bool {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if len(s) != 12 {
+		return false
+	}
+	for _, c := range s {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }
