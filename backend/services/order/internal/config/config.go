@@ -7,7 +7,7 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
-	Redis struct {
+	BizRedis struct {
 		Addr     string
 		Password string
 		DB       int

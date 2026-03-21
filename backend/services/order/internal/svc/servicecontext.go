@@ -25,9 +25,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     c.Redis.Addr,
-		Password: c.Redis.Password,
-		DB:       c.Redis.DB,
+		Addr:     c.BizRedis.Addr,
+		Password: c.BizRedis.Password,
+		DB:       c.BizRedis.DB,
 	})
 	return &ServiceContext{
 		Config: c,

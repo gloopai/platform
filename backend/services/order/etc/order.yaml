@@ -6,6 +6,9 @@ Consul:
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
 Redis:
+  Host: 127.0.0.1:6379
+  Key: order.rpc
+BizRedis:
   Addr: 127.0.0.1:6379
-  Password: ""
-  DB: 0
+  Password: "h9#Zp$2LmA&7kQ!r9Wv*X4cNt8EjS6uB"
+  DB: 1
