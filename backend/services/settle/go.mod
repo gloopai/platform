@@ -3,11 +3,15 @@ module github.com/gloopai/pay/settle
 go 1.25.1
 
 require (
+	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/zeromicro/go-zero v1.10.0
+	go.opentelemetry.io/otel v1.39.0
 	google.golang.org/grpc v1.79.3
 	google.golang.org/protobuf v1.36.11
 )
+
+replace github.com/gloopai/pay/common => ../../common
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -55,7 +59,6 @@ require (
 	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.15 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/otel v1.39.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.24.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.24.0 // indirect
