@@ -14,18 +14,24 @@ import (
 )
 
 type (
-	CreateOrderReq  = order.CreateOrderReq
-	CreateOrderResp = order.CreateOrderResp
-	GetOrderReq     = order.GetOrderReq
-	GetOrderResp    = order.GetOrderResp
-	MarkPaidReq     = order.MarkPaidReq
-	MarkPaidResp    = order.MarkPaidResp
-	OrderInfo       = order.OrderInfo
+	CreateOrderReq   = order.CreateOrderReq
+	CreateOrderResp  = order.CreateOrderResp
+	GetOrderReq      = order.GetOrderReq
+	GetOrderResp     = order.GetOrderResp
+	MarkPaidReq      = order.MarkPaidReq
+	MarkPaidResp     = order.MarkPaidResp
+	ListOrdersReq    = order.ListOrdersReq
+	ListOrdersResp   = order.ListOrdersResp
+	TodaySummaryReq  = order.TodaySummaryReq
+	TodaySummaryResp = order.TodaySummaryResp
+	OrderInfo        = order.OrderInfo
 
 	Order interface {
 		CreateOrder(ctx context.Context, in *CreateOrderReq, opts ...grpc.CallOption) (*CreateOrderResp, error)
 		GetOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
 		MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error)
+		ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
+		TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
 	}
 
 	defaultOrder struct {
@@ -52,4 +58,14 @@ func (m *defaultOrder) GetOrder(ctx context.Context, in *GetOrderReq, opts ...gr
 func (m *defaultOrder) MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.MarkPaid(ctx, in, opts...)
+}
+
+func (m *defaultOrder) ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.ListOrders(ctx, in, opts...)
+}
+
+func (m *defaultOrder) TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.TodaySummary(ctx, in, opts...)
 }

@@ -1,25 +1,12 @@
-module github.com/gloopai/pay/gateway
+module github.com/gloopai/pay/merchant
 
 go 1.25.1
 
-replace github.com/gloopai/pay/channel => ../channel
-
-replace github.com/gloopai/pay/order => ../order
-
-replace github.com/gloopai/pay/settle => ../settle
-
-replace github.com/gloopai/pay/merchant => ../merchant
-
 require (
-	github.com/gloopai/pay/channel v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/merchant v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/order v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/settle v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/nsqio/go-nsq v1.1.0
 	github.com/zeromicro/go-zero v1.10.0
-	golang.org/x/crypto v0.46.0
 	google.golang.org/grpc v1.79.3
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -39,9 +26,7 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -64,7 +49,7 @@ require (
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
-	github.com/redis/go-redis/v9 v9.18.0 // indirect
+	github.com/redis/go-redis/v9 v9.17.3 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.15 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.15 // indirect
@@ -80,7 +65,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
@@ -94,7 +79,6 @@ require (
 	golang.org/x/time v0.10.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

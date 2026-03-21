@@ -117,6 +117,94 @@ func (x *RouteResp) GetChannelId() int64 {
 	return 0
 }
 
+type GetSignSecretReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSignSecretReq) Reset() {
+	*x = GetSignSecretReq{}
+	mi := &file_channel_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSignSecretReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSignSecretReq) ProtoMessage() {}
+
+func (x *GetSignSecretReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSignSecretReq.ProtoReflect.Descriptor instead.
+func (*GetSignSecretReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetSignSecretReq) GetChannelId() int64 {
+	if x != nil {
+		return x.ChannelId
+	}
+	return 0
+}
+
+type GetSignSecretResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SignSecret    string                 `protobuf:"bytes,1,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSignSecretResp) Reset() {
+	*x = GetSignSecretResp{}
+	mi := &file_channel_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSignSecretResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSignSecretResp) ProtoMessage() {}
+
+func (x *GetSignSecretResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSignSecretResp.ProtoReflect.Descriptor instead.
+func (*GetSignSecretResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetSignSecretResp) GetSignSecret() string {
+	if x != nil {
+		return x.SignSecret
+	}
+	return ""
+}
+
 var File_channel_proto protoreflect.FileDescriptor
 
 const file_channel_proto_rawDesc = "" +
@@ -127,9 +215,16 @@ const file_channel_proto_rawDesc = "" +
 	"\bpay_type\x18\x02 \x01(\tR\apayType\"*\n" +
 	"\tRouteResp\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId29\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"1\n" +
+	"\x10GetSignSecretReq\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"4\n" +
+	"\x11GetSignSecretResp\x12\x1f\n" +
+	"\vsign_secret\x18\x01 \x01(\tR\n" +
+	"signSecret2\x81\x01\n" +
 	"\aChannel\x12.\n" +
-	"\x05Route\x12\x11.channel.RouteReq\x1a\x12.channel.RouteRespB\vZ\t./channelb\x06proto3"
+	"\x05Route\x12\x11.channel.RouteReq\x1a\x12.channel.RouteResp\x12F\n" +
+	"\rGetSignSecret\x12\x19.channel.GetSignSecretReq\x1a\x1a.channel.GetSignSecretRespB\vZ\t./channelb\x06proto3"
 
 var (
 	file_channel_proto_rawDescOnce sync.Once
@@ -143,16 +238,20 @@ func file_channel_proto_rawDescGZIP() []byte {
 	return file_channel_proto_rawDescData
 }
 
-var file_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_channel_proto_goTypes = []any{
-	(*RouteReq)(nil),  // 0: channel.RouteReq
-	(*RouteResp)(nil), // 1: channel.RouteResp
+	(*RouteReq)(nil),          // 0: channel.RouteReq
+	(*RouteResp)(nil),         // 1: channel.RouteResp
+	(*GetSignSecretReq)(nil),  // 2: channel.GetSignSecretReq
+	(*GetSignSecretResp)(nil), // 3: channel.GetSignSecretResp
 }
 var file_channel_proto_depIdxs = []int32{
 	0, // 0: channel.Channel.Route:input_type -> channel.RouteReq
-	1, // 1: channel.Channel.Route:output_type -> channel.RouteResp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: channel.Channel.GetSignSecret:input_type -> channel.GetSignSecretReq
+	1, // 2: channel.Channel.Route:output_type -> channel.RouteResp
+	3, // 3: channel.Channel.GetSignSecret:output_type -> channel.GetSignSecretResp
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -169,7 +268,7 @@ func file_channel_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_channel_proto_rawDesc), len(file_channel_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

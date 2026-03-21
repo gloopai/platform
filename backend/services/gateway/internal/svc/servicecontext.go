@@ -11,6 +11,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/consulresolver"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/store"
+	"github.com/gloopai/pay/merchant/merchantclient"
 	"github.com/gloopai/pay/order/orderclient"
 	"github.com/gloopai/pay/settle/settleclient"
 	_ "github.com/go-sql-driver/mysql"
@@ -21,23 +22,21 @@ import (
 
 type ServiceContext struct {
 	Config config.Config
-	Sql    *sql.DB
 
-	MerchantSignMiddleware rest.Middleware
-	AdminAuthMiddleware    rest.Middleware
+	MerchantSignMiddleware        rest.Middleware
+	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
-	Merchants  *store.MerchantsStore
 	Channels   *store.ChannelsStore
-	Orders     *store.OrdersStore
 	FundLogs   *store.FundLogsStore
 	NotifyLogs *store.NotifyLogsStore
 	AdminUsers *store.AdminUsersStore
 	Sessions   *store.SessionsStore
 
-	OrderRpc   orderclient.Order
-	SettleRpc  settleclient.Settle
-	ChannelRpc channelclient.Channel
+	OrderRpc    orderclient.Order
+	SettleRpc   settleclient.Settle
+	ChannelRpc  channelclient.Channel
+	MerchantRpc merchantclient.Merchant
 
 	NsqProducer *nsq.Producer
 }
@@ -56,6 +55,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	orderCli := zrpc.MustNewClient(c.OrderRpc)
 	settleCli := zrpc.MustNewClient(c.SettleRpc)
 	channelCli := zrpc.MustNewClient(c.ChannelRpc)
+	merchantCli := zrpc.MustNewClient(c.MerchantRpc)
 
 	producer, err := nsq.NewProducer(c.Nsq.NsqdTCPAddr, nsq.NewConfig())
 	if err != nil {
@@ -65,9 +65,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	merchantsStore := store.NewMerchantsStore(sqlDB)
 	channelsStore := store.NewChannelsStore(sqlDB)
-	ordersStore := store.NewOrdersStore(sqlDB)
 	fundLogsStore := store.NewFundLogsStore(sqlDB)
 	notifyLogsStore := store.NewNotifyLogsStore(sqlDB)
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
@@ -75,23 +73,21 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
 		Config: c,
-		Sql:    sqlDB,
 
-		MerchantSignMiddleware: middleware.NewMerchantSignMiddleware(merchantsStore).Handle,
-		AdminAuthMiddleware:    middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
-		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantsStore).Handle,
+		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(merchantCli)).Handle,
+		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
+		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(merchantCli)).Handle,
 
-		Merchants:  merchantsStore,
 		Channels:   channelsStore,
-		Orders:     ordersStore,
 		FundLogs:   fundLogsStore,
 		NotifyLogs: notifyLogsStore,
 		AdminUsers: adminUsersStore,
 		Sessions:   sessionsStore,
 
-		OrderRpc:   orderclient.NewOrder(orderCli),
-		SettleRpc:  settleclient.NewSettle(settleCli),
-		ChannelRpc: channelclient.NewChannel(channelCli),
+		OrderRpc:    orderclient.NewOrder(orderCli),
+		SettleRpc:   settleclient.NewSettle(settleCli),
+		ChannelRpc:  channelclient.NewChannel(channelCli),
+		MerchantRpc: merchantclient.NewMerchant(merchantCli),
 
 		NsqProducer: producer,
 	}

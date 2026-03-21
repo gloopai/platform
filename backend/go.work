@@ -3,6 +3,7 @@ go 1.25.1
 use (
 	./services/channel
 	./services/gateway
+	./services/merchant
 	./services/notice-consumer
 	./services/order
 	./services/settle

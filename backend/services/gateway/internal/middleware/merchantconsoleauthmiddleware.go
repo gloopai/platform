@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/gateway/internal/store"
+	"github.com/gloopai/pay/merchant/merchantclient"
 )
 
 type MerchantConsoleAuthMiddleware struct {
 	sessions  *store.SessionsStore
-	merchants *store.MerchantsStore
+	merchants merchantclient.Merchant
 }
 
 type merchantIdKey struct{}
@@ -26,7 +27,7 @@ func MerchantIdFromContext(ctx context.Context) string {
 	return s
 }
 
-func NewMerchantConsoleAuthMiddleware(sessions *store.SessionsStore, merchants *store.MerchantsStore) *MerchantConsoleAuthMiddleware {
+func NewMerchantConsoleAuthMiddleware(sessions *store.SessionsStore, merchants merchantclient.Merchant) *MerchantConsoleAuthMiddleware {
 	return &MerchantConsoleAuthMiddleware{
 		sessions:  sessions,
 		merchants: merchants,
@@ -48,8 +49,8 @@ func (m *MerchantConsoleAuthMiddleware) Handle(next http.HandlerFunc) http.Handl
 			return
 		}
 		if m.merchants != nil {
-			me, err := m.merchants.GetByMerchantId(r.Context(), sess.MerchantId)
-			if err != nil || me.Status != 1 {
+			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: sess.MerchantId})
+			if err != nil || auth.GetStatus() != 1 {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -58,4 +59,3 @@ func (m *MerchantConsoleAuthMiddleware) Handle(next http.HandlerFunc) http.Handl
 		next(w, r.WithContext(ctx))
 	}
 }
-

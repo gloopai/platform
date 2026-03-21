@@ -7,6 +7,8 @@ service Order {
   rpc CreateOrder(CreateOrderReq) returns(CreateOrderResp);
   rpc GetOrder(GetOrderReq) returns(GetOrderResp);
   rpc MarkPaid(MarkPaidReq) returns(MarkPaidResp);
+  rpc ListOrders(ListOrdersReq) returns(ListOrdersResp);
+  rpc TodaySummary(TodaySummaryReq) returns(TodaySummaryResp);
 }
 
 message CreateOrderReq {
@@ -60,4 +62,26 @@ message OrderInfo {
   string return_url = 10;
   string notify_url = 11;
   string upstream_trade_no = 12;
+  int64 paid_amount = 13;
+}
+
+message ListOrdersReq {
+  string merchant_id = 1;
+  string keyword = 2;
+  int32 status = 3;
+  int64 limit = 4;
+}
+
+message ListOrdersResp {
+  repeated OrderInfo orders = 1;
+}
+
+message TodaySummaryReq {
+  string merchant_id = 1;
+}
+
+message TodaySummaryResp {
+  int64 total_amount = 1;
+  int64 total_count = 2;
+  int64 success_count = 3;
 }

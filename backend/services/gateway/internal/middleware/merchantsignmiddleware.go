@@ -7,10 +7,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"io"
 	"net"
 	"net/http"
@@ -18,14 +16,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
+	"github.com/gloopai/pay/merchant/merchantclient"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type MerchantSignMiddleware struct {
-	merchants *store.MerchantsStore
+	merchants merchantclient.Merchant
 }
 
-func NewMerchantSignMiddleware(merchants *store.MerchantsStore) *MerchantSignMiddleware {
+func NewMerchantSignMiddleware(merchants merchantclient.Merchant) *MerchantSignMiddleware {
 	return &MerchantSignMiddleware{merchants: merchants}
 }
 
@@ -47,25 +47,25 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 			return
 		}
 
-		merchant, err := m.merchants.GetByMerchantId(r.Context(), merchantId)
+		auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
+			if status.Code(err) == codes.NotFound {
 				http.Error(w, "merchant not found", http.StatusUnauthorized)
 				return
 			}
 			http.Error(w, "merchant lookup failed", http.StatusInternalServerError)
 			return
 		}
-		if merchant.Status != 1 {
+		if auth.GetStatus() != 1 {
 			http.Error(w, "merchant disabled", http.StatusUnauthorized)
 			return
 		}
-		if !ipAllowed(r.Context(), r.RemoteAddr, merchant.IpWhitelist) {
+		if !ipAllowed(r.Context(), r.RemoteAddr, auth.GetIpWhitelist()) {
 			http.Error(w, "ip not allowed", http.StatusForbidden)
 			return
 		}
 
-		expect := md5Sign(params, merchant.ApiSecret)
+		expect := md5Sign(params, auth.GetApiSecret())
 		if !strings.EqualFold(expect, sign) {
 			http.Error(w, "invalid sign", http.StatusUnauthorized)
 			return

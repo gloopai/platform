@@ -14,6 +14,8 @@ SettleRpc:
   Target: consul://127.0.0.1:8500/settle.rpc
 ChannelRpc:
   Target: consul://127.0.0.1:8500/channel.rpc
+MerchantRpc:
+  Target: consul://127.0.0.1:8500/merchant.rpc
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice

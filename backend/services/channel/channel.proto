@@ -5,6 +5,7 @@ option go_package="./channel";
 
 service Channel {
   rpc Route(RouteReq) returns(RouteResp);
+  rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
 }
 
 message RouteReq {
@@ -14,4 +15,12 @@ message RouteReq {
 
 message RouteResp {
   int64 channel_id = 1;
+}
+
+message GetSignSecretReq {
+  int64 channel_id = 1;
+}
+
+message GetSignSecretResp {
+  string sign_secret = 1;
 }

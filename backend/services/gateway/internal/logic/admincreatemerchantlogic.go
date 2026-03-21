@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/pay/merchant/merchantclient"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -33,15 +33,7 @@ func (l *AdminCreateMerchantLogic) AdminCreateMerchant(req *types.AdminCreateMer
 	}
 
 	secret := strings.TrimSpace(req.ApiSecret)
-	if secret == "" {
-		tok, err := newToken()
-		if err != nil {
-			return nil, err
-		}
-		secret = tok
-	}
-
-	m := &store.Merchant{
+	r, err := l.svcCtx.MerchantRpc.CreateMerchant(l.ctx, &merchantclient.CreateMerchantReq{
 		MerchantId:  merchantId,
 		ApiSecret:   secret,
 		Status:      1,
@@ -49,26 +41,21 @@ func (l *AdminCreateMerchantLogic) AdminCreateMerchant(req *types.AdminCreateMer
 		NotifyUrl:   req.NotifyUrl,
 		ReturnUrl:   req.ReturnUrl,
 		IpWhitelist: req.IpWhitelist,
-		Balance:     0,
-	}
-	if err := l.svcCtx.Merchants.Create(l.ctx, m); err != nil {
-		return nil, err
-	}
-	created, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
+	})
 	if err != nil {
 		return nil, err
 	}
+	created := r.GetMerchant()
 	return &types.AdminUpsertMerchantResp{
 		Merchant: types.AdminMerchantInfo{
-			MerchantId:  created.MerchantId,
-			ApiSecret:   created.ApiSecret,
-			Status:      created.Status,
-			RateBps:     created.RateBps,
-			NotifyUrl:   created.NotifyUrl,
-			ReturnUrl:   created.ReturnUrl,
-			IpWhitelist: created.IpWhitelist,
-			Balance:     created.Balance,
+			MerchantId:  created.GetMerchantId(),
+			ApiSecret:   created.GetApiSecret(),
+			Status:      created.GetStatus(),
+			RateBps:     created.GetRateBps(),
+			NotifyUrl:   created.GetNotifyUrl(),
+			ReturnUrl:   created.GetReturnUrl(),
+			IpWhitelist: created.GetIpWhitelist(),
+			Balance:     created.GetBalance(),
 		},
 	}, nil
 }
-

@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Channel_Route_FullMethodName = "/channel.Channel/Route"
+	Channel_Route_FullMethodName         = "/channel.Channel/Route"
+	Channel_GetSignSecret_FullMethodName = "/channel.Channel/GetSignSecret"
 )
 
 // ChannelClient is the client API for Channel service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChannelClient interface {
 	Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
+	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 }
 
 type channelClient struct {
@@ -47,11 +49,22 @@ func (c *channelClient) Route(ctx context.Context, in *RouteReq, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *channelClient) GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSignSecretResp)
+	err := c.cc.Invoke(ctx, Channel_GetSignSecret_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChannelServer is the server API for Channel service.
 // All implementations must embed UnimplementedChannelServer
 // for forward compatibility.
 type ChannelServer interface {
 	Route(context.Context, *RouteReq) (*RouteResp, error)
+	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
 	mustEmbedUnimplementedChannelServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedChannelServer struct{}
 
 func (UnimplementedChannelServer) Route(context.Context, *RouteReq) (*RouteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Route not implemented")
+}
+func (UnimplementedChannelServer) GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSignSecret not implemented")
 }
 func (UnimplementedChannelServer) mustEmbedUnimplementedChannelServer() {}
 func (UnimplementedChannelServer) testEmbeddedByValue()                 {}
@@ -104,6 +120,24 @@ func _Channel_Route_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Channel_GetSignSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSignSecretReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).GetSignSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_GetSignSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).GetSignSecret(ctx, req.(*GetSignSecretReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Channel_ServiceDesc is the grpc.ServiceDesc for Channel service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Channel_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Route",
 			Handler:    _Channel_Route_Handler,
+		},
+		{
+			MethodName: "GetSignSecret",
+			Handler:    _Channel_GetSignSecret_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

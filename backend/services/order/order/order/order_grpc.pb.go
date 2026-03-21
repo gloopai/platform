@@ -19,9 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_CreateOrder_FullMethodName = "/order.Order/CreateOrder"
-	Order_GetOrder_FullMethodName    = "/order.Order/GetOrder"
-	Order_MarkPaid_FullMethodName    = "/order.Order/MarkPaid"
+	Order_CreateOrder_FullMethodName  = "/order.Order/CreateOrder"
+	Order_GetOrder_FullMethodName     = "/order.Order/GetOrder"
+	Order_MarkPaid_FullMethodName     = "/order.Order/MarkPaid"
+	Order_ListOrders_FullMethodName   = "/order.Order/ListOrders"
+	Order_TodaySummary_FullMethodName = "/order.Order/TodaySummary"
 )
 
 // OrderClient is the client API for Order service.
@@ -31,6 +33,8 @@ type OrderClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderReq, opts ...grpc.CallOption) (*CreateOrderResp, error)
 	GetOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
 	MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error)
+	ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
+	TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
 }
 
 type orderClient struct {
@@ -71,6 +75,26 @@ func (c *orderClient) MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grp
 	return out, nil
 }
 
+func (c *orderClient) ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_ListOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TodaySummaryResp)
+	err := c.cc.Invoke(ctx, Order_TodaySummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -78,6 +102,8 @@ type OrderServer interface {
 	CreateOrder(context.Context, *CreateOrderReq) (*CreateOrderResp, error)
 	GetOrder(context.Context, *GetOrderReq) (*GetOrderResp, error)
 	MarkPaid(context.Context, *MarkPaidReq) (*MarkPaidResp, error)
+	ListOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error)
+	TodaySummary(context.Context, *TodaySummaryReq) (*TodaySummaryResp, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -96,6 +122,12 @@ func (UnimplementedOrderServer) GetOrder(context.Context, *GetOrderReq) (*GetOrd
 }
 func (UnimplementedOrderServer) MarkPaid(context.Context, *MarkPaidReq) (*MarkPaidResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkPaid not implemented")
+}
+func (UnimplementedOrderServer) ListOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrders not implemented")
+}
+func (UnimplementedOrderServer) TodaySummary(context.Context, *TodaySummaryReq) (*TodaySummaryResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TodaySummary not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -172,6 +204,42 @@ func _Order_MarkPaid_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_ListOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).ListOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_ListOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).ListOrders(ctx, req.(*ListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_TodaySummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TodaySummaryReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).TodaySummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_TodaySummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).TodaySummary(ctx, req.(*TodaySummaryReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +258,14 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MarkPaid",
 			Handler:    _Order_MarkPaid_Handler,
+		},
+		{
+			MethodName: "ListOrders",
+			Handler:    _Order_ListOrders_Handler,
+		},
+		{
+			MethodName: "TodaySummary",
+			Handler:    _Order_TodaySummary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

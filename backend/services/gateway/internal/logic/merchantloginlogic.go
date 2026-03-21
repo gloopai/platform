@@ -7,6 +7,7 @@ import (
 
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/pay/merchant/merchantclient"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,11 +33,11 @@ func (l *MerchantLoginLogic) MerchantLogin(req *types.MerchantLoginReq) (*types.
 	if merchantId == "" || secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id and api_secret required")
 	}
-	m, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
-	if err != nil || m == nil || m.Status != 1 {
+	auth, err := l.svcCtx.MerchantRpc.GetAuthInfo(l.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+	if err != nil || auth.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
-	if m.ApiSecret != secret {
+	if auth.GetApiSecret() != secret {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
@@ -54,4 +55,3 @@ func (l *MerchantLoginLogic) MerchantLogin(req *types.MerchantLoginReq) (*types.
 		MerchantId: merchantId,
 	}, nil
 }
-

@@ -21,10 +21,11 @@ type Config struct {
 		ID      string `json:",optional"`
 		Host    string `json:",optional"`
 	}
-	OrderRpc   zrpc.RpcClientConf
-	SettleRpc  zrpc.RpcClientConf
-	ChannelRpc zrpc.RpcClientConf
-	Nsq        struct {
+	OrderRpc    zrpc.RpcClientConf
+	SettleRpc   zrpc.RpcClientConf
+	ChannelRpc  zrpc.RpcClientConf
+	MerchantRpc zrpc.RpcClientConf
+	Nsq         struct {
 		NsqdTCPAddr string
 		Topic       string
 	}

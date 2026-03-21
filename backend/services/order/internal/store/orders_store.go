@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -79,6 +80,75 @@ WHERE order_no = ? AND status = ?
 		return false, err
 	}
 	return affected > 0, nil
+}
+
+func (s *OrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword string, status int32, limit int64) ([]OrderRecord, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	keyword = strings.TrimSpace(keyword)
+
+	query := `
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+FROM orders
+WHERE merchant_id = ?
+`
+	args := []any{merchantId}
+	if keyword != "" {
+		query += " AND (order_no = ? OR merchant_order_no = ?)"
+		args = append(args, keyword, keyword)
+	}
+	if status >= 0 {
+		query += " AND status = ?"
+		args = append(args, status)
+	}
+	query += " ORDER BY created_at DESC LIMIT ?"
+	args = append(args, limit)
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []OrderRecord
+	for rows.Next() {
+		rec, err := scanOrder(rows)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, *rec)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *OrdersStore) TodaySummary(ctx context.Context, merchantId string) (int64, int64, int64, error) {
+	var (
+		totalAmount  int64
+		totalCount   int64
+		successCount int64
+	)
+
+	if err := s.db.QueryRowContext(ctx, `
+SELECT COALESCE(SUM(amount), 0), COUNT(*)
+FROM orders
+WHERE merchant_id = ? AND created_at >= CURDATE()
+`, merchantId).Scan(&totalAmount, &totalCount); err != nil {
+		return 0, 0, 0, err
+	}
+
+	if err := s.db.QueryRowContext(ctx, `
+SELECT COUNT(*)
+FROM orders
+WHERE merchant_id = ? AND created_at >= CURDATE() AND status = ?
+`, merchantId, OrderStatusPaid).Scan(&successCount); err != nil {
+		return 0, 0, 0, err
+	}
+
+	return totalAmount, totalCount, successCount, nil
 }
 
 type rowScanner interface {

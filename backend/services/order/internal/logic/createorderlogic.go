@@ -125,5 +125,6 @@ func toOrderInfo(rec *store.OrderRecord) *order.OrderInfo {
 		ReturnUrl:       rec.ReturnUrl,
 		NotifyUrl:       rec.NotifyUrl,
 		UpstreamTradeNo: rec.UpstreamTradeNo,
+		PaidAmount:      rec.PaidAmount,
 	}
 }

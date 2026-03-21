@@ -63,3 +63,16 @@ WHERE enabled = 1
 	}
 	return items[len(items)-1].ID, nil
 }
+
+func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64) (string, error) {
+	var secret string
+	if err := s.db.QueryRowContext(ctx, `
+SELECT COALESCE(sign_secret,'')
+FROM channels
+WHERE id = ?
+LIMIT 1
+`, channelId).Scan(&secret); err != nil {
+		return "", err
+	}
+	return secret, nil
+}

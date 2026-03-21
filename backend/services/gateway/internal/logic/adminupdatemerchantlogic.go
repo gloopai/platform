@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/pay/merchant/merchantclient"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,68 +32,38 @@ func (l *AdminUpdateMerchantLogic) AdminUpdateMerchant(req *types.AdminUpdateMer
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 
-	current, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
-	if err != nil {
-		return nil, err
-	}
-
-	upd := &store.Merchant{
-		MerchantId:  merchantId,
-		ApiSecret:   current.ApiSecret,
-		Status:      current.Status,
-		RateBps:     current.RateBps,
-		NotifyUrl:   current.NotifyUrl,
-		ReturnUrl:   current.ReturnUrl,
-		IpWhitelist: current.IpWhitelist,
-		Balance:     current.Balance,
-	}
-
-	if req.Status == 0 || req.Status == 1 {
-		upd.Status = req.Status
-	}
-	if req.RateBps != 0 {
-		upd.RateBps = req.RateBps
-	}
-	if req.NotifyUrl != "" {
-		upd.NotifyUrl = req.NotifyUrl
-	}
-	if req.ReturnUrl != "" {
-		upd.ReturnUrl = req.ReturnUrl
-	}
-	if req.IpWhitelist != "" {
-		upd.IpWhitelist = req.IpWhitelist
-	}
-
-	if err := l.svcCtx.Merchants.Update(l.ctx, merchantId, upd); err != nil {
-		return nil, err
-	}
-
+	secret := ""
 	if req.ResetSecret {
 		tok, err := newToken()
 		if err != nil {
 			return nil, err
 		}
-		if err := l.svcCtx.Merchants.UpdateSecret(l.ctx, merchantId, tok); err != nil {
-			return nil, err
-		}
+		secret = tok
 	}
-
-	updated, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
+	r, err := l.svcCtx.MerchantRpc.UpdateMerchant(l.ctx, &merchantclient.UpdateMerchantReq{
+		MerchantId:  merchantId,
+		ApiSecret:   secret,
+		Status:      req.Status,
+		RateBps:     req.RateBps,
+		NotifyUrl:   req.NotifyUrl,
+		ReturnUrl:   req.ReturnUrl,
+		IpWhitelist: req.IpWhitelist,
+	})
 	if err != nil {
 		return nil, err
 	}
+	updated := r.GetMerchant()
 
 	return &types.AdminUpsertMerchantResp{
 		Merchant: types.AdminMerchantInfo{
-			MerchantId:  updated.MerchantId,
-			ApiSecret:   updated.ApiSecret,
-			Status:      updated.Status,
-			RateBps:     updated.RateBps,
-			NotifyUrl:   updated.NotifyUrl,
-			ReturnUrl:   updated.ReturnUrl,
-			IpWhitelist: updated.IpWhitelist,
-			Balance:     updated.Balance,
+			MerchantId:  updated.GetMerchantId(),
+			ApiSecret:   updated.GetApiSecret(),
+			Status:      updated.GetStatus(),
+			RateBps:     updated.GetRateBps(),
+			NotifyUrl:   updated.GetNotifyUrl(),
+			ReturnUrl:   updated.GetReturnUrl(),
+			IpWhitelist: updated.GetIpWhitelist(),
+			Balance:     updated.GetBalance(),
 		},
 	}, nil
 }
-

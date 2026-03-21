@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gloopai/pay/channel/channelclient"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/gloopai/pay/order/orderclient"
@@ -35,7 +36,7 @@ func NewUpstreamNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpstreamNotifyLogic) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.UpstreamNotifyResp, err error) {
-	ch, err := l.svcCtx.Channels.GetByID(l.ctx, req.ChannelId)
+	signResp, err := l.svcCtx.ChannelRpc.GetSignSecret(l.ctx, &channelclient.GetSignSecretReq{ChannelId: req.ChannelId})
 	if err != nil {
 		return &types.UpstreamNotifyResp{Ok: false}, nil
 	}
@@ -46,7 +47,7 @@ func (l *UpstreamNotifyLogic) UpstreamNotify(req *types.UpstreamNotifyReq) (resp
 		"upstream_trade_no": req.UpstreamTradeNo,
 		"channel_id":        strconv.FormatInt(req.ChannelId, 10),
 		"sign":              req.Sign,
-	}, ch.SignSecret)
+	}, signResp.GetSignSecret())
 	if !strings.EqualFold(expect, req.Sign) {
 		return &types.UpstreamNotifyResp{Ok: false}, nil
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/pay/order/orderclient"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -35,22 +36,28 @@ func (l *MerchantOrdersLogic) MerchantOrders(req *types.MerchantOrdersReq) (*typ
 		status = int32(v)
 	}
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(l.ctx))
-	orders, err := l.svcCtx.Orders.ListByMerchant(l.ctx, merchantId, req.OrderNo, status, req.Limit)
+	r, err := l.svcCtx.OrderRpc.ListOrders(l.ctx, &orderclient.ListOrdersReq{
+		MerchantId: merchantId,
+		Keyword:    req.OrderNo,
+		Status:     status,
+		Limit:      req.Limit,
+	})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]types.MerchantOrderItem, 0, len(orders))
-	for _, o := range orders {
+	items := r.GetOrders()
+	out := make([]types.MerchantOrderItem, 0, len(items))
+	for _, o := range items {
 		out = append(out, types.MerchantOrderItem{
-			OrderNo:         o.OrderNo,
-			MerchantOrderNo: o.MerchantOrderNo,
-			Amount:          o.Amount,
-			Currency:        o.Currency,
-			Status:          o.Status,
-			ChannelId:       o.ChannelId,
-			PaidAmount:      o.PaidAmount,
-			UpstreamTradeNo: o.UpstreamTradeNo,
-			CreatedAt:       o.CreatedAt.Unix(),
+			OrderNo:         o.GetOrderNo(),
+			MerchantOrderNo: o.GetMerchantOrderNo(),
+			Amount:          o.GetAmount(),
+			Currency:        o.GetCurrency(),
+			Status:          o.GetStatus(),
+			ChannelId:       o.GetChannelId(),
+			PaidAmount:      o.GetPaidAmount(),
+			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			CreatedAt:       o.GetCreatedAt(),
 		})
 	}
 	return &types.MerchantOrdersResp{Orders: out}, nil

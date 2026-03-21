@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package merchant;
+option go_package="./merchant";
+
+service Merchant {
+  rpc GetMerchant(GetMerchantReq) returns(GetMerchantResp);
+  rpc GetAuthInfo(GetAuthInfoReq) returns(GetAuthInfoResp);
+  rpc ListMerchants(ListMerchantsReq) returns(ListMerchantsResp);
+  rpc CreateMerchant(CreateMerchantReq) returns(UpsertMerchantResp);
+  rpc UpdateMerchant(UpdateMerchantReq) returns(UpsertMerchantResp);
+}
+
+message MerchantInfo {
+  string merchant_id = 1;
+  string api_secret = 2;
+  int64 status = 3;
+  int64 rate_bps = 4;
+  string ip_whitelist = 5;
+  int64 balance = 6;
+  int64 frozen_balance = 7;
+  int64 withdrawn_amount = 8;
+  string notify_url = 9;
+  string return_url = 10;
+}
+
+message GetMerchantReq {
+  string merchant_id = 1;
+}
+
+message GetMerchantResp {
+  MerchantInfo merchant = 1;
+}
+
+message GetAuthInfoReq {
+  string merchant_id = 1;
+}
+
+message GetAuthInfoResp {
+  string api_secret = 1;
+  int64 status = 2;
+  string ip_whitelist = 3;
+  string notify_url = 4;
+  string return_url = 5;
+  int64 balance = 6;
+  int64 rate_bps = 7;
+}
+
+message ListMerchantsReq {
+  int64 limit = 1;
+}
+
+message ListMerchantsResp {
+  repeated MerchantInfo merchants = 1;
+}
+
+message CreateMerchantReq {
+  string merchant_id = 1;
+  string api_secret = 2;
+  int64 status = 3;
+  int64 rate_bps = 4;
+  string notify_url = 5;
+  string return_url = 6;
+  string ip_whitelist = 7;
+}
+
+message UpdateMerchantReq {
+  string merchant_id = 1;
+  string api_secret = 2;
+  int64 status = 3;
+  int64 rate_bps = 4;
+  string notify_url = 5;
+  string return_url = 6;
+  string ip_whitelist = 7;
+}
+
+message UpsertMerchantResp {
+  MerchantInfo merchant = 1;
+}
+

@@ -14,11 +14,14 @@ import (
 )
 
 type (
-	RouteReq  = channel.RouteReq
-	RouteResp = channel.RouteResp
+	RouteReq          = channel.RouteReq
+	RouteResp         = channel.RouteResp
+	GetSignSecretReq  = channel.GetSignSecretReq
+	GetSignSecretResp = channel.GetSignSecretResp
 
 	Channel interface {
 		Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
+		GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 	}
 
 	defaultChannel struct {
@@ -35,4 +38,9 @@ func NewChannel(cli zrpc.Client) Channel {
 func (m *defaultChannel) Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error) {
 	client := channel.NewChannelClient(m.cli.Conn())
 	return client.Route(ctx, in, opts...)
+}
+
+func (m *defaultChannel) GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error) {
+	client := channel.NewChannelClient(m.cli.Conn())
+	return client.GetSignSecret(ctx, in, opts...)
 }
