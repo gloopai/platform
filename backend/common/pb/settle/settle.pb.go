@@ -141,6 +141,202 @@ func (x *CreditResp) GetBalance() int64 {
 	return 0
 }
 
+type ListFundLogsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Limit         int64                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFundLogsReq) Reset() {
+	*x = ListFundLogsReq{}
+	mi := &file_settle_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFundLogsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFundLogsReq) ProtoMessage() {}
+
+func (x *ListFundLogsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_settle_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFundLogsReq.ProtoReflect.Descriptor instead.
+func (*ListFundLogsReq) Descriptor() ([]byte, []int) {
+	return file_settle_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListFundLogsReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *ListFundLogsReq) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type FundLogItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrderNo       string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
+	ChangeType    string                 `protobuf:"bytes,3,opt,name=change_type,json=changeType,proto3" json:"change_type,omitempty"`
+	Amount        int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	BalanceBefore int64                  `protobuf:"varint,5,opt,name=balance_before,json=balanceBefore,proto3" json:"balance_before,omitempty"`
+	BalanceAfter  int64                  `protobuf:"varint,6,opt,name=balance_after,json=balanceAfter,proto3" json:"balance_after,omitempty"`
+	Reason        string                 `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
+	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FundLogItem) Reset() {
+	*x = FundLogItem{}
+	mi := &file_settle_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FundLogItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FundLogItem) ProtoMessage() {}
+
+func (x *FundLogItem) ProtoReflect() protoreflect.Message {
+	mi := &file_settle_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FundLogItem.ProtoReflect.Descriptor instead.
+func (*FundLogItem) Descriptor() ([]byte, []int) {
+	return file_settle_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *FundLogItem) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *FundLogItem) GetOrderNo() string {
+	if x != nil {
+		return x.OrderNo
+	}
+	return ""
+}
+
+func (x *FundLogItem) GetChangeType() string {
+	if x != nil {
+		return x.ChangeType
+	}
+	return ""
+}
+
+func (x *FundLogItem) GetAmount() int64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *FundLogItem) GetBalanceBefore() int64 {
+	if x != nil {
+		return x.BalanceBefore
+	}
+	return 0
+}
+
+func (x *FundLogItem) GetBalanceAfter() int64 {
+	if x != nil {
+		return x.BalanceAfter
+	}
+	return 0
+}
+
+func (x *FundLogItem) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *FundLogItem) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+type ListFundLogsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*FundLogItem         `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFundLogsResp) Reset() {
+	*x = ListFundLogsResp{}
+	mi := &file_settle_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFundLogsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFundLogsResp) ProtoMessage() {}
+
+func (x *ListFundLogsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_settle_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFundLogsResp.ProtoReflect.Descriptor instead.
+func (*ListFundLogsResp) Descriptor() ([]byte, []int) {
+	return file_settle_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListFundLogsResp) GetLogs() []*FundLogItem {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
 var File_settle_proto protoreflect.FileDescriptor
 
 const file_settle_proto_rawDesc = "" +
@@ -155,10 +351,27 @@ const file_settle_proto_rawDesc = "" +
 	"\n" +
 	"CreditResp\x12\x18\n" +
 	"\achanged\x18\x01 \x01(\bR\achanged\x12\x18\n" +
-	"\abalance\x18\x02 \x01(\x03R\abalance29\n" +
+	"\abalance\x18\x02 \x01(\x03R\abalance\"H\n" +
+	"\x0fListFundLogsReq\x12\x1f\n" +
+	"\vmerchant_id\x18\x01 \x01(\tR\n" +
+	"merchantId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x03R\x05limit\"\xf4\x01\n" +
+	"\vFundLogItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
+	"\border_no\x18\x02 \x01(\tR\aorderNo\x12\x1f\n" +
+	"\vchange_type\x18\x03 \x01(\tR\n" +
+	"changeType\x12\x16\n" +
+	"\x06amount\x18\x04 \x01(\x03R\x06amount\x12%\n" +
+	"\x0ebalance_before\x18\x05 \x01(\x03R\rbalanceBefore\x12#\n" +
+	"\rbalance_after\x18\x06 \x01(\x03R\fbalanceAfter\x12\x16\n" +
+	"\x06reason\x18\a \x01(\tR\x06reason\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\b \x01(\x03R\tcreatedAt\";\n" +
+	"\x10ListFundLogsResp\x12'\n" +
+	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs2|\n" +
 	"\x06Settle\x12/\n" +
-	"\x06Credit\x12\x11.settle.CreditReq\x1a\x12.settle.CreditRespB\n" +
-	"Z\b./settleb\x06proto3"
+	"\x06Credit\x12\x11.settle.CreditReq\x1a\x12.settle.CreditResp\x12A\n" +
+	"\fListFundLogs\x12\x17.settle.ListFundLogsReq\x1a\x18.settle.ListFundLogsRespB0Z.github.com/gloopai/pay/common/pb/settle;settleb\x06proto3"
 
 var (
 	file_settle_proto_rawDescOnce sync.Once
@@ -172,19 +385,25 @@ func file_settle_proto_rawDescGZIP() []byte {
 	return file_settle_proto_rawDescData
 }
 
-var file_settle_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_settle_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_settle_proto_goTypes = []any{
-	(*CreditReq)(nil),  // 0: settle.CreditReq
-	(*CreditResp)(nil), // 1: settle.CreditResp
+	(*CreditReq)(nil),        // 0: settle.CreditReq
+	(*CreditResp)(nil),       // 1: settle.CreditResp
+	(*ListFundLogsReq)(nil),  // 2: settle.ListFundLogsReq
+	(*FundLogItem)(nil),      // 3: settle.FundLogItem
+	(*ListFundLogsResp)(nil), // 4: settle.ListFundLogsResp
 }
 var file_settle_proto_depIdxs = []int32{
-	0, // 0: settle.Settle.Credit:input_type -> settle.CreditReq
-	1, // 1: settle.Settle.Credit:output_type -> settle.CreditResp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	3, // 0: settle.ListFundLogsResp.logs:type_name -> settle.FundLogItem
+	0, // 1: settle.Settle.Credit:input_type -> settle.CreditReq
+	2, // 2: settle.Settle.ListFundLogs:input_type -> settle.ListFundLogsReq
+	1, // 3: settle.Settle.Credit:output_type -> settle.CreditResp
+	4, // 4: settle.Settle.ListFundLogs:output_type -> settle.ListFundLogsResp
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_settle_proto_init() }
@@ -198,7 +417,7 @@ func file_settle_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_settle_proto_rawDesc), len(file_settle_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -5,6 +5,7 @@ option go_package = "github.com/gloopai/pay/common/pb/settle;settle";
 
 service Settle {
   rpc Credit(CreditReq) returns(CreditResp);
+  rpc ListFundLogs(ListFundLogsReq) returns(ListFundLogsResp);
 }
 
 message CreditReq {
@@ -17,4 +18,24 @@ message CreditReq {
 message CreditResp {
   bool changed = 1;
   int64 balance = 2;
+}
+
+message ListFundLogsReq {
+  string merchant_id = 1;
+  int64 limit = 2;
+}
+
+message FundLogItem {
+  int64 id = 1;
+  string order_no = 2;
+  string change_type = 3;
+  int64 amount = 4;
+  int64 balance_before = 5;
+  int64 balance_after = 6;
+  string reason = 7;
+  int64 created_at = 8;
+}
+
+message ListFundLogsResp {
+  repeated FundLogItem logs = 1;
 }

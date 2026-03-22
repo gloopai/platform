@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-// MerchantPayProductsStore 维护商户可用的支付产品白名单（merchant_pay_products）。
 type MerchantPayProductsStore struct {
 	db *sql.DB
 }
@@ -17,7 +16,6 @@ func NewMerchantPayProductsStore(db *sql.DB) *MerchantPayProductsStore {
 	return &MerchantPayProductsStore{db: db}
 }
 
-// Replace 覆盖写入某商户的支付产品 ID 列表（去重、排序后落库）。
 func (s *MerchantPayProductsStore) Replace(ctx context.Context, merchantID string, productIDs []int64) error {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
@@ -57,7 +55,6 @@ VALUES (?, ?, 1, ?)
 	return tx.Commit()
 }
 
-// ListProductIDs 返回商户已启用支付产品 ID（按 sort_order）。
 func (s *MerchantPayProductsStore) ListProductIDs(ctx context.Context, merchantID string) ([]int64, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {

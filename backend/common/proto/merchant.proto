@@ -9,6 +9,8 @@ service Merchant {
   rpc ListMerchants(ListMerchantsReq) returns(ListMerchantsResp);
   rpc CreateMerchant(CreateMerchantReq) returns(UpsertMerchantResp);
   rpc UpdateMerchant(UpdateMerchantReq) returns(UpsertMerchantResp);
+  rpc ReplaceMerchantPayProducts(ReplaceMerchantPayProductsReq) returns (ReplaceMerchantPayProductsResp);
+  rpc ListMerchantPayProductIds(ListMerchantPayProductIdsReq) returns (ListMerchantPayProductIdsResp);
 }
 
 message MerchantInfo {
@@ -22,6 +24,7 @@ message MerchantInfo {
   int64 withdrawn_amount = 8;
   string notify_url = 9;
   string return_url = 10;
+  repeated int64 pay_product_ids = 11;
 }
 
 message GetMerchantReq {
@@ -62,6 +65,7 @@ message CreateMerchantReq {
   string notify_url = 5;
   string return_url = 6;
   string ip_whitelist = 7;
+  repeated int64 pay_product_ids = 8;
 }
 
 message UpdateMerchantReq {
@@ -76,4 +80,21 @@ message UpdateMerchantReq {
 
 message UpsertMerchantResp {
   MerchantInfo merchant = 1;
+}
+
+message ReplaceMerchantPayProductsReq {
+  string merchant_id = 1;
+  repeated int64 pay_product_ids = 2;
+}
+
+message ReplaceMerchantPayProductsResp {
+  bool ok = 1;
+}
+
+message ListMerchantPayProductIdsReq {
+  string merchant_id = 1;
+}
+
+message ListMerchantPayProductIdsResp {
+  repeated int64 pay_product_ids = 1;
 }

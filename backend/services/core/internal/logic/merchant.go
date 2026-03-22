@@ -66,6 +66,12 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		return nil, err
 	}
 
+	if len(in.GetPayProductIds()) > 0 {
+		if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, merchantId, in.GetPayProductIds()); err != nil {
+			return nil, status.Error(codes.Internal, "save merchant pay products failed")
+		}
+	}
+
 	created, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -73,7 +79,11 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		}
 		return nil, err
 	}
-	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created)}, nil
+	ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "load merchant pay products failed")
+	}
+	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids)}, nil
 }
 
 type UpdateMerchantLogic struct {
@@ -131,7 +141,11 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	if err != nil {
 		return nil, err
 	}
-	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated)}, nil
+	ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "load merchant pay products failed")
+	}
+	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated, ids)}, nil
 }
 
 type GetMerchantLogic struct {
@@ -160,8 +174,9 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 		}
 		return nil, err
 	}
+	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
 	return &merchantpb.GetMerchantResp{
-		Merchant: toMerchantInfo(m),
+		Merchant: toMerchantInfo(m, ids),
 	}, nil
 }
 
@@ -224,7 +239,11 @@ func (l *ListMerchantsLogic) ListMerchants(in *merchantpb.ListMerchantsReq) (*me
 	out := make([]*merchantpb.MerchantInfo, 0, len(items))
 	for i := range items {
 		m := items[i]
-		out = append(out, toMerchantInfo(&m))
+		ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, m.MerchantId)
+		if err != nil {
+			return nil, status.Error(codes.Internal, "load merchant pay products failed")
+		}
+		out = append(out, toMerchantInfo(&m, ids))
 	}
 	return &merchantpb.ListMerchantsResp{Merchants: out}, nil
 }
@@ -237,7 +256,7 @@ func newSecret() (string, error) {
 	return hex.EncodeToString(b[:]), nil
 }
 
-func toMerchantInfo(m *store.Merchant) *merchantpb.MerchantInfo {
+func toMerchantInfo(m *store.Merchant, payProductIds []int64) *merchantpb.MerchantInfo {
 	if m == nil {
 		return nil
 	}
@@ -252,5 +271,6 @@ func toMerchantInfo(m *store.Merchant) *merchantpb.MerchantInfo {
 		WithdrawnAmount: m.WithdrawnAmount,
 		NotifyUrl:       m.NotifyUrl,
 		ReturnUrl:       m.ReturnUrl,
+		PayProductIds:   payProductIds,
 	}
 }

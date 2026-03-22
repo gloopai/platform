@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,17 +25,17 @@ func NewAdminRouting(ctx context.Context, svcCtx *svc.ServiceContext) *AdminRout
 }
 
 func (r *AdminRouting) AdminRoutingSummary() (*types.AdminRoutingSummaryResp, error) {
-	s, err := r.svcCtx.RoutingSummary.Get(r.ctx)
+	s, err := r.svcCtx.ChannelRpc.GetRoutingSummary(r.ctx, &channelpb.GetRoutingSummaryReq{})
 	if err != nil {
 		return nil, err
 	}
 	return &types.AdminRoutingSummaryResp{
-		AlgorithmKey:           "weighted_random_within_product",
-		AlgorithmLabel:         "支付产品内加权随机（同产品多上游按权重分流）",
-		EnabledPayProducts:     s.EnabledPayProducts,
-		EnabledChannels:        s.EnabledChannels,
-		ActiveBindings:         s.ActiveBindings,
-		MerchantsWithWhitelist: s.MerchantsWithWhitelist,
-		FusedChannels:          s.FusedChannels,
+		AlgorithmKey:           s.GetAlgorithmKey(),
+		AlgorithmLabel:         s.GetAlgorithmLabel(),
+		EnabledPayProducts:     s.GetEnabledPayProducts(),
+		EnabledChannels:        s.GetEnabledChannels(),
+		ActiveBindings:         s.GetActiveBindings(),
+		MerchantsWithWhitelist: s.GetMerchantsWithWhitelist(),
+		FusedChannels:          s.GetFusedChannels(),
 	}, nil
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -27,27 +27,34 @@ func NewAdminChannels(ctx context.Context, svcCtx *svc.ServiceContext) *AdminCha
 	}
 }
 
+func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
+	if ch == nil {
+		return types.AdminChannelInfo{}
+	}
+	return types.AdminChannelInfo{
+		Id:                 ch.GetId(),
+		Name:               ch.GetName(),
+		PayType:            ch.GetPayType(),
+		GatewayUrl:         ch.GetGatewayUrl(),
+		UpstreamMerchantNo: ch.GetUpstreamMerchantNo(),
+		RsaPrivateKey:      ch.GetRsaPrivateKey(),
+		SignSecret:         ch.GetSignSecret(),
+		Weight:             ch.GetWeight(),
+		MinAmount:          ch.GetMinAmount(),
+		MaxAmount:          ch.GetMaxAmount(),
+		Enabled:            ch.GetEnabled(),
+		FuseEnabled:        ch.GetFuseEnabled(),
+	}
+}
+
 func (c *AdminChannels) AdminListChannels() (*types.AdminListChannelsResp, error) {
-	items, err := c.svcCtx.Channels.List(c.ctx)
+	r, err := c.svcCtx.ChannelRpc.ListChannels(c.ctx, &channelpb.ListChannelsReq{})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]types.AdminChannelInfo, 0, len(items))
-	for _, ch := range items {
-		out = append(out, types.AdminChannelInfo{
-			Id:                 ch.ID,
-			Name:               ch.Name,
-			PayType:            ch.PayType,
-			GatewayUrl:         ch.GatewayUrl,
-			UpstreamMerchantNo: ch.UpstreamMerchantNo,
-			RsaPrivateKey:      ch.RsaPrivateKey,
-			SignSecret:         ch.SignSecret,
-			Weight:             ch.Weight,
-			MinAmount:          ch.MinAmount,
-			MaxAmount:          ch.MaxAmount,
-			Enabled:            ch.Enabled,
-			FuseEnabled:        ch.FuseEnabled,
-		})
+	out := make([]types.AdminChannelInfo, 0, len(r.GetChannels()))
+	for _, ch := range r.GetChannels() {
+		out = append(out, toAdminChannelInfo(ch))
 	}
 	return &types.AdminListChannelsResp{Channels: out}, nil
 }
@@ -66,7 +73,7 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
 
-	ch := &store.Channel{
+	resp, err := c.svcCtx.ChannelRpc.CreateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Name:               req.Name,
 		PayType:            req.PayType,
 		GatewayUrl:         req.GatewayUrl,
@@ -78,32 +85,11 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 		MaxAmount:          req.MaxAmount,
 		Enabled:            req.Enabled,
 		FuseEnabled:        req.FuseEnabled,
-	}
-
-	id, err := c.svcCtx.Channels.Create(c.ctx, ch)
+	})
 	if err != nil {
 		return nil, err
 	}
-	created, err := c.svcCtx.Channels.GetByID(c.ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return &types.AdminUpsertChannelResp{
-		Channel: types.AdminChannelInfo{
-			Id:                 created.ID,
-			Name:               created.Name,
-			PayType:            created.PayType,
-			GatewayUrl:         created.GatewayUrl,
-			UpstreamMerchantNo: created.UpstreamMerchantNo,
-			RsaPrivateKey:      created.RsaPrivateKey,
-			SignSecret:         created.SignSecret,
-			Weight:             created.Weight,
-			MinAmount:          created.MinAmount,
-			MaxAmount:          created.MaxAmount,
-			Enabled:            created.Enabled,
-			FuseEnabled:        created.FuseEnabled,
-		},
-	}, nil
+	return &types.AdminUpsertChannelResp{Channel: toAdminChannelInfo(resp.GetChannel())}, nil
 }
 
 func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*types.AdminUpsertChannelResp, error) {
@@ -123,7 +109,8 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
 
-	ch := &store.Channel{
+	resp, err := c.svcCtx.ChannelRpc.UpdateChannel(c.ctx, &channelpb.UpsertChannelReq{
+		Id:                 req.Id,
 		Name:               req.Name,
 		PayType:            req.PayType,
 		GatewayUrl:         req.GatewayUrl,
@@ -135,28 +122,9 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 		MaxAmount:          req.MaxAmount,
 		Enabled:            req.Enabled,
 		FuseEnabled:        req.FuseEnabled,
-	}
-	if err := c.svcCtx.Channels.Update(c.ctx, req.Id, ch); err != nil {
-		return nil, err
-	}
-	updated, err := c.svcCtx.Channels.GetByID(c.ctx, req.Id)
+	})
 	if err != nil {
 		return nil, err
 	}
-	return &types.AdminUpsertChannelResp{
-		Channel: types.AdminChannelInfo{
-			Id:                 updated.ID,
-			Name:               updated.Name,
-			PayType:            updated.PayType,
-			GatewayUrl:         updated.GatewayUrl,
-			UpstreamMerchantNo: updated.UpstreamMerchantNo,
-			RsaPrivateKey:      updated.RsaPrivateKey,
-			SignSecret:         updated.SignSecret,
-			Weight:             updated.Weight,
-			MinAmount:          updated.MinAmount,
-			MaxAmount:          updated.MaxAmount,
-			Enabled:            updated.Enabled,
-			FuseEnabled:        updated.FuseEnabled,
-		},
-	}, nil
+	return &types.AdminUpsertChannelResp{Channel: toAdminChannelInfo(resp.GetChannel())}, nil
 }

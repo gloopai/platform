@@ -3,9 +3,29 @@ syntax = "proto3";
 package channel;
 option go_package = "github.com/gloopai/pay/common/pb/channel;channel";
 
+// 通道、支付产品与路由配置（原 gateway 直连库逻辑收口至 trade）
 service Channel {
   rpc Route(RouteReq) returns(RouteResp);
   rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
+
+  rpc ListChannels(ListChannelsReq) returns (ListChannelsResp);
+  rpc CreateChannel(UpsertChannelReq) returns (UpsertChannelResp);
+  rpc UpdateChannel(UpsertChannelReq) returns (UpsertChannelResp);
+
+  rpc GetRoutingSummary(GetRoutingSummaryReq) returns (GetRoutingSummaryResp);
+
+  rpc ListTerminalPayProducts(ListTerminalPayProductsReq) returns (ListTerminalPayProductsResp);
+  rpc MerchantHasPayProductCode(MerchantHasPayProductCodeReq) returns (MerchantHasPayProductCodeResp);
+  rpc ResolveLockedChannelForMerchant(ResolveLockedChannelForMerchantReq) returns (ResolveLockedChannelForMerchantResp);
+  rpc GetPayProductDisplayName(GetPayProductDisplayNameReq) returns (GetPayProductDisplayNameResp);
+
+  rpc AdminListPayProducts(AdminListPayProductsReq) returns (AdminListPayProductsResp);
+  rpc AdminCreatePayProduct(AdminCreatePayProductReq) returns (AdminUpsertPayProductResp);
+  rpc AdminUpdatePayProduct(AdminUpdatePayProductReq) returns (AdminUpsertPayProductResp);
+  rpc AdminListPayProductBindings(AdminListPayProductBindingsReq) returns (AdminListPayProductBindingsResp);
+  rpc AdminUpsertPayProductBinding(AdminUpsertPayProductBindingReq) returns (AdminUpsertPayProductBindingResp);
+  rpc AdminUpdatePayProductBinding(AdminUpdatePayProductBindingReq) returns (AdminUpdatePayProductBindingResp);
+  rpc AdminDeletePayProductBinding(AdminDeletePayProductBindingReq) returns (AdminDeletePayProductBindingResp);
 }
 
 message RouteReq {
@@ -24,4 +44,177 @@ message GetSignSecretReq {
 
 message GetSignSecretResp {
   string sign_secret = 1;
+}
+
+message ListChannelsReq {}
+
+message ChannelRow {
+  int64 id = 1;
+  string name = 2;
+  string pay_type = 3;
+  string gateway_url = 4;
+  string upstream_merchant_no = 5;
+  string rsa_private_key = 6;
+  string sign_secret = 7;
+  int64 weight = 8;
+  int64 min_amount = 9;
+  int64 max_amount = 10;
+  bool enabled = 11;
+  bool fuse_enabled = 12;
+}
+
+message ListChannelsResp {
+  repeated ChannelRow channels = 1;
+}
+
+message UpsertChannelReq {
+  int64 id = 1;
+  string name = 2;
+  string pay_type = 3;
+  string gateway_url = 4;
+  string upstream_merchant_no = 5;
+  string rsa_private_key = 6;
+  string sign_secret = 7;
+  int64 weight = 8;
+  int64 min_amount = 9;
+  int64 max_amount = 10;
+  bool enabled = 11;
+  bool fuse_enabled = 12;
+}
+
+message UpsertChannelResp {
+  ChannelRow channel = 1;
+}
+
+message GetRoutingSummaryReq {}
+
+message GetRoutingSummaryResp {
+  string algorithm_key = 1;
+  string algorithm_label = 2;
+  int64 enabled_pay_products = 3;
+  int64 enabled_channels = 4;
+  int64 active_bindings = 5;
+  int64 merchants_with_whitelist = 6;
+  int64 fused_channels = 7;
+}
+
+message ListTerminalPayProductsReq {
+  string merchant_id = 1;
+  int64 amount = 2;
+}
+
+message PayProductOption {
+  string code = 1;
+  string name = 2;
+}
+
+message ListTerminalPayProductsResp {
+  repeated PayProductOption products = 1;
+}
+
+message MerchantHasPayProductCodeReq {
+  string merchant_id = 1;
+  string pay_product_code = 2;
+}
+
+message MerchantHasPayProductCodeResp {
+  bool ok = 1;
+}
+
+message ResolveLockedChannelForMerchantReq {
+  string merchant_id = 1;
+  int64 channel_id = 2;
+  int64 amount = 3;
+}
+
+message ResolveLockedChannelForMerchantResp {
+  int64 pay_product_id = 1;
+  string pay_product_code = 2;
+}
+
+message GetPayProductDisplayNameReq {
+  string code = 1;
+}
+
+message GetPayProductDisplayNameResp {
+  string name = 1;
+}
+
+message AdminListPayProductsReq {}
+
+message AdminPayProductRow {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int64 sort_order = 4;
+  bool enabled = 5;
+}
+
+message AdminListPayProductsResp {
+  repeated AdminPayProductRow products = 1;
+}
+
+message AdminCreatePayProductReq {
+  string code = 1;
+  string name = 2;
+  int64 sort_order = 3;
+  bool enabled = 4;
+}
+
+message AdminUpdatePayProductReq {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int64 sort_order = 4;
+  bool enabled = 5;
+}
+
+message AdminUpsertPayProductResp {
+  AdminPayProductRow product = 1;
+}
+
+message AdminListPayProductBindingsReq {
+  int64 pay_product_id = 1;
+}
+
+message AdminPayProductBindingRow {
+  int64 id = 1;
+  int64 pay_product_id = 2;
+  int64 channel_id = 3;
+  string channel_name = 4;
+  int64 weight = 5;
+  bool enabled = 6;
+}
+
+message AdminListPayProductBindingsResp {
+  repeated AdminPayProductBindingRow bindings = 1;
+}
+
+message AdminUpsertPayProductBindingReq {
+  int64 pay_product_id = 1;
+  int64 channel_id = 2;
+  int64 weight = 3;
+  bool enabled = 4;
+}
+
+message AdminUpsertPayProductBindingResp {
+  AdminPayProductBindingRow binding = 1;
+}
+
+message AdminUpdatePayProductBindingReq {
+  int64 id = 1;
+  int64 weight = 2;
+  bool enabled = 3;
+}
+
+message AdminUpdatePayProductBindingResp {
+  AdminPayProductBindingRow binding = 1;
+}
+
+message AdminDeletePayProductBindingReq {
+  int64 id = 1;
+}
+
+message AdminDeletePayProductBindingResp {
+  bool ok = 1;
 }

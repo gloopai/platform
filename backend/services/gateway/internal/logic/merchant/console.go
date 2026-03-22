@@ -8,6 +8,8 @@ import (
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
+	orderpb "github.com/gloopai/pay/common/pb/order"
+	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -96,21 +98,24 @@ func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.M
 
 func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*types.MerchantFundLogsResp, error) {
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
-	logs, err := c.svcCtx.FundLogs.ListByMerchant(c.ctx, merchantId, req.Limit)
+	r, err := c.svcCtx.SettleRpc.ListFundLogs(c.ctx, &settlepb.ListFundLogsReq{
+		MerchantId: merchantId,
+		Limit:      req.Limit,
+	})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]types.MerchantFundLogItem, 0, len(logs))
-	for _, f := range logs {
+	out := make([]types.MerchantFundLogItem, 0, len(r.GetLogs()))
+	for _, f := range r.GetLogs() {
 		out = append(out, types.MerchantFundLogItem{
-			Id:            f.Id,
-			OrderNo:       f.OrderNo,
-			ChangeType:    f.ChangeType,
-			Amount:        f.Amount,
-			BalanceBefore: f.BalanceBefore,
-			BalanceAfter:  f.BalanceAfter,
-			Reason:        f.Reason,
-			CreatedAt:     f.CreatedAt.Unix(),
+			Id:            f.GetId(),
+			OrderNo:       f.GetOrderNo(),
+			ChangeType:    f.GetChangeType(),
+			Amount:        f.GetAmount(),
+			BalanceBefore: f.GetBalanceBefore(),
+			BalanceAfter:  f.GetBalanceAfter(),
+			Reason:        f.GetReason(),
+			CreatedAt:     f.GetCreatedAt(),
 		})
 	}
 	return &types.MerchantFundLogsResp{Logs: out}, nil
@@ -127,20 +132,24 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 	}
 	o := r.GetOrder()
 
-	logs, err := c.svcCtx.NotifyLogs.ListByOrder(c.ctx, merchantId, req.OrderNo, 50)
+	nlr, err := c.svcCtx.OrderRpc.ListMerchantNotifyLogs(c.ctx, &orderpb.ListMerchantNotifyLogsReq{
+		MerchantId: merchantId,
+		OrderNo:    req.OrderNo,
+		Limit:      50,
+	})
 	if err != nil {
 		return nil, err
 	}
-	outLogs := make([]types.MerchantNotifyLogItem, 0, len(logs))
-	for _, x := range logs {
+	outLogs := make([]types.MerchantNotifyLogItem, 0, len(nlr.GetLogs()))
+	for _, x := range nlr.GetLogs() {
 		outLogs = append(outLogs, types.MerchantNotifyLogItem{
-			Id:           x.Id,
-			NotifyUrl:    x.NotifyUrl,
-			Attempt:      x.Attempt,
-			HttpStatus:   x.HttpStatus,
-			ResponseBody: x.ResponseBody,
-			ErrorMsg:     x.ErrorMsg,
-			CreatedAt:    x.CreatedAt.Unix(),
+			Id:           x.GetId(),
+			NotifyUrl:    x.GetNotifyUrl(),
+			Attempt:      x.GetAttempt(),
+			HttpStatus:   x.GetHttpStatus(),
+			ResponseBody: x.GetResponseBody(),
+			ErrorMsg:     x.GetErrorMsg(),
+			CreatedAt:    x.GetCreatedAt(),
 		})
 	}
 

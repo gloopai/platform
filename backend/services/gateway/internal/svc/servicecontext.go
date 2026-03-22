@@ -27,13 +27,7 @@ type ServiceContext struct {
 	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
-	Channels           *store.ChannelsStore
-	PayProducts        *store.PayProductsStore
-	MerchantPayProducts *store.MerchantPayProductsStore
-	RoutingSummary     *store.RoutingSummaryStore
-	OrderStats         *store.OrderStatsStore
-	FundLogs    *store.FundLogsStore
-	NotifyLogs *store.NotifyLogsStore
+	// 仅管理台账号与 BFF 会话；业务数据经 Trade/Core RPC。
 	AdminUsers *store.AdminUsersStore
 	Sessions   *store.SessionsStore
 
@@ -69,13 +63,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	channelsStore := store.NewChannelsStore(sqlDB)
-	payProductsStore := store.NewPayProductsStore(sqlDB)
-	merchantPayProductsStore := store.NewMerchantPayProductsStore(sqlDB)
-	routingSummaryStore := store.NewRoutingSummaryStore(sqlDB)
-	orderStatsStore := store.NewOrderStatsStore(sqlDB)
-	fundLogsStore := store.NewFundLogsStore(sqlDB)
-	notifyLogsStore := store.NewNotifyLogsStore(sqlDB)
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	sessionsStore := store.NewSessionsStore(sqlDB)
 	var runtimeCfg *consulx.ConfigStore
@@ -91,13 +78,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(coreCli)).Handle,
 
-		Channels:            channelsStore,
-		PayProducts:         payProductsStore,
-		MerchantPayProducts: merchantPayProductsStore,
-		RoutingSummary:      routingSummaryStore,
-		OrderStats:          orderStatsStore,
-		FundLogs:    fundLogsStore,
-		NotifyLogs: notifyLogsStore,
 		AdminUsers: adminUsersStore,
 		Sessions:   sessionsStore,
 

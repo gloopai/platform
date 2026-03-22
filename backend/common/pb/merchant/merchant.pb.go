@@ -33,6 +33,7 @@ type MerchantInfo struct {
 	WithdrawnAmount int64                  `protobuf:"varint,8,opt,name=withdrawn_amount,json=withdrawnAmount,proto3" json:"withdrawn_amount,omitempty"`
 	NotifyUrl       string                 `protobuf:"bytes,9,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
 	ReturnUrl       string                 `protobuf:"bytes,10,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
+	PayProductIds   []int64                `protobuf:"varint,11,rep,packed,name=pay_product_ids,json=payProductIds,proto3" json:"pay_product_ids,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -135,6 +136,13 @@ func (x *MerchantInfo) GetReturnUrl() string {
 		return x.ReturnUrl
 	}
 	return ""
+}
+
+func (x *MerchantInfo) GetPayProductIds() []int64 {
+	if x != nil {
+		return x.PayProductIds
+	}
+	return nil
 }
 
 type GetMerchantReq struct {
@@ -458,6 +466,7 @@ type CreateMerchantReq struct {
 	NotifyUrl     string                 `protobuf:"bytes,5,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
 	ReturnUrl     string                 `protobuf:"bytes,6,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
 	IpWhitelist   string                 `protobuf:"bytes,7,opt,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`
+	PayProductIds []int64                `protobuf:"varint,8,rep,packed,name=pay_product_ids,json=payProductIds,proto3" json:"pay_product_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -539,6 +548,13 @@ func (x *CreateMerchantReq) GetIpWhitelist() string {
 		return x.IpWhitelist
 	}
 	return ""
+}
+
+func (x *CreateMerchantReq) GetPayProductIds() []int64 {
+	if x != nil {
+		return x.PayProductIds
+	}
+	return nil
 }
 
 type UpdateMerchantReq struct {
@@ -677,11 +693,195 @@ func (x *UpsertMerchantResp) GetMerchant() *MerchantInfo {
 	return nil
 }
 
+type ReplaceMerchantPayProductsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	PayProductIds []int64                `protobuf:"varint,2,rep,packed,name=pay_product_ids,json=payProductIds,proto3" json:"pay_product_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReplaceMerchantPayProductsReq) Reset() {
+	*x = ReplaceMerchantPayProductsReq{}
+	mi := &file_merchant_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReplaceMerchantPayProductsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReplaceMerchantPayProductsReq) ProtoMessage() {}
+
+func (x *ReplaceMerchantPayProductsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_merchant_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReplaceMerchantPayProductsReq.ProtoReflect.Descriptor instead.
+func (*ReplaceMerchantPayProductsReq) Descriptor() ([]byte, []int) {
+	return file_merchant_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ReplaceMerchantPayProductsReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *ReplaceMerchantPayProductsReq) GetPayProductIds() []int64 {
+	if x != nil {
+		return x.PayProductIds
+	}
+	return nil
+}
+
+type ReplaceMerchantPayProductsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReplaceMerchantPayProductsResp) Reset() {
+	*x = ReplaceMerchantPayProductsResp{}
+	mi := &file_merchant_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReplaceMerchantPayProductsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReplaceMerchantPayProductsResp) ProtoMessage() {}
+
+func (x *ReplaceMerchantPayProductsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_merchant_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReplaceMerchantPayProductsResp.ProtoReflect.Descriptor instead.
+func (*ReplaceMerchantPayProductsResp) Descriptor() ([]byte, []int) {
+	return file_merchant_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ReplaceMerchantPayProductsResp) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+type ListMerchantPayProductIdsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMerchantPayProductIdsReq) Reset() {
+	*x = ListMerchantPayProductIdsReq{}
+	mi := &file_merchant_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMerchantPayProductIdsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMerchantPayProductIdsReq) ProtoMessage() {}
+
+func (x *ListMerchantPayProductIdsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_merchant_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMerchantPayProductIdsReq.ProtoReflect.Descriptor instead.
+func (*ListMerchantPayProductIdsReq) Descriptor() ([]byte, []int) {
+	return file_merchant_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListMerchantPayProductIdsReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+type ListMerchantPayProductIdsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PayProductIds []int64                `protobuf:"varint,1,rep,packed,name=pay_product_ids,json=payProductIds,proto3" json:"pay_product_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMerchantPayProductIdsResp) Reset() {
+	*x = ListMerchantPayProductIdsResp{}
+	mi := &file_merchant_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMerchantPayProductIdsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMerchantPayProductIdsResp) ProtoMessage() {}
+
+func (x *ListMerchantPayProductIdsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_merchant_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMerchantPayProductIdsResp.ProtoReflect.Descriptor instead.
+func (*ListMerchantPayProductIdsResp) Descriptor() ([]byte, []int) {
+	return file_merchant_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListMerchantPayProductIdsResp) GetPayProductIds() []int64 {
+	if x != nil {
+		return x.PayProductIds
+	}
+	return nil
+}
+
 var File_merchant_proto protoreflect.FileDescriptor
 
 const file_merchant_proto_rawDesc = "" +
 	"\n" +
-	"\x0emerchant.proto\x12\bmerchant\"\xce\x02\n" +
+	"\x0emerchant.proto\x12\bmerchant\"\xf6\x02\n" +
 	"\fMerchantInfo\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -697,7 +897,8 @@ const file_merchant_proto_rawDesc = "" +
 	"notify_url\x18\t \x01(\tR\tnotifyUrl\x12\x1d\n" +
 	"\n" +
 	"return_url\x18\n" +
-	" \x01(\tR\treturnUrl\"1\n" +
+	" \x01(\tR\treturnUrl\x12&\n" +
+	"\x0fpay_product_ids\x18\v \x03(\x03R\rpayProductIds\"1\n" +
 	"\x0eGetMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\"E\n" +
@@ -720,7 +921,7 @@ const file_merchant_proto_rawDesc = "" +
 	"\x10ListMerchantsReq\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x03R\x05limit\"I\n" +
 	"\x11ListMerchantsResp\x124\n" +
-	"\tmerchants\x18\x01 \x03(\v2\x16.merchant.MerchantInfoR\tmerchants\"\xe7\x01\n" +
+	"\tmerchants\x18\x01 \x03(\v2\x16.merchant.MerchantInfoR\tmerchants\"\x8f\x02\n" +
 	"\x11CreateMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -732,7 +933,8 @@ const file_merchant_proto_rawDesc = "" +
 	"notify_url\x18\x05 \x01(\tR\tnotifyUrl\x12\x1d\n" +
 	"\n" +
 	"return_url\x18\x06 \x01(\tR\treturnUrl\x12!\n" +
-	"\fip_whitelist\x18\a \x01(\tR\vipWhitelist\"\xe7\x01\n" +
+	"\fip_whitelist\x18\a \x01(\tR\vipWhitelist\x12&\n" +
+	"\x0fpay_product_ids\x18\b \x03(\x03R\rpayProductIds\"\xe7\x01\n" +
 	"\x11UpdateMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -746,14 +948,26 @@ const file_merchant_proto_rawDesc = "" +
 	"return_url\x18\x06 \x01(\tR\treturnUrl\x12!\n" +
 	"\fip_whitelist\x18\a \x01(\tR\vipWhitelist\"H\n" +
 	"\x12UpsertMerchantResp\x122\n" +
-	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant2\xf6\x02\n" +
+	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant\"h\n" +
+	"\x1dReplaceMerchantPayProductsReq\x12\x1f\n" +
+	"\vmerchant_id\x18\x01 \x01(\tR\n" +
+	"merchantId\x12&\n" +
+	"\x0fpay_product_ids\x18\x02 \x03(\x03R\rpayProductIds\"0\n" +
+	"\x1eReplaceMerchantPayProductsResp\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\"?\n" +
+	"\x1cListMerchantPayProductIdsReq\x12\x1f\n" +
+	"\vmerchant_id\x18\x01 \x01(\tR\n" +
+	"merchantId\"G\n" +
+	"\x1dListMerchantPayProductIdsResp\x12&\n" +
+	"\x0fpay_product_ids\x18\x01 \x03(\x03R\rpayProductIds2\xd5\x04\n" +
 	"\bMerchant\x12B\n" +
 	"\vGetMerchant\x12\x18.merchant.GetMerchantReq\x1a\x19.merchant.GetMerchantResp\x12B\n" +
 	"\vGetAuthInfo\x12\x18.merchant.GetAuthInfoReq\x1a\x19.merchant.GetAuthInfoResp\x12H\n" +
 	"\rListMerchants\x12\x1a.merchant.ListMerchantsReq\x1a\x1b.merchant.ListMerchantsResp\x12K\n" +
 	"\x0eCreateMerchant\x12\x1b.merchant.CreateMerchantReq\x1a\x1c.merchant.UpsertMerchantResp\x12K\n" +
-	"\x0eUpdateMerchant\x12\x1b.merchant.UpdateMerchantReq\x1a\x1c.merchant.UpsertMerchantRespB\fZ\n" +
-	"./merchantb\x06proto3"
+	"\x0eUpdateMerchant\x12\x1b.merchant.UpdateMerchantReq\x1a\x1c.merchant.UpsertMerchantResp\x12o\n" +
+	"\x1aReplaceMerchantPayProducts\x12'.merchant.ReplaceMerchantPayProductsReq\x1a(.merchant.ReplaceMerchantPayProductsResp\x12l\n" +
+	"\x19ListMerchantPayProductIds\x12&.merchant.ListMerchantPayProductIdsReq\x1a'.merchant.ListMerchantPayProductIdsRespB4Z2github.com/gloopai/pay/common/pb/merchant;merchantb\x06proto3"
 
 var (
 	file_merchant_proto_rawDescOnce sync.Once
@@ -767,38 +981,46 @@ func file_merchant_proto_rawDescGZIP() []byte {
 	return file_merchant_proto_rawDescData
 }
 
-var file_merchant_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_merchant_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_merchant_proto_goTypes = []any{
-	(*MerchantInfo)(nil),       // 0: merchant.MerchantInfo
-	(*GetMerchantReq)(nil),     // 1: merchant.GetMerchantReq
-	(*GetMerchantResp)(nil),    // 2: merchant.GetMerchantResp
-	(*GetAuthInfoReq)(nil),     // 3: merchant.GetAuthInfoReq
-	(*GetAuthInfoResp)(nil),    // 4: merchant.GetAuthInfoResp
-	(*ListMerchantsReq)(nil),   // 5: merchant.ListMerchantsReq
-	(*ListMerchantsResp)(nil),  // 6: merchant.ListMerchantsResp
-	(*CreateMerchantReq)(nil),  // 7: merchant.CreateMerchantReq
-	(*UpdateMerchantReq)(nil),  // 8: merchant.UpdateMerchantReq
-	(*UpsertMerchantResp)(nil), // 9: merchant.UpsertMerchantResp
+	(*MerchantInfo)(nil),                   // 0: merchant.MerchantInfo
+	(*GetMerchantReq)(nil),                 // 1: merchant.GetMerchantReq
+	(*GetMerchantResp)(nil),                // 2: merchant.GetMerchantResp
+	(*GetAuthInfoReq)(nil),                 // 3: merchant.GetAuthInfoReq
+	(*GetAuthInfoResp)(nil),                // 4: merchant.GetAuthInfoResp
+	(*ListMerchantsReq)(nil),               // 5: merchant.ListMerchantsReq
+	(*ListMerchantsResp)(nil),              // 6: merchant.ListMerchantsResp
+	(*CreateMerchantReq)(nil),              // 7: merchant.CreateMerchantReq
+	(*UpdateMerchantReq)(nil),              // 8: merchant.UpdateMerchantReq
+	(*UpsertMerchantResp)(nil),             // 9: merchant.UpsertMerchantResp
+	(*ReplaceMerchantPayProductsReq)(nil),  // 10: merchant.ReplaceMerchantPayProductsReq
+	(*ReplaceMerchantPayProductsResp)(nil), // 11: merchant.ReplaceMerchantPayProductsResp
+	(*ListMerchantPayProductIdsReq)(nil),   // 12: merchant.ListMerchantPayProductIdsReq
+	(*ListMerchantPayProductIdsResp)(nil),  // 13: merchant.ListMerchantPayProductIdsResp
 }
 var file_merchant_proto_depIdxs = []int32{
-	0, // 0: merchant.GetMerchantResp.merchant:type_name -> merchant.MerchantInfo
-	0, // 1: merchant.ListMerchantsResp.merchants:type_name -> merchant.MerchantInfo
-	0, // 2: merchant.UpsertMerchantResp.merchant:type_name -> merchant.MerchantInfo
-	1, // 3: merchant.Merchant.GetMerchant:input_type -> merchant.GetMerchantReq
-	3, // 4: merchant.Merchant.GetAuthInfo:input_type -> merchant.GetAuthInfoReq
-	5, // 5: merchant.Merchant.ListMerchants:input_type -> merchant.ListMerchantsReq
-	7, // 6: merchant.Merchant.CreateMerchant:input_type -> merchant.CreateMerchantReq
-	8, // 7: merchant.Merchant.UpdateMerchant:input_type -> merchant.UpdateMerchantReq
-	2, // 8: merchant.Merchant.GetMerchant:output_type -> merchant.GetMerchantResp
-	4, // 9: merchant.Merchant.GetAuthInfo:output_type -> merchant.GetAuthInfoResp
-	6, // 10: merchant.Merchant.ListMerchants:output_type -> merchant.ListMerchantsResp
-	9, // 11: merchant.Merchant.CreateMerchant:output_type -> merchant.UpsertMerchantResp
-	9, // 12: merchant.Merchant.UpdateMerchant:output_type -> merchant.UpsertMerchantResp
-	8, // [8:13] is the sub-list for method output_type
-	3, // [3:8] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: merchant.GetMerchantResp.merchant:type_name -> merchant.MerchantInfo
+	0,  // 1: merchant.ListMerchantsResp.merchants:type_name -> merchant.MerchantInfo
+	0,  // 2: merchant.UpsertMerchantResp.merchant:type_name -> merchant.MerchantInfo
+	1,  // 3: merchant.Merchant.GetMerchant:input_type -> merchant.GetMerchantReq
+	3,  // 4: merchant.Merchant.GetAuthInfo:input_type -> merchant.GetAuthInfoReq
+	5,  // 5: merchant.Merchant.ListMerchants:input_type -> merchant.ListMerchantsReq
+	7,  // 6: merchant.Merchant.CreateMerchant:input_type -> merchant.CreateMerchantReq
+	8,  // 7: merchant.Merchant.UpdateMerchant:input_type -> merchant.UpdateMerchantReq
+	10, // 8: merchant.Merchant.ReplaceMerchantPayProducts:input_type -> merchant.ReplaceMerchantPayProductsReq
+	12, // 9: merchant.Merchant.ListMerchantPayProductIds:input_type -> merchant.ListMerchantPayProductIdsReq
+	2,  // 10: merchant.Merchant.GetMerchant:output_type -> merchant.GetMerchantResp
+	4,  // 11: merchant.Merchant.GetAuthInfo:output_type -> merchant.GetAuthInfoResp
+	6,  // 12: merchant.Merchant.ListMerchants:output_type -> merchant.ListMerchantsResp
+	9,  // 13: merchant.Merchant.CreateMerchant:output_type -> merchant.UpsertMerchantResp
+	9,  // 14: merchant.Merchant.UpdateMerchant:output_type -> merchant.UpsertMerchantResp
+	11, // 15: merchant.Merchant.ReplaceMerchantPayProducts:output_type -> merchant.ReplaceMerchantPayProductsResp
+	13, // 16: merchant.Merchant.ListMerchantPayProductIds:output_type -> merchant.ListMerchantPayProductIdsResp
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_merchant_proto_init() }
@@ -812,7 +1034,7 @@ func file_merchant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_merchant_proto_rawDesc), len(file_merchant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

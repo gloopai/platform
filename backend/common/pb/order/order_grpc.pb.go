@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Order_CreateOrder_FullMethodName        = "/order.Order/CreateOrder"
-	Order_GetOrder_FullMethodName           = "/order.Order/GetOrder"
-	Order_MarkPaid_FullMethodName           = "/order.Order/MarkPaid"
-	Order_ListOrders_FullMethodName         = "/order.Order/ListOrders"
-	Order_TodaySummary_FullMethodName       = "/order.Order/TodaySummary"
-	Order_PrepareTerminalPay_FullMethodName = "/order.Order/PrepareTerminalPay"
+	Order_CreateOrder_FullMethodName            = "/order.Order/CreateOrder"
+	Order_GetOrder_FullMethodName               = "/order.Order/GetOrder"
+	Order_MarkPaid_FullMethodName               = "/order.Order/MarkPaid"
+	Order_ListOrders_FullMethodName             = "/order.Order/ListOrders"
+	Order_TodaySummary_FullMethodName           = "/order.Order/TodaySummary"
+	Order_PrepareTerminalPay_FullMethodName     = "/order.Order/PrepareTerminalPay"
+	Order_AdminTodayOverview_FullMethodName     = "/order.Order/AdminTodayOverview"
+	Order_ListMerchantNotifyLogs_FullMethodName = "/order.Order/ListMerchantNotifyLogs"
 )
 
 // OrderClient is the client API for Order service.
@@ -38,6 +40,10 @@ type OrderClient interface {
 	TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
 	// 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
 	PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error)
+	// 管理台：今日订单统计（读 trade 库 orders）
+	AdminTodayOverview(ctx context.Context, in *AdminTodayOverviewReq, opts ...grpc.CallOption) (*AdminTodayOverviewResp, error)
+	// 商户控制台：回调通知尝试记录
+	ListMerchantNotifyLogs(ctx context.Context, in *ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*ListMerchantNotifyLogsResp, error)
 }
 
 type orderClient struct {
@@ -108,6 +114,26 @@ func (c *orderClient) PrepareTerminalPay(ctx context.Context, in *PrepareTermina
 	return out, nil
 }
 
+func (c *orderClient) AdminTodayOverview(ctx context.Context, in *AdminTodayOverviewReq, opts ...grpc.CallOption) (*AdminTodayOverviewResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminTodayOverviewResp)
+	err := c.cc.Invoke(ctx, Order_AdminTodayOverview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) ListMerchantNotifyLogs(ctx context.Context, in *ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*ListMerchantNotifyLogsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMerchantNotifyLogsResp)
+	err := c.cc.Invoke(ctx, Order_ListMerchantNotifyLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -119,6 +145,10 @@ type OrderServer interface {
 	TodaySummary(context.Context, *TodaySummaryReq) (*TodaySummaryResp, error)
 	// 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
 	PrepareTerminalPay(context.Context, *PrepareTerminalPayReq) (*PrepareTerminalPayResp, error)
+	// 管理台：今日订单统计（读 trade 库 orders）
+	AdminTodayOverview(context.Context, *AdminTodayOverviewReq) (*AdminTodayOverviewResp, error)
+	// 商户控制台：回调通知尝试记录
+	ListMerchantNotifyLogs(context.Context, *ListMerchantNotifyLogsReq) (*ListMerchantNotifyLogsResp, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -146,6 +176,12 @@ func (UnimplementedOrderServer) TodaySummary(context.Context, *TodaySummaryReq) 
 }
 func (UnimplementedOrderServer) PrepareTerminalPay(context.Context, *PrepareTerminalPayReq) (*PrepareTerminalPayResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PrepareTerminalPay not implemented")
+}
+func (UnimplementedOrderServer) AdminTodayOverview(context.Context, *AdminTodayOverviewReq) (*AdminTodayOverviewResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminTodayOverview not implemented")
+}
+func (UnimplementedOrderServer) ListMerchantNotifyLogs(context.Context, *ListMerchantNotifyLogsReq) (*ListMerchantNotifyLogsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantNotifyLogs not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -276,6 +312,42 @@ func _Order_PrepareTerminalPay_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_AdminTodayOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminTodayOverviewReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).AdminTodayOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_AdminTodayOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).AdminTodayOverview(ctx, req.(*AdminTodayOverviewReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_ListMerchantNotifyLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMerchantNotifyLogsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).ListMerchantNotifyLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_ListMerchantNotifyLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).ListMerchantNotifyLogs(ctx, req.(*ListMerchantNotifyLogsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -306,6 +378,14 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PrepareTerminalPay",
 			Handler:    _Order_PrepareTerminalPay_Handler,
+		},
+		{
+			MethodName: "AdminTodayOverview",
+			Handler:    _Order_AdminTodayOverview_Handler,
+		},
+		{
+			MethodName: "ListMerchantNotifyLogs",
+			Handler:    _Order_ListMerchantNotifyLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

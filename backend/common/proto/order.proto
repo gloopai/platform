@@ -11,6 +11,10 @@ service Order {
   rpc TodaySummary(TodaySummaryReq) returns(TodaySummaryResp);
   // 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
   rpc PrepareTerminalPay(PrepareTerminalPayReq) returns (PrepareTerminalPayResp);
+  // 管理台：今日订单统计（读 trade 库 orders）
+  rpc AdminTodayOverview(AdminTodayOverviewReq) returns (AdminTodayOverviewResp);
+  // 商户控制台：回调通知尝试记录
+  rpc ListMerchantNotifyLogs(ListMerchantNotifyLogsReq) returns (ListMerchantNotifyLogsResp);
 }
 
 message CreateOrderReq {
@@ -110,4 +114,68 @@ message PrepareTerminalPayResp {
   string qr_payload = 5;
   // mock | qr | redirect
   string pay_mode = 6;
+}
+
+message AdminTodayOverviewReq {}
+
+message AdminStatsTotals {
+  int64 order_count = 1;
+  int64 paid_amount = 2;
+  int64 paid_count = 3;
+  int64 failed_count = 4;
+  int64 pending_count = 5;
+  int64 closed_count = 6;
+  double conversion_rate_pct = 7;
+  double terminal_success_rate_pct = 8;
+}
+
+message AdminStatsProductRow {
+  string product_code = 1;
+  string product_name = 2;
+  int64 order_count = 3;
+  int64 paid_amount = 4;
+  int64 paid_count = 5;
+  int64 failed_count = 6;
+  double conversion_rate_pct = 7;
+  double terminal_success_rate_pct = 8;
+}
+
+message AdminStatsChannelRow {
+  int64 channel_id = 1;
+  string channel_name = 2;
+  int64 order_count = 3;
+  int64 paid_amount = 4;
+  int64 paid_count = 5;
+  int64 failed_count = 6;
+  double conversion_rate_pct = 7;
+  double terminal_success_rate_pct = 8;
+}
+
+message AdminTodayOverviewResp {
+  string range = 1;
+  AdminStatsTotals totals = 2;
+  repeated AdminStatsProductRow by_pay_product = 3;
+  repeated AdminStatsChannelRow by_channel = 4;
+  int64 enabled_channels = 5;
+  int64 fused_channels = 6;
+}
+
+message ListMerchantNotifyLogsReq {
+  string merchant_id = 1;
+  string order_no = 2;
+  int64 limit = 3;
+}
+
+message MerchantNotifyLogItem {
+  int64 id = 1;
+  string notify_url = 2;
+  int64 attempt = 3;
+  int64 http_status = 4;
+  string response_body = 5;
+  string error_msg = 6;
+  int64 created_at = 7;
+}
+
+message ListMerchantNotifyLogsResp {
+  repeated MerchantNotifyLogItem logs = 1;
 }

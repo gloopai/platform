@@ -12,6 +12,7 @@ import (
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 
@@ -50,21 +51,25 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 
 	switch {
 	case channelID > 0:
-		var code string
-		ppid, code, err = c.svcCtx.PayProducts.ResolveLockedChannelForMerchant(c.ctx, merchantID, channelID, req.Amount)
+		rl, err := c.svcCtx.ChannelRpc.ResolveLockedChannelForMerchant(c.ctx, &channelpb.ResolveLockedChannelForMerchantReq{
+			MerchantId: merchantID, ChannelId: channelID, Amount: req.Amount,
+		})
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
 		channelLocked = 1
 		cid = channelID
-		payProductCode = code
+		ppid = rl.GetPayProductId()
+		payProductCode = rl.GetPayProductCode()
 
 	case payType != "":
-		ok, err := c.svcCtx.PayProducts.MerchantHasPayProductCode(c.ctx, merchantID, payType)
+		has, err := c.svcCtx.ChannelRpc.MerchantHasPayProductCode(c.ctx, &channelpb.MerchantHasPayProductCodeReq{
+			MerchantId: merchantID, PayProductCode: payType,
+		})
 		if err != nil {
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
 		}
-		if !ok {
+		if !has.GetOk() {
 			return nil, status.Error(codes.PermissionDenied, "pay_type not enabled for this merchant")
 		}
 		route, err = c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
@@ -74,8 +79,8 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		if err != nil {
 			return nil, err
 		}
-		cid = route.ChannelId
-		ppid = route.PayProductId
+		cid = route.GetChannelId()
+		ppid = route.GetPayProductId()
 		payProductCode = payType
 		channelLocked = 0
 
@@ -167,21 +172,24 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 		code := o.GetPayProductCode()
 		name := code
 		if code != "" {
-			if dn, err := c.svcCtx.PayProducts.GetPayProductDisplayName(c.ctx, code); err == nil && dn != "" {
-				name = dn
+			if dn, err := c.svcCtx.ChannelRpc.GetPayProductDisplayName(c.ctx, &channelpb.GetPayProductDisplayNameReq{Code: code}); err == nil && dn.GetName() != "" {
+				name = dn.GetName()
 			}
 		}
 		if code != "" {
 			items = []types.PayProductItem{{Code: code, Name: name}}
 		}
 	} else {
-		opts, err := c.svcCtx.PayProducts.ListTerminalPayProducts(c.ctx, o.GetMerchantId(), o.GetAmount())
+		lr, err := c.svcCtx.ChannelRpc.ListTerminalPayProducts(c.ctx, &channelpb.ListTerminalPayProductsReq{
+			MerchantId: o.GetMerchantId(), Amount: o.GetAmount(),
+		})
 		if err != nil {
 			return nil, err
 		}
+		opts := lr.GetProducts()
 		items = make([]types.PayProductItem, 0, len(opts))
 		for _, p := range opts {
-			items = append(items, types.PayProductItem{Code: p.Code, Name: p.Name})
+			items = append(items, types.PayProductItem{Code: p.GetCode(), Name: p.GetName()})
 		}
 	}
 
@@ -223,11 +231,13 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 		if code == "" {
 			return nil, status.Error(codes.InvalidArgument, "pay_product_code required")
 		}
-		ok, err := c.svcCtx.PayProducts.MerchantHasPayProductCode(c.ctx, o.GetMerchantId(), code)
+		ok, err := c.svcCtx.ChannelRpc.MerchantHasPayProductCode(c.ctx, &channelpb.MerchantHasPayProductCodeReq{
+			MerchantId: o.GetMerchantId(), PayProductCode: code,
+		})
 		if err != nil {
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
 		}
-		if !ok {
+		if !ok.GetOk() {
 			return nil, status.Error(codes.PermissionDenied, "pay_product_code not enabled for merchant")
 		}
 	}

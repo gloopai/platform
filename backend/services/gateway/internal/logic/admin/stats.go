@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	"github.com/gloopai/pay/gateway/internal/store"
+	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -25,57 +25,56 @@ func NewAdminStats(ctx context.Context, svcCtx *svc.ServiceContext) *AdminStats 
 }
 
 func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error) {
-	tot, prods, chs, err := s.svcCtx.OrderStats.TodayOverview(s.ctx)
+	r, err := s.svcCtx.OrderRpc.AdminTodayOverview(s.ctx, &orderpb.AdminTodayOverviewReq{})
 	if err != nil {
 		return nil, err
 	}
-	rs, _ := s.svcCtx.RoutingSummary.Get(s.ctx)
-
+	t := r.GetTotals()
 	totals := types.AdminStatsTotals{
-		OrderCount:             tot.OrderCount,
-		PaidAmount:             tot.PaidAmount,
-		PaidCount:              tot.PaidCount,
-		FailedCount:            tot.FailedCount,
-		PendingCount:           tot.PendingCount,
-		ClosedCount:            tot.ClosedCount,
-		ConversionRatePct:      store.RateConversion(tot.PaidCount, tot.OrderCount),
-		TerminalSuccessRatePct: store.RateTerminalSuccess(tot.PaidCount, tot.FailedCount),
+		OrderCount:             t.GetOrderCount(),
+		PaidAmount:             t.GetPaidAmount(),
+		PaidCount:              t.GetPaidCount(),
+		FailedCount:            t.GetFailedCount(),
+		PendingCount:           t.GetPendingCount(),
+		ClosedCount:            t.GetClosedCount(),
+		ConversionRatePct:      t.GetConversionRatePct(),
+		TerminalSuccessRatePct: t.GetTerminalSuccessRatePct(),
 	}
 
-	outProd := make([]types.AdminStatsProductRow, 0, len(prods))
-	for _, p := range prods {
+	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayProduct()))
+	for _, p := range r.GetByPayProduct() {
 		outProd = append(outProd, types.AdminStatsProductRow{
-			ProductCode:            p.ProductCode,
-			ProductName:            p.ProductName,
-			OrderCount:             p.OrderCount,
-			PaidAmount:             p.PaidAmount,
-			PaidCount:              p.PaidCount,
-			FailedCount:            p.FailedCount,
-			ConversionRatePct:      store.RateConversion(p.PaidCount, p.OrderCount),
-			TerminalSuccessRatePct: store.RateTerminalSuccess(p.PaidCount, p.FailedCount),
+			ProductCode:            p.GetProductCode(),
+			ProductName:            p.GetProductName(),
+			OrderCount:             p.GetOrderCount(),
+			PaidAmount:             p.GetPaidAmount(),
+			PaidCount:              p.GetPaidCount(),
+			FailedCount:            p.GetFailedCount(),
+			ConversionRatePct:      p.GetConversionRatePct(),
+			TerminalSuccessRatePct: p.GetTerminalSuccessRatePct(),
 		})
 	}
 
-	outCh := make([]types.AdminStatsChannelRow, 0, len(chs))
-	for _, c := range chs {
+	outCh := make([]types.AdminStatsChannelRow, 0, len(r.GetByChannel()))
+	for _, c := range r.GetByChannel() {
 		outCh = append(outCh, types.AdminStatsChannelRow{
-			ChannelId:              c.ChannelID,
-			ChannelName:            c.ChannelName,
-			OrderCount:             c.OrderCount,
-			PaidAmount:             c.PaidAmount,
-			PaidCount:              c.PaidCount,
-			FailedCount:            c.FailedCount,
-			ConversionRatePct:      store.RateConversion(c.PaidCount, c.OrderCount),
-			TerminalSuccessRatePct: store.RateTerminalSuccess(c.PaidCount, c.FailedCount),
+			ChannelId:              c.GetChannelId(),
+			ChannelName:            c.GetChannelName(),
+			OrderCount:             c.GetOrderCount(),
+			PaidAmount:             c.GetPaidAmount(),
+			PaidCount:              c.GetPaidCount(),
+			FailedCount:            c.GetFailedCount(),
+			ConversionRatePct:      c.GetConversionRatePct(),
+			TerminalSuccessRatePct: c.GetTerminalSuccessRatePct(),
 		})
 	}
 
 	return &types.AdminStatsOverviewResp{
-		Range:           "today",
+		Range:           r.GetRange(),
 		Totals:          totals,
 		ByPayProduct:    outProd,
 		ByChannel:       outCh,
-		EnabledChannels: rs.EnabledChannels,
-		FusedChannels:   rs.FusedChannels,
+		EnabledChannels: r.GetEnabledChannels(),
+		FusedChannels:   r.GetFusedChannels(),
 	}, nil
 }

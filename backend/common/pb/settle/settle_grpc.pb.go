@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Settle_Credit_FullMethodName = "/settle.Settle/Credit"
+	Settle_Credit_FullMethodName       = "/settle.Settle/Credit"
+	Settle_ListFundLogs_FullMethodName = "/settle.Settle/ListFundLogs"
 )
 
 // SettleClient is the client API for Settle service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SettleClient interface {
 	Credit(ctx context.Context, in *CreditReq, opts ...grpc.CallOption) (*CreditResp, error)
+	ListFundLogs(ctx context.Context, in *ListFundLogsReq, opts ...grpc.CallOption) (*ListFundLogsResp, error)
 }
 
 type settleClient struct {
@@ -47,11 +49,22 @@ func (c *settleClient) Credit(ctx context.Context, in *CreditReq, opts ...grpc.C
 	return out, nil
 }
 
+func (c *settleClient) ListFundLogs(ctx context.Context, in *ListFundLogsReq, opts ...grpc.CallOption) (*ListFundLogsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFundLogsResp)
+	err := c.cc.Invoke(ctx, Settle_ListFundLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SettleServer is the server API for Settle service.
 // All implementations must embed UnimplementedSettleServer
 // for forward compatibility.
 type SettleServer interface {
 	Credit(context.Context, *CreditReq) (*CreditResp, error)
+	ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error)
 	mustEmbedUnimplementedSettleServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedSettleServer struct{}
 
 func (UnimplementedSettleServer) Credit(context.Context, *CreditReq) (*CreditResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Credit not implemented")
+}
+func (UnimplementedSettleServer) ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFundLogs not implemented")
 }
 func (UnimplementedSettleServer) mustEmbedUnimplementedSettleServer() {}
 func (UnimplementedSettleServer) testEmbeddedByValue()                {}
@@ -104,6 +120,24 @@ func _Settle_Credit_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Settle_ListFundLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListFundLogsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).ListFundLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_ListFundLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).ListFundLogs(ctx, req.(*ListFundLogsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Settle_ServiceDesc is the grpc.ServiceDesc for Settle service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Settle_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Credit",
 			Handler:    _Settle_Credit_Handler,
+		},
+		{
+			MethodName: "ListFundLogs",
+			Handler:    _Settle_ListFundLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
