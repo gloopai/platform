@@ -187,6 +187,41 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/v1/admin/payout_products",
+					Handler: adminhandler.AdminListPayoutProductsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/payout_products",
+					Handler: adminhandler.AdminCreatePayoutProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/payout_products/:id",
+					Handler: adminhandler.AdminUpdatePayoutProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/payout_products/:id/bindings",
+					Handler: adminhandler.AdminListPayoutProductBindingsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/payout_products/:id/bindings",
+					Handler: adminhandler.AdminUpsertPayoutProductBindingHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/payout_product_bindings/:id",
+					Handler: adminhandler.AdminUpdatePayoutProductBindingHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/payout_product_bindings/:id",
+					Handler: adminhandler.AdminDeletePayoutProductBindingHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/v1/admin/routing/summary",
 					Handler: adminhandler.AdminRoutingSummaryHandler(serverCtx),
 				},

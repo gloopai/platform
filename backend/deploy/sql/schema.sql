@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS merchants (
   merchant_id VARCHAR(64) NOT NULL,
   api_secret VARCHAR(128) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
-  rate_bps INT NOT NULL DEFAULT 0,
+  default_collect_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收：未单独配置产品费率时使用',
+  default_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：未单独配置产品费率时使用',
   ip_whitelist TEXT NULL,
   balance BIGINT NOT NULL DEFAULT 0,
   frozen_balance BIGINT NOT NULL DEFAULT 0,
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS merchants (
   UNIQUE KEY uk_merchant_id (merchant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 上游通道：可单独开通代收/代付能力；成本默认在通道级，可被产品-通道绑定覆盖
 CREATE TABLE IF NOT EXISTS channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(64) NOT NULL,
@@ -27,6 +29,10 @@ CREATE TABLE IF NOT EXISTS channels (
   weight INT NOT NULL DEFAULT 100,
   min_amount BIGINT NOT NULL DEFAULT 0,
   max_amount BIGINT NOT NULL DEFAULT 0,
+  supports_collect TINYINT NOT NULL DEFAULT 1,
+  supports_payout TINYINT NOT NULL DEFAULT 0,
+  upstream_collect_cost_bps INT NOT NULL DEFAULT 0 COMMENT '代收上游成本（万分比）',
+  upstream_payout_cost_bps INT NOT NULL DEFAULT 0 COMMENT '代付上游成本（万分比）',
   enabled TINYINT NOT NULL DEFAULT 1,
   fuse_enabled TINYINT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -36,7 +42,7 @@ CREATE TABLE IF NOT EXISTS channels (
   KEY idx_enabled_fuse (enabled, fuse_enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 对外支付产品（微信、支付宝等）；与 channels 多对多，见 pay_product_channels
+-- 对外代收产品（微信、支付宝等）
 CREATE TABLE IF NOT EXISTS pay_products (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   code VARCHAR(32) NOT NULL,
@@ -50,12 +56,27 @@ CREATE TABLE IF NOT EXISTS pay_products (
   KEY idx_enabled_sort (enabled, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 某支付产品下可用哪些上游通道及路由权重（权重用于同产品内加权随机）
+-- 对外代付产品（代付到卡/钱包等）
+CREATE TABLE IF NOT EXISTS payout_products (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  code VARCHAR(32) NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  enabled TINYINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_payout_product_code (code),
+  KEY idx_enabled_sort (enabled, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 代收产品 ↔ 通道；cost_rate_bps NULL 表示使用通道 upstream_collect_cost_bps
 CREATE TABLE IF NOT EXISTS pay_product_channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   pay_product_id BIGINT UNSIGNED NOT NULL,
   channel_id BIGINT UNSIGNED NOT NULL,
   weight INT NOT NULL DEFAULT 100,
+  cost_rate_bps INT NULL COMMENT '覆盖通道默认代收成本，NULL=用通道默认值',
   enabled TINYINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -66,17 +87,49 @@ CREATE TABLE IF NOT EXISTS pay_product_channels (
   CONSTRAINT fk_ppc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 商户可用的支付产品（白名单）；收银台仅展示此处配置且平台侧仍可用的产品
+-- 代付产品 ↔ 通道
+CREATE TABLE IF NOT EXISTS payout_product_channels (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  payout_product_id BIGINT UNSIGNED NOT NULL,
+  channel_id BIGINT UNSIGNED NOT NULL,
+  weight INT NOT NULL DEFAULT 100,
+  cost_rate_bps INT NULL COMMENT '覆盖通道默认代付成本，NULL=用通道默认值',
+  enabled TINYINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_payout_product_channel (payout_product_id, channel_id),
+  KEY idx_channel (channel_id),
+  CONSTRAINT fk_ppoc_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE,
+  CONSTRAINT fk_ppoc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 商户代收产品白名单；merchant_rate_bps NULL 表示使用 merchants.default_collect_rate_bps
 CREATE TABLE IF NOT EXISTS merchant_pay_products (
   merchant_id VARCHAR(64) NOT NULL,
   pay_product_id BIGINT UNSIGNED NOT NULL,
   enabled TINYINT NOT NULL DEFAULT 1,
   sort_order INT NOT NULL DEFAULT 0,
+  merchant_rate_bps INT NULL COMMENT '对该商户该代收产品的费率，NULL=用商户默认代收费率',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (merchant_id, pay_product_id),
   KEY idx_merchant (merchant_id, enabled),
   CONSTRAINT fk_mpp_product FOREIGN KEY (pay_product_id) REFERENCES pay_products (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 商户代付产品白名单
+CREATE TABLE IF NOT EXISTS merchant_payout_products (
+  merchant_id VARCHAR(64) NOT NULL,
+  payout_product_id BIGINT UNSIGNED NOT NULL,
+  enabled TINYINT NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  merchant_rate_bps INT NULL COMMENT '对该商户该代付产品的费率，NULL=用商户默认代付费率',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (merchant_id, payout_product_id),
+  KEY idx_merchant (merchant_id, enabled),
+  CONSTRAINT fk_mppo_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS orders (

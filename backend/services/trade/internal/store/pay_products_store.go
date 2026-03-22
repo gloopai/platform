@@ -58,7 +58,7 @@ FROM pay_products pp
 INNER JOIN pay_product_channels ppc ON pp.id = ppc.pay_product_id AND ppc.enabled = 1
 INNER JOIN channels c ON c.id = ppc.channel_id
 WHERE pp.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND ppc.weight > 0
+  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_collect = 1 AND ppc.weight > 0
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY pp.sort_order ASC, pp.id ASC
@@ -90,7 +90,7 @@ func (s *PayProductsStore) listLegacyChannelPayTypes(ctx context.Context, amount
 	rows, err := s.db.QueryContext(ctx, `
 SELECT DISTINCT COALESCE(NULLIF(TRIM(pay_type), ''), 'mock')
 FROM channels
-WHERE enabled = 1 AND fuse_enabled = 0 AND weight > 0
+WHERE enabled = 1 AND fuse_enabled = 0 AND supports_collect = 1 AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)
   AND (max_amount = 0 OR max_amount >= ?)
 ORDER BY 1
@@ -127,7 +127,7 @@ INNER JOIN merchant_pay_products mpp ON mpp.pay_product_id = pp.id AND mpp.merch
 INNER JOIN pay_product_channels ppc ON pp.id = ppc.pay_product_id AND ppc.enabled = 1
 INNER JOIN channels c ON c.id = ppc.channel_id
 WHERE pp.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND ppc.weight > 0
+  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_collect = 1 AND ppc.weight > 0
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY mpp.sort_order ASC, pp.sort_order ASC, pp.id ASC
@@ -200,7 +200,7 @@ INNER JOIN pay_products pp ON pp.id = ppc.pay_product_id AND pp.enabled = 1
 INNER JOIN channels c ON c.id = ppc.channel_id
 INNER JOIN merchant_pay_products mpp ON mpp.pay_product_id = pp.id AND mpp.merchant_id = ? AND mpp.enabled = 1
 WHERE ppc.channel_id = ? AND ppc.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND ppc.weight > 0
+  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_collect = 1 AND ppc.weight > 0
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY ppc.weight DESC, pp.id ASC
@@ -213,7 +213,7 @@ FROM pay_product_channels ppc
 INNER JOIN pay_products pp ON pp.id = ppc.pay_product_id AND pp.enabled = 1
 INNER JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.channel_id = ? AND ppc.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND ppc.weight > 0
+  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_collect = 1 AND ppc.weight > 0
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY ppc.weight DESC, pp.id ASC

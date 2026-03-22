@@ -10,21 +10,37 @@ service Merchant {
   rpc CreateMerchant(CreateMerchantReq) returns(UpsertMerchantResp);
   rpc UpdateMerchant(UpdateMerchantReq) returns(UpsertMerchantResp);
   rpc ReplaceMerchantPayProducts(ReplaceMerchantPayProductsReq) returns (ReplaceMerchantPayProductsResp);
+  rpc ReplaceMerchantPayoutProducts(ReplaceMerchantPayoutProductsReq) returns (ReplaceMerchantPayoutProductsResp);
   rpc ListMerchantPayProductIds(ListMerchantPayProductIdsReq) returns (ListMerchantPayProductIdsResp);
+  rpc ListMerchantPayoutProductIds(ListMerchantPayoutProductIdsReq) returns (ListMerchantPayoutProductIdsResp);
+}
+
+message MerchantCollectGrant {
+  int64 pay_product_id = 1;
+  optional int64 merchant_rate_bps = 2;
+}
+
+message MerchantPayoutGrant {
+  int64 payout_product_id = 1;
+  optional int64 merchant_rate_bps = 2;
 }
 
 message MerchantInfo {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 rate_bps = 4;
-  string ip_whitelist = 5;
-  int64 balance = 6;
-  int64 frozen_balance = 7;
-  int64 withdrawn_amount = 8;
-  string notify_url = 9;
-  string return_url = 10;
-  repeated int64 pay_product_ids = 11;
+  int64 default_collect_rate_bps = 4;
+  int64 default_payout_rate_bps = 5;
+  string ip_whitelist = 6;
+  int64 balance = 7;
+  int64 frozen_balance = 8;
+  int64 withdrawn_amount = 9;
+  string notify_url = 10;
+  string return_url = 11;
+  repeated int64 pay_product_ids = 12;
+  repeated int64 payout_product_ids = 13;
+  repeated MerchantCollectGrant collect_grants = 14;
+  repeated MerchantPayoutGrant payout_grants = 15;
 }
 
 message GetMerchantReq {
@@ -46,7 +62,8 @@ message GetAuthInfoResp {
   string notify_url = 4;
   string return_url = 5;
   int64 balance = 6;
-  int64 rate_bps = 7;
+  int64 default_collect_rate_bps = 7;
+  int64 default_payout_rate_bps = 8;
 }
 
 message ListMerchantsReq {
@@ -61,21 +78,24 @@ message CreateMerchantReq {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 rate_bps = 4;
-  string notify_url = 5;
-  string return_url = 6;
-  string ip_whitelist = 7;
-  repeated int64 pay_product_ids = 8;
+  int64 default_collect_rate_bps = 4;
+  int64 default_payout_rate_bps = 5;
+  string notify_url = 6;
+  string return_url = 7;
+  string ip_whitelist = 8;
+  repeated int64 pay_product_ids = 9;
+  repeated int64 payout_product_ids = 10;
 }
 
 message UpdateMerchantReq {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 rate_bps = 4;
-  string notify_url = 5;
-  string return_url = 6;
-  string ip_whitelist = 7;
+  int64 default_collect_rate_bps = 4;
+  int64 default_payout_rate_bps = 5;
+  string notify_url = 6;
+  string return_url = 7;
+  string ip_whitelist = 8;
 }
 
 message UpsertMerchantResp {
@@ -84,10 +104,19 @@ message UpsertMerchantResp {
 
 message ReplaceMerchantPayProductsReq {
   string merchant_id = 1;
-  repeated int64 pay_product_ids = 2;
+  repeated MerchantCollectGrant grants = 2;
 }
 
 message ReplaceMerchantPayProductsResp {
+  bool ok = 1;
+}
+
+message ReplaceMerchantPayoutProductsReq {
+  string merchant_id = 1;
+  repeated MerchantPayoutGrant grants = 2;
+}
+
+message ReplaceMerchantPayoutProductsResp {
   bool ok = 1;
 }
 
@@ -96,5 +125,13 @@ message ListMerchantPayProductIdsReq {
 }
 
 message ListMerchantPayProductIdsResp {
-  repeated int64 pay_product_ids = 1;
+  repeated MerchantCollectGrant grants = 1;
+}
+
+message ListMerchantPayoutProductIdsReq {
+  string merchant_id = 1;
+}
+
+message ListMerchantPayoutProductIdsResp {
+  repeated MerchantPayoutGrant grants = 1;
 }

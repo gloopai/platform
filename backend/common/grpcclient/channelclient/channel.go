@@ -36,6 +36,14 @@ type (
 		AdminUpsertPayProductBinding(ctx context.Context, in *channel.AdminUpsertPayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductBindingResp, error)
 		AdminUpdatePayProductBinding(ctx context.Context, in *channel.AdminUpdatePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayProductBindingResp, error)
 		AdminDeletePayProductBinding(ctx context.Context, in *channel.AdminDeletePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayProductBindingResp, error)
+
+		AdminListPayoutProducts(ctx context.Context, in *channel.AdminListPayoutProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductsResp, error)
+		AdminCreatePayoutProduct(ctx context.Context, in *channel.AdminCreatePayoutProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductResp, error)
+		AdminUpdatePayoutProduct(ctx context.Context, in *channel.AdminUpdatePayoutProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductResp, error)
+		AdminListPayoutProductBindings(ctx context.Context, in *channel.AdminListPayoutProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductBindingsResp, error)
+		AdminUpsertPayoutProductBinding(ctx context.Context, in *channel.AdminUpsertPayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductBindingResp, error)
+		AdminUpdatePayoutProductBinding(ctx context.Context, in *channel.AdminUpdatePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayoutProductBindingResp, error)
+		AdminDeletePayoutProductBinding(ctx context.Context, in *channel.AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayoutProductBindingResp, error)
 	}
 
 	defaultChannel struct {
@@ -117,4 +125,32 @@ func (m *defaultChannel) AdminUpdatePayProductBinding(ctx context.Context, in *c
 
 func (m *defaultChannel) AdminDeletePayProductBinding(ctx context.Context, in *channel.AdminDeletePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayProductBindingResp, error) {
 	return m.client().AdminDeletePayProductBinding(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminListPayoutProducts(ctx context.Context, in *channel.AdminListPayoutProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductsResp, error) {
+	return m.client().AdminListPayoutProducts(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminCreatePayoutProduct(ctx context.Context, in *channel.AdminCreatePayoutProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductResp, error) {
+	return m.client().AdminCreatePayoutProduct(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminUpdatePayoutProduct(ctx context.Context, in *channel.AdminUpdatePayoutProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductResp, error) {
+	return m.client().AdminUpdatePayoutProduct(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminListPayoutProductBindings(ctx context.Context, in *channel.AdminListPayoutProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductBindingsResp, error) {
+	return m.client().AdminListPayoutProductBindings(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminUpsertPayoutProductBinding(ctx context.Context, in *channel.AdminUpsertPayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductBindingResp, error) {
+	return m.client().AdminUpsertPayoutProductBinding(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminUpdatePayoutProductBinding(ctx context.Context, in *channel.AdminUpdatePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayoutProductBindingResp, error) {
+	return m.client().AdminUpdatePayoutProductBinding(ctx, in, opts...)
+}
+
+func (m *defaultChannel) AdminDeletePayoutProductBinding(ctx context.Context, in *channel.AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayoutProductBindingResp, error) {
+	return m.client().AdminDeletePayoutProductBinding(ctx, in, opts...)
 }

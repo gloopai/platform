@@ -19,13 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Merchant_GetMerchant_FullMethodName                = "/merchant.Merchant/GetMerchant"
-	Merchant_GetAuthInfo_FullMethodName                = "/merchant.Merchant/GetAuthInfo"
-	Merchant_ListMerchants_FullMethodName              = "/merchant.Merchant/ListMerchants"
-	Merchant_CreateMerchant_FullMethodName             = "/merchant.Merchant/CreateMerchant"
-	Merchant_UpdateMerchant_FullMethodName             = "/merchant.Merchant/UpdateMerchant"
-	Merchant_ReplaceMerchantPayProducts_FullMethodName = "/merchant.Merchant/ReplaceMerchantPayProducts"
-	Merchant_ListMerchantPayProductIds_FullMethodName  = "/merchant.Merchant/ListMerchantPayProductIds"
+	Merchant_GetMerchant_FullMethodName                   = "/merchant.Merchant/GetMerchant"
+	Merchant_GetAuthInfo_FullMethodName                   = "/merchant.Merchant/GetAuthInfo"
+	Merchant_ListMerchants_FullMethodName                 = "/merchant.Merchant/ListMerchants"
+	Merchant_CreateMerchant_FullMethodName                = "/merchant.Merchant/CreateMerchant"
+	Merchant_UpdateMerchant_FullMethodName                = "/merchant.Merchant/UpdateMerchant"
+	Merchant_ReplaceMerchantPayProducts_FullMethodName    = "/merchant.Merchant/ReplaceMerchantPayProducts"
+	Merchant_ReplaceMerchantPayoutProducts_FullMethodName = "/merchant.Merchant/ReplaceMerchantPayoutProducts"
+	Merchant_ListMerchantPayProductIds_FullMethodName     = "/merchant.Merchant/ListMerchantPayProductIds"
+	Merchant_ListMerchantPayoutProductIds_FullMethodName  = "/merchant.Merchant/ListMerchantPayoutProductIds"
 )
 
 // MerchantClient is the client API for Merchant service.
@@ -38,7 +40,9 @@ type MerchantClient interface {
 	CreateMerchant(ctx context.Context, in *CreateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 	UpdateMerchant(ctx context.Context, in *UpdateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 	ReplaceMerchantPayProducts(ctx context.Context, in *ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayProductsResp, error)
+	ReplaceMerchantPayoutProducts(ctx context.Context, in *ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayoutProductsResp, error)
 	ListMerchantPayProductIds(ctx context.Context, in *ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayProductIdsResp, error)
+	ListMerchantPayoutProductIds(ctx context.Context, in *ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayoutProductIdsResp, error)
 }
 
 type merchantClient struct {
@@ -109,10 +113,30 @@ func (c *merchantClient) ReplaceMerchantPayProducts(ctx context.Context, in *Rep
 	return out, nil
 }
 
+func (c *merchantClient) ReplaceMerchantPayoutProducts(ctx context.Context, in *ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayoutProductsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReplaceMerchantPayoutProductsResp)
+	err := c.cc.Invoke(ctx, Merchant_ReplaceMerchantPayoutProducts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *merchantClient) ListMerchantPayProductIds(ctx context.Context, in *ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayProductIdsResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListMerchantPayProductIdsResp)
 	err := c.cc.Invoke(ctx, Merchant_ListMerchantPayProductIds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *merchantClient) ListMerchantPayoutProductIds(ctx context.Context, in *ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayoutProductIdsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMerchantPayoutProductIdsResp)
+	err := c.cc.Invoke(ctx, Merchant_ListMerchantPayoutProductIds_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +153,9 @@ type MerchantServer interface {
 	CreateMerchant(context.Context, *CreateMerchantReq) (*UpsertMerchantResp, error)
 	UpdateMerchant(context.Context, *UpdateMerchantReq) (*UpsertMerchantResp, error)
 	ReplaceMerchantPayProducts(context.Context, *ReplaceMerchantPayProductsReq) (*ReplaceMerchantPayProductsResp, error)
+	ReplaceMerchantPayoutProducts(context.Context, *ReplaceMerchantPayoutProductsReq) (*ReplaceMerchantPayoutProductsResp, error)
 	ListMerchantPayProductIds(context.Context, *ListMerchantPayProductIdsReq) (*ListMerchantPayProductIdsResp, error)
+	ListMerchantPayoutProductIds(context.Context, *ListMerchantPayoutProductIdsReq) (*ListMerchantPayoutProductIdsResp, error)
 	mustEmbedUnimplementedMerchantServer()
 }
 
@@ -158,8 +184,14 @@ func (UnimplementedMerchantServer) UpdateMerchant(context.Context, *UpdateMercha
 func (UnimplementedMerchantServer) ReplaceMerchantPayProducts(context.Context, *ReplaceMerchantPayProductsReq) (*ReplaceMerchantPayProductsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReplaceMerchantPayProducts not implemented")
 }
+func (UnimplementedMerchantServer) ReplaceMerchantPayoutProducts(context.Context, *ReplaceMerchantPayoutProductsReq) (*ReplaceMerchantPayoutProductsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplaceMerchantPayoutProducts not implemented")
+}
 func (UnimplementedMerchantServer) ListMerchantPayProductIds(context.Context, *ListMerchantPayProductIdsReq) (*ListMerchantPayProductIdsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantPayProductIds not implemented")
+}
+func (UnimplementedMerchantServer) ListMerchantPayoutProductIds(context.Context, *ListMerchantPayoutProductIdsReq) (*ListMerchantPayoutProductIdsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantPayoutProductIds not implemented")
 }
 func (UnimplementedMerchantServer) mustEmbedUnimplementedMerchantServer() {}
 func (UnimplementedMerchantServer) testEmbeddedByValue()                  {}
@@ -290,6 +322,24 @@ func _Merchant_ReplaceMerchantPayProducts_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Merchant_ReplaceMerchantPayoutProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplaceMerchantPayoutProductsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServer).ReplaceMerchantPayoutProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Merchant_ReplaceMerchantPayoutProducts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServer).ReplaceMerchantPayoutProducts(ctx, req.(*ReplaceMerchantPayoutProductsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Merchant_ListMerchantPayProductIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListMerchantPayProductIdsReq)
 	if err := dec(in); err != nil {
@@ -304,6 +354,24 @@ func _Merchant_ListMerchantPayProductIds_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MerchantServer).ListMerchantPayProductIds(ctx, req.(*ListMerchantPayProductIdsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Merchant_ListMerchantPayoutProductIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMerchantPayoutProductIdsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MerchantServer).ListMerchantPayoutProductIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Merchant_ListMerchantPayoutProductIds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MerchantServer).ListMerchantPayoutProductIds(ctx, req.(*ListMerchantPayoutProductIdsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -340,8 +408,16 @@ var Merchant_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Merchant_ReplaceMerchantPayProducts_Handler,
 		},
 		{
+			MethodName: "ReplaceMerchantPayoutProducts",
+			Handler:    _Merchant_ReplaceMerchantPayoutProducts_Handler,
+		},
+		{
 			MethodName: "ListMerchantPayProductIds",
 			Handler:    _Merchant_ListMerchantPayProductIds_Handler,
+		},
+		{
+			MethodName: "ListMerchantPayoutProductIds",
+			Handler:    _Merchant_ListMerchantPayoutProductIds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

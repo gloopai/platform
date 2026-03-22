@@ -36,13 +36,18 @@ const (
 	Channel_AdminUpsertPayProductBinding_FullMethodName    = "/channel.Channel/AdminUpsertPayProductBinding"
 	Channel_AdminUpdatePayProductBinding_FullMethodName    = "/channel.Channel/AdminUpdatePayProductBinding"
 	Channel_AdminDeletePayProductBinding_FullMethodName    = "/channel.Channel/AdminDeletePayProductBinding"
+	Channel_AdminListPayoutProducts_FullMethodName         = "/channel.Channel/AdminListPayoutProducts"
+	Channel_AdminCreatePayoutProduct_FullMethodName        = "/channel.Channel/AdminCreatePayoutProduct"
+	Channel_AdminUpdatePayoutProduct_FullMethodName        = "/channel.Channel/AdminUpdatePayoutProduct"
+	Channel_AdminListPayoutProductBindings_FullMethodName  = "/channel.Channel/AdminListPayoutProductBindings"
+	Channel_AdminUpsertPayoutProductBinding_FullMethodName = "/channel.Channel/AdminUpsertPayoutProductBinding"
+	Channel_AdminUpdatePayoutProductBinding_FullMethodName = "/channel.Channel/AdminUpdatePayoutProductBinding"
+	Channel_AdminDeletePayoutProductBinding_FullMethodName = "/channel.Channel/AdminDeletePayoutProductBinding"
 )
 
 // ChannelClient is the client API for Channel service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// 通道、支付产品与路由配置（原 gateway 直连库逻辑收口至 trade）
 type ChannelClient interface {
 	Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
@@ -61,6 +66,13 @@ type ChannelClient interface {
 	AdminUpsertPayProductBinding(ctx context.Context, in *AdminUpsertPayProductBindingReq, opts ...grpc.CallOption) (*AdminUpsertPayProductBindingResp, error)
 	AdminUpdatePayProductBinding(ctx context.Context, in *AdminUpdatePayProductBindingReq, opts ...grpc.CallOption) (*AdminUpdatePayProductBindingResp, error)
 	AdminDeletePayProductBinding(ctx context.Context, in *AdminDeletePayProductBindingReq, opts ...grpc.CallOption) (*AdminDeletePayProductBindingResp, error)
+	AdminListPayoutProducts(ctx context.Context, in *AdminListPayoutProductsReq, opts ...grpc.CallOption) (*AdminListPayoutProductsResp, error)
+	AdminCreatePayoutProduct(ctx context.Context, in *AdminCreatePayoutProductReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductResp, error)
+	AdminUpdatePayoutProduct(ctx context.Context, in *AdminUpdatePayoutProductReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductResp, error)
+	AdminListPayoutProductBindings(ctx context.Context, in *AdminListPayoutProductBindingsReq, opts ...grpc.CallOption) (*AdminListPayoutProductBindingsResp, error)
+	AdminUpsertPayoutProductBinding(ctx context.Context, in *AdminUpsertPayoutProductBindingReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductBindingResp, error)
+	AdminUpdatePayoutProductBinding(ctx context.Context, in *AdminUpdatePayoutProductBindingReq, opts ...grpc.CallOption) (*AdminUpdatePayoutProductBindingResp, error)
+	AdminDeletePayoutProductBinding(ctx context.Context, in *AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*AdminDeletePayoutProductBindingResp, error)
 }
 
 type channelClient struct {
@@ -241,11 +253,79 @@ func (c *channelClient) AdminDeletePayProductBinding(ctx context.Context, in *Ad
 	return out, nil
 }
 
+func (c *channelClient) AdminListPayoutProducts(ctx context.Context, in *AdminListPayoutProductsReq, opts ...grpc.CallOption) (*AdminListPayoutProductsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminListPayoutProductsResp)
+	err := c.cc.Invoke(ctx, Channel_AdminListPayoutProducts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminCreatePayoutProduct(ctx context.Context, in *AdminCreatePayoutProductReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminUpsertPayoutProductResp)
+	err := c.cc.Invoke(ctx, Channel_AdminCreatePayoutProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminUpdatePayoutProduct(ctx context.Context, in *AdminUpdatePayoutProductReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminUpsertPayoutProductResp)
+	err := c.cc.Invoke(ctx, Channel_AdminUpdatePayoutProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminListPayoutProductBindings(ctx context.Context, in *AdminListPayoutProductBindingsReq, opts ...grpc.CallOption) (*AdminListPayoutProductBindingsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminListPayoutProductBindingsResp)
+	err := c.cc.Invoke(ctx, Channel_AdminListPayoutProductBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminUpsertPayoutProductBinding(ctx context.Context, in *AdminUpsertPayoutProductBindingReq, opts ...grpc.CallOption) (*AdminUpsertPayoutProductBindingResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminUpsertPayoutProductBindingResp)
+	err := c.cc.Invoke(ctx, Channel_AdminUpsertPayoutProductBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminUpdatePayoutProductBinding(ctx context.Context, in *AdminUpdatePayoutProductBindingReq, opts ...grpc.CallOption) (*AdminUpdatePayoutProductBindingResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminUpdatePayoutProductBindingResp)
+	err := c.cc.Invoke(ctx, Channel_AdminUpdatePayoutProductBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) AdminDeletePayoutProductBinding(ctx context.Context, in *AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*AdminDeletePayoutProductBindingResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminDeletePayoutProductBindingResp)
+	err := c.cc.Invoke(ctx, Channel_AdminDeletePayoutProductBinding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChannelServer is the server API for Channel service.
 // All implementations must embed UnimplementedChannelServer
 // for forward compatibility.
-//
-// 通道、支付产品与路由配置（原 gateway 直连库逻辑收口至 trade）
 type ChannelServer interface {
 	Route(context.Context, *RouteReq) (*RouteResp, error)
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
@@ -264,6 +344,13 @@ type ChannelServer interface {
 	AdminUpsertPayProductBinding(context.Context, *AdminUpsertPayProductBindingReq) (*AdminUpsertPayProductBindingResp, error)
 	AdminUpdatePayProductBinding(context.Context, *AdminUpdatePayProductBindingReq) (*AdminUpdatePayProductBindingResp, error)
 	AdminDeletePayProductBinding(context.Context, *AdminDeletePayProductBindingReq) (*AdminDeletePayProductBindingResp, error)
+	AdminListPayoutProducts(context.Context, *AdminListPayoutProductsReq) (*AdminListPayoutProductsResp, error)
+	AdminCreatePayoutProduct(context.Context, *AdminCreatePayoutProductReq) (*AdminUpsertPayoutProductResp, error)
+	AdminUpdatePayoutProduct(context.Context, *AdminUpdatePayoutProductReq) (*AdminUpsertPayoutProductResp, error)
+	AdminListPayoutProductBindings(context.Context, *AdminListPayoutProductBindingsReq) (*AdminListPayoutProductBindingsResp, error)
+	AdminUpsertPayoutProductBinding(context.Context, *AdminUpsertPayoutProductBindingReq) (*AdminUpsertPayoutProductBindingResp, error)
+	AdminUpdatePayoutProductBinding(context.Context, *AdminUpdatePayoutProductBindingReq) (*AdminUpdatePayoutProductBindingResp, error)
+	AdminDeletePayoutProductBinding(context.Context, *AdminDeletePayoutProductBindingReq) (*AdminDeletePayoutProductBindingResp, error)
 	mustEmbedUnimplementedChannelServer()
 }
 
@@ -324,6 +411,27 @@ func (UnimplementedChannelServer) AdminUpdatePayProductBinding(context.Context, 
 }
 func (UnimplementedChannelServer) AdminDeletePayProductBinding(context.Context, *AdminDeletePayProductBindingReq) (*AdminDeletePayProductBindingResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDeletePayProductBinding not implemented")
+}
+func (UnimplementedChannelServer) AdminListPayoutProducts(context.Context, *AdminListPayoutProductsReq) (*AdminListPayoutProductsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListPayoutProducts not implemented")
+}
+func (UnimplementedChannelServer) AdminCreatePayoutProduct(context.Context, *AdminCreatePayoutProductReq) (*AdminUpsertPayoutProductResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminCreatePayoutProduct not implemented")
+}
+func (UnimplementedChannelServer) AdminUpdatePayoutProduct(context.Context, *AdminUpdatePayoutProductReq) (*AdminUpsertPayoutProductResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdatePayoutProduct not implemented")
+}
+func (UnimplementedChannelServer) AdminListPayoutProductBindings(context.Context, *AdminListPayoutProductBindingsReq) (*AdminListPayoutProductBindingsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListPayoutProductBindings not implemented")
+}
+func (UnimplementedChannelServer) AdminUpsertPayoutProductBinding(context.Context, *AdminUpsertPayoutProductBindingReq) (*AdminUpsertPayoutProductBindingResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpsertPayoutProductBinding not implemented")
+}
+func (UnimplementedChannelServer) AdminUpdatePayoutProductBinding(context.Context, *AdminUpdatePayoutProductBindingReq) (*AdminUpdatePayoutProductBindingResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUpdatePayoutProductBinding not implemented")
+}
+func (UnimplementedChannelServer) AdminDeletePayoutProductBinding(context.Context, *AdminDeletePayoutProductBindingReq) (*AdminDeletePayoutProductBindingResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDeletePayoutProductBinding not implemented")
 }
 func (UnimplementedChannelServer) mustEmbedUnimplementedChannelServer() {}
 func (UnimplementedChannelServer) testEmbeddedByValue()                 {}
@@ -652,6 +760,132 @@ func _Channel_AdminDeletePayProductBinding_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Channel_AdminListPayoutProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminListPayoutProductsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminListPayoutProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminListPayoutProducts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminListPayoutProducts(ctx, req.(*AdminListPayoutProductsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminCreatePayoutProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminCreatePayoutProductReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminCreatePayoutProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminCreatePayoutProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminCreatePayoutProduct(ctx, req.(*AdminCreatePayoutProductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminUpdatePayoutProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUpdatePayoutProductReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminUpdatePayoutProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminUpdatePayoutProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminUpdatePayoutProduct(ctx, req.(*AdminUpdatePayoutProductReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminListPayoutProductBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminListPayoutProductBindingsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminListPayoutProductBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminListPayoutProductBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminListPayoutProductBindings(ctx, req.(*AdminListPayoutProductBindingsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminUpsertPayoutProductBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUpsertPayoutProductBindingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminUpsertPayoutProductBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminUpsertPayoutProductBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminUpsertPayoutProductBinding(ctx, req.(*AdminUpsertPayoutProductBindingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminUpdatePayoutProductBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUpdatePayoutProductBindingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminUpdatePayoutProductBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminUpdatePayoutProductBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminUpdatePayoutProductBinding(ctx, req.(*AdminUpdatePayoutProductBindingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_AdminDeletePayoutProductBinding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminDeletePayoutProductBindingReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).AdminDeletePayoutProductBinding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_AdminDeletePayoutProductBinding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).AdminDeletePayoutProductBinding(ctx, req.(*AdminDeletePayoutProductBindingReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Channel_ServiceDesc is the grpc.ServiceDesc for Channel service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -726,6 +960,34 @@ var Channel_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminDeletePayProductBinding",
 			Handler:    _Channel_AdminDeletePayProductBinding_Handler,
+		},
+		{
+			MethodName: "AdminListPayoutProducts",
+			Handler:    _Channel_AdminListPayoutProducts_Handler,
+		},
+		{
+			MethodName: "AdminCreatePayoutProduct",
+			Handler:    _Channel_AdminCreatePayoutProduct_Handler,
+		},
+		{
+			MethodName: "AdminUpdatePayoutProduct",
+			Handler:    _Channel_AdminUpdatePayoutProduct_Handler,
+		},
+		{
+			MethodName: "AdminListPayoutProductBindings",
+			Handler:    _Channel_AdminListPayoutProductBindings_Handler,
+		},
+		{
+			MethodName: "AdminUpsertPayoutProductBinding",
+			Handler:    _Channel_AdminUpsertPayoutProductBinding_Handler,
+		},
+		{
+			MethodName: "AdminUpdatePayoutProductBinding",
+			Handler:    _Channel_AdminUpdatePayoutProductBinding_Handler,
+		},
+		{
+			MethodName: "AdminDeletePayoutProductBinding",
+			Handler:    _Channel_AdminDeletePayoutProductBinding_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

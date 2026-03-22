@@ -49,6 +49,32 @@
 
       <div class="col-span-12 grid grid-cols-12 gap-4">
         <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 md:col-span-6">
+          <div class="text-sm text-slate-700">支持代收</div>
+          <input v-model="model.supports_collect" type="checkbox" class="h-4 w-4" />
+        </label>
+        <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 md:col-span-6">
+          <div class="text-sm text-slate-700">支持代付</div>
+          <input v-model="model.supports_payout" type="checkbox" class="h-4 w-4" />
+        </label>
+        <label class="col-span-12 grid gap-1 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">上游代收成本（万分比）</span>
+          <input
+            v-model.number="model.upstream_collect_cost_bps"
+            type="number"
+            min="0"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
+          />
+        </label>
+        <label class="col-span-12 grid gap-1 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">上游代付成本（万分比）</span>
+          <input
+            v-model.number="model.upstream_payout_cost_bps"
+            type="number"
+            min="0"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
+          />
+        </label>
+        <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 md:col-span-6">
           <div class="text-sm text-slate-700">启用通道</div>
           <input v-model="model.enabled" type="checkbox" class="h-4 w-4" />
         </label>

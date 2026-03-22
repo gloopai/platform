@@ -250,21 +250,25 @@ func (*ListChannelsReq) Descriptor() ([]byte, []int) {
 }
 
 type ChannelRow struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name               string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayType            string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	GatewayUrl         string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
-	UpstreamMerchantNo string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
-	RsaPrivateKey      string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
-	SignSecret         string                 `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
-	Weight             int64                  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
-	MinAmount          int64                  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
-	MaxAmount          int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
-	Enabled            bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	FuseEnabled        bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Id                     int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	PayType                string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	GatewayUrl             string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
+	UpstreamMerchantNo     string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
+	RsaPrivateKey          string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
+	SignSecret             string                 `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
+	Weight                 int64                  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
+	MinAmount              int64                  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
+	MaxAmount              int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	Enabled                bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
+	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
+	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
+	UpstreamCollectCostBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_cost_bps,json=upstreamCollectCostBps,proto3" json:"upstream_collect_cost_bps,omitempty"`
+	UpstreamPayoutCostBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_cost_bps,json=upstreamPayoutCostBps,proto3" json:"upstream_payout_cost_bps,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ChannelRow) Reset() {
@@ -381,6 +385,34 @@ func (x *ChannelRow) GetFuseEnabled() bool {
 	return false
 }
 
+func (x *ChannelRow) GetSupportsCollect() bool {
+	if x != nil {
+		return x.SupportsCollect
+	}
+	return false
+}
+
+func (x *ChannelRow) GetSupportsPayout() bool {
+	if x != nil {
+		return x.SupportsPayout
+	}
+	return false
+}
+
+func (x *ChannelRow) GetUpstreamCollectCostBps() int64 {
+	if x != nil {
+		return x.UpstreamCollectCostBps
+	}
+	return 0
+}
+
+func (x *ChannelRow) GetUpstreamPayoutCostBps() int64 {
+	if x != nil {
+		return x.UpstreamPayoutCostBps
+	}
+	return 0
+}
+
 type ListChannelsResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Channels      []*ChannelRow          `protobuf:"bytes,1,rep,name=channels,proto3" json:"channels,omitempty"`
@@ -426,21 +458,25 @@ func (x *ListChannelsResp) GetChannels() []*ChannelRow {
 }
 
 type UpsertChannelReq struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name               string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayType            string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	GatewayUrl         string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
-	UpstreamMerchantNo string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
-	RsaPrivateKey      string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
-	SignSecret         string                 `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
-	Weight             int64                  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
-	MinAmount          int64                  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
-	MaxAmount          int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
-	Enabled            bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	FuseEnabled        bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Id                     int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	PayType                string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	GatewayUrl             string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
+	UpstreamMerchantNo     string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
+	RsaPrivateKey          string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
+	SignSecret             string                 `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
+	Weight                 int64                  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
+	MinAmount              int64                  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
+	MaxAmount              int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	Enabled                bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
+	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
+	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
+	UpstreamCollectCostBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_cost_bps,json=upstreamCollectCostBps,proto3" json:"upstream_collect_cost_bps,omitempty"`
+	UpstreamPayoutCostBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_cost_bps,json=upstreamPayoutCostBps,proto3" json:"upstream_payout_cost_bps,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *UpsertChannelReq) Reset() {
@@ -557,6 +593,34 @@ func (x *UpsertChannelReq) GetFuseEnabled() bool {
 	return false
 }
 
+func (x *UpsertChannelReq) GetSupportsCollect() bool {
+	if x != nil {
+		return x.SupportsCollect
+	}
+	return false
+}
+
+func (x *UpsertChannelReq) GetSupportsPayout() bool {
+	if x != nil {
+		return x.SupportsPayout
+	}
+	return false
+}
+
+func (x *UpsertChannelReq) GetUpstreamCollectCostBps() int64 {
+	if x != nil {
+		return x.UpstreamCollectCostBps
+	}
+	return 0
+}
+
+func (x *UpsertChannelReq) GetUpstreamPayoutCostBps() int64 {
+	if x != nil {
+		return x.UpstreamPayoutCostBps
+	}
+	return 0
+}
+
 type UpsertChannelResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Channel       *ChannelRow            `protobuf:"bytes,1,opt,name=channel,proto3" json:"channel,omitempty"`
@@ -638,16 +702,19 @@ func (*GetRoutingSummaryReq) Descriptor() ([]byte, []int) {
 }
 
 type GetRoutingSummaryResp struct {
-	state                  protoimpl.MessageState `protogen:"open.v1"`
-	AlgorithmKey           string                 `protobuf:"bytes,1,opt,name=algorithm_key,json=algorithmKey,proto3" json:"algorithm_key,omitempty"`
-	AlgorithmLabel         string                 `protobuf:"bytes,2,opt,name=algorithm_label,json=algorithmLabel,proto3" json:"algorithm_label,omitempty"`
-	EnabledPayProducts     int64                  `protobuf:"varint,3,opt,name=enabled_pay_products,json=enabledPayProducts,proto3" json:"enabled_pay_products,omitempty"`
-	EnabledChannels        int64                  `protobuf:"varint,4,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
-	ActiveBindings         int64                  `protobuf:"varint,5,opt,name=active_bindings,json=activeBindings,proto3" json:"active_bindings,omitempty"`
-	MerchantsWithWhitelist int64                  `protobuf:"varint,6,opt,name=merchants_with_whitelist,json=merchantsWithWhitelist,proto3" json:"merchants_with_whitelist,omitempty"`
-	FusedChannels          int64                  `protobuf:"varint,7,opt,name=fused_channels,json=fusedChannels,proto3" json:"fused_channels,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                         protoimpl.MessageState `protogen:"open.v1"`
+	AlgorithmKey                  string                 `protobuf:"bytes,1,opt,name=algorithm_key,json=algorithmKey,proto3" json:"algorithm_key,omitempty"`
+	AlgorithmLabel                string                 `protobuf:"bytes,2,opt,name=algorithm_label,json=algorithmLabel,proto3" json:"algorithm_label,omitempty"`
+	EnabledPayProducts            int64                  `protobuf:"varint,3,opt,name=enabled_pay_products,json=enabledPayProducts,proto3" json:"enabled_pay_products,omitempty"`
+	EnabledPayoutProducts         int64                  `protobuf:"varint,4,opt,name=enabled_payout_products,json=enabledPayoutProducts,proto3" json:"enabled_payout_products,omitempty"`
+	EnabledChannels               int64                  `protobuf:"varint,5,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
+	ActiveBindings                int64                  `protobuf:"varint,6,opt,name=active_bindings,json=activeBindings,proto3" json:"active_bindings,omitempty"`
+	ActivePayoutBindings          int64                  `protobuf:"varint,7,opt,name=active_payout_bindings,json=activePayoutBindings,proto3" json:"active_payout_bindings,omitempty"`
+	MerchantsWithCollectWhitelist int64                  `protobuf:"varint,8,opt,name=merchants_with_collect_whitelist,json=merchantsWithCollectWhitelist,proto3" json:"merchants_with_collect_whitelist,omitempty"`
+	MerchantsWithPayoutWhitelist  int64                  `protobuf:"varint,9,opt,name=merchants_with_payout_whitelist,json=merchantsWithPayoutWhitelist,proto3" json:"merchants_with_payout_whitelist,omitempty"`
+	FusedChannels                 int64                  `protobuf:"varint,10,opt,name=fused_channels,json=fusedChannels,proto3" json:"fused_channels,omitempty"`
+	unknownFields                 protoimpl.UnknownFields
+	sizeCache                     protoimpl.SizeCache
 }
 
 func (x *GetRoutingSummaryResp) Reset() {
@@ -701,6 +768,13 @@ func (x *GetRoutingSummaryResp) GetEnabledPayProducts() int64 {
 	return 0
 }
 
+func (x *GetRoutingSummaryResp) GetEnabledPayoutProducts() int64 {
+	if x != nil {
+		return x.EnabledPayoutProducts
+	}
+	return 0
+}
+
 func (x *GetRoutingSummaryResp) GetEnabledChannels() int64 {
 	if x != nil {
 		return x.EnabledChannels
@@ -715,9 +789,23 @@ func (x *GetRoutingSummaryResp) GetActiveBindings() int64 {
 	return 0
 }
 
-func (x *GetRoutingSummaryResp) GetMerchantsWithWhitelist() int64 {
+func (x *GetRoutingSummaryResp) GetActivePayoutBindings() int64 {
 	if x != nil {
-		return x.MerchantsWithWhitelist
+		return x.ActivePayoutBindings
+	}
+	return 0
+}
+
+func (x *GetRoutingSummaryResp) GetMerchantsWithCollectWhitelist() int64 {
+	if x != nil {
+		return x.MerchantsWithCollectWhitelist
+	}
+	return 0
+}
+
+func (x *GetRoutingSummaryResp) GetMerchantsWithPayoutWhitelist() int64 {
+	if x != nil {
+		return x.MerchantsWithPayoutWhitelist
 	}
 	return 0
 }
@@ -1569,6 +1657,7 @@ type AdminPayProductBindingRow struct {
 	ChannelName   string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Weight        int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps   *int64                 `protobuf:"varint,7,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1645,6 +1734,13 @@ func (x *AdminPayProductBindingRow) GetEnabled() bool {
 	return false
 }
 
+func (x *AdminPayProductBindingRow) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
+}
+
 type AdminListPayProductBindingsResp struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Bindings      []*AdminPayProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
@@ -1695,6 +1791,7 @@ type AdminUpsertPayProductBindingReq struct {
 	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Weight        int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps   *int64                 `protobuf:"varint,5,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1757,6 +1854,13 @@ func (x *AdminUpsertPayProductBindingReq) GetEnabled() bool {
 	return false
 }
 
+func (x *AdminUpsertPayProductBindingReq) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
+}
+
 type AdminUpsertPayProductBindingResp struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Binding       *AdminPayProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
@@ -1806,6 +1910,7 @@ type AdminUpdatePayProductBindingReq struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Weight        int64                  `protobuf:"varint,2,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps   *int64                 `protobuf:"varint,4,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1859,6 +1964,13 @@ func (x *AdminUpdatePayProductBindingReq) GetEnabled() bool {
 		return x.Enabled
 	}
 	return false
+}
+
+func (x *AdminUpdatePayProductBindingReq) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
 }
 
 type AdminUpdatePayProductBindingResp struct {
@@ -1993,6 +2105,850 @@ func (x *AdminDeletePayProductBindingResp) GetOk() bool {
 	return false
 }
 
+type AdminListPayoutProductsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminListPayoutProductsReq) Reset() {
+	*x = AdminListPayoutProductsReq{}
+	mi := &file_channel_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListPayoutProductsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListPayoutProductsReq) ProtoMessage() {}
+
+func (x *AdminListPayoutProductsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListPayoutProductsReq.ProtoReflect.Descriptor instead.
+func (*AdminListPayoutProductsReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{35}
+}
+
+type AdminPayoutProductRow struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	SortOrder     int64                  `protobuf:"varint,4,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Enabled       bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminPayoutProductRow) Reset() {
+	*x = AdminPayoutProductRow{}
+	mi := &file_channel_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminPayoutProductRow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminPayoutProductRow) ProtoMessage() {}
+
+func (x *AdminPayoutProductRow) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminPayoutProductRow.ProtoReflect.Descriptor instead.
+func (*AdminPayoutProductRow) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *AdminPayoutProductRow) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductRow) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *AdminPayoutProductRow) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AdminPayoutProductRow) GetSortOrder() int64 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductRow) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+type AdminListPayoutProductsResp struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Products      []*AdminPayoutProductRow `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminListPayoutProductsResp) Reset() {
+	*x = AdminListPayoutProductsResp{}
+	mi := &file_channel_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListPayoutProductsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListPayoutProductsResp) ProtoMessage() {}
+
+func (x *AdminListPayoutProductsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListPayoutProductsResp.ProtoReflect.Descriptor instead.
+func (*AdminListPayoutProductsResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *AdminListPayoutProductsResp) GetProducts() []*AdminPayoutProductRow {
+	if x != nil {
+		return x.Products
+	}
+	return nil
+}
+
+type AdminCreatePayoutProductReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	SortOrder     int64                  `protobuf:"varint,3,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminCreatePayoutProductReq) Reset() {
+	*x = AdminCreatePayoutProductReq{}
+	mi := &file_channel_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminCreatePayoutProductReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminCreatePayoutProductReq) ProtoMessage() {}
+
+func (x *AdminCreatePayoutProductReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminCreatePayoutProductReq.ProtoReflect.Descriptor instead.
+func (*AdminCreatePayoutProductReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *AdminCreatePayoutProductReq) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *AdminCreatePayoutProductReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AdminCreatePayoutProductReq) GetSortOrder() int64 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *AdminCreatePayoutProductReq) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+type AdminUpdatePayoutProductReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	SortOrder     int64                  `protobuf:"varint,4,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Enabled       bool                   `protobuf:"varint,5,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpdatePayoutProductReq) Reset() {
+	*x = AdminUpdatePayoutProductReq{}
+	mi := &file_channel_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpdatePayoutProductReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpdatePayoutProductReq) ProtoMessage() {}
+
+func (x *AdminUpdatePayoutProductReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpdatePayoutProductReq.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayoutProductReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *AdminUpdatePayoutProductReq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *AdminUpdatePayoutProductReq) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *AdminUpdatePayoutProductReq) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AdminUpdatePayoutProductReq) GetSortOrder() int64 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *AdminUpdatePayoutProductReq) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+type AdminUpsertPayoutProductResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Product       *AdminPayoutProductRow `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpsertPayoutProductResp) Reset() {
+	*x = AdminUpsertPayoutProductResp{}
+	mi := &file_channel_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpsertPayoutProductResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpsertPayoutProductResp) ProtoMessage() {}
+
+func (x *AdminUpsertPayoutProductResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpsertPayoutProductResp.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayoutProductResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *AdminUpsertPayoutProductResp) GetProduct() *AdminPayoutProductRow {
+	if x != nil {
+		return x.Product
+	}
+	return nil
+}
+
+type AdminListPayoutProductBindingsReq struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	PayoutProductId int64                  `protobuf:"varint,1,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AdminListPayoutProductBindingsReq) Reset() {
+	*x = AdminListPayoutProductBindingsReq{}
+	mi := &file_channel_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListPayoutProductBindingsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListPayoutProductBindingsReq) ProtoMessage() {}
+
+func (x *AdminListPayoutProductBindingsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListPayoutProductBindingsReq.ProtoReflect.Descriptor instead.
+func (*AdminListPayoutProductBindingsReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *AdminListPayoutProductBindingsReq) GetPayoutProductId() int64 {
+	if x != nil {
+		return x.PayoutProductId
+	}
+	return 0
+}
+
+type AdminPayoutProductBindingRow struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	PayoutProductId int64                  `protobuf:"varint,2,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
+	ChannelId       int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelName     string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
+	Weight          int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
+	Enabled         bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps     *int64                 `protobuf:"varint,7,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AdminPayoutProductBindingRow) Reset() {
+	*x = AdminPayoutProductBindingRow{}
+	mi := &file_channel_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminPayoutProductBindingRow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminPayoutProductBindingRow) ProtoMessage() {}
+
+func (x *AdminPayoutProductBindingRow) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminPayoutProductBindingRow.ProtoReflect.Descriptor instead.
+func (*AdminPayoutProductBindingRow) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *AdminPayoutProductBindingRow) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductBindingRow) GetPayoutProductId() int64 {
+	if x != nil {
+		return x.PayoutProductId
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductBindingRow) GetChannelId() int64 {
+	if x != nil {
+		return x.ChannelId
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductBindingRow) GetChannelName() string {
+	if x != nil {
+		return x.ChannelName
+	}
+	return ""
+}
+
+func (x *AdminPayoutProductBindingRow) GetWeight() int64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *AdminPayoutProductBindingRow) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *AdminPayoutProductBindingRow) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
+}
+
+type AdminListPayoutProductBindingsResp struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Bindings      []*AdminPayoutProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminListPayoutProductBindingsResp) Reset() {
+	*x = AdminListPayoutProductBindingsResp{}
+	mi := &file_channel_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListPayoutProductBindingsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListPayoutProductBindingsResp) ProtoMessage() {}
+
+func (x *AdminListPayoutProductBindingsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListPayoutProductBindingsResp.ProtoReflect.Descriptor instead.
+func (*AdminListPayoutProductBindingsResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *AdminListPayoutProductBindingsResp) GetBindings() []*AdminPayoutProductBindingRow {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
+type AdminUpsertPayoutProductBindingReq struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	PayoutProductId int64                  `protobuf:"varint,1,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
+	ChannelId       int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Weight          int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
+	Enabled         bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps     *int64                 `protobuf:"varint,5,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) Reset() {
+	*x = AdminUpsertPayoutProductBindingReq{}
+	mi := &file_channel_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpsertPayoutProductBindingReq) ProtoMessage() {}
+
+func (x *AdminUpsertPayoutProductBindingReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpsertPayoutProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayoutProductBindingReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) GetPayoutProductId() int64 {
+	if x != nil {
+		return x.PayoutProductId
+	}
+	return 0
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) GetChannelId() int64 {
+	if x != nil {
+		return x.ChannelId
+	}
+	return 0
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) GetWeight() int64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *AdminUpsertPayoutProductBindingReq) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
+}
+
+type AdminUpsertPayoutProductBindingResp struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Binding       *AdminPayoutProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpsertPayoutProductBindingResp) Reset() {
+	*x = AdminUpsertPayoutProductBindingResp{}
+	mi := &file_channel_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpsertPayoutProductBindingResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpsertPayoutProductBindingResp) ProtoMessage() {}
+
+func (x *AdminUpsertPayoutProductBindingResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpsertPayoutProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayoutProductBindingResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *AdminUpsertPayoutProductBindingResp) GetBinding() *AdminPayoutProductBindingRow {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+type AdminUpdatePayoutProductBindingReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Weight        int64                  `protobuf:"varint,2,opt,name=weight,proto3" json:"weight,omitempty"`
+	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	CostRateBps   *int64                 `protobuf:"varint,4,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) Reset() {
+	*x = AdminUpdatePayoutProductBindingReq{}
+	mi := &file_channel_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpdatePayoutProductBindingReq) ProtoMessage() {}
+
+func (x *AdminUpdatePayoutProductBindingReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpdatePayoutProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayoutProductBindingReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) GetWeight() int64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *AdminUpdatePayoutProductBindingReq) GetCostRateBps() int64 {
+	if x != nil && x.CostRateBps != nil {
+		return *x.CostRateBps
+	}
+	return 0
+}
+
+type AdminUpdatePayoutProductBindingResp struct {
+	state         protoimpl.MessageState        `protogen:"open.v1"`
+	Binding       *AdminPayoutProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpdatePayoutProductBindingResp) Reset() {
+	*x = AdminUpdatePayoutProductBindingResp{}
+	mi := &file_channel_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpdatePayoutProductBindingResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpdatePayoutProductBindingResp) ProtoMessage() {}
+
+func (x *AdminUpdatePayoutProductBindingResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpdatePayoutProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayoutProductBindingResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *AdminUpdatePayoutProductBindingResp) GetBinding() *AdminPayoutProductBindingRow {
+	if x != nil {
+		return x.Binding
+	}
+	return nil
+}
+
+type AdminDeletePayoutProductBindingReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminDeletePayoutProductBindingReq) Reset() {
+	*x = AdminDeletePayoutProductBindingReq{}
+	mi := &file_channel_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminDeletePayoutProductBindingReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminDeletePayoutProductBindingReq) ProtoMessage() {}
+
+func (x *AdminDeletePayoutProductBindingReq) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminDeletePayoutProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminDeletePayoutProductBindingReq) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *AdminDeletePayoutProductBindingReq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type AdminDeletePayoutProductBindingResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminDeletePayoutProductBindingResp) Reset() {
+	*x = AdminDeletePayoutProductBindingResp{}
+	mi := &file_channel_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminDeletePayoutProductBindingResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminDeletePayoutProductBindingResp) ProtoMessage() {}
+
+func (x *AdminDeletePayoutProductBindingResp) ProtoReflect() protoreflect.Message {
+	mi := &file_channel_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminDeletePayoutProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminDeletePayoutProductBindingResp) Descriptor() ([]byte, []int) {
+	return file_channel_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *AdminDeletePayoutProductBindingResp) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
 var File_channel_proto protoreflect.FileDescriptor
 
 const file_channel_proto_rawDesc = "" +
@@ -2011,7 +2967,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x11GetSignSecretResp\x12\x1f\n" +
 	"\vsign_secret\x18\x01 \x01(\tR\n" +
 	"signSecret\"\x11\n" +
-	"\x0fListChannelsReq\"\xfa\x02\n" +
+	"\x0fListChannelsReq\"\xc2\x04\n" +
 	"\n" +
 	"ChannelRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
@@ -2030,9 +2986,13 @@ const file_channel_proto_rawDesc = "" +
 	"max_amount\x18\n" +
 	" \x01(\x03R\tmaxAmount\x12\x18\n" +
 	"\aenabled\x18\v \x01(\bR\aenabled\x12!\n" +
-	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\"C\n" +
+	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
+	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
+	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
+	"\x19upstream_collect_cost_bps\x18\x0f \x01(\x03R\x16upstreamCollectCostBps\x127\n" +
+	"\x18upstream_payout_cost_bps\x18\x10 \x01(\x03R\x15upstreamPayoutCostBps\"C\n" +
 	"\x10ListChannelsResp\x12/\n" +
-	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\x80\x03\n" +
+	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xc8\x04\n" +
 	"\x10UpsertChannelReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
@@ -2050,18 +3010,26 @@ const file_channel_proto_rawDesc = "" +
 	"max_amount\x18\n" +
 	" \x01(\x03R\tmaxAmount\x12\x18\n" +
 	"\aenabled\x18\v \x01(\bR\aenabled\x12!\n" +
-	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\"B\n" +
+	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
+	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
+	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
+	"\x19upstream_collect_cost_bps\x18\x0f \x01(\x03R\x16upstreamCollectCostBps\x127\n" +
+	"\x18upstream_payout_cost_bps\x18\x10 \x01(\x03R\x15upstreamPayoutCostBps\"B\n" +
 	"\x11UpsertChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\x16\n" +
-	"\x14GetRoutingSummaryReq\"\xcc\x02\n" +
+	"\x14GetRoutingSummaryReq\"\x90\x04\n" +
 	"\x15GetRoutingSummaryResp\x12#\n" +
 	"\ralgorithm_key\x18\x01 \x01(\tR\falgorithmKey\x12'\n" +
 	"\x0falgorithm_label\x18\x02 \x01(\tR\x0ealgorithmLabel\x120\n" +
-	"\x14enabled_pay_products\x18\x03 \x01(\x03R\x12enabledPayProducts\x12)\n" +
-	"\x10enabled_channels\x18\x04 \x01(\x03R\x0fenabledChannels\x12'\n" +
-	"\x0factive_bindings\x18\x05 \x01(\x03R\x0eactiveBindings\x128\n" +
-	"\x18merchants_with_whitelist\x18\x06 \x01(\x03R\x16merchantsWithWhitelist\x12%\n" +
-	"\x0efused_channels\x18\a \x01(\x03R\rfusedChannels\"U\n" +
+	"\x14enabled_pay_products\x18\x03 \x01(\x03R\x12enabledPayProducts\x126\n" +
+	"\x17enabled_payout_products\x18\x04 \x01(\x03R\x15enabledPayoutProducts\x12)\n" +
+	"\x10enabled_channels\x18\x05 \x01(\x03R\x0fenabledChannels\x12'\n" +
+	"\x0factive_bindings\x18\x06 \x01(\x03R\x0eactiveBindings\x124\n" +
+	"\x16active_payout_bindings\x18\a \x01(\x03R\x14activePayoutBindings\x12G\n" +
+	" merchants_with_collect_whitelist\x18\b \x01(\x03R\x1dmerchantsWithCollectWhitelist\x12E\n" +
+	"\x1fmerchants_with_payout_whitelist\x18\t \x01(\x03R\x1cmerchantsWithPayoutWhitelist\x12%\n" +
+	"\x0efused_channels\x18\n" +
+	" \x01(\x03R\rfusedChannels\"U\n" +
 	"\x1aListTerminalPayProductsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x16\n" +
@@ -2116,7 +3084,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x19AdminUpsertPayProductResp\x125\n" +
 	"\aproduct\x18\x01 \x01(\v2\x1b.channel.AdminPayProductRowR\aproduct\"F\n" +
 	"\x1eAdminListPayProductBindingsReq\x12$\n" +
-	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\"\xc5\x01\n" +
+	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\"\x80\x02\n" +
 	"\x19AdminPayProductBindingRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12$\n" +
 	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\x12\x1d\n" +
@@ -2124,27 +3092,94 @@ const file_channel_proto_rawDesc = "" +
 	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x16\n" +
 	"\x06weight\x18\x05 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x06 \x01(\bR\aenabled\"a\n" +
+	"\aenabled\x18\x06 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\a \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"a\n" +
 	"\x1fAdminListPayProductBindingsResp\x12>\n" +
-	"\bbindings\x18\x01 \x03(\v2\".channel.AdminPayProductBindingRowR\bbindings\"\x98\x01\n" +
+	"\bbindings\x18\x01 \x03(\v2\".channel.AdminPayProductBindingRowR\bbindings\"\xd3\x01\n" +
 	"\x1fAdminUpsertPayProductBindingReq\x12$\n" +
 	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06weight\x18\x03 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\"`\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\x05 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"`\n" +
 	" AdminUpsertPayProductBindingResp\x12<\n" +
-	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"c\n" +
+	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"\x9e\x01\n" +
 	"\x1fAdminUpdatePayProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06weight\x18\x02 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabled\"`\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\x04 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"`\n" +
 	" AdminUpdatePayProductBindingResp\x12<\n" +
 	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"1\n" +
 	"\x1fAdminDeletePayProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"2\n" +
 	" AdminDeletePayProductBindingResp\x12\x0e\n" +
-	"\x02ok\x18\x01 \x01(\bR\x02ok2\xd1\f\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\"\x1c\n" +
+	"\x1aAdminListPayoutProductsReq\"\x88\x01\n" +
+	"\x15AdminPayoutProductRow\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"sort_order\x18\x04 \x01(\x03R\tsortOrder\x12\x18\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"Y\n" +
+	"\x1bAdminListPayoutProductsResp\x12:\n" +
+	"\bproducts\x18\x01 \x03(\v2\x1e.channel.AdminPayoutProductRowR\bproducts\"~\n" +
+	"\x1bAdminCreatePayoutProductReq\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"sort_order\x18\x03 \x01(\x03R\tsortOrder\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\"\x8e\x01\n" +
+	"\x1bAdminUpdatePayoutProductReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"sort_order\x18\x04 \x01(\x03R\tsortOrder\x12\x18\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"X\n" +
+	"\x1cAdminUpsertPayoutProductResp\x128\n" +
+	"\aproduct\x18\x01 \x01(\v2\x1e.channel.AdminPayoutProductRowR\aproduct\"O\n" +
+	"!AdminListPayoutProductBindingsReq\x12*\n" +
+	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\"\x89\x02\n" +
+	"\x1cAdminPayoutProductBindingRow\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12*\n" +
+	"\x11payout_product_id\x18\x02 \x01(\x03R\x0fpayoutProductId\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12!\n" +
+	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x16\n" +
+	"\x06weight\x18\x05 \x01(\x03R\x06weight\x12\x18\n" +
+	"\aenabled\x18\x06 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\a \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"g\n" +
+	"\"AdminListPayoutProductBindingsResp\x12A\n" +
+	"\bbindings\x18\x01 \x03(\v2%.channel.AdminPayoutProductBindingRowR\bbindings\"\xdc\x01\n" +
+	"\"AdminUpsertPayoutProductBindingReq\x12*\n" +
+	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
+	"\x06weight\x18\x03 \x01(\x03R\x06weight\x12\x18\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\x05 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"f\n" +
+	"#AdminUpsertPayoutProductBindingResp\x12?\n" +
+	"\abinding\x18\x01 \x01(\v2%.channel.AdminPayoutProductBindingRowR\abinding\"\xa1\x01\n" +
+	"\"AdminUpdatePayoutProductBindingReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06weight\x18\x02 \x01(\x03R\x06weight\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x12'\n" +
+	"\rcost_rate_bps\x18\x04 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
+	"\x0e_cost_rate_bps\"f\n" +
+	"#AdminUpdatePayoutProductBindingResp\x12?\n" +
+	"\abinding\x18\x01 \x01(\v2%.channel.AdminPayoutProductBindingRowR\abinding\"4\n" +
+	"\"AdminDeletePayoutProductBindingReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"5\n" +
+	"#AdminDeletePayoutProductBindingResp\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok2\xfe\x12\n" +
 	"\aChannel\x12.\n" +
 	"\x05Route\x12\x11.channel.RouteReq\x1a\x12.channel.RouteResp\x12F\n" +
 	"\rGetSignSecret\x12\x19.channel.GetSignSecretReq\x1a\x1a.channel.GetSignSecretResp\x12C\n" +
@@ -2162,7 +3197,14 @@ const file_channel_proto_rawDesc = "" +
 	"\x1bAdminListPayProductBindings\x12'.channel.AdminListPayProductBindingsReq\x1a(.channel.AdminListPayProductBindingsResp\x12s\n" +
 	"\x1cAdminUpsertPayProductBinding\x12(.channel.AdminUpsertPayProductBindingReq\x1a).channel.AdminUpsertPayProductBindingResp\x12s\n" +
 	"\x1cAdminUpdatePayProductBinding\x12(.channel.AdminUpdatePayProductBindingReq\x1a).channel.AdminUpdatePayProductBindingResp\x12s\n" +
-	"\x1cAdminDeletePayProductBinding\x12(.channel.AdminDeletePayProductBindingReq\x1a).channel.AdminDeletePayProductBindingRespB2Z0github.com/gloopai/pay/common/pb/channel;channelb\x06proto3"
+	"\x1cAdminDeletePayProductBinding\x12(.channel.AdminDeletePayProductBindingReq\x1a).channel.AdminDeletePayProductBindingResp\x12d\n" +
+	"\x17AdminListPayoutProducts\x12#.channel.AdminListPayoutProductsReq\x1a$.channel.AdminListPayoutProductsResp\x12g\n" +
+	"\x18AdminCreatePayoutProduct\x12$.channel.AdminCreatePayoutProductReq\x1a%.channel.AdminUpsertPayoutProductResp\x12g\n" +
+	"\x18AdminUpdatePayoutProduct\x12$.channel.AdminUpdatePayoutProductReq\x1a%.channel.AdminUpsertPayoutProductResp\x12y\n" +
+	"\x1eAdminListPayoutProductBindings\x12*.channel.AdminListPayoutProductBindingsReq\x1a+.channel.AdminListPayoutProductBindingsResp\x12|\n" +
+	"\x1fAdminUpsertPayoutProductBinding\x12+.channel.AdminUpsertPayoutProductBindingReq\x1a,.channel.AdminUpsertPayoutProductBindingResp\x12|\n" +
+	"\x1fAdminUpdatePayoutProductBinding\x12+.channel.AdminUpdatePayoutProductBindingReq\x1a,.channel.AdminUpdatePayoutProductBindingResp\x12|\n" +
+	"\x1fAdminDeletePayoutProductBinding\x12+.channel.AdminDeletePayoutProductBindingReq\x1a,.channel.AdminDeletePayoutProductBindingRespB2Z0github.com/gloopai/pay/common/pb/channel;channelb\x06proto3"
 
 var (
 	file_channel_proto_rawDescOnce sync.Once
@@ -2176,7 +3218,7 @@ func file_channel_proto_rawDescGZIP() []byte {
 	return file_channel_proto_rawDescData
 }
 
-var file_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
+var file_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_channel_proto_goTypes = []any{
 	(*RouteReq)(nil),                            // 0: channel.RouteReq
 	(*RouteResp)(nil),                           // 1: channel.RouteResp
@@ -2213,6 +3255,21 @@ var file_channel_proto_goTypes = []any{
 	(*AdminUpdatePayProductBindingResp)(nil),    // 32: channel.AdminUpdatePayProductBindingResp
 	(*AdminDeletePayProductBindingReq)(nil),     // 33: channel.AdminDeletePayProductBindingReq
 	(*AdminDeletePayProductBindingResp)(nil),    // 34: channel.AdminDeletePayProductBindingResp
+	(*AdminListPayoutProductsReq)(nil),          // 35: channel.AdminListPayoutProductsReq
+	(*AdminPayoutProductRow)(nil),               // 36: channel.AdminPayoutProductRow
+	(*AdminListPayoutProductsResp)(nil),         // 37: channel.AdminListPayoutProductsResp
+	(*AdminCreatePayoutProductReq)(nil),         // 38: channel.AdminCreatePayoutProductReq
+	(*AdminUpdatePayoutProductReq)(nil),         // 39: channel.AdminUpdatePayoutProductReq
+	(*AdminUpsertPayoutProductResp)(nil),        // 40: channel.AdminUpsertPayoutProductResp
+	(*AdminListPayoutProductBindingsReq)(nil),   // 41: channel.AdminListPayoutProductBindingsReq
+	(*AdminPayoutProductBindingRow)(nil),        // 42: channel.AdminPayoutProductBindingRow
+	(*AdminListPayoutProductBindingsResp)(nil),  // 43: channel.AdminListPayoutProductBindingsResp
+	(*AdminUpsertPayoutProductBindingReq)(nil),  // 44: channel.AdminUpsertPayoutProductBindingReq
+	(*AdminUpsertPayoutProductBindingResp)(nil), // 45: channel.AdminUpsertPayoutProductBindingResp
+	(*AdminUpdatePayoutProductBindingReq)(nil),  // 46: channel.AdminUpdatePayoutProductBindingReq
+	(*AdminUpdatePayoutProductBindingResp)(nil), // 47: channel.AdminUpdatePayoutProductBindingResp
+	(*AdminDeletePayoutProductBindingReq)(nil),  // 48: channel.AdminDeletePayoutProductBindingReq
+	(*AdminDeletePayoutProductBindingResp)(nil), // 49: channel.AdminDeletePayoutProductBindingResp
 }
 var file_channel_proto_depIdxs = []int32{
 	5,  // 0: channel.ListChannelsResp.channels:type_name -> channel.ChannelRow
@@ -2223,45 +3280,64 @@ var file_channel_proto_depIdxs = []int32{
 	27, // 5: channel.AdminListPayProductBindingsResp.bindings:type_name -> channel.AdminPayProductBindingRow
 	27, // 6: channel.AdminUpsertPayProductBindingResp.binding:type_name -> channel.AdminPayProductBindingRow
 	27, // 7: channel.AdminUpdatePayProductBindingResp.binding:type_name -> channel.AdminPayProductBindingRow
-	0,  // 8: channel.Channel.Route:input_type -> channel.RouteReq
-	2,  // 9: channel.Channel.GetSignSecret:input_type -> channel.GetSignSecretReq
-	4,  // 10: channel.Channel.ListChannels:input_type -> channel.ListChannelsReq
-	7,  // 11: channel.Channel.CreateChannel:input_type -> channel.UpsertChannelReq
-	7,  // 12: channel.Channel.UpdateChannel:input_type -> channel.UpsertChannelReq
-	9,  // 13: channel.Channel.GetRoutingSummary:input_type -> channel.GetRoutingSummaryReq
-	11, // 14: channel.Channel.ListTerminalPayProducts:input_type -> channel.ListTerminalPayProductsReq
-	14, // 15: channel.Channel.MerchantHasPayProductCode:input_type -> channel.MerchantHasPayProductCodeReq
-	16, // 16: channel.Channel.ResolveLockedChannelForMerchant:input_type -> channel.ResolveLockedChannelForMerchantReq
-	18, // 17: channel.Channel.GetPayProductDisplayName:input_type -> channel.GetPayProductDisplayNameReq
-	20, // 18: channel.Channel.AdminListPayProducts:input_type -> channel.AdminListPayProductsReq
-	23, // 19: channel.Channel.AdminCreatePayProduct:input_type -> channel.AdminCreatePayProductReq
-	24, // 20: channel.Channel.AdminUpdatePayProduct:input_type -> channel.AdminUpdatePayProductReq
-	26, // 21: channel.Channel.AdminListPayProductBindings:input_type -> channel.AdminListPayProductBindingsReq
-	29, // 22: channel.Channel.AdminUpsertPayProductBinding:input_type -> channel.AdminUpsertPayProductBindingReq
-	31, // 23: channel.Channel.AdminUpdatePayProductBinding:input_type -> channel.AdminUpdatePayProductBindingReq
-	33, // 24: channel.Channel.AdminDeletePayProductBinding:input_type -> channel.AdminDeletePayProductBindingReq
-	1,  // 25: channel.Channel.Route:output_type -> channel.RouteResp
-	3,  // 26: channel.Channel.GetSignSecret:output_type -> channel.GetSignSecretResp
-	6,  // 27: channel.Channel.ListChannels:output_type -> channel.ListChannelsResp
-	8,  // 28: channel.Channel.CreateChannel:output_type -> channel.UpsertChannelResp
-	8,  // 29: channel.Channel.UpdateChannel:output_type -> channel.UpsertChannelResp
-	10, // 30: channel.Channel.GetRoutingSummary:output_type -> channel.GetRoutingSummaryResp
-	13, // 31: channel.Channel.ListTerminalPayProducts:output_type -> channel.ListTerminalPayProductsResp
-	15, // 32: channel.Channel.MerchantHasPayProductCode:output_type -> channel.MerchantHasPayProductCodeResp
-	17, // 33: channel.Channel.ResolveLockedChannelForMerchant:output_type -> channel.ResolveLockedChannelForMerchantResp
-	19, // 34: channel.Channel.GetPayProductDisplayName:output_type -> channel.GetPayProductDisplayNameResp
-	22, // 35: channel.Channel.AdminListPayProducts:output_type -> channel.AdminListPayProductsResp
-	25, // 36: channel.Channel.AdminCreatePayProduct:output_type -> channel.AdminUpsertPayProductResp
-	25, // 37: channel.Channel.AdminUpdatePayProduct:output_type -> channel.AdminUpsertPayProductResp
-	28, // 38: channel.Channel.AdminListPayProductBindings:output_type -> channel.AdminListPayProductBindingsResp
-	30, // 39: channel.Channel.AdminUpsertPayProductBinding:output_type -> channel.AdminUpsertPayProductBindingResp
-	32, // 40: channel.Channel.AdminUpdatePayProductBinding:output_type -> channel.AdminUpdatePayProductBindingResp
-	34, // 41: channel.Channel.AdminDeletePayProductBinding:output_type -> channel.AdminDeletePayProductBindingResp
-	25, // [25:42] is the sub-list for method output_type
-	8,  // [8:25] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	36, // 8: channel.AdminListPayoutProductsResp.products:type_name -> channel.AdminPayoutProductRow
+	36, // 9: channel.AdminUpsertPayoutProductResp.product:type_name -> channel.AdminPayoutProductRow
+	42, // 10: channel.AdminListPayoutProductBindingsResp.bindings:type_name -> channel.AdminPayoutProductBindingRow
+	42, // 11: channel.AdminUpsertPayoutProductBindingResp.binding:type_name -> channel.AdminPayoutProductBindingRow
+	42, // 12: channel.AdminUpdatePayoutProductBindingResp.binding:type_name -> channel.AdminPayoutProductBindingRow
+	0,  // 13: channel.Channel.Route:input_type -> channel.RouteReq
+	2,  // 14: channel.Channel.GetSignSecret:input_type -> channel.GetSignSecretReq
+	4,  // 15: channel.Channel.ListChannels:input_type -> channel.ListChannelsReq
+	7,  // 16: channel.Channel.CreateChannel:input_type -> channel.UpsertChannelReq
+	7,  // 17: channel.Channel.UpdateChannel:input_type -> channel.UpsertChannelReq
+	9,  // 18: channel.Channel.GetRoutingSummary:input_type -> channel.GetRoutingSummaryReq
+	11, // 19: channel.Channel.ListTerminalPayProducts:input_type -> channel.ListTerminalPayProductsReq
+	14, // 20: channel.Channel.MerchantHasPayProductCode:input_type -> channel.MerchantHasPayProductCodeReq
+	16, // 21: channel.Channel.ResolveLockedChannelForMerchant:input_type -> channel.ResolveLockedChannelForMerchantReq
+	18, // 22: channel.Channel.GetPayProductDisplayName:input_type -> channel.GetPayProductDisplayNameReq
+	20, // 23: channel.Channel.AdminListPayProducts:input_type -> channel.AdminListPayProductsReq
+	23, // 24: channel.Channel.AdminCreatePayProduct:input_type -> channel.AdminCreatePayProductReq
+	24, // 25: channel.Channel.AdminUpdatePayProduct:input_type -> channel.AdminUpdatePayProductReq
+	26, // 26: channel.Channel.AdminListPayProductBindings:input_type -> channel.AdminListPayProductBindingsReq
+	29, // 27: channel.Channel.AdminUpsertPayProductBinding:input_type -> channel.AdminUpsertPayProductBindingReq
+	31, // 28: channel.Channel.AdminUpdatePayProductBinding:input_type -> channel.AdminUpdatePayProductBindingReq
+	33, // 29: channel.Channel.AdminDeletePayProductBinding:input_type -> channel.AdminDeletePayProductBindingReq
+	35, // 30: channel.Channel.AdminListPayoutProducts:input_type -> channel.AdminListPayoutProductsReq
+	38, // 31: channel.Channel.AdminCreatePayoutProduct:input_type -> channel.AdminCreatePayoutProductReq
+	39, // 32: channel.Channel.AdminUpdatePayoutProduct:input_type -> channel.AdminUpdatePayoutProductReq
+	41, // 33: channel.Channel.AdminListPayoutProductBindings:input_type -> channel.AdminListPayoutProductBindingsReq
+	44, // 34: channel.Channel.AdminUpsertPayoutProductBinding:input_type -> channel.AdminUpsertPayoutProductBindingReq
+	46, // 35: channel.Channel.AdminUpdatePayoutProductBinding:input_type -> channel.AdminUpdatePayoutProductBindingReq
+	48, // 36: channel.Channel.AdminDeletePayoutProductBinding:input_type -> channel.AdminDeletePayoutProductBindingReq
+	1,  // 37: channel.Channel.Route:output_type -> channel.RouteResp
+	3,  // 38: channel.Channel.GetSignSecret:output_type -> channel.GetSignSecretResp
+	6,  // 39: channel.Channel.ListChannels:output_type -> channel.ListChannelsResp
+	8,  // 40: channel.Channel.CreateChannel:output_type -> channel.UpsertChannelResp
+	8,  // 41: channel.Channel.UpdateChannel:output_type -> channel.UpsertChannelResp
+	10, // 42: channel.Channel.GetRoutingSummary:output_type -> channel.GetRoutingSummaryResp
+	13, // 43: channel.Channel.ListTerminalPayProducts:output_type -> channel.ListTerminalPayProductsResp
+	15, // 44: channel.Channel.MerchantHasPayProductCode:output_type -> channel.MerchantHasPayProductCodeResp
+	17, // 45: channel.Channel.ResolveLockedChannelForMerchant:output_type -> channel.ResolveLockedChannelForMerchantResp
+	19, // 46: channel.Channel.GetPayProductDisplayName:output_type -> channel.GetPayProductDisplayNameResp
+	22, // 47: channel.Channel.AdminListPayProducts:output_type -> channel.AdminListPayProductsResp
+	25, // 48: channel.Channel.AdminCreatePayProduct:output_type -> channel.AdminUpsertPayProductResp
+	25, // 49: channel.Channel.AdminUpdatePayProduct:output_type -> channel.AdminUpsertPayProductResp
+	28, // 50: channel.Channel.AdminListPayProductBindings:output_type -> channel.AdminListPayProductBindingsResp
+	30, // 51: channel.Channel.AdminUpsertPayProductBinding:output_type -> channel.AdminUpsertPayProductBindingResp
+	32, // 52: channel.Channel.AdminUpdatePayProductBinding:output_type -> channel.AdminUpdatePayProductBindingResp
+	34, // 53: channel.Channel.AdminDeletePayProductBinding:output_type -> channel.AdminDeletePayProductBindingResp
+	37, // 54: channel.Channel.AdminListPayoutProducts:output_type -> channel.AdminListPayoutProductsResp
+	40, // 55: channel.Channel.AdminCreatePayoutProduct:output_type -> channel.AdminUpsertPayoutProductResp
+	40, // 56: channel.Channel.AdminUpdatePayoutProduct:output_type -> channel.AdminUpsertPayoutProductResp
+	43, // 57: channel.Channel.AdminListPayoutProductBindings:output_type -> channel.AdminListPayoutProductBindingsResp
+	45, // 58: channel.Channel.AdminUpsertPayoutProductBinding:output_type -> channel.AdminUpsertPayoutProductBindingResp
+	47, // 59: channel.Channel.AdminUpdatePayoutProductBinding:output_type -> channel.AdminUpdatePayoutProductBindingResp
+	49, // 60: channel.Channel.AdminDeletePayoutProductBinding:output_type -> channel.AdminDeletePayoutProductBindingResp
+	37, // [37:61] is the sub-list for method output_type
+	13, // [13:37] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_channel_proto_init() }
@@ -2269,13 +3345,19 @@ func file_channel_proto_init() {
 	if File_channel_proto != nil {
 		return
 	}
+	file_channel_proto_msgTypes[27].OneofWrappers = []any{}
+	file_channel_proto_msgTypes[29].OneofWrappers = []any{}
+	file_channel_proto_msgTypes[31].OneofWrappers = []any{}
+	file_channel_proto_msgTypes[42].OneofWrappers = []any{}
+	file_channel_proto_msgTypes[44].OneofWrappers = []any{}
+	file_channel_proto_msgTypes[46].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_channel_proto_rawDesc), len(file_channel_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   35,
+			NumMessages:   50,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

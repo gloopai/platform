@@ -10,6 +10,10 @@ export type AdminChannel = {
   weight: number
   min_amount: number
   max_amount: number
+  supports_collect: boolean
+  supports_payout: boolean
+  upstream_collect_cost_bps: number
+  upstream_payout_cost_bps: number
   enabled: boolean
   fuse_enabled: boolean
 }
@@ -26,6 +30,10 @@ export function emptyChannelForm(): AdminChannel {
     weight: 100,
     min_amount: 0,
     max_amount: 0,
+    supports_collect: true,
+    supports_payout: false,
+    upstream_collect_cost_bps: 0,
+    upstream_payout_cost_bps: 0,
     enabled: true,
     fuse_enabled: false,
   }

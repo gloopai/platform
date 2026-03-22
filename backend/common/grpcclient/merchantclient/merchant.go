@@ -28,7 +28,9 @@ type (
 		CreateMerchant(ctx context.Context, in *CreateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 		UpdateMerchant(ctx context.Context, in *UpdateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 		ReplaceMerchantPayProducts(ctx context.Context, in *merchant.ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayProductsResp, error)
+		ReplaceMerchantPayoutProducts(ctx context.Context, in *merchant.ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayoutProductsResp, error)
 		ListMerchantPayProductIds(ctx context.Context, in *merchant.ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayProductIdsResp, error)
+		ListMerchantPayoutProductIds(ctx context.Context, in *merchant.ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayoutProductIdsResp, error)
 	}
 
 	defaultMerchant struct {
@@ -70,4 +72,12 @@ func (m *defaultMerchant) ReplaceMerchantPayProducts(ctx context.Context, in *me
 
 func (m *defaultMerchant) ListMerchantPayProductIds(ctx context.Context, in *merchant.ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayProductIdsResp, error) {
 	return m.client().ListMerchantPayProductIds(ctx, in, opts...)
+}
+
+func (m *defaultMerchant) ReplaceMerchantPayoutProducts(ctx context.Context, in *merchant.ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayoutProductsResp, error) {
+	return m.client().ReplaceMerchantPayoutProducts(ctx, in, opts...)
+}
+
+func (m *defaultMerchant) ListMerchantPayoutProductIds(ctx context.Context, in *merchant.ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayoutProductIdsResp, error) {
+	return m.client().ListMerchantPayoutProductIds(ctx, in, opts...)
 }

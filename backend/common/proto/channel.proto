@@ -3,7 +3,6 @@ syntax = "proto3";
 package channel;
 option go_package = "github.com/gloopai/pay/common/pb/channel;channel";
 
-// 通道、支付产品与路由配置（原 gateway 直连库逻辑收口至 trade）
 service Channel {
   rpc Route(RouteReq) returns(RouteResp);
   rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
@@ -26,6 +25,14 @@ service Channel {
   rpc AdminUpsertPayProductBinding(AdminUpsertPayProductBindingReq) returns (AdminUpsertPayProductBindingResp);
   rpc AdminUpdatePayProductBinding(AdminUpdatePayProductBindingReq) returns (AdminUpdatePayProductBindingResp);
   rpc AdminDeletePayProductBinding(AdminDeletePayProductBindingReq) returns (AdminDeletePayProductBindingResp);
+
+  rpc AdminListPayoutProducts(AdminListPayoutProductsReq) returns (AdminListPayoutProductsResp);
+  rpc AdminCreatePayoutProduct(AdminCreatePayoutProductReq) returns (AdminUpsertPayoutProductResp);
+  rpc AdminUpdatePayoutProduct(AdminUpdatePayoutProductReq) returns (AdminUpsertPayoutProductResp);
+  rpc AdminListPayoutProductBindings(AdminListPayoutProductBindingsReq) returns (AdminListPayoutProductBindingsResp);
+  rpc AdminUpsertPayoutProductBinding(AdminUpsertPayoutProductBindingReq) returns (AdminUpsertPayoutProductBindingResp);
+  rpc AdminUpdatePayoutProductBinding(AdminUpdatePayoutProductBindingReq) returns (AdminUpdatePayoutProductBindingResp);
+  rpc AdminDeletePayoutProductBinding(AdminDeletePayoutProductBindingReq) returns (AdminDeletePayoutProductBindingResp);
 }
 
 message RouteReq {
@@ -61,6 +68,10 @@ message ChannelRow {
   int64 max_amount = 10;
   bool enabled = 11;
   bool fuse_enabled = 12;
+  bool supports_collect = 13;
+  bool supports_payout = 14;
+  int64 upstream_collect_cost_bps = 15;
+  int64 upstream_payout_cost_bps = 16;
 }
 
 message ListChannelsResp {
@@ -80,6 +91,10 @@ message UpsertChannelReq {
   int64 max_amount = 10;
   bool enabled = 11;
   bool fuse_enabled = 12;
+  bool supports_collect = 13;
+  bool supports_payout = 14;
+  int64 upstream_collect_cost_bps = 15;
+  int64 upstream_payout_cost_bps = 16;
 }
 
 message UpsertChannelResp {
@@ -92,10 +107,13 @@ message GetRoutingSummaryResp {
   string algorithm_key = 1;
   string algorithm_label = 2;
   int64 enabled_pay_products = 3;
-  int64 enabled_channels = 4;
-  int64 active_bindings = 5;
-  int64 merchants_with_whitelist = 6;
-  int64 fused_channels = 7;
+  int64 enabled_payout_products = 4;
+  int64 enabled_channels = 5;
+  int64 active_bindings = 6;
+  int64 active_payout_bindings = 7;
+  int64 merchants_with_collect_whitelist = 8;
+  int64 merchants_with_payout_whitelist = 9;
+  int64 fused_channels = 10;
 }
 
 message ListTerminalPayProductsReq {
@@ -184,6 +202,7 @@ message AdminPayProductBindingRow {
   string channel_name = 4;
   int64 weight = 5;
   bool enabled = 6;
+  optional int64 cost_rate_bps = 7;
 }
 
 message AdminListPayProductBindingsResp {
@@ -195,6 +214,7 @@ message AdminUpsertPayProductBindingReq {
   int64 channel_id = 2;
   int64 weight = 3;
   bool enabled = 4;
+  optional int64 cost_rate_bps = 5;
 }
 
 message AdminUpsertPayProductBindingResp {
@@ -205,6 +225,7 @@ message AdminUpdatePayProductBindingReq {
   int64 id = 1;
   int64 weight = 2;
   bool enabled = 3;
+  optional int64 cost_rate_bps = 4;
 }
 
 message AdminUpdatePayProductBindingResp {
@@ -216,5 +237,87 @@ message AdminDeletePayProductBindingReq {
 }
 
 message AdminDeletePayProductBindingResp {
+  bool ok = 1;
+}
+
+message AdminListPayoutProductsReq {}
+
+message AdminPayoutProductRow {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int64 sort_order = 4;
+  bool enabled = 5;
+}
+
+message AdminListPayoutProductsResp {
+  repeated AdminPayoutProductRow products = 1;
+}
+
+message AdminCreatePayoutProductReq {
+  string code = 1;
+  string name = 2;
+  int64 sort_order = 3;
+  bool enabled = 4;
+}
+
+message AdminUpdatePayoutProductReq {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int64 sort_order = 4;
+  bool enabled = 5;
+}
+
+message AdminUpsertPayoutProductResp {
+  AdminPayoutProductRow product = 1;
+}
+
+message AdminListPayoutProductBindingsReq {
+  int64 payout_product_id = 1;
+}
+
+message AdminPayoutProductBindingRow {
+  int64 id = 1;
+  int64 payout_product_id = 2;
+  int64 channel_id = 3;
+  string channel_name = 4;
+  int64 weight = 5;
+  bool enabled = 6;
+  optional int64 cost_rate_bps = 7;
+}
+
+message AdminListPayoutProductBindingsResp {
+  repeated AdminPayoutProductBindingRow bindings = 1;
+}
+
+message AdminUpsertPayoutProductBindingReq {
+  int64 payout_product_id = 1;
+  int64 channel_id = 2;
+  int64 weight = 3;
+  bool enabled = 4;
+  optional int64 cost_rate_bps = 5;
+}
+
+message AdminUpsertPayoutProductBindingResp {
+  AdminPayoutProductBindingRow binding = 1;
+}
+
+message AdminUpdatePayoutProductBindingReq {
+  int64 id = 1;
+  int64 weight = 2;
+  bool enabled = 3;
+  optional int64 cost_rate_bps = 4;
+}
+
+message AdminUpdatePayoutProductBindingResp {
+  AdminPayoutProductBindingRow binding = 1;
+}
+
+message AdminDeletePayoutProductBindingReq {
+  int64 id = 1;
+}
+
+message AdminDeletePayoutProductBindingResp {
   bool ok = 1;
 }

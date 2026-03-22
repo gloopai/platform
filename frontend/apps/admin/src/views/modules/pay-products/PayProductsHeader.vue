@@ -2,10 +2,8 @@
   <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex items-start justify-between gap-3">
       <div>
-        <div class="text-sm font-semibold text-slate-900">支付产品与上游通道</div>
-        <div class="mt-1 text-sm text-slate-600">
-          维护对外展示编码（code）、排序与启用；为每个产品绑定多条上游通道及权重，供交易路由加权选用。
-        </div>
+        <div class="text-sm font-semibold text-slate-900">{{ title }}</div>
+        <div class="mt-1 text-sm text-slate-600">{{ subtitle }}</div>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -28,6 +26,18 @@
 </template>
 
 <script setup lang="ts">
+withDefaults(
+  defineProps<{
+    title?: string
+    subtitle?: string
+  }>(),
+  {
+    title: '支付产品与上游通道',
+    subtitle:
+      '维护对外展示编码（code）、排序与启用；为每个产品绑定多条上游通道及权重，供交易路由加权选用。绑定行可覆盖该通道的默认上游成本（万分比）',
+  },
+)
+
 defineEmits<{
   'new-product': []
   refresh: []

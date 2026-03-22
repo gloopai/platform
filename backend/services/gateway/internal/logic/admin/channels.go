@@ -32,18 +32,22 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 		return types.AdminChannelInfo{}
 	}
 	return types.AdminChannelInfo{
-		Id:                 ch.GetId(),
-		Name:               ch.GetName(),
-		PayType:            ch.GetPayType(),
-		GatewayUrl:         ch.GetGatewayUrl(),
-		UpstreamMerchantNo: ch.GetUpstreamMerchantNo(),
-		RsaPrivateKey:      ch.GetRsaPrivateKey(),
-		SignSecret:         ch.GetSignSecret(),
-		Weight:             ch.GetWeight(),
-		MinAmount:          ch.GetMinAmount(),
-		MaxAmount:          ch.GetMaxAmount(),
-		Enabled:            ch.GetEnabled(),
-		FuseEnabled:        ch.GetFuseEnabled(),
+		Id:                     ch.GetId(),
+		Name:                   ch.GetName(),
+		PayType:                ch.GetPayType(),
+		GatewayUrl:             ch.GetGatewayUrl(),
+		UpstreamMerchantNo:     ch.GetUpstreamMerchantNo(),
+		RsaPrivateKey:          ch.GetRsaPrivateKey(),
+		SignSecret:             ch.GetSignSecret(),
+		Weight:                 ch.GetWeight(),
+		MinAmount:              ch.GetMinAmount(),
+		MaxAmount:              ch.GetMaxAmount(),
+		SupportsCollect:        ch.GetSupportsCollect(),
+		SupportsPayout:         ch.GetSupportsPayout(),
+		UpstreamCollectCostBps: ch.GetUpstreamCollectCostBps(),
+		UpstreamPayoutCostBps:  ch.GetUpstreamPayoutCostBps(),
+		Enabled:                ch.GetEnabled(),
+		FuseEnabled:            ch.GetFuseEnabled(),
 	}
 }
 
@@ -74,17 +78,21 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 	}
 
 	resp, err := c.svcCtx.ChannelRpc.CreateChannel(c.ctx, &channelpb.UpsertChannelReq{
-		Name:               req.Name,
-		PayType:            req.PayType,
-		GatewayUrl:         req.GatewayUrl,
-		UpstreamMerchantNo: req.UpstreamMerchantNo,
-		RsaPrivateKey:      req.RsaPrivateKey,
-		SignSecret:         req.SignSecret,
-		Weight:             req.Weight,
-		MinAmount:          req.MinAmount,
-		MaxAmount:          req.MaxAmount,
-		Enabled:            req.Enabled,
-		FuseEnabled:        req.FuseEnabled,
+		Name:                   req.Name,
+		PayType:                req.PayType,
+		GatewayUrl:             req.GatewayUrl,
+		UpstreamMerchantNo:     req.UpstreamMerchantNo,
+		RsaPrivateKey:          req.RsaPrivateKey,
+		SignSecret:             req.SignSecret,
+		Weight:                 req.Weight,
+		MinAmount:              req.MinAmount,
+		MaxAmount:              req.MaxAmount,
+		SupportsCollect:        req.SupportsCollect,
+		SupportsPayout:         req.SupportsPayout,
+		UpstreamCollectCostBps: req.UpstreamCollectCostBps,
+		UpstreamPayoutCostBps:  req.UpstreamPayoutCostBps,
+		Enabled:                req.Enabled,
+		FuseEnabled:            req.FuseEnabled,
 	})
 	if err != nil {
 		return nil, err
@@ -110,18 +118,22 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 	}
 
 	resp, err := c.svcCtx.ChannelRpc.UpdateChannel(c.ctx, &channelpb.UpsertChannelReq{
-		Id:                 req.Id,
-		Name:               req.Name,
-		PayType:            req.PayType,
-		GatewayUrl:         req.GatewayUrl,
-		UpstreamMerchantNo: req.UpstreamMerchantNo,
-		RsaPrivateKey:      req.RsaPrivateKey,
-		SignSecret:         req.SignSecret,
-		Weight:             req.Weight,
-		MinAmount:          req.MinAmount,
-		MaxAmount:          req.MaxAmount,
-		Enabled:            req.Enabled,
-		FuseEnabled:        req.FuseEnabled,
+		Id:                     req.Id,
+		Name:                   req.Name,
+		PayType:                req.PayType,
+		GatewayUrl:             req.GatewayUrl,
+		UpstreamMerchantNo:     req.UpstreamMerchantNo,
+		RsaPrivateKey:          req.RsaPrivateKey,
+		SignSecret:             req.SignSecret,
+		Weight:                 req.Weight,
+		MinAmount:              req.MinAmount,
+		MaxAmount:              req.MaxAmount,
+		SupportsCollect:        req.SupportsCollect,
+		SupportsPayout:         req.SupportsPayout,
+		UpstreamCollectCostBps: req.UpstreamCollectCostBps,
+		UpstreamPayoutCostBps:  req.UpstreamPayoutCostBps,
+		Enabled:                req.Enabled,
+		FuseEnabled:            req.FuseEnabled,
 	})
 	if err != nil {
 		return nil, err

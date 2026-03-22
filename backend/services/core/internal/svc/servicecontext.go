@@ -10,12 +10,13 @@ import (
 )
 
 type ServiceContext struct {
-	Config              config.Config
-	Sql                 *sql.DB
-	Merchants           *store.MerchantsStore
-	MerchantPayProducts *store.MerchantPayProductsStore
-	Settle              *store.SettleStore
-	RuntimeConfig       *consulx.ConfigStore
+	Config                 config.Config
+	Sql                    *sql.DB
+	Merchants              *store.MerchantsStore
+	MerchantPayProducts    *store.MerchantPayProductsStore
+	MerchantPayoutProducts *store.MerchantPayoutProductsStore
+	Settle                 *store.SettleStore
+	RuntimeConfig          *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -32,11 +33,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 	return &ServiceContext{
-		Config:              c,
-		Sql:                 sqlDB,
-		Merchants:           store.NewMerchantsStore(sqlDB),
-		MerchantPayProducts: store.NewMerchantPayProductsStore(sqlDB),
-		Settle:              store.NewSettleStore(sqlDB),
-		RuntimeConfig:       runtimeCfg,
+		Config:                 c,
+		Sql:                    sqlDB,
+		Merchants:              store.NewMerchantsStore(sqlDB),
+		MerchantPayProducts:    store.NewMerchantPayProductsStore(sqlDB),
+		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(sqlDB),
+		Settle:                 store.NewSettleStore(sqlDB),
+		RuntimeConfig:          runtimeCfg,
 	}
 }

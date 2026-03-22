@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
     <div
       v-for="cell in cells"
       :key="cell.label"
@@ -25,10 +25,13 @@ const cells = computed(() => {
   const s = props.summary
   const dash = props.loading ? '…' : '—'
   return [
-    { label: '启用中的支付产品', value: s ? s.enabled_pay_products : dash },
-    { label: '启用中的上游通道', value: s ? s.enabled_channels : dash },
-    { label: '产品↔通道绑定（启用）', value: s ? s.active_bindings : dash },
-    { label: '已配白名单的商户数', value: s ? s.merchants_with_whitelist : dash },
+    { label: '代收产品（启用）', value: s ? s.enabled_pay_products : dash },
+    { label: '代付产品（启用）', value: s ? s.enabled_payout_products : dash },
+    { label: '上游通道（启用）', value: s ? s.enabled_channels : dash },
+    { label: '代收绑定（启用）', value: s ? s.active_bindings : dash },
+    { label: '代付绑定（启用）', value: s ? s.active_payout_bindings : dash },
+    { label: '代收白名单商户', value: s ? s.merchants_with_collect_whitelist : dash },
+    { label: '代付白名单商户', value: s ? s.merchants_with_payout_whitelist : dash },
     { label: '熔断中的通道', value: s ? s.fused_channels : dash },
   ]
 })

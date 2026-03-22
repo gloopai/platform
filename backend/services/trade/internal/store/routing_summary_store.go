@@ -7,11 +7,14 @@ import (
 
 // RoutingSummary 路由相关表的可观测计数（供管理台「路由策略」页展示）。
 type RoutingSummary struct {
-	EnabledPayProducts     int64
-	EnabledChannels        int64
-	ActiveBindings         int64
-	MerchantsWithWhitelist int64
-	FusedChannels          int64
+	EnabledPayProducts            int64
+	EnabledPayoutProducts         int64
+	EnabledChannels               int64
+	ActiveBindings                int64
+	ActivePayoutBindings          int64
+	MerchantsWithCollectWhitelist int64
+	MerchantsWithPayoutWhitelist  int64
+	FusedChannels                 int64
 }
 
 type RoutingSummaryStore struct {
@@ -27,15 +30,21 @@ func (s *RoutingSummaryStore) Get(ctx context.Context) (RoutingSummary, error) {
 	err := s.db.QueryRowContext(ctx, `
 SELECT
   (SELECT COUNT(*) FROM pay_products WHERE enabled = 1),
+  (SELECT COUNT(*) FROM payout_products WHERE enabled = 1),
   (SELECT COUNT(*) FROM channels WHERE enabled = 1),
   (SELECT COUNT(*) FROM pay_product_channels WHERE enabled = 1),
+  (SELECT COUNT(*) FROM payout_product_channels WHERE enabled = 1),
   (SELECT COUNT(DISTINCT merchant_id) FROM merchant_pay_products WHERE enabled = 1),
+  (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payout_products WHERE enabled = 1),
   (SELECT COUNT(*) FROM channels WHERE enabled = 1 AND fuse_enabled = 1)
 `).Scan(
 		&out.EnabledPayProducts,
+		&out.EnabledPayoutProducts,
 		&out.EnabledChannels,
 		&out.ActiveBindings,
-		&out.MerchantsWithWhitelist,
+		&out.ActivePayoutBindings,
+		&out.MerchantsWithCollectWhitelist,
+		&out.MerchantsWithPayoutWhitelist,
 		&out.FusedChannels,
 	)
 	if err != nil {

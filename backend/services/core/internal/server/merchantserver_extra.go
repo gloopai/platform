@@ -16,3 +16,13 @@ func (s *MerchantServer) ListMerchantPayProductIds(ctx context.Context, in *merc
 	l := logic.NewListMerchantPayProductIdsLogic(ctx, s.svcCtx)
 	return l.ListMerchantPayProductIds(in)
 }
+
+func (s *MerchantServer) ReplaceMerchantPayoutProducts(ctx context.Context, in *merchantpb.ReplaceMerchantPayoutProductsReq) (*merchantpb.ReplaceMerchantPayoutProductsResp, error) {
+	l := logic.NewReplaceMerchantPayoutProductsLogic(ctx, s.svcCtx)
+	return l.ReplaceMerchantPayoutProducts(in)
+}
+
+func (s *MerchantServer) ListMerchantPayoutProductIds(ctx context.Context, in *merchantpb.ListMerchantPayoutProductIdsReq) (*merchantpb.ListMerchantPayoutProductIdsResp, error) {
+	l := logic.NewListMerchantPayoutProductIdsLogic(ctx, s.svcCtx)
+	return l.ListMerchantPayoutProductIds(in)
+}

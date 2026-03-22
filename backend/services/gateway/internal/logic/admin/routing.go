@@ -30,12 +30,15 @@ func (r *AdminRouting) AdminRoutingSummary() (*types.AdminRoutingSummaryResp, er
 		return nil, err
 	}
 	return &types.AdminRoutingSummaryResp{
-		AlgorithmKey:           s.GetAlgorithmKey(),
-		AlgorithmLabel:         s.GetAlgorithmLabel(),
-		EnabledPayProducts:     s.GetEnabledPayProducts(),
-		EnabledChannels:        s.GetEnabledChannels(),
-		ActiveBindings:         s.GetActiveBindings(),
-		MerchantsWithWhitelist: s.GetMerchantsWithWhitelist(),
-		FusedChannels:          s.GetFusedChannels(),
+		AlgorithmKey:                  s.GetAlgorithmKey(),
+		AlgorithmLabel:                s.GetAlgorithmLabel(),
+		EnabledPayProducts:              s.GetEnabledPayProducts(),
+		EnabledPayoutProducts:           s.GetEnabledPayoutProducts(),
+		EnabledChannels:                 s.GetEnabledChannels(),
+		ActiveBindings:                  s.GetActiveBindings(),
+		ActivePayoutBindings:            s.GetActivePayoutBindings(),
+		MerchantsWithCollectWhitelist:   s.GetMerchantsWithCollectWhitelist(),
+		MerchantsWithPayoutWhitelist:    s.GetMerchantsWithPayoutWhitelist(),
+		FusedChannels:                   s.GetFusedChannels(),
 	}, nil
 }
