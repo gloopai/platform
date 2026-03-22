@@ -117,11 +117,14 @@
 
 ## 5. 前端实现说明
 
+开发约定（鉴权请求封装、按模块分目录与组件拆分）见 [**管理端前端开发规范**](./管理端前端开发规范.md)。
+
 | 文件 | 作用 |
 |------|------|
 | `src/adminMenu.ts` | 侧栏菜单结构、面包屑标题、占位页文案 |
 | `src/views/AdminLayout.vue` | 多级侧栏、折叠态悬浮子菜单 |
-| `src/views/pages/PayProductsPage.vue` | 支付产品与上游通道绑定 |
+| `src/views/modules/pay-products/` | 支付产品与上游通道绑定（`PayProductsPage.vue` + 子组件） |
+| `src/views/modules/channels/` | 通道管理（`ChannelsPage.vue` + `ChannelList` / `ChannelFormCard` 等） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
