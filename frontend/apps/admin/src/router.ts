@@ -8,7 +8,7 @@ import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
-import StatsPage from './views/pages/StatsPage.vue'
+import StatsPage from './views/modules/stats/StatsPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),

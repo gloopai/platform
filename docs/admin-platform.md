@@ -23,7 +23,7 @@
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/stats` | 系统概览 | 平台交易额、笔数、成功率、通道可用率、待办与告警；**部分指标待接入** |
+| `/stats` | 系统概览 | **已对接**：`GET /v1/admin/stats/overview` 今日订单汇总、按支付产品与按上游通道拆解、成交率与支付成功率；启用/熔断通道数 |
 
 ### 2.2 商户与接入
 
@@ -111,6 +111,7 @@
   - `GET /v1/admin/pay_products/:id/bindings`、`POST /v1/admin/pay_products/:id/bindings`（同 `(product, channel)` 唯一则更新权重/启用）
   - `PUT /v1/admin/pay_product_bindings/:id`、`DELETE /v1/admin/pay_product_bindings/:id`
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
+- **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
 
 其余菜单对应能力 **尚未实现**；前端以 `ModulePlaceholderPage` + `adminMenu.ts` 中 `adminPlaceholderMeta` 说明规划与待接入 API 提示。
 
@@ -127,6 +128,7 @@
 | `src/views/modules/pay-products/` | 支付产品与上游通道绑定（`PayProductsPage.vue` + 子组件） |
 | `src/views/modules/channels/` | 通道管理（`ChannelsPage.vue` + `ChannelList` / `ChannelFormCard` 等） |
 | `src/views/modules/routing/` | 路由策略说明页（`RouteStrategyPage.vue` + 概览统计与配置入口卡片） |
+| `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -144,6 +146,6 @@
 
 ## 7. 修订记录
 
-- **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`。
+- **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`；`/stats` 与 `GET /v1/admin/stats/overview`。
 - **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
 - 文档与前端菜单随 `adminMenu.ts` 同步维护；变更时请更新本节或提交说明。

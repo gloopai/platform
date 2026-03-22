@@ -378,3 +378,47 @@ type AdminRoutingSummaryResp struct {
 	MerchantsWithWhitelist int64  `json:"merchants_with_whitelist"`
 	FusedChannels          int64  `json:"fused_channels"`
 }
+
+// --- 管理台统计（C5：监控看板简版） ---
+
+type AdminStatsTotals struct {
+	OrderCount               int64   `json:"order_count"`
+	PaidAmount               int64   `json:"paid_amount"`
+	PaidCount                int64   `json:"paid_count"`
+	FailedCount              int64   `json:"failed_count"`
+	PendingCount             int64   `json:"pending_count"`
+	ClosedCount              int64   `json:"closed_count"`
+	ConversionRatePct        float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+}
+
+type AdminStatsProductRow struct {
+	ProductCode              string  `json:"product_code"`
+	ProductName              string  `json:"product_name"`
+	OrderCount               int64   `json:"order_count"`
+	PaidAmount               int64   `json:"paid_amount"`
+	PaidCount                int64   `json:"paid_count"`
+	FailedCount              int64   `json:"failed_count"`
+	ConversionRatePct        float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+}
+
+type AdminStatsChannelRow struct {
+	ChannelId                int64   `json:"channel_id"`
+	ChannelName              string  `json:"channel_name"`
+	OrderCount               int64   `json:"order_count"`
+	PaidAmount               int64   `json:"paid_amount"`
+	PaidCount                int64   `json:"paid_count"`
+	FailedCount              int64   `json:"failed_count"`
+	ConversionRatePct        float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+}
+
+type AdminStatsOverviewResp struct {
+	Range             string                 `json:"range"`
+	Totals            AdminStatsTotals       `json:"totals"`
+	ByPayProduct      []AdminStatsProductRow `json:"by_pay_product"`
+	ByChannel         []AdminStatsChannelRow `json:"by_channel"`
+	EnabledChannels   int64                  `json:"enabled_channels"`
+	FusedChannels     int64                  `json:"fused_channels"`
+}
