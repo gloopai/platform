@@ -6,6 +6,9 @@ package handler
 import (
 	"net/http"
 
+	adminhandler "github.com/gloopai/pay/gateway/internal/handler/admin"
+	checkouthandler "github.com/gloopai/pay/gateway/internal/handler/checkout"
+	merchanthandler "github.com/gloopai/pay/gateway/internal/handler/merchant"
 	"github.com/gloopai/pay/gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -19,12 +22,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/pay/order",
-					Handler: CreateOrderHandler(serverCtx),
+					Handler: checkouthandler.CreateOrderHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/pay/query",
-					Handler: QueryOrderHandler(serverCtx),
+					Handler: checkouthandler.QueryOrderHandler(serverCtx),
 				},
 			}...,
 		),
@@ -37,32 +40,32 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/summary",
-					Handler: MerchantSummaryHandler(serverCtx),
+					Handler: merchanthandler.MerchantSummaryHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/orders",
-					Handler: MerchantOrdersHandler(serverCtx),
+					Handler: merchanthandler.MerchantOrdersHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/fund_logs",
-					Handler: MerchantFundLogsHandler(serverCtx),
+					Handler: merchanthandler.MerchantFundLogsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/order/detail",
-					Handler: MerchantOrderDetailHandler(serverCtx),
+					Handler: merchanthandler.MerchantOrderDetailHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/merchant/order/retry_notify",
-					Handler: MerchantRetryNotifyHandler(serverCtx),
+					Handler: merchanthandler.MerchantRetryNotifyHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/merchant/logout",
-					Handler: MerchantLogoutHandler(serverCtx),
+					Handler: merchanthandler.MerchantLogoutHandler(serverCtx),
 				},
 			}...,
 		),
@@ -73,12 +76,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodPost,
 				Path:    "/v1/merchant/login",
-				Handler: MerchantLoginHandler(serverCtx),
+				Handler: merchanthandler.MerchantLoginHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
 				Path:    "/v1/admin/login",
-				Handler: AdminLoginHandler(serverCtx),
+				Handler: adminhandler.AdminLoginHandler(serverCtx),
 			},
 		},
 	)
@@ -88,7 +91,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodPost,
 				Path:    "/v1/callback/notify",
-				Handler: UpstreamNotifyHandler(serverCtx),
+				Handler: checkouthandler.UpstreamNotifyHandler(serverCtx),
 			},
 		},
 	)
@@ -98,7 +101,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/v1/terminal/order",
-				Handler: TerminalOrderHandler(serverCtx),
+				Handler: checkouthandler.TerminalOrderHandler(serverCtx),
 			},
 		},
 	)
@@ -110,37 +113,37 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/logout",
-					Handler: AdminLogoutHandler(serverCtx),
+					Handler: adminhandler.AdminLogoutHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/channels",
-					Handler: AdminListChannelsHandler(serverCtx),
+					Handler: adminhandler.AdminListChannelsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/channels",
-					Handler: AdminCreateChannelHandler(serverCtx),
+					Handler: adminhandler.AdminCreateChannelHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/channels/:id",
-					Handler: AdminUpdateChannelHandler(serverCtx),
+					Handler: adminhandler.AdminUpdateChannelHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/merchants",
-					Handler: AdminListMerchantsHandler(serverCtx),
+					Handler: adminhandler.AdminListMerchantsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/merchants",
-					Handler: AdminCreateMerchantHandler(serverCtx),
+					Handler: adminhandler.AdminCreateMerchantHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/merchants/:merchant_id",
-					Handler: AdminUpdateMerchantHandler(serverCtx),
+					Handler: adminhandler.AdminUpdateMerchantHandler(serverCtx),
 				},
 			}...,
 		),
