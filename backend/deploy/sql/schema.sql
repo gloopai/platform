@@ -66,6 +66,19 @@ CREATE TABLE IF NOT EXISTS pay_product_channels (
   CONSTRAINT fk_ppc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 商户可用的支付产品（白名单）；收银台仅展示此处配置且平台侧仍可用的产品
+CREATE TABLE IF NOT EXISTS merchant_pay_products (
+  merchant_id VARCHAR(64) NOT NULL,
+  pay_product_id BIGINT UNSIGNED NOT NULL,
+  enabled TINYINT NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (merchant_id, pay_product_id),
+  KEY idx_merchant (merchant_id, enabled),
+  CONSTRAINT fk_mpp_product FOREIGN KEY (pay_product_id) REFERENCES pay_products (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS orders (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_no VARCHAR(64) NOT NULL,
@@ -77,6 +90,7 @@ CREATE TABLE IF NOT EXISTS orders (
   channel_id BIGINT NOT NULL DEFAULT 0,
   pay_product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
   pay_product_code VARCHAR(32) NULL,
+  channel_locked TINYINT NOT NULL DEFAULT 0 COMMENT '1=商户指定通道，收银台不可切换',
   paid_amount BIGINT NOT NULL DEFAULT 0,
   return_url VARCHAR(512) NULL,
   notify_url VARCHAR(512) NULL,

@@ -32,17 +32,53 @@ func NewCreateOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 }
 
 func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
-	payProductCode := strings.TrimSpace(req.PayType)
-	if payProductCode == "" {
-		return nil, status.Error(codes.InvalidArgument, "pay_type (payment product code) is required, e.g. mock, wechat, alipay")
-	}
+	merchantID := strings.TrimSpace(req.MerchantId)
+	payType := strings.TrimSpace(req.PayType)
+	channelID := req.ChannelId
 
-	route, err := l.svcCtx.ChannelRpc.Route(l.ctx, &channelclient.RouteReq{
-		Amount:  req.Amount,
-		PayType: payProductCode,
-	})
-	if err != nil {
-		return nil, err
+	var (
+		route          *channelclient.RouteResp
+		payProductCode string
+		channelLocked  int32
+		cid            int64
+		ppid           int64
+	)
+
+	switch {
+	case channelID > 0:
+		ppid, code, err := l.svcCtx.PayProducts.ResolveLockedChannelForMerchant(l.ctx, merchantID, channelID, req.Amount)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+		channelLocked = 1
+		cid = channelID
+		payProductCode = code
+
+	case payType != "":
+		ok, err := l.svcCtx.PayProducts.MerchantHasPayProductCode(l.ctx, merchantID, payType)
+		if err != nil {
+			return nil, status.Error(codes.Internal, "check merchant pay products failed")
+		}
+		if !ok {
+			return nil, status.Error(codes.PermissionDenied, "pay_type not enabled for this merchant")
+		}
+		route, err = l.svcCtx.ChannelRpc.Route(l.ctx, &channelclient.RouteReq{
+			Amount:  req.Amount,
+			PayType: payType,
+		})
+		if err != nil {
+			return nil, err
+		}
+		cid = route.ChannelId
+		ppid = route.PayProductId
+		payProductCode = payType
+		channelLocked = 0
+
+	default:
+		// 纯预下单：不在此处选路，收银台按商户白名单展示支付方式
+		cid, ppid = 0, 0
+		payProductCode = ""
+		channelLocked = 0
 	}
 
 	r, err := l.svcCtx.OrderRpc.CreateOrder(l.ctx, &orderclient.CreateOrderReq{
@@ -53,10 +89,11 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.C
 		Subject:         req.Subject,
 		ReturnUrl:       req.ReturnUrl,
 		NotifyUrl:       req.NotifyUrl,
-		PayType:         payProductCode,
-		ChannelId:       route.ChannelId,
-		PayProductId:    route.PayProductId,
+		PayType:         payType,
+		ChannelId:       cid,
+		PayProductId:    ppid,
 		PayProductCode:  payProductCode,
+		ChannelLocked:   channelLocked,
 	})
 	if err != nil {
 		return nil, err
@@ -68,14 +105,15 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.C
 		base = "http://127.0.0.1:5174/"
 	}
 	base = strings.TrimRight(base, "/")
-	checkoutUrl := base + "/?order_no=" + orderInfo.GetOrderNo()
+	checkoutURL := base + "/?order_no=" + orderInfo.GetOrderNo()
 
 	return &types.CreateOrderResp{
-		OrderNo:        orderInfo.GetOrderNo(),
-		Status:         orderInfo.GetStatus(),
-		ChannelId:      orderInfo.GetChannelId(),
-		PayProductId:   orderInfo.GetPayProductId(),
-		PayProductCode: orderInfo.GetPayProductCode(),
-		CheckoutUrl:    checkoutUrl,
+		OrderNo:         orderInfo.GetOrderNo(),
+		Status:          orderInfo.GetStatus(),
+		ChannelId:       orderInfo.GetChannelId(),
+		PayProductId:    orderInfo.GetPayProductId(),
+		PayProductCode:  orderInfo.GetPayProductCode(),
+		CheckoutUrl:     checkoutURL,
+		ChannelLocked:   orderInfo.GetChannelLocked(),
 	}, nil
 }

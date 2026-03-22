@@ -135,6 +135,15 @@ WHERE enabled = 1
 	return items[len(items)-1].ID, nil
 }
 
+// GetGatewayURLAndPayType 用于收银台组装跳转/二维码载体。
+func (s *ChannelsStore) GetGatewayURLAndPayType(ctx context.Context, channelID int64) (gatewayURL, payType string, err error) {
+	err = s.db.QueryRowContext(ctx, `
+SELECT COALESCE(gateway_url,''), COALESCE(pay_type,'')
+FROM channels WHERE id = ? LIMIT 1
+`, channelID).Scan(&gatewayURL, &payType)
+	return
+}
+
 func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64) (string, error) {
 	var secret string
 	if err := s.db.QueryRowContext(ctx, `

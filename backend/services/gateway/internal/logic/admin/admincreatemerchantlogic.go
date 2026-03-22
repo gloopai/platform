@@ -46,16 +46,27 @@ func (l *AdminCreateMerchantLogic) AdminCreateMerchant(req *types.AdminCreateMer
 		return nil, err
 	}
 	created := r.GetMerchant()
+
+	if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, merchantId, req.PayProductIds); err != nil {
+		return nil, status.Error(codes.Internal, "save merchant pay products failed")
+	}
+
+	ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "load merchant pay products failed")
+	}
+
 	return &types.AdminUpsertMerchantResp{
 		Merchant: types.AdminMerchantInfo{
-			MerchantId:  created.GetMerchantId(),
-			ApiSecret:   created.GetApiSecret(),
-			Status:      created.GetStatus(),
-			RateBps:     created.GetRateBps(),
-			NotifyUrl:   created.GetNotifyUrl(),
-			ReturnUrl:   created.GetReturnUrl(),
-			IpWhitelist: created.GetIpWhitelist(),
-			Balance:     created.GetBalance(),
+			MerchantId:    created.GetMerchantId(),
+			ApiSecret:     created.GetApiSecret(),
+			Status:        created.GetStatus(),
+			RateBps:       created.GetRateBps(),
+			NotifyUrl:     created.GetNotifyUrl(),
+			ReturnUrl:     created.GetReturnUrl(),
+			IpWhitelist:   created.GetIpWhitelist(),
+			Balance:       created.GetBalance(),
+			PayProductIds: ids,
 		},
 	}, nil
 }

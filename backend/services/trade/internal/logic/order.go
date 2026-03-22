@@ -85,6 +85,8 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		ChannelId:       in.GetChannelId(),
 		PayProductId:    in.GetPayProductId(),
 		PayProductCode:  payCode,
+		ChannelLocked:   in.GetChannelLocked(),
+		PaidAmount:      0,
 		ReturnUrl:       in.GetReturnUrl(),
 		NotifyUrl:       in.GetNotifyUrl(),
 	}
@@ -264,6 +266,7 @@ func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
 		ChannelId:       rec.ChannelId,
 		PayProductId:    rec.PayProductId,
 		PayProductCode:  rec.PayProductCode,
+		ChannelLocked:     rec.ChannelLocked,
 		CreatedAt:       rec.CreatedAt.Unix(),
 		UpdatedAt:       rec.UpdatedAt.Unix(),
 		ReturnUrl:       rec.ReturnUrl,

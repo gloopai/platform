@@ -21,6 +21,10 @@ func NewTerminalOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *che
 	return checkoutlogic.NewTerminalOrderLogic(ctx, svcCtx)
 }
 
+func NewTerminalPayLogic(ctx context.Context, svcCtx *svc.ServiceContext) *checkoutlogic.TerminalPayLogic {
+	return checkoutlogic.NewTerminalPayLogic(ctx, svcCtx)
+}
+
 func NewUpstreamNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *checkoutlogic.UpstreamNotifyLogic {
 	return checkoutlogic.NewUpstreamNotifyLogic(ctx, svcCtx)
 }

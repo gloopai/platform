@@ -9,6 +9,8 @@ service Order {
   rpc MarkPaid(MarkPaidReq) returns(MarkPaidResp);
   rpc ListOrders(ListOrdersReq) returns(ListOrdersResp);
   rpc TodaySummary(TodaySummaryReq) returns(TodaySummaryResp);
+  // 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
+  rpc PrepareTerminalPay(PrepareTerminalPayReq) returns (PrepareTerminalPayResp);
 }
 
 message CreateOrderReq {
@@ -23,6 +25,8 @@ message CreateOrderReq {
   int64 channel_id = 9;
   int64 pay_product_id = 10;
   string pay_product_code = 11;
+  // 下单时由网关/交易写入：商户 API 指定通道时为 1
+  int32 channel_locked = 12;
 }
 
 message CreateOrderResp {
@@ -67,6 +71,7 @@ message OrderInfo {
   int64 paid_amount = 13;
   int64 pay_product_id = 14;
   string pay_product_code = 15;
+  int32 channel_locked = 16;
 }
 
 message ListOrdersReq {
@@ -88,4 +93,21 @@ message TodaySummaryResp {
   int64 total_amount = 1;
   int64 total_count = 2;
   int64 success_count = 3;
+}
+
+message PrepareTerminalPayReq {
+  string order_no = 1;
+  // 用户在收银台选择的支付产品编码；为空则沿用订单已有编码
+  string pay_product_code = 2;
+}
+
+message PrepareTerminalPayResp {
+  int64 channel_id = 1;
+  int64 pay_product_id = 2;
+  string pay_product_code = 3;
+  // 跳转或二维码内容（mock 场景可与 pay_url 相同）
+  string pay_url = 4;
+  string qr_payload = 5;
+  // mock | qr | redirect
+  string pay_mode = 6;
 }

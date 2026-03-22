@@ -105,6 +105,7 @@
 
         <div class="px-5 py-5 sm:px-6">
           <p class="text-sm font-semibold text-slate-900">选择支付方式</p>
+          <p v-if="channelLocked" class="mt-1 text-xs text-slate-500">商户已指定支付通道，不可更换其他方式。</p>
           <div class="mt-3 grid gap-2" role="radiogroup" aria-label="支付方式">
             <button
               v-for="m in methodsSorted"
@@ -141,7 +142,7 @@
               :disabled="payDisabled"
               @click="payNow"
             >
-              {{ payButtonText }}
+              {{ paying ? '处理中…' : payButtonText }}
             </button>
 
             <button
@@ -213,8 +214,17 @@
           </button>
         </div>
         <div class="mt-4 grid place-items-center rounded-xl bg-slate-50 p-8">
-          <div class="h-48 w-48 rounded-lg border border-dashed border-slate-300 bg-white shadow-inner"></div>
-          <div class="mt-3 text-center text-xs text-slate-500">二维码由上游通道返回后展示（当前为占位）</div>
+          <img
+            v-if="prepayPayload?.qr_payload"
+            :src="qrImgSrc(prepayPayload.qr_payload)"
+            alt="支付二维码"
+            class="h-48 w-48 rounded-lg border border-slate-200 bg-white object-contain p-2 shadow-inner"
+          />
+          <div v-else class="h-48 w-48 rounded-lg border border-dashed border-slate-300 bg-white shadow-inner" />
+          <div class="mt-3 max-w-xs text-center text-xs leading-relaxed text-slate-500">
+            内容由 <code class="rounded bg-slate-100 px-1 font-mono text-[10px]">POST /v1/terminal/pay</code> 返回；联调支付完成后可用仓库
+            <code class="font-mono text-[10px]">simulate_upstream</code> 模拟回调。
+          </div>
         </div>
         <div class="mt-4 grid grid-cols-2 gap-3">
           <button
@@ -250,6 +260,8 @@ type OrderInfo = {
   status: number
   return_url: string
   pay_product_code?: string
+  /** 1 = 商户下单已指定通道，不可改支付方式 */
+  channel_locked?: number
 }
 
 type PayProductItem = { code: string; name: string }
@@ -289,9 +301,12 @@ const currency = ref<string>('CNY')
 const status = ref<number>(0)
 const returnUrl = ref<string>('')
 const payProductCodeOnOrder = ref('')
+const channelLocked = ref(false)
 
 const error = ref('')
 const showQrModal = ref(false)
+const prepayPayload = ref<{ pay_url: string; qr_payload: string; pay_mode: string } | null>(null)
+const paying = ref(false)
 const selectedMethod = ref('')
 const serverPayProducts = ref<PayProductItem[] | null>(null)
 const copiedOrderNo = ref(false)
@@ -375,12 +390,12 @@ const isMobile = computed(() => /iphone|ipad|android/i.test(navigator.userAgent)
 
 const payButtonText = computed(() => {
   if (isExpired.value) return '支付已超时'
-  if (isMobile.value) return '唤起支付'
-  return '扫码支付'
+  if (isMobile.value) return '发起支付'
+  return '确认支付'
 })
 
 const payDisabled = computed(
-  () => !orderNo.value || status.value !== 0 || isExpired.value,
+  () => !orderNo.value || status.value !== 0 || isExpired.value || paying.value || !selectedMethod.value,
 )
 
 const redirectText = computed(() => {
@@ -418,6 +433,7 @@ async function load() {
   merchantIdDisplay.value = data.order.merchant_id || ''
   merchantOrderNoDisplay.value = data.order.merchant_order_no || ''
   payProductCodeOnOrder.value = data.order.pay_product_code || ''
+  channelLocked.value = Number(data.order.channel_locked) === 1
   serverPayProducts.value = data.pay_products && data.pay_products.length > 0 ? data.pay_products : null
 }
 
@@ -446,13 +462,44 @@ function startRedirect() {
   }, 1000)
 }
 
-function payNow() {
-  if (!orderNo.value || isExpired.value) return
-  if (isMobile.value) {
-    error.value = '移动端唤起支付需对接上游协议（此处为占位）。'
-    return
+function qrImgSrc(payload: string) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payload)}`
+}
+
+async function payNow() {
+  if (!orderNo.value || isExpired.value || !selectedMethod.value) return
+  paying.value = true
+  error.value = ''
+  try {
+    const res = await fetch('/v1/terminal/pay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_no: orderNo.value,
+        pay_product_code: selectedMethod.value,
+      }),
+    })
+    if (!res.ok) {
+      error.value = `发起支付失败(${res.status})`
+      return
+    }
+    const data = (await res.json()) as {
+      pay_url: string
+      qr_payload: string
+      pay_mode: string
+    }
+    prepayPayload.value = data
+    const httpUrl = data.pay_url.startsWith('http://') || data.pay_url.startsWith('https://')
+    if (isMobile.value && httpUrl) {
+      window.location.href = data.pay_url
+      return
+    }
+    showQrModal.value = true
+  } catch {
+    error.value = '网络错误'
+  } finally {
+    paying.value = false
   }
-  showQrModal.value = true
 }
 
 onMounted(async () => {

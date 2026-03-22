@@ -55,16 +55,28 @@ func (l *AdminUpdateMerchantLogic) AdminUpdateMerchant(req *types.AdminUpdateMer
 	}
 	updated := r.GetMerchant()
 
+	if req.PayProductIds != nil {
+		if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, merchantId, req.PayProductIds); err != nil {
+			return nil, status.Error(codes.Internal, "save merchant pay products failed")
+		}
+	}
+
+	ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "load merchant pay products failed")
+	}
+
 	return &types.AdminUpsertMerchantResp{
 		Merchant: types.AdminMerchantInfo{
-			MerchantId:  updated.GetMerchantId(),
-			ApiSecret:   updated.GetApiSecret(),
-			Status:      updated.GetStatus(),
-			RateBps:     updated.GetRateBps(),
-			NotifyUrl:   updated.GetNotifyUrl(),
-			ReturnUrl:   updated.GetReturnUrl(),
-			IpWhitelist: updated.GetIpWhitelist(),
-			Balance:     updated.GetBalance(),
+			MerchantId:    updated.GetMerchantId(),
+			ApiSecret:     updated.GetApiSecret(),
+			Status:        updated.GetStatus(),
+			RateBps:       updated.GetRateBps(),
+			NotifyUrl:     updated.GetNotifyUrl(),
+			ReturnUrl:     updated.GetReturnUrl(),
+			IpWhitelist:   updated.GetIpWhitelist(),
+			Balance:       updated.GetBalance(),
+			PayProductIds: ids,
 		},
 	}, nil
 }

@@ -25,6 +25,7 @@ type CreateOrderResp struct {
 	PayProductId     int64  `json:"pay_product_id"`
 	PayProductCode   string `json:"pay_product_code"`
 	CheckoutUrl      string `json:"checkout_url"`
+	ChannelLocked    int32  `json:"channel_locked"`
 }
 
 type OrderInfo struct {
@@ -37,6 +38,8 @@ type OrderInfo struct {
 	ChannelId        int64  `json:"channel_id"`
 	PayProductId     int64  `json:"pay_product_id"`
 	PayProductCode   string `json:"pay_product_code"`
+	ChannelLocked    int32  `json:"channel_locked"`
+	PaidAmount       int64  `json:"paid_amount"`
 	ReturnUrl        string `json:"return_url"`
 	NotifyUrl        string `json:"notify_url"`
 	UpstreamTradeNo  string `json:"upstream_trade_no"`
@@ -67,6 +70,20 @@ type TerminalOrderReq struct {
 type TerminalOrderResp struct {
 	Order        OrderInfo        `json:"order"`
 	PayProducts  []PayProductItem `json:"pay_products"`
+}
+
+type TerminalPayReq struct {
+	OrderNo         string `json:"order_no"`
+	PayProductCode  string `json:"pay_product_code,optional"`
+}
+
+type TerminalPayResp struct {
+	ChannelId      int64  `json:"channel_id"`
+	PayProductId   int64  `json:"pay_product_id"`
+	PayProductCode string `json:"pay_product_code"`
+	PayUrl         string `json:"pay_url"`
+	QrPayload      string `json:"qr_payload"`
+	PayMode        string `json:"pay_mode"`
 }
 
 type UpstreamNotifyReq struct {
@@ -231,14 +248,15 @@ type MerchantLogoutResp struct {
 }
 
 type AdminMerchantInfo struct {
-	MerchantId  string `json:"merchant_id"`
-	ApiSecret   string `json:"api_secret"`
-	Status      int64  `json:"status"`
-	RateBps     int64  `json:"rate_bps"`
-	NotifyUrl   string `json:"notify_url"`
-	ReturnUrl   string `json:"return_url"`
-	IpWhitelist string `json:"ip_whitelist"`
-	Balance     int64  `json:"balance"`
+	MerchantId     string  `json:"merchant_id"`
+	ApiSecret      string  `json:"api_secret"`
+	Status         int64   `json:"status"`
+	RateBps        int64   `json:"rate_bps"`
+	NotifyUrl      string  `json:"notify_url"`
+	ReturnUrl      string  `json:"return_url"`
+	IpWhitelist    string  `json:"ip_whitelist"`
+	Balance        int64   `json:"balance"`
+	PayProductIds  []int64 `json:"pay_product_ids"`
 }
 
 type AdminListMerchantsResp struct {
@@ -246,22 +264,24 @@ type AdminListMerchantsResp struct {
 }
 
 type AdminCreateMerchantReq struct {
-	MerchantId  string `json:"merchant_id"`
-	ApiSecret   string `json:"api_secret,optional"`
-	RateBps     int64  `json:"rate_bps,optional"`
-	NotifyUrl   string `json:"notify_url,optional"`
-	ReturnUrl   string `json:"return_url,optional"`
-	IpWhitelist string `json:"ip_whitelist,optional"`
+	MerchantId     string  `json:"merchant_id"`
+	ApiSecret      string  `json:"api_secret,optional"`
+	RateBps        int64   `json:"rate_bps,optional"`
+	NotifyUrl      string  `json:"notify_url,optional"`
+	ReturnUrl      string  `json:"return_url,optional"`
+	IpWhitelist    string  `json:"ip_whitelist,optional"`
+	PayProductIds  []int64 `json:"pay_product_ids,optional"`
 }
 
 type AdminUpdateMerchantReq struct {
-	MerchantId  string `path:"merchant_id"`
-	Status      int64  `json:"status,optional"`
-	RateBps     int64  `json:"rate_bps,optional"`
-	NotifyUrl   string `json:"notify_url,optional"`
-	ReturnUrl   string `json:"return_url,optional"`
-	IpWhitelist string `json:"ip_whitelist,optional"`
-	ResetSecret bool   `json:"reset_secret,optional"`
+	MerchantId     string  `path:"merchant_id"`
+	Status         int64   `json:"status,optional"`
+	RateBps        int64   `json:"rate_bps,optional"`
+	NotifyUrl      string  `json:"notify_url,optional"`
+	ReturnUrl      string  `json:"return_url,optional"`
+	IpWhitelist    string  `json:"ip_whitelist,optional"`
+	ResetSecret    bool    `json:"reset_secret,optional"`
+	PayProductIds  []int64 `json:"pay_product_ids,optional"`
 }
 
 type AdminUpsertMerchantResp struct {

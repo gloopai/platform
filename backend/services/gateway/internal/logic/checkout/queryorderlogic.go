@@ -49,6 +49,8 @@ func (l *QueryOrderLogic) QueryOrder(req *types.QueryOrderReq) (resp *types.Quer
 			ChannelId:        o.GetChannelId(),
 			PayProductId:     o.GetPayProductId(),
 			PayProductCode:   o.GetPayProductCode(),
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
 			UpstreamTradeNo:  o.GetUpstreamTradeNo(),

@@ -7,6 +7,8 @@ import (
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AdminListMerchantsLogic struct {
@@ -31,15 +33,20 @@ func (l *AdminListMerchantsLogic) AdminListMerchants() (*types.AdminListMerchant
 	items := r.GetMerchants()
 	out := make([]types.AdminMerchantInfo, 0, len(items))
 	for _, m := range items {
+		ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, m.GetMerchantId())
+		if err != nil {
+			return nil, status.Error(codes.Internal, "load merchant pay products failed")
+		}
 		out = append(out, types.AdminMerchantInfo{
-			MerchantId:  m.GetMerchantId(),
-			ApiSecret:   m.GetApiSecret(),
-			Status:      m.GetStatus(),
-			RateBps:     m.GetRateBps(),
-			NotifyUrl:   m.GetNotifyUrl(),
-			ReturnUrl:   m.GetReturnUrl(),
-			IpWhitelist: m.GetIpWhitelist(),
-			Balance:     m.GetBalance(),
+			MerchantId:    m.GetMerchantId(),
+			ApiSecret:     m.GetApiSecret(),
+			Status:        m.GetStatus(),
+			RateBps:       m.GetRateBps(),
+			NotifyUrl:     m.GetNotifyUrl(),
+			ReturnUrl:     m.GetReturnUrl(),
+			IpWhitelist:   m.GetIpWhitelist(),
+			Balance:       m.GetBalance(),
+			PayProductIds: ids,
 		})
 	}
 	return &types.AdminListMerchantsResp{Merchants: out}, nil

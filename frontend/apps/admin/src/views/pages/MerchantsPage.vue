@@ -4,7 +4,7 @@
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div class="text-sm font-semibold text-slate-900">商户管理</div>
-          <div class="mt-1 text-sm text-slate-600">进件、费率、密钥与状态；产品与签约能力见独立菜单。</div>
+          <div class="mt-1 text-sm text-slate-600">进件、费率、密钥与状态；在此为商户勾选收银台可见的支付产品（与「支付产品」菜单中的定义配合使用）。</div>
         </div>
         <div class="flex items-center gap-2">
           <button class="rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white" @click="openCreate">
@@ -25,16 +25,17 @@
             <th class="px-4 py-3">状态</th>
             <th class="px-4 py-3">费率(bps)</th>
             <th class="px-4 py-3">余额</th>
+            <th class="px-4 py-3">支付产品</th>
             <th class="px-4 py-3">Notify URL</th>
             <th class="px-4 py-3">操作</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-200">
           <tr v-if="loading">
-            <td class="px-4 py-3 text-slate-600" colspan="6">加载中...</td>
+            <td class="px-4 py-3 text-slate-600" colspan="7">加载中...</td>
           </tr>
           <tr v-else-if="merchants.length === 0">
-            <td class="px-4 py-3 text-slate-600" colspan="6">暂无数据</td>
+            <td class="px-4 py-3 text-slate-600" colspan="7">暂无数据</td>
           </tr>
           <tr v-for="m in merchants" :key="m.merchant_id">
             <td class="px-4 py-3">
@@ -48,6 +49,10 @@
             </td>
             <td class="px-4 py-3 text-slate-700">{{ m.rate_bps }}</td>
             <td class="px-4 py-3 text-slate-700">{{ formatMoney(m.balance) }}</td>
+            <td class="px-4 py-3 text-xs text-slate-600">
+              <span v-if="!m.pay_product_ids?.length" class="text-slate-400">未分配</span>
+              <span v-else class="line-clamp-2">{{ payProductLabels(m.pay_product_ids) }}</span>
+            </td>
             <td class="px-4 py-3 text-slate-700">
               <div class="max-w-xs break-all">{{ m.notify_url || '-' }}</div>
             </td>
@@ -118,6 +123,20 @@
             <textarea v-model="form.ip_whitelist" rows="4" class="rounded-md border border-slate-200 px-3 py-2 font-mono text-xs" />
           </label>
 
+          <div class="grid gap-2">
+            <span class="text-xs font-medium text-slate-600">收银台可用支付产品</span>
+            <p class="text-[11px] text-slate-500">仅勾选的产品会出现在该商户收银台；未分配则收银台无可用方式。</p>
+            <div v-if="loadingProducts" class="text-xs text-slate-500">加载产品中…</div>
+            <div v-else class="max-h-40 space-y-2 overflow-y-auto rounded-md border border-slate-200 p-3">
+              <label v-for="p in payProducts" :key="p.id" class="flex cursor-pointer items-center gap-2 text-sm">
+                <input v-model="form.pay_product_ids" type="checkbox" :value="p.id" class="rounded border-slate-300" />
+                <span class="font-mono text-xs text-slate-800">{{ p.code }}</span>
+                <span class="text-slate-600">{{ p.name }}</span>
+              </label>
+              <div v-if="!payProducts.length" class="text-xs text-slate-500">暂无支付产品，请先在「支付产品」中配置。</div>
+            </div>
+          </div>
+
           <div v-if="modalError" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{{ modalError }}</div>
 
           <div class="flex flex-wrap items-center gap-3">
@@ -151,9 +170,14 @@ type AdminMerchantInfo = {
   return_url: string
   ip_whitelist: string
   balance: number
+  pay_product_ids?: number[]
 }
 
+type PayProductRow = { id: number; code: string; name: string }
+
 const merchants = ref<AdminMerchantInfo[]>([])
+const payProducts = ref<PayProductRow[]>([])
+const loadingProducts = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
@@ -161,7 +185,7 @@ const error = ref('')
 const modalOpen = ref(false)
 const modalError = ref('')
 const isEdit = ref(false)
-const form = ref<AdminMerchantInfo>({
+const form = ref<AdminMerchantInfo & { pay_product_ids: number[] }>({
   merchant_id: '',
   api_secret: '',
   status: 1,
@@ -170,6 +194,7 @@ const form = ref<AdminMerchantInfo>({
   return_url: '',
   ip_whitelist: '',
   balance: 0,
+  pay_product_ids: [],
 })
 
 function maskSecret(s: string) {
@@ -180,6 +205,23 @@ function maskSecret(s: string) {
 
 function formatMoney(v: number) {
   return `¥ ${(v / 100).toFixed(2)}`
+}
+
+function payProductLabels(ids: number[]) {
+  const map = new Map(payProducts.value.map((p) => [p.id, p.code]))
+  return (ids || []).map((id) => map.get(id) || String(id)).join('、')
+}
+
+async function loadPayProducts() {
+  loadingProducts.value = true
+  try {
+    const res = await adminGet<{ products: PayProductRow[] }>('/v1/admin/pay_products')
+    payProducts.value = res.products || []
+  } catch {
+    payProducts.value = []
+  } finally {
+    loadingProducts.value = false
+  }
 }
 
 async function reload() {
@@ -207,6 +249,7 @@ function openCreate() {
     return_url: '',
     ip_whitelist: '',
     balance: 0,
+    pay_product_ids: [],
   }
   modalOpen.value = true
 }
@@ -214,13 +257,28 @@ function openCreate() {
 function openEdit(m: AdminMerchantInfo) {
   isEdit.value = true
   modalError.value = ''
-  form.value = { ...m }
+  form.value = {
+    ...m,
+    pay_product_ids: m.pay_product_ids ? [...m.pay_product_ids] : [],
+  }
   modalOpen.value = true
+}
+
+function normalizePayProductIds(ids: unknown): number[] {
+  const arr = Array.isArray(ids) ? ids : []
+  const out: number[] = []
+  for (const x of arr) {
+    const n = typeof x === 'number' ? x : parseInt(String(x), 10)
+    if (!Number.isFinite(n) || n <= 0) continue
+    if (!out.includes(n)) out.push(n)
+  }
+  return out
 }
 
 async function save() {
   saving.value = true
   modalError.value = ''
+  const payIds = normalizePayProductIds(form.value.pay_product_ids)
   try {
     if (isEdit.value) {
       const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(form.value.merchant_id)}`, {
@@ -229,6 +287,7 @@ async function save() {
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
+        pay_product_ids: payIds,
       })
       const idx = merchants.value.findIndex((x) => x.merchant_id === resp.merchant.merchant_id)
       if (idx >= 0) merchants.value[idx] = resp.merchant
@@ -240,6 +299,7 @@ async function save() {
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
+        pay_product_ids: payIds,
       })
       merchants.value.push(resp.merchant)
       merchants.value.sort((a, b) => a.merchant_id.localeCompare(b.merchant_id))
@@ -276,6 +336,7 @@ async function resetSecret(m: AdminMerchantInfo) {
 }
 
 onMounted(() => {
+  void loadPayProducts()
   void reload()
 })
 </script>

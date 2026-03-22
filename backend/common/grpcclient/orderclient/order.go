@@ -22,9 +22,11 @@ type (
 	MarkPaidResp     = order.MarkPaidResp
 	ListOrdersReq    = order.ListOrdersReq
 	ListOrdersResp   = order.ListOrdersResp
-	TodaySummaryReq  = order.TodaySummaryReq
-	TodaySummaryResp = order.TodaySummaryResp
-	OrderInfo        = order.OrderInfo
+	TodaySummaryReq         = order.TodaySummaryReq
+	TodaySummaryResp        = order.TodaySummaryResp
+	PrepareTerminalPayReq   = order.PrepareTerminalPayReq
+	PrepareTerminalPayResp  = order.PrepareTerminalPayResp
+	OrderInfo               = order.OrderInfo
 
 	Order interface {
 		CreateOrder(ctx context.Context, in *CreateOrderReq, opts ...grpc.CallOption) (*CreateOrderResp, error)
@@ -32,6 +34,7 @@ type (
 		MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error)
 		ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
 		TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
+		PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error)
 	}
 
 	defaultOrder struct {
@@ -68,4 +71,9 @@ func (m *defaultOrder) ListOrders(ctx context.Context, in *ListOrdersReq, opts .
 func (m *defaultOrder) TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error) {
 	client := order.NewOrderClient(m.cli.Conn())
 	return client.TodaySummary(ctx, in, opts...)
+}
+
+func (m *defaultOrder) PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error) {
+	client := order.NewOrderClient(m.cli.Conn())
+	return client.PrepareTerminalPay(ctx, in, opts...)
 }

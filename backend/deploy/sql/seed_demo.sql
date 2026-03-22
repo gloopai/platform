@@ -28,6 +28,13 @@ JOIN (
 JOIN channels c ON c.name = w.ch
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
+-- 演示商户可用支付产品（mock / 微信 / 支付宝）
+INSERT INTO merchant_pay_products (merchant_id, pay_product_id, enabled, sort_order)
+SELECT 'm_demo', pp.id, 1, pp.sort_order
+FROM pay_products pp
+WHERE pp.code IN ('mock', 'wechat', 'alipay')
+ON DUPLICATE KEY UPDATE enabled = VALUES(enabled), sort_order = VALUES(sort_order);
+
 INSERT INTO admin_users (username, password_hash, status)
 VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1)
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);

@@ -31,6 +31,7 @@ type OrderRecord struct {
 	ChannelId       int64
 	PayProductId    int64
 	PayProductCode  string
+	ChannelLocked   int32
 	ReturnUrl       string
 	NotifyUrl       string
 	UpstreamTradeNo string
@@ -49,7 +50,7 @@ func NewOrdersStore(db *sql.DB) *OrdersStore {
 
 func (s *OrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
 FROM orders
 WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
@@ -59,7 +60,7 @@ LIMIT 1
 
 func (s *OrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
 FROM orders
 WHERE order_no = ?
 LIMIT 1
@@ -69,9 +70,9 @@ LIMIT 1
 
 func (s *OrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, pay_product_code, return_url, notify_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ReturnUrl, rec.NotifyUrl)
+INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, pay_product_code, channel_locked, paid_amount, return_url, notify_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ChannelLocked, rec.PaidAmount, rec.ReturnUrl, rec.NotifyUrl)
 	return err
 }
 
@@ -98,7 +99,7 @@ func (s *OrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword st
 	keyword = strings.TrimSpace(keyword)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
 FROM orders
 WHERE merchant_id = ?
 `
@@ -132,6 +133,26 @@ WHERE merchant_id = ?
 		return nil, err
 	}
 	return out, nil
+}
+
+// UpdatePendingPayRoute 待支付订单更新路由结果（收银台选定支付产品后调用）。
+func (s *OrdersStore) UpdatePendingPayRoute(ctx context.Context, orderNo string, channelID, payProductID int64, payProductCode string) error {
+	res, err := s.db.ExecContext(ctx, `
+UPDATE orders
+SET channel_id = ?, pay_product_id = ?, pay_product_code = ?, updated_at = NOW()
+WHERE order_no = ? AND status = ?
+`, channelID, payProductID, nullIfEmpty(payProductCode), orderNo, OrderStatusPending)
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }
 
 func (s *OrdersStore) TodaySummary(ctx context.Context, merchantId string) (int64, int64, int64, error) {
@@ -176,10 +197,11 @@ func scanOrder(row rowScanner) (*OrderRecord, error) {
 		&rec.ChannelId,
 		&rec.PayProductId,
 		&rec.PayProductCode,
+		&rec.ChannelLocked,
+		&rec.PaidAmount,
 		&rec.ReturnUrl,
 		&rec.NotifyUrl,
 		&rec.UpstreamTradeNo,
-		&rec.PaidAmount,
 		&rec.CreatedAt,
 		&rec.UpdatedAt,
 	)

@@ -34,8 +34,10 @@ type CreateOrderReq struct {
 	ChannelId       int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	PayProductId    int64                  `protobuf:"varint,10,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
 	PayProductCode  string                 `protobuf:"bytes,11,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// 下单时由网关/交易写入：商户 API 指定通道时为 1
+	ChannelLocked int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateOrderReq) Reset() {
@@ -143,6 +145,13 @@ func (x *CreateOrderReq) GetPayProductCode() string {
 		return x.PayProductCode
 	}
 	return ""
+}
+
+func (x *CreateOrderReq) GetChannelLocked() int32 {
+	if x != nil {
+		return x.ChannelLocked
+	}
+	return 0
 }
 
 type CreateOrderResp struct {
@@ -430,6 +439,7 @@ type OrderInfo struct {
 	PaidAmount      int64                  `protobuf:"varint,13,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
 	PayProductId    int64                  `protobuf:"varint,14,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
 	PayProductCode  string                 `protobuf:"bytes,15,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
+	ChannelLocked   int32                  `protobuf:"varint,16,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -567,6 +577,13 @@ func (x *OrderInfo) GetPayProductCode() string {
 		return x.PayProductCode
 	}
 	return ""
+}
+
+func (x *OrderInfo) GetChannelLocked() int32 {
+	if x != nil {
+		return x.ChannelLocked
+	}
+	return 0
 }
 
 type ListOrdersReq struct {
@@ -785,11 +802,150 @@ func (x *TodaySummaryResp) GetSuccessCount() int64 {
 	return 0
 }
 
+type PrepareTerminalPayReq struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	OrderNo string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
+	// 用户在收银台选择的支付产品编码；为空则沿用订单已有编码
+	PayProductCode string `protobuf:"bytes,2,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PrepareTerminalPayReq) Reset() {
+	*x = PrepareTerminalPayReq{}
+	mi := &file_order_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PrepareTerminalPayReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PrepareTerminalPayReq) ProtoMessage() {}
+
+func (x *PrepareTerminalPayReq) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PrepareTerminalPayReq.ProtoReflect.Descriptor instead.
+func (*PrepareTerminalPayReq) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *PrepareTerminalPayReq) GetOrderNo() string {
+	if x != nil {
+		return x.OrderNo
+	}
+	return ""
+}
+
+func (x *PrepareTerminalPayReq) GetPayProductCode() string {
+	if x != nil {
+		return x.PayProductCode
+	}
+	return ""
+}
+
+type PrepareTerminalPayResp struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId      int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayProductId   int64                  `protobuf:"varint,2,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
+	PayProductCode string                 `protobuf:"bytes,3,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
+	// 跳转或二维码内容（mock 场景可与 pay_url 相同）
+	PayUrl    string `protobuf:"bytes,4,opt,name=pay_url,json=payUrl,proto3" json:"pay_url,omitempty"`
+	QrPayload string `protobuf:"bytes,5,opt,name=qr_payload,json=qrPayload,proto3" json:"qr_payload,omitempty"`
+	// mock | qr | redirect
+	PayMode       string `protobuf:"bytes,6,opt,name=pay_mode,json=payMode,proto3" json:"pay_mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PrepareTerminalPayResp) Reset() {
+	*x = PrepareTerminalPayResp{}
+	mi := &file_order_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PrepareTerminalPayResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PrepareTerminalPayResp) ProtoMessage() {}
+
+func (x *PrepareTerminalPayResp) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PrepareTerminalPayResp.ProtoReflect.Descriptor instead.
+func (*PrepareTerminalPayResp) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *PrepareTerminalPayResp) GetChannelId() int64 {
+	if x != nil {
+		return x.ChannelId
+	}
+	return 0
+}
+
+func (x *PrepareTerminalPayResp) GetPayProductId() int64 {
+	if x != nil {
+		return x.PayProductId
+	}
+	return 0
+}
+
+func (x *PrepareTerminalPayResp) GetPayProductCode() string {
+	if x != nil {
+		return x.PayProductCode
+	}
+	return ""
+}
+
+func (x *PrepareTerminalPayResp) GetPayUrl() string {
+	if x != nil {
+		return x.PayUrl
+	}
+	return ""
+}
+
+func (x *PrepareTerminalPayResp) GetQrPayload() string {
+	if x != nil {
+		return x.QrPayload
+	}
+	return ""
+}
+
+func (x *PrepareTerminalPayResp) GetPayMode() string {
+	if x != nil {
+		return x.PayMode
+	}
+	return ""
+}
+
 var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
 	"\n" +
-	"\vorder.proto\x12\x05order\"\xf3\x02\n" +
+	"\vorder.proto\x12\x05order\"\x9a\x03\n" +
 	"\x0eCreateOrderReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12*\n" +
@@ -806,7 +962,8 @@ const file_order_proto_rawDesc = "" +
 	"channel_id\x18\t \x01(\x03R\tchannelId\x12$\n" +
 	"\x0epay_product_id\x18\n" +
 	" \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\v \x01(\tR\x0epayProductCode\"S\n" +
+	"\x10pay_product_code\x18\v \x01(\tR\x0epayProductCode\x12%\n" +
+	"\x0echannel_locked\x18\f \x01(\x05R\rchannelLocked\"S\n" +
 	"\x0fCreateOrderResp\x12&\n" +
 	"\x05order\x18\x01 \x01(\v2\x10.order.OrderInfoR\x05order\x12\x18\n" +
 	"\aexisted\x18\x02 \x01(\bR\aexisted\"u\n" +
@@ -825,7 +982,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\xf7\x03\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\x9e\x04\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -849,7 +1006,8 @@ const file_order_proto_rawDesc = "" +
 	"\vpaid_amount\x18\r \x01(\x03R\n" +
 	"paidAmount\x12$\n" +
 	"\x0epay_product_id\x18\x0e \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\x0f \x01(\tR\x0epayProductCode\"x\n" +
+	"\x10pay_product_code\x18\x0f \x01(\tR\x0epayProductCode\x12%\n" +
+	"\x0echannel_locked\x18\x10 \x01(\x05R\rchannelLocked\"x\n" +
 	"\rListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +
@@ -865,14 +1023,27 @@ const file_order_proto_rawDesc = "" +
 	"\ftotal_amount\x18\x01 \x01(\x03R\vtotalAmount\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +
 	"totalCount\x12#\n" +
-	"\rsuccess_count\x18\x03 \x01(\x03R\fsuccessCount2\xab\x02\n" +
+	"\rsuccess_count\x18\x03 \x01(\x03R\fsuccessCount\"\\\n" +
+	"\x15PrepareTerminalPayReq\x12\x19\n" +
+	"\border_no\x18\x01 \x01(\tR\aorderNo\x12(\n" +
+	"\x10pay_product_code\x18\x02 \x01(\tR\x0epayProductCode\"\xda\x01\n" +
+	"\x16PrepareTerminalPayResp\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12$\n" +
+	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\x12(\n" +
+	"\x10pay_product_code\x18\x03 \x01(\tR\x0epayProductCode\x12\x17\n" +
+	"\apay_url\x18\x04 \x01(\tR\x06payUrl\x12\x1d\n" +
+	"\n" +
+	"qr_payload\x18\x05 \x01(\tR\tqrPayload\x12\x19\n" +
+	"\bpay_mode\x18\x06 \x01(\tR\apayMode2\xfe\x02\n" +
 	"\x05Order\x12<\n" +
 	"\vCreateOrder\x12\x15.order.CreateOrderReq\x1a\x16.order.CreateOrderResp\x123\n" +
 	"\bGetOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x123\n" +
 	"\bMarkPaid\x12\x12.order.MarkPaidReq\x1a\x13.order.MarkPaidResp\x129\n" +
 	"\n" +
 	"ListOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12?\n" +
-	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
+	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryResp\x12Q\n" +
+	"\x12PrepareTerminalPay\x12\x1c.order.PrepareTerminalPayReq\x1a\x1d.order.PrepareTerminalPayRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once
@@ -886,19 +1057,21 @@ func file_order_proto_rawDescGZIP() []byte {
 	return file_order_proto_rawDescData
 }
 
-var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_order_proto_goTypes = []any{
-	(*CreateOrderReq)(nil),   // 0: order.CreateOrderReq
-	(*CreateOrderResp)(nil),  // 1: order.CreateOrderResp
-	(*GetOrderReq)(nil),      // 2: order.GetOrderReq
-	(*GetOrderResp)(nil),     // 3: order.GetOrderResp
-	(*MarkPaidReq)(nil),      // 4: order.MarkPaidReq
-	(*MarkPaidResp)(nil),     // 5: order.MarkPaidResp
-	(*OrderInfo)(nil),        // 6: order.OrderInfo
-	(*ListOrdersReq)(nil),    // 7: order.ListOrdersReq
-	(*ListOrdersResp)(nil),   // 8: order.ListOrdersResp
-	(*TodaySummaryReq)(nil),  // 9: order.TodaySummaryReq
-	(*TodaySummaryResp)(nil), // 10: order.TodaySummaryResp
+	(*CreateOrderReq)(nil),         // 0: order.CreateOrderReq
+	(*CreateOrderResp)(nil),        // 1: order.CreateOrderResp
+	(*GetOrderReq)(nil),            // 2: order.GetOrderReq
+	(*GetOrderResp)(nil),           // 3: order.GetOrderResp
+	(*MarkPaidReq)(nil),            // 4: order.MarkPaidReq
+	(*MarkPaidResp)(nil),           // 5: order.MarkPaidResp
+	(*OrderInfo)(nil),              // 6: order.OrderInfo
+	(*ListOrdersReq)(nil),          // 7: order.ListOrdersReq
+	(*ListOrdersResp)(nil),         // 8: order.ListOrdersResp
+	(*TodaySummaryReq)(nil),        // 9: order.TodaySummaryReq
+	(*TodaySummaryResp)(nil),       // 10: order.TodaySummaryResp
+	(*PrepareTerminalPayReq)(nil),  // 11: order.PrepareTerminalPayReq
+	(*PrepareTerminalPayResp)(nil), // 12: order.PrepareTerminalPayResp
 }
 var file_order_proto_depIdxs = []int32{
 	6,  // 0: order.CreateOrderResp.order:type_name -> order.OrderInfo
@@ -909,13 +1082,15 @@ var file_order_proto_depIdxs = []int32{
 	4,  // 5: order.Order.MarkPaid:input_type -> order.MarkPaidReq
 	7,  // 6: order.Order.ListOrders:input_type -> order.ListOrdersReq
 	9,  // 7: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
-	1,  // 8: order.Order.CreateOrder:output_type -> order.CreateOrderResp
-	3,  // 9: order.Order.GetOrder:output_type -> order.GetOrderResp
-	5,  // 10: order.Order.MarkPaid:output_type -> order.MarkPaidResp
-	8,  // 11: order.Order.ListOrders:output_type -> order.ListOrdersResp
-	10, // 12: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
-	8,  // [8:13] is the sub-list for method output_type
-	3,  // [3:8] is the sub-list for method input_type
+	11, // 8: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
+	1,  // 9: order.Order.CreateOrder:output_type -> order.CreateOrderResp
+	3,  // 10: order.Order.GetOrder:output_type -> order.GetOrderResp
+	5,  // 11: order.Order.MarkPaid:output_type -> order.MarkPaidResp
+	8,  // 12: order.Order.ListOrders:output_type -> order.ListOrdersResp
+	10, // 13: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
+	12, // 14: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
+	9,  // [9:15] is the sub-list for method output_type
+	3,  // [3:9] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -932,7 +1107,7 @@ func file_order_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_proto_rawDesc), len(file_order_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

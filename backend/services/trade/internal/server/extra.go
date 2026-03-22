@@ -16,3 +16,8 @@ func (s *OrderServer) TodaySummary(ctx context.Context, in *orderpb.TodaySummary
 	l := logic.NewTodaySummaryLogic(ctx, s.svcCtx)
 	return l.TodaySummary(in)
 }
+
+func (s *OrderServer) PrepareTerminalPay(ctx context.Context, in *orderpb.PrepareTerminalPayReq) (*orderpb.PrepareTerminalPayResp, error) {
+	l := logic.NewPrepareTerminalPayLogic(ctx, s.svcCtx)
+	return l.PrepareTerminalPay(in)
+}

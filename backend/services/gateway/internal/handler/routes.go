@@ -103,6 +103,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/v1/terminal/order",
 				Handler: checkouthandler.TerminalOrderHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/terminal/pay",
+				Handler: checkouthandler.TerminalPayHandler(serverCtx),
+			},
 		},
 	)
 

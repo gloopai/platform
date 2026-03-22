@@ -36,13 +36,27 @@ func (l *TerminalOrderLogic) TerminalOrder(req *types.TerminalOrderReq) (resp *t
 	}
 	o := r.GetOrder()
 
-	opts, err := l.svcCtx.PayProducts.ListAvailableForAmount(l.ctx, o.GetAmount())
-	if err != nil {
-		return nil, err
-	}
-	items := make([]types.PayProductItem, 0, len(opts))
-	for _, p := range opts {
-		items = append(items, types.PayProductItem{Code: p.Code, Name: p.Name})
+	var items []types.PayProductItem
+	if o.GetChannelLocked() != 0 {
+		code := o.GetPayProductCode()
+		name := code
+		if code != "" {
+			if dn, err := l.svcCtx.PayProducts.GetPayProductDisplayName(l.ctx, code); err == nil && dn != "" {
+				name = dn
+			}
+		}
+		if code != "" {
+			items = []types.PayProductItem{{Code: code, Name: name}}
+		}
+	} else {
+		opts, err := l.svcCtx.PayProducts.ListAvailableForMerchantAndAmount(l.ctx, o.GetMerchantId(), o.GetAmount())
+		if err != nil {
+			return nil, err
+		}
+		items = make([]types.PayProductItem, 0, len(opts))
+		for _, p := range opts {
+			items = append(items, types.PayProductItem{Code: p.Code, Name: p.Name})
+		}
 	}
 
 	return &types.TerminalOrderResp{
@@ -56,6 +70,8 @@ func (l *TerminalOrderLogic) TerminalOrder(req *types.TerminalOrderReq) (resp *t
 			ChannelId:        o.GetChannelId(),
 			PayProductId:     o.GetPayProductId(),
 			PayProductCode:   o.GetPayProductCode(),
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
 			UpstreamTradeNo:  o.GetUpstreamTradeNo(),

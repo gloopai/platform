@@ -64,6 +64,8 @@ func (l *MerchantOrderDetailLogic) MerchantOrderDetail(req *types.MerchantOrderD
 			ChannelId:        o.GetChannelId(),
 			PayProductId:     o.GetPayProductId(),
 			PayProductCode:   o.GetPayProductCode(),
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
 			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
