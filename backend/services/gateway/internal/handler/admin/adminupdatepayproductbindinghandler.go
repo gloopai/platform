@@ -16,7 +16,7 @@ func AdminUpdatePayProductBindingHandler(svcCtx *svc.ServiceContext) http.Handle
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminUpdatePayProductBindingLogic(r.Context(), svcCtx)
+		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayProductBinding(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

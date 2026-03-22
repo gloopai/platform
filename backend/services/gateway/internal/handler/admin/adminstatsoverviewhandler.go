@@ -10,7 +10,7 @@ import (
 
 func AdminStatsOverviewHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminStatsOverviewLogic(r.Context(), svcCtx)
+		l := logic.NewAdminStats(r.Context(), svcCtx)
 		resp, err := l.AdminStatsOverview()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

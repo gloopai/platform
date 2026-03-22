@@ -10,7 +10,7 @@ import (
 
 func AdminListChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminListChannelsLogic(r.Context(), svcCtx)
+		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminListChannels()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

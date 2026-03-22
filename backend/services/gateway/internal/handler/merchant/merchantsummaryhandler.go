@@ -17,7 +17,7 @@ func MerchantSummaryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewMerchantSummaryLogic(r.Context(), svcCtx)
+		l := logic.NewMerchantConsole(r.Context(), svcCtx)
 		resp, err := l.MerchantSummary(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

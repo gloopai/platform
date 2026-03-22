@@ -16,7 +16,7 @@ func AdminLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminLoginLogic(r.Context(), svcCtx)
+		l := logic.NewAdminAuth(r.Context(), svcCtx)
 		resp, err := l.AdminLogin(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

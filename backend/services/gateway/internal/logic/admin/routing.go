@@ -5,26 +5,26 @@ import (
 
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type AdminRoutingSummaryLogic struct {
+// AdminRouting 管理后台路由策略说明与实时汇总（只读）。
+type AdminRouting struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewAdminRoutingSummaryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AdminRoutingSummaryLogic {
-	return &AdminRoutingSummaryLogic{
+func NewAdminRouting(ctx context.Context, svcCtx *svc.ServiceContext) *AdminRouting {
+	return &AdminRouting{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *AdminRoutingSummaryLogic) AdminRoutingSummary() (*types.AdminRoutingSummaryResp, error) {
-	s, err := l.svcCtx.RoutingSummary.Get(l.ctx)
+func (r *AdminRouting) AdminRoutingSummary() (*types.AdminRoutingSummaryResp, error) {
+	s, err := r.svcCtx.RoutingSummary.Get(r.ctx)
 	if err != nil {
 		return nil, err
 	}

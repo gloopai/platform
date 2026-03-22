@@ -20,7 +20,7 @@ func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewUpstreamNotifyLogic(r.Context(), svcCtx)
+		l := logic.NewCheckout(r.Context(), svcCtx)
 		resp, err := l.UpstreamNotify(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

@@ -16,7 +16,7 @@ func AdminUpdateMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminUpdateMerchantLogic(r.Context(), svcCtx)
+		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminUpdateMerchant(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

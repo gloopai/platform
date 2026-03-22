@@ -10,7 +10,7 @@ import (
 
 func AdminListPayProductsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminListPayProductsLogic(r.Context(), svcCtx)
+		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
 		resp, err := l.AdminListPayProducts()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

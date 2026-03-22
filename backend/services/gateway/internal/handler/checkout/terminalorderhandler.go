@@ -20,7 +20,7 @@ func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewTerminalOrderLogic(r.Context(), svcCtx)
+		l := logic.NewCheckout(r.Context(), svcCtx)
 		resp, err := l.TerminalOrder(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

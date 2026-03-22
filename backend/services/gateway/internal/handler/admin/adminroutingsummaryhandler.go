@@ -10,7 +10,7 @@ import (
 
 func AdminRoutingSummaryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminRoutingSummaryLogic(r.Context(), svcCtx)
+		l := logic.NewAdminRouting(r.Context(), svcCtx)
 		resp, err := l.AdminRoutingSummary()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

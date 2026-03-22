@@ -17,7 +17,7 @@ func MerchantOrderDetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewMerchantOrderDetailLogic(r.Context(), svcCtx)
+		l := logic.NewMerchantConsole(r.Context(), svcCtx)
 		resp, err := l.MerchantOrderDetail(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

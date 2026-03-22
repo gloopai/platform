@@ -17,7 +17,7 @@ func MerchantFundLogsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewMerchantFundLogsLogic(r.Context(), svcCtx)
+		l := logic.NewMerchantConsole(r.Context(), svcCtx)
 		resp, err := l.MerchantFundLogs(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

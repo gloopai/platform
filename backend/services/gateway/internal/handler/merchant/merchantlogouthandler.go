@@ -10,7 +10,7 @@ import (
 
 func MerchantLogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewMerchantLogoutLogic(r.Context(), svcCtx)
+		l := logic.NewMerchantAuth(r.Context(), svcCtx)
 		resp, err := l.MerchantLogout(r.Header.Get("X-Merchant-Token"))
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

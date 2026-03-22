@@ -16,7 +16,7 @@ func AdminDeletePayProductBindingHandler(svcCtx *svc.ServiceContext) http.Handle
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminDeletePayProductBindingLogic(r.Context(), svcCtx)
+		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
 		resp, err := l.AdminDeletePayProductBinding(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

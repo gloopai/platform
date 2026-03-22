@@ -20,7 +20,7 @@ func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewQueryOrderLogic(r.Context(), svcCtx)
+		l := logic.NewCheckout(r.Context(), svcCtx)
 		resp, err := l.QueryOrder(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

@@ -10,7 +10,7 @@ import (
 
 func AdminLogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminLogoutLogic(r.Context(), svcCtx)
+		l := logic.NewAdminAuth(r.Context(), svcCtx)
 		resp, err := l.AdminLogout(r.Header.Get("X-Admin-Token"))
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

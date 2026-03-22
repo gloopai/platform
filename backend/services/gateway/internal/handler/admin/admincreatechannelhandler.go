@@ -17,7 +17,7 @@ func AdminCreateChannelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewAdminCreateChannelLogic(r.Context(), svcCtx)
+		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminCreateChannel(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

@@ -10,7 +10,7 @@ import (
 
 func AdminListMerchantsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminListMerchantsLogic(r.Context(), svcCtx)
+		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminListMerchants()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

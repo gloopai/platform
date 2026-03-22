@@ -6,30 +6,30 @@ import (
 	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type AdminStatsOverviewLogic struct {
+// AdminStats 管理后台订单与转化统计（仪表盘）。
+type AdminStats struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewAdminStatsOverviewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AdminStatsOverviewLogic {
-	return &AdminStatsOverviewLogic{
+func NewAdminStats(ctx context.Context, svcCtx *svc.ServiceContext) *AdminStats {
+	return &AdminStats{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *AdminStatsOverviewLogic) AdminStatsOverview() (*types.AdminStatsOverviewResp, error) {
-	tot, prods, chs, err := l.svcCtx.OrderStats.TodayOverview(l.ctx)
+func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error) {
+	tot, prods, chs, err := s.svcCtx.OrderStats.TodayOverview(s.ctx)
 	if err != nil {
 		return nil, err
 	}
-	rs, _ := l.svcCtx.RoutingSummary.Get(l.ctx)
+	rs, _ := s.svcCtx.RoutingSummary.Get(s.ctx)
 
 	totals := types.AdminStatsTotals{
 		OrderCount:             tot.OrderCount,

@@ -14,27 +14,28 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type MerchantLoginLogic struct {
+// MerchantAuth 商户控制台登录与会话。
+type MerchantAuth struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewMerchantLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MerchantLoginLogic {
-	return &MerchantLoginLogic{
+func NewMerchantAuth(ctx context.Context, svcCtx *svc.ServiceContext) *MerchantAuth {
+	return &MerchantAuth{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *MerchantLoginLogic) MerchantLogin(req *types.MerchantLoginReq) (*types.MerchantLoginResp, error) {
+func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.MerchantLoginResp, error) {
 	merchantId := strings.TrimSpace(req.MerchantId)
 	secret := req.ApiSecret
 	if merchantId == "" || secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id and api_secret required")
 	}
-	auth, err := l.svcCtx.MerchantRpc.GetAuthInfo(l.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
 	if err != nil || auth.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
@@ -47,7 +48,7 @@ func (l *MerchantLoginLogic) MerchantLogin(req *types.MerchantLoginReq) (*types.
 		return nil, err
 	}
 	expiresAt := time.Now().Add(24 * time.Hour)
-	if err := l.svcCtx.Sessions.CreateMerchantSession(l.ctx, merchantId, shared.TokenHash(tok), expiresAt); err != nil {
+	if err := a.svcCtx.Sessions.CreateMerchantSession(a.ctx, merchantId, shared.TokenHash(tok), expiresAt); err != nil {
 		return nil, err
 	}
 	return &types.MerchantLoginResp{
@@ -55,4 +56,12 @@ func (l *MerchantLoginLogic) MerchantLogin(req *types.MerchantLoginReq) (*types.
 		ExpiresAt:  expiresAt.Unix(),
 		MerchantId: merchantId,
 	}, nil
+}
+
+func (a *MerchantAuth) MerchantLogout(token string) (*types.MerchantLogoutResp, error) {
+	tok := strings.TrimSpace(token)
+	if tok != "" {
+		_ = a.svcCtx.Sessions.DeleteMerchantSession(a.ctx, shared.TokenHash(tok))
+	}
+	return &types.MerchantLogoutResp{Ok: true}, nil
 }

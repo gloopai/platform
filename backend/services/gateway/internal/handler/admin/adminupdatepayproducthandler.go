@@ -16,7 +16,7 @@ func AdminUpdatePayProductHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminUpdatePayProductLogic(r.Context(), svcCtx)
+		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayProduct(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

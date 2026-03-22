@@ -20,7 +20,7 @@ func CreateOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewCreateOrderLogic(r.Context(), svcCtx)
+		l := logic.NewCheckout(r.Context(), svcCtx)
 		resp, err := l.CreateOrder(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

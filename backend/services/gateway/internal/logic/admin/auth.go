@@ -14,28 +14,29 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type AdminLoginLogic struct {
+// AdminAuth 管理后台登录与会话。
+type AdminAuth struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewAdminLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AdminLoginLogic {
-	return &AdminLoginLogic{
+func NewAdminAuth(ctx context.Context, svcCtx *svc.ServiceContext) *AdminAuth {
+	return &AdminAuth{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *AdminLoginLogic) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp, error) {
+func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp, error) {
 	username := strings.TrimSpace(req.Username)
 	password := req.Password
 	if username == "" || password == "" {
 		return nil, status.Error(codes.InvalidArgument, "username and password required")
 	}
 
-	u, err := l.svcCtx.AdminUsers.FindByUsername(l.ctx, username)
+	u, err := a.svcCtx.AdminUsers.FindByUsername(a.ctx, username)
 	if err != nil || u == nil || u.Status != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
@@ -48,11 +49,23 @@ func (l *AdminLoginLogic) AdminLogin(req *types.AdminLoginReq) (*types.AdminLogi
 		return nil, err
 	}
 	expiresAt := time.Now().Add(24 * time.Hour)
-	if err := l.svcCtx.Sessions.CreateAdminSession(l.ctx, u.ID, shared.TokenHash(tok), expiresAt); err != nil {
+	if err := a.svcCtx.Sessions.CreateAdminSession(a.ctx, u.ID, shared.TokenHash(tok), expiresAt); err != nil {
 		return nil, err
 	}
 	return &types.AdminLoginResp{
 		Token:     tok,
 		ExpiresAt: expiresAt.Unix(),
 	}, nil
+}
+
+func (a *AdminAuth) AdminLogout(token string) (*types.AdminLogoutResp, error) {
+	tok := strings.TrimSpace(token)
+	if tok == "" {
+		return &types.AdminLogoutResp{Ok: true}, nil
+	}
+	if a.svcCtx.Config.AdminToken != "" && tok == a.svcCtx.Config.AdminToken {
+		return &types.AdminLogoutResp{Ok: true}, nil
+	}
+	_ = a.svcCtx.Sessions.DeleteAdminSession(a.ctx, shared.TokenHash(tok))
+	return &types.AdminLogoutResp{Ok: true}, nil
 }

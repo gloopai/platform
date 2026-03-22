@@ -17,7 +17,7 @@ func AdminUpdateChannelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewAdminUpdateChannelLogic(r.Context(), svcCtx)
+		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminUpdateChannel(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

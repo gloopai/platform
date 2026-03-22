@@ -16,7 +16,7 @@ func TerminalPayHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewTerminalPayLogic(r.Context(), svcCtx)
+		l := logic.NewCheckout(r.Context(), svcCtx)
 		resp, err := l.TerminalPay(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

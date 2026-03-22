@@ -16,7 +16,7 @@ func MerchantLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewMerchantLoginLogic(r.Context(), svcCtx)
+		l := logic.NewMerchantAuth(r.Context(), svcCtx)
 		resp, err := l.MerchantLogin(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
