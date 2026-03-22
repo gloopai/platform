@@ -1,0 +1,15 @@
+Name: payment.worker.notice-consumer
+Nsq:
+  NsqdTCPAddr: 127.0.0.1:4150
+  Topic: merchant_notice
+  Channel: notice
+  MaxAttempts: 6
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
+Http:
+  Timeout: 5s
+Consul:
+  Addr: 127.0.0.1:8500
+  Service: payment.worker.notice-consumer
+Health:
+  ListenOn: 0.0.0.0:8090

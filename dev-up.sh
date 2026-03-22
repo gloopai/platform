@@ -99,7 +99,7 @@ fi
 start_bg "trade" "${ROOT_DIR}/backend/services/trade" "go run . -f etc/trade.yaml"
 start_bg "core" "${ROOT_DIR}/backend/services/core" "go run . -f etc/core.yaml"
 start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gateway-api.yaml"
-start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -nsqd 127.0.0.1:4150 -topic merchant_notice -channel notice -mysql_dsn 'root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local' -consul_addr 127.0.0.1:8500 -consul_service notice-consumer -health_listen 0.0.0.0:8090"
+start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -f etc/notice-consumer.yaml"
 
 if [ -f "${ROOT_DIR}/frontend/package.json" ]; then
   if ! is_listening 5173; then

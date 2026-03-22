@@ -19,8 +19,10 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/notice-consumer/internal/config"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
+	"github.com/zeromicro/go-zero/core/conf"
 )
 
 type noticeMsg struct {
@@ -29,23 +31,21 @@ type noticeMsg struct {
 }
 
 func main() {
-	var (
-		nsqdAddr     = flag.String("nsqd", "127.0.0.1:4150", "nsqd tcp addr")
-		topic        = flag.String("topic", "merchant_notice", "nsq topic")
-		channel      = flag.String("channel", "notice", "nsq channel")
-		mysqlDSN     = flag.String("mysql_dsn", "root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local", "mysql dsn")
-		timeout      = flag.Duration("timeout", 5*time.Second, "http timeout")
-		consulAddr   = flag.String("consul_addr", "127.0.0.1:8500", "consul addr")
-		consulSvc    = flag.String("consul_service", "notice-consumer", "consul service name")
-		consulID     = flag.String("consul_id", "", "consul service id")
-		consulHost   = flag.String("consul_host", "", "consul service host (optional)")
-		healthListen = flag.String("health_listen", "0.0.0.0:8090", "health http listen addr")
-	)
+	var configFile = flag.String("f", "etc/notice-consumer.yaml", "the config file")
 	flag.Parse()
 
-	consulx.SetBaseConfig(consulx.BaseConfig{Addr: *consulAddr})
+	var c config.Config
+	conf.MustLoad(*configFile, &c)
+	consulSvc := c.Consul.Service
+	if consulSvc == "" {
+		consulSvc = c.Name
+	}
+	if consulSvc == "" {
+		consulSvc = "payment.worker.notice-consumer"
+	}
+	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
-	db, err := sql.Open("mysql", *mysqlDSN)
+	db, err := sql.Open("mysql", c.Mysql.DataSource)
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +53,11 @@ func main() {
 		panic(err)
 	}
 
-	httpClient := &http.Client{Timeout: *timeout}
+	timeout := c.Http.Timeout
+	if timeout <= 0 {
+		timeout = 5 * time.Second
+	}
+	httpClient := &http.Client{Timeout: timeout}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
@@ -61,7 +65,7 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 	healthSrv := &http.Server{
-		Addr:              *healthListen,
+		Addr:              c.Health.ListenOn,
 		Handler:           mux,
 		ReadHeaderTimeout: 2 * time.Second,
 	}
@@ -75,14 +79,18 @@ func main() {
 		}
 	}()
 
-	reg, err := consulx.RegisterService(*consulAddr, *consulSvc, *consulID, healthSrv.Addr, *consulHost)
+	reg, err := consulx.RegisterService(c.Consul.Addr, consulSvc, c.Consul.ID, healthSrv.Addr, c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}
 
 	cfg := nsq.NewConfig()
-	cfg.MaxAttempts = 6
-	consumer, err := nsq.NewConsumer(*topic, *channel, cfg)
+	if c.Nsq.MaxAttempts > 0 {
+		cfg.MaxAttempts = uint16(c.Nsq.MaxAttempts)
+	} else {
+		cfg.MaxAttempts = 6
+	}
+	consumer, err := nsq.NewConsumer(c.Nsq.Topic, c.Nsq.Channel, cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -148,7 +156,7 @@ func main() {
 		return nil
 	}))
 
-	if err := consumer.ConnectToNSQD(*nsqdAddr); err != nil {
+	if err := consumer.ConnectToNSQD(c.Nsq.NsqdTCPAddr); err != nil {
 		panic(err)
 	}
 
