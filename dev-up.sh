@@ -96,10 +96,8 @@ if ! is_listening 3306; then
   echo "[mysql] not listening on :3306 (services may fail)"
 fi
 
-start_bg "order" "${ROOT_DIR}/backend/services/order" "go run . -f etc/order.yaml"
-start_bg "settle" "${ROOT_DIR}/backend/services/settle" "go run . -f etc/settle.yaml"
-start_bg "channel" "${ROOT_DIR}/backend/services/channel" "go run . -f etc/channel.yaml"
-start_bg "merchant" "${ROOT_DIR}/backend/services/merchant" "go run . -f etc/merchant.yaml"
+start_bg "trade" "${ROOT_DIR}/backend/services/trade" "go run . -f etc/trade.yaml"
+start_bg "core" "${ROOT_DIR}/backend/services/core" "go run . -f etc/core.yaml"
 start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gateway-api.yaml"
 start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -nsqd 127.0.0.1:4150 -topic merchant_notice -channel notice -mysql_dsn 'root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local' -consul_addr 127.0.0.1:8500 -consul_service notice-consumer -health_listen 0.0.0.0:8090"
 

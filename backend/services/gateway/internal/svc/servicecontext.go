@@ -54,10 +54,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	consulx.RegisterResolver()
 
-	orderCli := zrpc.MustNewClient(c.OrderRpc)
-	settleCli := zrpc.MustNewClient(c.SettleRpc)
-	channelCli := zrpc.MustNewClient(c.ChannelRpc)
-	merchantCli := zrpc.MustNewClient(c.MerchantRpc)
+	tradeCli := zrpc.MustNewClient(c.TradeRpc)
+	coreCli := zrpc.MustNewClient(c.CoreRpc)
 
 	producer, err := nsq.NewProducer(c.Nsq.NsqdTCPAddr, nsq.NewConfig())
 	if err != nil {
@@ -81,9 +79,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(merchantCli)).Handle,
+		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli)).Handle,
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
-		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(merchantCli)).Handle,
+		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(coreCli)).Handle,
 
 		Channels:   channelsStore,
 		FundLogs:   fundLogsStore,
@@ -91,10 +89,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminUsers: adminUsersStore,
 		Sessions:   sessionsStore,
 
-		OrderRpc:    orderclient.NewOrder(orderCli),
-		SettleRpc:   settleclient.NewSettle(settleCli),
-		ChannelRpc:  channelclient.NewChannel(channelCli),
-		MerchantRpc: merchantclient.NewMerchant(merchantCli),
+		OrderRpc:    orderclient.NewOrder(tradeCli),
+		SettleRpc:   settleclient.NewSettle(coreCli),
+		ChannelRpc:  channelclient.NewChannel(tradeCli),
+		MerchantRpc: merchantclient.NewMerchant(coreCli),
 
 		NsqProducer:   producer,
 		RuntimeConfig: runtimeCfg,

@@ -8,20 +8,12 @@ Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
 AdminToken: admin_token_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/
-OrderRpc:
-  Target: consul://127.0.0.1:8500/order.rpc
+TradeRpc:
+  Target: consul://127.0.0.1:8500/trade.rpc
   Middlewares:
     Trace: true
-SettleRpc:
-  Target: consul://127.0.0.1:8500/settle.rpc
-  Middlewares:
-    Trace: true
-ChannelRpc:
-  Target: consul://127.0.0.1:8500/channel.rpc
-  Middlewares:
-    Trace: true
-MerchantRpc:
-  Target: consul://127.0.0.1:8500/merchant.rpc
+CoreRpc:
+  Target: consul://127.0.0.1:8500/core.rpc
   Middlewares:
     Trace: true
 Nsq:

@@ -2,10 +2,8 @@ go 1.25.7
 
 use (
 	./common
-	./services/channel
+	./services/core
 	./services/gateway
-	./services/merchant
 	./services/notice-consumer
-	./services/order
-	./services/settle
+	./services/trade
 )
