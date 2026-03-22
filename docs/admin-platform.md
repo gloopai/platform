@@ -37,7 +37,7 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/channels` | 通道管理 | **已对接**：`/v1/admin/channels` 列表/创建/更新 |
-| `/routing` | 路由策略 | 按金额/地区/商户等级/权重分配通道；**占位** |
+| `/routing` | 路由策略 | **已对接**：说明当前「产品内加权、商户白名单、通道熔断」的实现方式；`GET /v1/admin/routing/summary` 汇总表数据；规则引擎类能力见页面内「后续规划」 |
 | `/channel-health` | 通道监控 | 成功率、延迟、熔断、告警；**占位** |
 
 ### 2.4 交易与资金
@@ -110,6 +110,7 @@
   - `GET /v1/admin/pay_products`、`POST /v1/admin/pay_products`、`PUT /v1/admin/pay_products/:id`
   - `GET /v1/admin/pay_products/:id/bindings`、`POST /v1/admin/pay_products/:id/bindings`（同 `(product, channel)` 唯一则更新权重/启用）
   - `PUT /v1/admin/pay_product_bindings/:id`、`DELETE /v1/admin/pay_product_bindings/:id`
+- **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
 
 其余菜单对应能力 **尚未实现**；前端以 `ModulePlaceholderPage` + `adminMenu.ts` 中 `adminPlaceholderMeta` 说明规划与待接入 API 提示。
 
@@ -125,6 +126,7 @@
 | `src/views/AdminLayout.vue` | 多级侧栏、折叠态悬浮子菜单 |
 | `src/views/modules/pay-products/` | 支付产品与上游通道绑定（`PayProductsPage.vue` + 子组件） |
 | `src/views/modules/channels/` | 通道管理（`ChannelsPage.vue` + `ChannelList` / `ChannelFormCard` 等） |
+| `src/views/modules/routing/` | 路由策略说明页（`RouteStrategyPage.vue` + 概览统计与配置入口卡片） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -142,5 +144,6 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`。
 - **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
 - 文档与前端菜单随 `adminMenu.ts` 同步维护；变更时请更新本节或提交说明。

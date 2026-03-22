@@ -185,6 +185,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/admin/pay_product_bindings/:id",
 					Handler: adminhandler.AdminDeletePayProductBindingHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/routing/summary",
+					Handler: adminhandler.AdminRoutingSummaryHandler(serverCtx),
+				},
 			}...,
 		),
 	)

@@ -116,3 +116,7 @@ func NewAdminUpdatePayProductBindingLogic(ctx context.Context, svcCtx *svc.Servi
 func NewAdminDeletePayProductBindingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminDeletePayProductBindingLogic {
 	return adminlogic.NewAdminDeletePayProductBindingLogic(ctx, svcCtx)
 }
+
+func NewAdminRoutingSummaryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRoutingSummaryLogic {
+	return adminlogic.NewAdminRoutingSummaryLogic(ctx, svcCtx)
+}

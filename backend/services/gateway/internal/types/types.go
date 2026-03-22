@@ -366,3 +366,15 @@ type AdminDeletePayProductBindingReq struct {
 type AdminDeletePayProductBindingResp struct {
 	Ok bool `json:"ok"`
 }
+
+// --- 路由策略（概览，配置分散在「支付产品与通道」「商户」「通道」） ---
+
+type AdminRoutingSummaryResp struct {
+	AlgorithmKey           string `json:"algorithm_key"`
+	AlgorithmLabel         string `json:"algorithm_label"`
+	EnabledPayProducts     int64  `json:"enabled_pay_products"`
+	EnabledChannels        int64  `json:"enabled_channels"`
+	ActiveBindings         int64  `json:"active_bindings"`
+	MerchantsWithWhitelist int64  `json:"merchants_with_whitelist"`
+	FusedChannels          int64  `json:"fused_channels"`
+}

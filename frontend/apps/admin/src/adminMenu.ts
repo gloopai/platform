@@ -1,6 +1,6 @@
 /**
  * 聚合支付 · 总管理台导航与页面说明
- * 与 docs/admin-platform.md 对应；未实现接口在占位页标注「待接入」（`/merchant-products` 已对接支付产品与通道绑定）。
+ * 与 docs/admin-platform.md 对应；未实现接口在占位页标注「待接入」（`/merchant-products`、`/routing` 已对接）。
  */
 
 export type AdminMenuLeaf = {
@@ -112,11 +112,6 @@ export const adminPlaceholderMeta: Record<
     apiNote: string
   }
 > = {
-  '/routing': {
-    summary: '配置订单金额、支付方式、商户等级与通道权重，实现智能路由与 failover。',
-    bullets: ['按金额/时段/地区拆单', '主备通道与自动切换', 'A/B 与灰度发布'],
-    apiNote: '待接入：路由规则引擎与配置 API',
-  },
   '/channel-health': {
     summary: '聚合各通道成功率、延迟、限额与熔断状态，便于运营及时切换。',
     bullets: ['实时成功率与 RT', '通道熔断与人工开关', '历史趋势与告警'],

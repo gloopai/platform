@@ -49,7 +49,7 @@ func (l *TerminalOrderLogic) TerminalOrder(req *types.TerminalOrderReq) (resp *t
 			items = []types.PayProductItem{{Code: code, Name: name}}
 		}
 	} else {
-		opts, err := l.svcCtx.PayProducts.ListAvailableForMerchantAndAmount(l.ctx, o.GetMerchantId(), o.GetAmount())
+		opts, err := l.svcCtx.PayProducts.ListTerminalPayProducts(l.ctx, o.GetMerchantId(), o.GetAmount())
 		if err != nil {
 			return nil, err
 		}

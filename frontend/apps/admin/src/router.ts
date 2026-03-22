@@ -6,6 +6,7 @@ import AuditPage from './views/pages/AuditPage.vue'
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
+import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import StatsPage from './views/pages/StatsPage.vue'
 
@@ -22,7 +23,7 @@ export const router = createRouter({
         { path: 'merchants', component: MerchantsPage },
         { path: 'channels', component: ChannelsPage },
         { path: 'merchant-products', component: PayProductsPage },
-        { path: 'routing', component: ModulePlaceholderPage },
+        { path: 'routing', component: RouteStrategyPage },
         { path: 'channel-health', component: ModulePlaceholderPage },
         { path: 'orders', component: ModulePlaceholderPage },
         { path: 'refunds', component: ModulePlaceholderPage },

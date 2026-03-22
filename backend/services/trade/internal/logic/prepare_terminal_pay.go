@@ -59,6 +59,14 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.InvalidArgument, "pay_product_code required")
 	}
 
+	ok, err := l.svcCtx.MerchantPayProducts.MerchantHasPayProductCode(l.ctx, rec.MerchantId, code)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "check merchant pay products failed")
+	}
+	if !ok {
+		return nil, status.Error(codes.PermissionDenied, "pay_product not enabled for this merchant")
+	}
+
 	chID, payPID, err := l.svcCtx.Channels.Route(l.ctx, code, rec.Amount)
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())

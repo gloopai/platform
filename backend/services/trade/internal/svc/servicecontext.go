@@ -11,12 +11,13 @@ import (
 )
 
 type ServiceContext struct {
-	Config        config.Config
-	Sql           *sql.DB
-	Redis         *redis.Client
-	Orders        *store.OrdersStore
-	Channels      *store.ChannelsStore
-	RuntimeConfig *consulx.ConfigStore
+	Config              config.Config
+	Sql                 *sql.DB
+	Redis               *redis.Client
+	Orders              *store.OrdersStore
+	Channels            *store.ChannelsStore
+	MerchantPayProducts *store.MerchantPayProductsStore
+	RuntimeConfig       *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -38,11 +39,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 	return &ServiceContext{
-		Config:        c,
-		Sql:           sqlDB,
-		Redis:         rdb,
-		Orders:        store.NewOrdersStore(sqlDB),
-		Channels:      store.NewChannelsStore(sqlDB),
-		RuntimeConfig: runtimeCfg,
+		Config:              c,
+		Sql:                 sqlDB,
+		Redis:               rdb,
+		Orders:              store.NewOrdersStore(sqlDB),
+		Channels:            store.NewChannelsStore(sqlDB),
+		MerchantPayProducts: store.NewMerchantPayProductsStore(sqlDB),
+		RuntimeConfig:       runtimeCfg,
 	}
 }
