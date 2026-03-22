@@ -1,130 +1,51 @@
 <template>
   <div class="admin-shell flex h-screen w-full flex-col overflow-hidden bg-slate-100">
-    <header
-      class="relative z-20 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200/90 bg-white/90 px-4 shadow-sm backdrop-blur-md"
-    >
-      <div class="flex min-w-0 items-center gap-3">
-        <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-500 text-sm font-bold text-white shadow-md shadow-indigo-500/25"
-          aria-hidden="true"
-        >
-          P
-        </div>
-        <div class="min-w-0">
-          <div class="truncate text-sm font-semibold tracking-tight text-slate-900">聚合支付 · 总管理台</div>
-          <div class="truncate text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">Pay Ops Console</div>
-        </div>
-      </div>
-
-      <div class="hidden min-w-0 flex-1 items-center px-2 sm:flex">
-        <div class="flex items-center gap-2 text-sm text-slate-500">
-          <span class="text-slate-300">/</span>
-          <span class="font-medium text-slate-800">{{ pageTitle }}</span>
-        </div>
-      </div>
-
-      <div class="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-          @click="broadcastRefresh"
-        >
-          <svg class="h-3.5 w-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          刷新数据
-        </button>
-
-        <div ref="userMenuRoot" class="relative">
-          <button
-            type="button"
-            class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-            @click.stop="userMenuOpen = !userMenuOpen"
-          >
-            <span
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 text-xs font-bold text-white"
-            >
-              {{ userInitial }}
-            </span>
-            <div class="hidden text-left leading-tight sm:block">
-              <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
-              <div class="text-[10px] text-slate-500">管理员</div>
-            </div>
-            <svg
-              class="h-4 w-4 text-slate-400 transition"
-              :class="userMenuOpen ? 'rotate-180' : ''"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
-
-          <Transition
-            enter-active-class="transition ease-out duration-100"
-            enter-from-class="transform opacity-0 scale-95"
-            enter-to-class="transform opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="transform opacity-100 scale-100"
-            leave-to-class="transform opacity-0 scale-95"
-          >
-            <div
-              v-show="userMenuOpen"
-              class="absolute right-0 z-50 mt-2 w-52 origin-top-right rounded-xl border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-black/5"
-            >
-              <div class="border-b border-slate-100 px-3 py-2">
-                <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
-                <div class="text-[10px] text-slate-500">已登录 · 总管理台</div>
-              </div>
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
-                @click="logout"
-              >
-                <svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                退出登录
-              </button>
-            </div>
-          </Transition>
-        </div>
-      </div>
-    </header>
-
     <div class="flex min-h-0 min-w-0 flex-1">
       <aside
         :class="[
-          'relative flex shrink-0 flex-col border-r border-slate-800/80 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-400 transition-[width] duration-200 ease-out',
+          'relative z-10 flex shrink-0 flex-col border-r border-slate-800/80 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-400 shadow-[4px_0_24px_-8px_rgba(15,23,42,0.35)] transition-[width] duration-200 ease-out',
           sidebarCollapsed ? 'w-[72px]' : 'w-60',
         ]"
       >
-        <div
-          class="flex h-11 shrink-0 items-center border-b border-white/5 px-2"
-          :class="sidebarCollapsed ? 'justify-center' : 'justify-between gap-2'"
-        >
-          <div v-show="!sidebarCollapsed" class="pl-2 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
-            导航
-          </div>
-          <button
-            type="button"
-            class="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-            :title="sidebarCollapsed ? '展开菜单' : '收起菜单'"
-            @click="toggleSidebar"
+        <!-- 品牌区：与深色侧栏一体，避免顶栏通栏割裂 -->
+        <div class="shrink-0 border-b border-white/10">
+          <div
+            class="flex items-center gap-2 px-3 py-3"
+            :class="sidebarCollapsed ? 'flex-col justify-center gap-3' : 'justify-between'"
           >
-            <svg
-              class="h-5 w-5 transition duration-200"
-              :class="sidebarCollapsed ? '' : 'rotate-180'"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+            <div
+              class="flex min-w-0 items-center gap-2.5"
+              :class="sidebarCollapsed ? 'flex-col gap-2' : ''"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-500 text-sm font-bold text-white shadow-lg shadow-indigo-900/40 ring-1 ring-white/10"
+                aria-hidden="true"
+              >
+                P
+              </div>
+              <div v-show="!sidebarCollapsed" class="min-w-0">
+                <div class="truncate text-sm font-semibold tracking-tight text-white">聚合支付</div>
+                <div class="truncate text-[10px] font-medium text-slate-500">总管理台</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+              :title="sidebarCollapsed ? '展开菜单' : '收起菜单'"
+              @click="toggleSidebar"
+            >
+              <svg
+                class="h-5 w-5 transition duration-200"
+                :class="sidebarCollapsed ? '' : 'rotate-180'"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <nav ref="navScrollRef" class="admin-nav-scroll flex-1 space-y-1 overflow-y-auto px-2 py-3">
@@ -224,11 +145,94 @@
         </div>
       </aside>
 
-      <main class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-slate-100/80">
-        <div class="min-h-full w-full p-4 sm:p-6 lg:p-8">
-          <RouterView />
-        </div>
-      </main>
+      <div class="relative z-20 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header
+          class="flex h-[52px] shrink-0 items-center justify-between gap-4 border-b border-slate-200/90 bg-white px-4 shadow-sm sm:px-6"
+        >
+          <div class="flex min-w-0 flex-1 items-center">
+            <div class="min-w-0">
+              <div class="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400">当前页面</div>
+              <div class="truncate text-sm font-semibold text-slate-900 sm:text-base">{{ pageTitle }}</div>
+            </div>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              @click="broadcastRefresh"
+            >
+              <svg class="h-3.5 w-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              刷新数据
+            </button>
+
+            <div ref="userMenuRoot" class="relative">
+              <button
+                type="button"
+                class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                @click.stop="userMenuOpen = !userMenuOpen"
+              >
+                <span
+                  class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-slate-700 to-slate-900 text-xs font-bold text-white"
+                >
+                  {{ userInitial }}
+                </span>
+                <div class="hidden text-left leading-tight sm:block">
+                  <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
+                  <div class="text-[10px] text-slate-500">管理员</div>
+                </div>
+                <svg
+                  class="h-4 w-4 text-slate-400 transition"
+                  :class="userMenuOpen ? 'rotate-180' : ''"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+
+              <Transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="transform opacity-0 scale-95"
+                enter-to-class="transform opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="transform opacity-100 scale-100"
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <div
+                  v-show="userMenuOpen"
+                  class="absolute right-0 z-50 mt-2 w-52 origin-top-right rounded-xl border border-slate-200 bg-white py-1 shadow-lg ring-1 ring-black/5"
+                >
+                  <div class="border-b border-slate-100 px-3 py-2">
+                    <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
+                    <div class="text-[10px] text-slate-500">已登录 · 总管理台</div>
+                  </div>
+                  <button
+                    type="button"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    @click="logout"
+                  >
+                    <svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    退出登录
+                  </button>
+                </div>
+              </Transition>
+            </div>
+          </div>
+        </header>
+
+        <main class="min-h-0 flex-1 overflow-y-auto bg-slate-100/80">
+          <div class="min-h-full w-full p-4 sm:p-6 lg:p-8">
+            <RouterView />
+          </div>
+        </main>
+      </div>
     </div>
   </div>
 
