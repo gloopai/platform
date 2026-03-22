@@ -1,36 +1,62 @@
 <template>
-  <div class="min-h-full bg-slate-100">
-    <div class="mx-auto flex max-w-md flex-col gap-4 px-4 py-16">
-      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div class="text-xl font-semibold text-slate-900">商户平台登录</div>
-        <div class="mt-2 text-sm text-slate-600">使用 merchant_id 与 api_secret 登录。</div>
+  <div class="relative flex min-h-full flex-col overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
+    <div class="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
+    <div class="pointer-events-none absolute -right-16 bottom-10 h-64 w-64 rounded-full bg-cyan-300/25 blur-3xl" />
 
-        <div class="mt-6 grid gap-3">
-          <label class="grid gap-1">
-            <span class="text-xs font-medium text-slate-600">merchant_id</span>
-            <input v-model.trim="merchantId" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+    <div class="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:py-16">
+      <div class="mb-8 flex flex-col items-center text-center">
+        <div
+          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-lg font-bold text-white shadow-xl shadow-emerald-500/30"
+        >
+          P
+        </div>
+        <h1 class="mt-4 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">欢迎回来</h1>
+        <p class="mt-2 max-w-sm text-sm text-slate-600">登录商户中心，管理收款、对账与接入配置</p>
+      </div>
+
+      <div class="w-full max-w-md rounded-3xl border border-white/80 bg-white/90 p-8 shadow-2xl shadow-slate-200/60 backdrop-blur-sm">
+        <div class="grid gap-4">
+          <label class="grid gap-1.5">
+            <span class="text-xs font-medium text-slate-600">商户号 merchant_id</span>
+            <input
+              v-model.trim="merchantId"
+              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition placeholder:text-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              autocomplete="username"
+            />
           </label>
-          <label class="grid gap-1">
-            <span class="text-xs font-medium text-slate-600">api_secret</span>
-            <input v-model.trim="apiSecret" class="rounded-md border border-slate-200 px-3 py-2 text-sm" type="password" />
+          <label class="grid gap-1.5">
+            <span class="text-xs font-medium text-slate-600">API 密钥 api_secret</span>
+            <input
+              v-model.trim="apiSecret"
+              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              type="password"
+              autocomplete="current-password"
+            />
           </label>
           <button
-            class="mt-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            type="button"
+            class="mt-2 flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-40"
             :disabled="loading || !merchantId || !apiSecret"
             @click="login"
           >
-            {{ loading ? '登录中...' : '登录' }}
+            {{ loading ? '登录中…' : '进入商户中心' }}
           </button>
 
-          <div v-if="error" class="mt-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+          <div
+            v-if="error"
+            class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+          >
             {{ error }}
           </div>
         </div>
 
-        <div class="mt-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-600">
-          Demo 账号：m_demo / demo_secret
+        <div class="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-center text-xs text-slate-600">
+          体验账号：<span class="font-mono font-medium text-slate-800">m_demo</span> /
+          <span class="font-mono font-medium text-slate-800">demo_secret</span>
         </div>
       </div>
+
+      <p class="mt-8 text-center text-xs text-slate-500">安全提示：请勿在公共设备保存密钥，定期轮换 api_secret。</p>
     </div>
   </div>
 </template>
@@ -62,7 +88,7 @@ async function login() {
       body: JSON.stringify({ merchant_id: merchantId.value, api_secret: apiSecret.value }),
     })
     if (!resp.ok) {
-      error.value = `登录失败(${resp.status})`
+      error.value = `登录失败（${resp.status}）`
       return
     }
     const data = (await resp.json()) as MerchantLoginResp
@@ -70,7 +96,7 @@ async function login() {
     saveMerchantSession({ token: data.token, expiresAt: data.expires_at, merchantId: data.merchant_id })
     await router.replace('/console')
   } catch {
-    error.value = '网络错误'
+    error.value = '网络错误，请稍后重试'
   } finally {
     loading.value = false
   }

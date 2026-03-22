@@ -1,134 +1,164 @@
 <template>
-  <div class="grid gap-4">
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">参数配置</div>
-      <div class="mt-4 grid grid-cols-12 gap-4">
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">merchant_id</span>
-          <input v-model.trim="merchantId" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
-        </label>
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">app_secret</span>
-          <input v-model.trim="apiSecret" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
-        </label>
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">IP 白名单</span>
-          <input v-model.trim="ipWhitelist" class="rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="例如：127.0.0.1,10.0.0.0/24" />
-        </label>
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">Notify URL</span>
-          <input v-model.trim="notifyUrl" class="rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="https://merchant.example.com/notify" />
-        </label>
-      </div>
+  <div class="space-y-8">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">开发配置</h1>
+      <p class="mt-1 text-sm text-slate-600">管理接入参数、联调下单与签名调试</p>
     </div>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">下单联调</div>
-      <div class="mt-2 text-sm text-slate-600">调用 /v1/pay/order 创建订单并跳转收银台。</div>
-
-      <div class="mt-4 grid grid-cols-12 gap-4">
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">merchant_order_no</span>
-          <input v-model.trim="merchantOrderNo" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+    <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">1</span>
+        <h2 class="text-sm font-semibold text-slate-900">参数配置</h2>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">将用于本地保存与请求签名，修改后会写入浏览器存储。</p>
+      <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">merchant_id</span>
+          <input v-model.trim="merchantId" class="input-merchant" />
         </label>
-        <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">amount(分)</span>
-          <input v-model.number="amount" type="number" min="1" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">app_secret</span>
+          <input v-model.trim="apiSecret" class="input-merchant" type="password" />
+        </label>
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">IP 白名单</span>
+          <input v-model.trim="ipWhitelist" class="input-merchant" placeholder="例如：127.0.0.1,10.0.0.0/24" />
+        </label>
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">Notify URL</span>
+          <input v-model.trim="notifyUrl" class="input-merchant" placeholder="https://merchant.example.com/notify" />
+        </label>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">2</span>
+        <h2 class="text-sm font-semibold text-slate-900">下单联调</h2>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">/v1/pay/order</code> 创建订单并跳转收银台。</p>
+
+      <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">merchant_order_no</span>
+          <input v-model.trim="merchantOrderNo" class="input-merchant font-mono text-xs" />
+        </label>
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">amount（分）</span>
+          <input v-model.number="amount" type="number" min="1" class="input-merchant tabular-nums" />
         </label>
       </div>
 
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <button
-          class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+          type="button"
+          class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:from-emerald-500 hover:to-teal-500 disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="loading || !merchantId || !apiSecret || !merchantOrderNo || amount <= 0"
           @click="createOrder"
         >
-          {{ loading ? '创建中...' : '创建订单' }}
+          {{ loading ? '创建中…' : '创建订单' }}
         </button>
-        <button class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700" @click="regenOrderNo">
+        <button
+          type="button"
+          class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          @click="regenOrderNo"
+        >
           重新生成订单号
         </button>
       </div>
 
-      <div v-if="result" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
-        <div>order_no: {{ result.order_no }}</div>
-        <div class="mt-2 flex flex-wrap gap-3">
-          <a class="font-semibold underline" :href="result.checkout_url" target="_blank" rel="noreferrer">打开返回的 checkout_url</a>
-          <a class="font-semibold underline" :href="localCheckoutUrl" target="_blank" rel="noreferrer">打开独立收银台</a>
+      <div v-if="result" class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-4 text-sm text-emerald-950">
+        <div class="font-mono text-xs">
+          order_no: <span class="font-semibold">{{ result.order_no }}</span>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-3">
+          <a class="font-semibold text-emerald-800 underline decoration-emerald-400/80 underline-offset-2 hover:text-emerald-900" :href="result.checkout_url" target="_blank" rel="noreferrer">打开 checkout_url</a>
+          <a class="font-semibold text-emerald-800 underline decoration-emerald-400/80 underline-offset-2 hover:text-emerald-900" :href="localCheckoutUrl" target="_blank" rel="noreferrer">打开独立收银台</a>
         </div>
       </div>
 
-      <div v-if="error" class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+      <div v-if="error" class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
         {{ error }}
       </div>
-    </div>
+    </section>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">模拟上游回调（测试支付成功链路）</div>
-      <div class="mt-2 text-sm text-slate-600">调用 /v1/callback/notify，触发订单成功、入账与异步通知。</div>
+    <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-xs font-bold text-white">3</span>
+        <h2 class="text-sm font-semibold text-slate-900">模拟上游回调</h2>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">/v1/callback/notify</code>，验证支付成功、入账与异步通知。</p>
 
-      <div class="mt-4 grid grid-cols-12 gap-4">
-        <label class="col-span-12 grid gap-1 md:col-span-4">
+      <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-4">
           <span class="text-xs font-medium text-slate-600">channel_id</span>
-          <input v-model.number="mockChannelId" type="number" min="1" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+          <input v-model.number="mockChannelId" type="number" min="1" class="input-merchant tabular-nums" />
         </label>
-        <label class="col-span-12 grid gap-1 md:col-span-4">
-          <span class="text-xs font-medium text-slate-600">paid_amount(分)</span>
-          <input v-model.number="mockPaidAmount" type="number" min="1" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+        <label class="col-span-12 grid gap-1.5 md:col-span-4">
+          <span class="text-xs font-medium text-slate-600">paid_amount（分）</span>
+          <input v-model.number="mockPaidAmount" type="number" min="1" class="input-merchant tabular-nums" />
         </label>
-        <label class="col-span-12 grid gap-1 md:col-span-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-4">
           <span class="text-xs font-medium text-slate-600">upstream_trade_no</span>
-          <input v-model.trim="mockUpstreamTradeNo" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+          <input v-model.trim="mockUpstreamTradeNo" class="input-merchant font-mono text-xs" />
         </label>
-        <label class="col-span-12 grid gap-1">
+        <label class="col-span-12 grid gap-1.5">
           <span class="text-xs font-medium text-slate-600">channel_sign_secret</span>
-          <input v-model.trim="mockChannelSecret" class="rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="默认 seed_demo.sql 为 channel_secret" />
+          <input v-model.trim="mockChannelSecret" class="input-merchant font-mono text-xs" placeholder="默认 seed_demo.sql 为 channel_secret" />
         </label>
       </div>
 
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <button
-          class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+          type="button"
+          class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-500/20 transition hover:from-violet-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="mockLoading || !result?.order_no || mockChannelId <= 0 || mockPaidAmount <= 0 || !mockUpstreamTradeNo || !mockChannelSecret"
           @click="mockNotify"
         >
-          {{ mockLoading ? '回调中...' : '触发支付成功' }}
+          {{ mockLoading ? '回调中…' : '触发支付成功' }}
         </button>
-        <button class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700" @click="regenUpstreamTradeNo">
+        <button
+          type="button"
+          class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          @click="regenUpstreamTradeNo"
+        >
           重新生成上游单号
         </button>
       </div>
 
-      <div v-if="mockOk" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">回调成功</div>
-      <div v-if="mockError" class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+      <div v-if="mockOk" class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">回调成功</div>
+      <div v-if="mockError" class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
         {{ mockError }}
       </div>
-    </div>
+    </section>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">签名工具</div>
-      <div class="mt-2 text-sm text-slate-600">按参数名排序后 MD5 签名（追加 key=secret）。</div>
+    <section class="rounded-2xl border border-slate-200/90 bg-slate-900/[0.03] p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-xs font-bold text-white">4</span>
+        <h2 class="text-sm font-semibold text-slate-900">签名工具</h2>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">参数名排序后拼接，追加 <code class="rounded bg-white px-1.5 py-0.5 font-mono text-xs text-slate-800">key=secret</code> 再 MD5。</p>
 
-      <div class="mt-4 grid grid-cols-12 gap-4">
-        <label class="col-span-12 grid gap-1 md:col-span-6">
+      <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
           <span class="text-xs font-medium text-slate-600">参数 JSON</span>
-          <textarea v-model="signJson" rows="10" class="rounded-md border border-slate-200 px-3 py-2 font-mono text-xs" />
+          <textarea v-model="signJson" rows="10" class="textarea-merchant" />
         </label>
         <div class="col-span-12 grid gap-3 md:col-span-6">
-          <label class="grid gap-1">
+          <label class="grid gap-1.5">
             <span class="text-xs font-medium text-slate-600">secret</span>
-            <input v-model.trim="signSecret" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+            <input v-model.trim="signSecret" class="input-merchant font-mono text-xs" />
           </label>
-          <div class="rounded-xl bg-slate-50 p-4">
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-inner">
             <div class="text-xs font-semibold text-slate-700">签名结果</div>
-            <div class="mt-2 break-all font-mono text-xs text-slate-800">{{ signOutput }}</div>
+            <div class="mt-2 break-all font-mono text-xs leading-relaxed text-slate-900">{{ signOutput }}</div>
           </div>
-          <div v-if="signError" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+          <div v-if="signError" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
             {{ signError }}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -317,3 +347,12 @@ const signOutput = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+.input-merchant {
+  @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-inner transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20;
+}
+.textarea-merchant {
+  @apply w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-xs text-slate-900 shadow-inner focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20;
+}
+</style>
