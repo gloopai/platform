@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+func nullIfEmpty(s string) any {
+	if strings.TrimSpace(s) == "" {
+		return nil
+	}
+	return s
+}
+
 const (
 	OrderStatusPending int32 = 0
 	OrderStatusPaid    int32 = 1
@@ -22,6 +29,8 @@ type OrderRecord struct {
 	Currency        string
 	Status          int32
 	ChannelId       int64
+	PayProductId    int64
+	PayProductCode  string
 	ReturnUrl       string
 	NotifyUrl       string
 	UpstreamTradeNo string
@@ -40,7 +49,7 @@ func NewOrdersStore(db *sql.DB) *OrdersStore {
 
 func (s *OrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
 FROM orders
 WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
@@ -50,7 +59,7 @@ LIMIT 1
 
 func (s *OrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
 FROM orders
 WHERE order_no = ?
 LIMIT 1
@@ -60,9 +69,9 @@ LIMIT 1
 
 func (s *OrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, return_url, notify_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.ReturnUrl, rec.NotifyUrl)
+INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, pay_product_code, return_url, notify_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ReturnUrl, rec.NotifyUrl)
 	return err
 }
 
@@ -89,7 +98,7 @@ func (s *OrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword st
 	keyword = strings.TrimSpace(keyword)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), return_url, notify_url, upstream_trade_no, paid_amount, created_at, updated_at
 FROM orders
 WHERE merchant_id = ?
 `
@@ -165,6 +174,8 @@ func scanOrder(row rowScanner) (*OrderRecord, error) {
 		&rec.Currency,
 		&rec.Status,
 		&rec.ChannelId,
+		&rec.PayProductId,
+		&rec.PayProductCode,
 		&rec.ReturnUrl,
 		&rec.NotifyUrl,
 		&rec.UpstreamTradeNo,

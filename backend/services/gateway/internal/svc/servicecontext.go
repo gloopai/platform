@@ -27,8 +27,9 @@ type ServiceContext struct {
 	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
-	Channels   *store.ChannelsStore
-	FundLogs   *store.FundLogsStore
+	Channels    *store.ChannelsStore
+	PayProducts *store.PayProductsStore
+	FundLogs    *store.FundLogsStore
 	NotifyLogs *store.NotifyLogsStore
 	AdminUsers *store.AdminUsersStore
 	Sessions   *store.SessionsStore
@@ -66,6 +67,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	channelsStore := store.NewChannelsStore(sqlDB)
+	payProductsStore := store.NewPayProductsStore(sqlDB)
 	fundLogsStore := store.NewFundLogsStore(sqlDB)
 	notifyLogsStore := store.NewNotifyLogsStore(sqlDB)
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
@@ -83,8 +85,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(coreCli)).Handle,
 
-		Channels:   channelsStore,
-		FundLogs:   fundLogsStore,
+		Channels:    channelsStore,
+		PayProducts: payProductsStore,
+		FundLogs:    fundLogsStore,
 		NotifyLogs: notifyLogsStore,
 		AdminUsers: adminUsersStore,
 		Sessions:   sessionsStore,

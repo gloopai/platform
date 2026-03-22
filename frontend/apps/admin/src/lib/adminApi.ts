@@ -46,3 +46,10 @@ export async function adminPut<T>(path: string, body?: Record<string, unknown>):
   return (await resp.json()) as T
 }
 
+export async function adminDelete<T>(path: string): Promise<T> {
+  const tok = loadAdminToken()
+  const resp = await fetch(path, { method: 'DELETE', headers: { 'X-Admin-Token': tok } })
+  if (!resp.ok) throw new Error(String(resp.status))
+  return (await resp.json()) as T
+}
+

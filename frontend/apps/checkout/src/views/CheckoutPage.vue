@@ -95,6 +95,10 @@
                 <span class="text-slate-500">状态</span>
                 <span class="font-semibold" :class="statusClass">{{ statusText }}</span>
               </div>
+              <div v-if="payProductCodeOnOrder" class="flex items-center justify-between gap-2">
+                <span class="text-slate-500">下单支付产品</span>
+                <span class="font-mono text-xs font-medium text-slate-800">{{ payProductCodeOnOrder }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -234,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 type OrderInfo = {
@@ -245,9 +249,35 @@ type OrderInfo = {
   currency: string
   status: number
   return_url: string
+  pay_product_code?: string
 }
 
-type MethodKey = 'wechat' | 'alipay' | 'unionpay' | 'bank' | 'crypto'
+type PayProductItem = { code: string; name: string }
+
+type TerminalOrderPayload = {
+  order: OrderInfo
+  pay_products?: PayProductItem[]
+}
+
+type MethodRow = { key: string; name: string; desc: string }
+
+/** 与网关 pay_products / 产品编码一致；展示名以服务端为准 */
+const DESC_BY_CODE: Record<string, string> = {
+  mock: '联调占位，平台路由至上游',
+  wechat: '微信内优先使用',
+  alipay: '支持 H5 / 扫码',
+  unionpay: '支持扫码或快捷支付',
+  bank: '适用于 PC 场景',
+  crypto: '可选通道（示例）',
+}
+
+const FALLBACK_METHODS: MethodRow[] = [
+  { key: 'wechat', name: '微信支付', desc: DESC_BY_CODE.wechat },
+  { key: 'alipay', name: '支付宝', desc: DESC_BY_CODE.alipay },
+  { key: 'unionpay', name: '云闪付', desc: DESC_BY_CODE.unionpay },
+  { key: 'bank', name: '网银', desc: DESC_BY_CODE.bank },
+  { key: 'crypto', name: '数字货币', desc: DESC_BY_CODE.crypto },
+]
 
 const route = useRoute()
 const orderNo = computed(() => String(route.query.order_no || '').trim())
@@ -258,10 +288,12 @@ const amount = ref<number>(0)
 const currency = ref<string>('CNY')
 const status = ref<number>(0)
 const returnUrl = ref<string>('')
+const payProductCodeOnOrder = ref('')
 
 const error = ref('')
 const showQrModal = ref(false)
-const selectedMethod = ref<MethodKey>('wechat')
+const selectedMethod = ref('')
+const serverPayProducts = ref<PayProductItem[] | null>(null)
 const copiedOrderNo = ref(false)
 
 const startedAt = Date.now()
@@ -312,19 +344,32 @@ const statusClass = computed(() => {
   return 'text-amber-700'
 })
 
-const methods = [
-  { key: 'wechat' as const, name: '微信支付', desc: '微信内优先使用' },
-  { key: 'alipay' as const, name: '支付宝', desc: '支持 H5 / 扫码' },
-  { key: 'unionpay' as const, name: '云闪付', desc: '支持扫码或快捷支付' },
-  { key: 'bank' as const, name: '网银', desc: '适用于 PC 场景' },
-  { key: 'crypto' as const, name: '数字货币', desc: '可选通道（示例）' },
-]
-
 const isWeChat = computed(() => /micromessenger/i.test(navigator.userAgent))
-const methodsSorted = computed(() => {
-  if (!isWeChat.value) return methods
-  return [...methods].sort((a, b) => (a.key === 'wechat' ? -1 : b.key === 'wechat' ? 1 : 0))
+
+const methodsSorted = computed((): MethodRow[] => {
+  const fromServer = serverPayProducts.value
+  const base: MethodRow[] =
+    fromServer && fromServer.length > 0
+      ? fromServer.map((p) => ({
+          key: p.code,
+          name: p.name,
+          desc: DESC_BY_CODE[p.code] || '由平台路由至对应上游通道',
+        }))
+      : FALLBACK_METHODS
+  if (!isWeChat.value) return base
+  return [...base].sort((a, b) => (a.key === 'wechat' ? -1 : b.key === 'wechat' ? 1 : 0))
 })
+
+watch(
+  methodsSorted,
+  (list) => {
+    if (list.length === 0) return
+    if (!list.some((m) => m.key === selectedMethod.value)) {
+      selectedMethod.value = list[0].key
+    }
+  },
+  { immediate: true },
+)
 
 const isMobile = computed(() => /iphone|ipad|android/i.test(navigator.userAgent))
 
@@ -365,13 +410,15 @@ async function load() {
   if (!res.ok) {
     throw new Error(String(res.status))
   }
-  const data = (await res.json()) as { order: OrderInfo }
+  const data = (await res.json()) as TerminalOrderPayload
   amount.value = data.order.amount
   currency.value = data.order.currency
   status.value = data.order.status
   returnUrl.value = data.order.return_url || ''
   merchantIdDisplay.value = data.order.merchant_id || ''
   merchantOrderNoDisplay.value = data.order.merchant_order_no || ''
+  payProductCodeOnOrder.value = data.order.pay_product_code || ''
+  serverPayProducts.value = data.pay_products && data.pay_products.length > 0 ? data.pay_products : null
 }
 
 async function refresh() {

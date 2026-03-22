@@ -7,12 +7,11 @@
 package channel
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -77,6 +76,7 @@ func (x *RouteReq) GetPayType() string {
 type RouteResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayProductId  int64                  `protobuf:"varint,2,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -114,6 +114,13 @@ func (*RouteResp) Descriptor() ([]byte, []int) {
 func (x *RouteResp) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
+	}
+	return 0
+}
+
+func (x *RouteResp) GetPayProductId() int64 {
+	if x != nil {
+		return x.PayProductId
 	}
 	return 0
 }
@@ -213,10 +220,11 @@ const file_channel_proto_rawDesc = "" +
 	"\rchannel.proto\x12\achannel\"=\n" +
 	"\bRouteReq\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x19\n" +
-	"\bpay_type\x18\x02 \x01(\tR\apayType\"*\n" +
+	"\bpay_type\x18\x02 \x01(\tR\apayType\"P\n" +
 	"\tRouteResp\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId\"1\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12$\n" +
+	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\"1\n" +
 	"\x10GetSignSecretReq\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\x03R\tchannelId\"4\n" +
@@ -225,7 +233,7 @@ const file_channel_proto_rawDesc = "" +
 	"signSecret2\x81\x01\n" +
 	"\aChannel\x12.\n" +
 	"\x05Route\x12\x11.channel.RouteReq\x1a\x12.channel.RouteResp\x12F\n" +
-	"\rGetSignSecret\x12\x19.channel.GetSignSecretReq\x1a\x1a.channel.GetSignSecretRespB\vZ\t./channelb\x06proto3"
+	"\rGetSignSecret\x12\x19.channel.GetSignSecretReq\x1a\x1a.channel.GetSignSecretRespB2Z0github.com/gloopai/pay/common/pb/channel;channelb\x06proto3"
 
 var (
 	file_channel_proto_rawDescOnce sync.Once

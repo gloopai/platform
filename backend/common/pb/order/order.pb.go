@@ -32,6 +32,8 @@ type CreateOrderReq struct {
 	NotifyUrl       string                 `protobuf:"bytes,7,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
 	PayType         string                 `protobuf:"bytes,8,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
 	ChannelId       int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayProductId    int64                  `protobuf:"varint,10,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
+	PayProductCode  string                 `protobuf:"bytes,11,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -127,6 +129,20 @@ func (x *CreateOrderReq) GetChannelId() int64 {
 		return x.ChannelId
 	}
 	return 0
+}
+
+func (x *CreateOrderReq) GetPayProductId() int64 {
+	if x != nil {
+		return x.PayProductId
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetPayProductCode() string {
+	if x != nil {
+		return x.PayProductCode
+	}
+	return ""
 }
 
 type CreateOrderResp struct {
@@ -412,6 +428,8 @@ type OrderInfo struct {
 	NotifyUrl       string                 `protobuf:"bytes,11,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
 	UpstreamTradeNo string                 `protobuf:"bytes,12,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
 	PaidAmount      int64                  `protobuf:"varint,13,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
+	PayProductId    int64                  `protobuf:"varint,14,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
+	PayProductCode  string                 `protobuf:"bytes,15,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -535,6 +553,20 @@ func (x *OrderInfo) GetPaidAmount() int64 {
 		return x.PaidAmount
 	}
 	return 0
+}
+
+func (x *OrderInfo) GetPayProductId() int64 {
+	if x != nil {
+		return x.PayProductId
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetPayProductCode() string {
+	if x != nil {
+		return x.PayProductCode
+	}
+	return ""
 }
 
 type ListOrdersReq struct {
@@ -757,7 +789,7 @@ var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
 	"\n" +
-	"\vorder.proto\x12\x05order\"\xa3\x02\n" +
+	"\vorder.proto\x12\x05order\"\xf3\x02\n" +
 	"\x0eCreateOrderReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12*\n" +
@@ -771,7 +803,10 @@ const file_order_proto_rawDesc = "" +
 	"notify_url\x18\a \x01(\tR\tnotifyUrl\x12\x19\n" +
 	"\bpay_type\x18\b \x01(\tR\apayType\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\t \x01(\x03R\tchannelId\"S\n" +
+	"channel_id\x18\t \x01(\x03R\tchannelId\x12$\n" +
+	"\x0epay_product_id\x18\n" +
+	" \x01(\x03R\fpayProductId\x12(\n" +
+	"\x10pay_product_code\x18\v \x01(\tR\x0epayProductCode\"S\n" +
 	"\x0fCreateOrderResp\x12&\n" +
 	"\x05order\x18\x01 \x01(\v2\x10.order.OrderInfoR\x05order\x12\x18\n" +
 	"\aexisted\x18\x02 \x01(\bR\aexisted\"u\n" +
@@ -790,7 +825,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\xa7\x03\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\xf7\x03\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -812,7 +847,9 @@ const file_order_proto_rawDesc = "" +
 	"notify_url\x18\v \x01(\tR\tnotifyUrl\x12*\n" +
 	"\x11upstream_trade_no\x18\f \x01(\tR\x0fupstreamTradeNo\x12\x1f\n" +
 	"\vpaid_amount\x18\r \x01(\x03R\n" +
-	"paidAmount\"x\n" +
+	"paidAmount\x12$\n" +
+	"\x0epay_product_id\x18\x0e \x01(\x03R\fpayProductId\x12(\n" +
+	"\x10pay_product_code\x18\x0f \x01(\tR\x0epayProductCode\"x\n" +
 	"\rListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +
@@ -835,7 +872,7 @@ const file_order_proto_rawDesc = "" +
 	"\bMarkPaid\x12\x12.order.MarkPaidReq\x1a\x13.order.MarkPaidResp\x129\n" +
 	"\n" +
 	"ListOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12?\n" +
-	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryRespB\tZ\a./orderb\x06proto3"
+	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once

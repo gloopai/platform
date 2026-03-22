@@ -36,18 +36,30 @@ func (l *TerminalOrderLogic) TerminalOrder(req *types.TerminalOrderReq) (resp *t
 	}
 	o := r.GetOrder()
 
+	opts, err := l.svcCtx.PayProducts.ListAvailableForAmount(l.ctx, o.GetAmount())
+	if err != nil {
+		return nil, err
+	}
+	items := make([]types.PayProductItem, 0, len(opts))
+	for _, p := range opts {
+		items = append(items, types.PayProductItem{Code: p.Code, Name: p.Name})
+	}
+
 	return &types.TerminalOrderResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayProductCode:   o.GetPayProductCode(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
+		PayProducts: items,
 	}, nil
 }

@@ -49,15 +49,16 @@ func (l *MerchantOrdersLogic) MerchantOrders(req *types.MerchantOrdersReq) (*typ
 	out := make([]types.MerchantOrderItem, 0, len(items))
 	for _, o := range items {
 		out = append(out, types.MerchantOrderItem{
-			OrderNo:         o.GetOrderNo(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PaidAmount:      o.GetPaidAmount(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
-			CreatedAt:       o.GetCreatedAt(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductCode:   o.GetPayProductCode(),
+			PaidAmount:       o.GetPaidAmount(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			CreatedAt:        o.GetCreatedAt(),
 		})
 	}
 	return &types.MerchantOrdersResp{Orders: out}, nil

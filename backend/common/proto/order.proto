@@ -21,6 +21,8 @@ message CreateOrderReq {
   string notify_url = 7;
   string pay_type = 8;
   int64 channel_id = 9;
+  int64 pay_product_id = 10;
+  string pay_product_code = 11;
 }
 
 message CreateOrderResp {
@@ -63,6 +65,8 @@ message OrderInfo {
   string notify_url = 11;
   string upstream_trade_no = 12;
   int64 paid_amount = 13;
+  int64 pay_product_id = 14;
+  string pay_product_code = 15;
 }
 
 message ListOrdersReq {

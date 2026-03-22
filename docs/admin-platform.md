@@ -30,7 +30,7 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/merchants` | 商户管理 | **已对接**：网关 `/v1/admin/merchants` 列表/创建/更新 |
-| `/merchant-products` | 产品与签约 | 支付方式、费率套餐、签约状态、API 权限；**占位** |
+| `/merchant-products` | 支付产品与上游通道 | **已对接**：`pay_products` CRUD 与 `pay_product_channels` 绑定（权重、启用）；见 §4 |
 
 ### 2.3 通道与路由
 
@@ -106,6 +106,10 @@
 - `POST /v1/admin/login`、`POST /v1/admin/logout`
 - `GET/POST /v1/admin/channels`、`PUT /v1/admin/channels/:id`
 - `GET/POST /v1/admin/merchants`、`PUT /v1/admin/merchants/:merchant_id`
+- **支付产品与通道绑定**（对外 `code` 落库 `pay_products`，绑定表 `pay_product_channels`）：
+  - `GET /v1/admin/pay_products`、`POST /v1/admin/pay_products`、`PUT /v1/admin/pay_products/:id`
+  - `GET /v1/admin/pay_products/:id/bindings`、`POST /v1/admin/pay_products/:id/bindings`（同 `(product, channel)` 唯一则更新权重/启用）
+  - `PUT /v1/admin/pay_product_bindings/:id`、`DELETE /v1/admin/pay_product_bindings/:id`
 
 其余菜单对应能力 **尚未实现**；前端以 `ModulePlaceholderPage` + `adminMenu.ts` 中 `adminPlaceholderMeta` 说明规划与待接入 API 提示。
 
@@ -117,6 +121,7 @@
 |------|------|
 | `src/adminMenu.ts` | 侧栏菜单结构、面包屑标题、占位页文案 |
 | `src/views/AdminLayout.vue` | 多级侧栏、折叠态悬浮子菜单 |
+| `src/views/pages/PayProductsPage.vue` | 支付产品与上游通道绑定 |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -134,4 +139,5 @@
 
 ## 7. 修订记录
 
+- **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
 - 文档与前端菜单随 `adminMenu.ts` 同步维护；变更时请更新本节或提交说明。

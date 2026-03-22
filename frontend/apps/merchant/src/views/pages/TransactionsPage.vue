@@ -43,6 +43,7 @@
               <th class="whitespace-nowrap px-4 py-3">订单号</th>
               <th class="whitespace-nowrap px-4 py-3">金额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
+              <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">上游单号</th>
               <th class="whitespace-nowrap px-4 py-3">创建时间</th>
               <th class="whitespace-nowrap px-4 py-3">操作</th>
@@ -50,10 +51,10 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-if="loading">
-              <td class="px-4 py-8 text-center text-slate-500" colspan="6">加载中…</td>
+              <td class="px-4 py-8 text-center text-slate-500" colspan="7">加载中…</td>
             </tr>
             <tr v-else-if="orders.length === 0">
-              <td class="px-4 py-12 text-center text-slate-500" colspan="6">
+              <td class="px-4 py-12 text-center text-slate-500" colspan="7">
                 <div class="mx-auto flex max-w-sm flex-col items-center gap-2">
                   <span class="rounded-full bg-slate-100 p-3 text-slate-400">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25">
@@ -76,6 +77,7 @@
                   {{ statusLabel(o.status) }}
                 </span>
               </td>
+              <td class="px-4 py-3 align-top font-mono text-xs text-slate-700">{{ o.pay_product_code || '—' }}</td>
               <td class="px-4 py-3 align-top text-slate-700">{{ o.upstream_trade_no || '—' }}</td>
               <td class="px-4 py-3 align-top text-slate-600">{{ formatTime(o.created_at) }}</td>
               <td class="px-4 py-3 align-top">
@@ -135,6 +137,10 @@
               <div class="col-span-12 md:col-span-3">
                 <div class="text-xs font-medium text-slate-500">状态</div>
                 <div class="mt-1 font-medium text-slate-900">{{ statusLabel(detail?.order.status || 0) }}</div>
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <div class="text-xs font-medium text-slate-500">支付产品</div>
+                <div class="mt-1 font-mono text-sm text-slate-900">{{ detail?.order.pay_product_code || '—' }}</div>
               </div>
               <div class="col-span-12">
                 <div class="text-xs font-medium text-slate-500">Notify URL</div>

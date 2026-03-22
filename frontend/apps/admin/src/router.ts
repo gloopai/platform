@@ -5,6 +5,7 @@ import AdminLayout from './views/AdminLayout.vue'
 import AuditPage from './views/pages/AuditPage.vue'
 import ChannelsPage from './views/pages/ChannelsPage.vue'
 import MerchantsPage from './views/pages/MerchantsPage.vue'
+import PayProductsPage from './views/pages/PayProductsPage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import StatsPage from './views/pages/StatsPage.vue'
 
@@ -20,7 +21,7 @@ export const router = createRouter({
         { path: 'stats', component: StatsPage },
         { path: 'merchants', component: MerchantsPage },
         { path: 'channels', component: ChannelsPage },
-        { path: 'merchant-products', component: ModulePlaceholderPage },
+        { path: 'merchant-products', component: PayProductsPage },
         { path: 'routing', component: ModulePlaceholderPage },
         { path: 'channel-health', component: ModulePlaceholderPage },
         { path: 'orders', component: ModulePlaceholderPage },

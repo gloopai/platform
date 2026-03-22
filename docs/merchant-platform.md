@@ -40,6 +40,8 @@
 
 别名 **`@/`** 指向 `src/`，见 `vite.config.ts` 与 `tsconfig.app.json`。
 
+订单相关接口中的 **`pay_product_code`** 表示对外「支付产品」编码（与开放 API `pay_type` 一致），与内部 `channel_id`（上游实例）不同，见 [`通道与支付产品.md`](./通道与支付产品.md)。
+
 ---
 
 ## 3. 接口一览（商户控制台 Token）

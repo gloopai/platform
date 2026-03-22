@@ -23,6 +23,8 @@ export type MerchantOrderItem = {
   currency: string
   status: number
   channel_id: number
+  /** 支付产品编码（微信/支付宝/mock 等），与开放平台 pay_type 一致 */
+  pay_product_code: string
   paid_amount: number
   upstream_trade_no: string
   created_at: number
@@ -50,6 +52,8 @@ export type MerchantOrderDetail = {
   currency: string
   status: number
   channel_id: number
+  pay_product_id: number
+  pay_product_code: string
   return_url: string
   notify_url: string
   upstream_trade_no: string

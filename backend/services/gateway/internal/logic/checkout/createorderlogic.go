@@ -13,6 +13,8 @@ import (
 	"github.com/gloopai/pay/gateway/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CreateOrderLogic struct {
@@ -30,16 +32,17 @@ func NewCreateOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 }
 
 func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
-	channelId := req.ChannelId
-	if channelId <= 0 {
-		r, err := l.svcCtx.ChannelRpc.Route(l.ctx, &channelclient.RouteReq{
-			Amount:  req.Amount,
-			PayType: req.PayType,
-		})
-		if err != nil {
-			return nil, err
-		}
-		channelId = r.ChannelId
+	payProductCode := strings.TrimSpace(req.PayType)
+	if payProductCode == "" {
+		return nil, status.Error(codes.InvalidArgument, "pay_type (payment product code) is required, e.g. mock, wechat, alipay")
+	}
+
+	route, err := l.svcCtx.ChannelRpc.Route(l.ctx, &channelclient.RouteReq{
+		Amount:  req.Amount,
+		PayType: payProductCode,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	r, err := l.svcCtx.OrderRpc.CreateOrder(l.ctx, &orderclient.CreateOrderReq{
@@ -50,8 +53,10 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.C
 		Subject:         req.Subject,
 		ReturnUrl:       req.ReturnUrl,
 		NotifyUrl:       req.NotifyUrl,
-		PayType:         req.PayType,
-		ChannelId:       channelId,
+		PayType:         payProductCode,
+		ChannelId:       route.ChannelId,
+		PayProductId:    route.PayProductId,
+		PayProductCode:  payProductCode,
 	})
 	if err != nil {
 		return nil, err
@@ -66,9 +71,11 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.C
 	checkoutUrl := base + "/?order_no=" + orderInfo.GetOrderNo()
 
 	return &types.CreateOrderResp{
-		OrderNo:     orderInfo.GetOrderNo(),
-		Status:      orderInfo.GetStatus(),
-		ChannelId:   orderInfo.GetChannelId(),
-		CheckoutUrl: checkoutUrl,
+		OrderNo:        orderInfo.GetOrderNo(),
+		Status:         orderInfo.GetStatus(),
+		ChannelId:      orderInfo.GetChannelId(),
+		PayProductId:   orderInfo.GetPayProductId(),
+		PayProductCode: orderInfo.GetPayProductCode(),
+		CheckoutUrl:    checkoutUrl,
 	}, nil
 }

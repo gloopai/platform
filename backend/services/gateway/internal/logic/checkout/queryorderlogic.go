@@ -40,16 +40,18 @@ func (l *QueryOrderLogic) QueryOrder(req *types.QueryOrderReq) (resp *types.Quer
 
 	return &types.QueryOrderResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayProductCode:   o.GetPayProductCode(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 	}, nil
 }

@@ -84,3 +84,31 @@ func NewAdminCreateMerchantLogic(ctx context.Context, svcCtx *svc.ServiceContext
 func NewAdminUpdateMerchantLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminUpdateMerchantLogic {
 	return adminlogic.NewAdminUpdateMerchantLogic(ctx, svcCtx)
 }
+
+func NewAdminListPayProductsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminListPayProductsLogic {
+	return adminlogic.NewAdminListPayProductsLogic(ctx, svcCtx)
+}
+
+func NewAdminCreatePayProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminCreatePayProductLogic {
+	return adminlogic.NewAdminCreatePayProductLogic(ctx, svcCtx)
+}
+
+func NewAdminUpdatePayProductLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminUpdatePayProductLogic {
+	return adminlogic.NewAdminUpdatePayProductLogic(ctx, svcCtx)
+}
+
+func NewAdminListPayProductBindingsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminListPayProductBindingsLogic {
+	return adminlogic.NewAdminListPayProductBindingsLogic(ctx, svcCtx)
+}
+
+func NewAdminUpsertPayProductBindingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminUpsertPayProductBindingLogic {
+	return adminlogic.NewAdminUpsertPayProductBindingLogic(ctx, svcCtx)
+}
+
+func NewAdminUpdatePayProductBindingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminUpdatePayProductBindingLogic {
+	return adminlogic.NewAdminUpdatePayProductBindingLogic(ctx, svcCtx)
+}
+
+func NewAdminDeletePayProductBindingLogic(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminDeletePayProductBindingLogic {
+	return adminlogic.NewAdminDeletePayProductBindingLogic(ctx, svcCtx)
+}

@@ -34,7 +34,7 @@ npm run dev:checkout
 
 | 方法 | 路径 | 用途 |
 |------|------|------|
-| GET | `/v1/terminal/order?order_no=` | 拉取订单展示字段（金额、币种、状态、`return_url`、`merchant_id`、`merchant_order_no` 等） |
+| GET | `/v1/terminal/order?order_no=` | 拉取订单展示字段（金额、币种、状态、`return_url`、`merchant_id`、`merchant_order_no`、`pay_product_code` 等），并返回 **`pay_products`**：当前金额下可用的支付产品列表（`code` / `name`），收银台应优先用该列表渲染「选择支付方式」。 |
 
 前端类型与网关 `OrderInfo` 对齐；改字段时同步 **`gateway` 的 API 定义** 与本文。
 

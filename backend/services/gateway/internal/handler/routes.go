@@ -145,6 +145,41 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/admin/merchants/:merchant_id",
 					Handler: adminhandler.AdminUpdateMerchantHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/pay_products",
+					Handler: adminhandler.AdminListPayProductsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/pay_products",
+					Handler: adminhandler.AdminCreatePayProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/pay_products/:id",
+					Handler: adminhandler.AdminUpdatePayProductHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/pay_products/:id/bindings",
+					Handler: adminhandler.AdminListPayProductBindingsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/pay_products/:id/bindings",
+					Handler: adminhandler.AdminUpsertPayProductBindingHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/pay_product_bindings/:id",
+					Handler: adminhandler.AdminUpdatePayProductBindingHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/pay_product_bindings/:id",
+					Handler: adminhandler.AdminDeletePayProductBindingHandler(serverCtx),
+				},
 			}...,
 		),
 	)

@@ -15,6 +15,7 @@ message RouteReq {
 
 message RouteResp {
   int64 channel_id = 1;
+  int64 pay_product_id = 2;
 }
 
 message GetSignSecretReq {

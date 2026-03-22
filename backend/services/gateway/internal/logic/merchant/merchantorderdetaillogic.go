@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -55,16 +55,18 @@ func (l *MerchantOrderDetailLogic) MerchantOrderDetail(req *types.MerchantOrderD
 
 	return &types.MerchantOrderDetailResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayProductCode:   o.GetPayProductCode(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 		Logs: outLogs,
 	}, nil

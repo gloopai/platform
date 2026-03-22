@@ -1,6 +1,6 @@
 /**
  * 聚合支付 · 总管理台导航与页面说明
- * 与 docs/admin-platform.md 对应；后端未实现的接口在占位页标注「待接入」。
+ * 与 docs/admin-platform.md 对应；未实现接口在占位页标注「待接入」（`/merchant-products` 已对接支付产品与通道绑定）。
  */
 
 export type AdminMenuLeaf = {
@@ -35,7 +35,7 @@ export const adminMenu: AdminMenuEntry[] = [
     icon: 'briefcase',
     children: [
       { to: '/merchants', label: '商户管理' },
-      { to: '/merchant-products', label: '产品与签约' },
+      { to: '/merchant-products', label: '支付产品与通道' },
     ],
   },
   {
@@ -88,7 +88,7 @@ export const adminMenu: AdminMenuEntry[] = [
 export const adminPathTitle: Record<string, string> = {
   '/stats': '系统概览',
   '/merchants': '商户管理',
-  '/merchant-products': '产品与签约',
+  '/merchant-products': '支付产品与通道',
   '/channels': '通道管理',
   '/routing': '路由策略',
   '/channel-health': '通道监控',
@@ -112,15 +112,6 @@ export const adminPlaceholderMeta: Record<
     apiNote: string
   }
 > = {
-  '/merchant-products': {
-    summary: '管理商户可见的支付方式、费率套餐、签约状态及 API 权限范围。',
-    bullets: [
-      '支付方式：微信/支付宝/银联/网银等开关与排序',
-      '费率：继承平台模板或单独议价',
-      '签约与实名：与进件系统联动（若对接）',
-    ],
-    apiNote: '待接入：GET/PUT /v1/admin/merchant_products 等',
-  },
   '/routing': {
     summary: '配置订单金额、支付方式、商户等级与通道权重，实现智能路由与 failover。',
     bullets: ['按金额/时段/地区拆单', '主备通道与自动切换', 'A/B 与灰度发布'],
