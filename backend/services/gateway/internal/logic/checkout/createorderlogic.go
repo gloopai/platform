@@ -46,7 +46,8 @@ func (l *CreateOrderLogic) CreateOrder(req *types.CreateOrderReq) (resp *types.C
 
 	switch {
 	case channelID > 0:
-		ppid, code, err := l.svcCtx.PayProducts.ResolveLockedChannelForMerchant(l.ctx, merchantID, channelID, req.Amount)
+		var code string
+		ppid, code, err = l.svcCtx.PayProducts.ResolveLockedChannelForMerchant(l.ctx, merchantID, channelID, req.Amount)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
