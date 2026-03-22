@@ -9,11 +9,11 @@ Mysql:
 AdminToken: admin_token_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/
 TradeRpc:
-  Target: consul://127.0.0.1:8500/trade.rpc
+  Target: consul://127.0.0.1:8500/payment.rpc.trade
   Middlewares:
     Trace: true
 CoreRpc:
-  Target: consul://127.0.0.1:8500/core.rpc
+  Target: consul://127.0.0.1:8500/payment.rpc.core
   Middlewares:
     Trace: true
 Nsq:
