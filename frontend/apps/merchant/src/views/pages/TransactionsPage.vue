@@ -1,9 +1,6 @@
 <template>
   <div class="space-y-6">
-    <div>
-      <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">交易管理</h1>
-      <p class="mt-1 text-sm text-slate-600">查询订单、查看回调记录并重发通知</p>
-    </div>
+    <PageHeader title="交易管理" description="查询订单、查看回调记录并重发通知" />
 
     <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -14,12 +11,12 @@
         <div class="flex flex-wrap items-center gap-2">
           <input
             v-model.trim="keyword"
-            class="min-w-[12rem] flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-inner transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:max-w-xs"
+            class="min-w-[12rem] flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-inner transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20 sm:max-w-xs"
             placeholder="订单号 / 商户订单号"
           />
           <select
             v-model="status"
-            class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-inner focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-inner focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20"
           >
             <option value="">全部状态</option>
             <option value="0">待支付</option>
@@ -29,7 +26,7 @@
           </select>
           <button
             type="button"
-            class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:from-emerald-500 hover:to-teal-500"
+            class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700"
             @click="reload"
           >
             搜索
@@ -85,7 +82,7 @@
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-900"
+                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
                     @click="openDetail(o.order_no)"
                   >
                     详情
@@ -106,9 +103,7 @@
       </div>
     </div>
 
-    <div v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-      {{ error }}
-    </div>
+    <ErrorCallout v-if="error" :message="error" />
 
     <div v-if="detailOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
       <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl">
@@ -194,45 +189,12 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { merchantConsoleGet, merchantConsolePost } from '../../lib/merchantApi'
-
-type MerchantOrderItem = {
-  order_no: string
-  merchant_order_no: string
-  amount: number
-  currency: string
-  status: number
-  channel_id: number
-  paid_amount: number
-  upstream_trade_no: string
-  created_at: number
-}
-
-type MerchantNotifyLogItem = {
-  id: number
-  notify_url: string
-  attempt: number
-  http_status: number
-  response_body: string
-  error_msg: string
-  created_at: number
-}
-
-type MerchantOrderDetailResp = {
-  order: {
-    order_no: string
-    merchant_id: string
-    merchant_order_no: string
-    amount: number
-    currency: string
-    status: number
-    channel_id: number
-    return_url: string
-    notify_url: string
-    upstream_trade_no: string
-  }
-  logs: MerchantNotifyLogItem[]
-}
+import PageHeader from '@/components/layout/PageHeader.vue'
+import ErrorCallout from '@/components/ui/ErrorCallout.vue'
+import { fetchMerchantOrderDetail, fetchMerchantOrders, postRetryMerchantNotify } from '@/api/orders'
+import type { MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
+import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
+import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLabel } from '@/utils/orderStatus'
 
 const keyword = ref('')
 const status = ref('')
@@ -246,35 +208,19 @@ const detailLoading = ref(false)
 const detailError = ref('')
 const detail = ref<MerchantOrderDetailResp | null>(null)
 
-function statusLabel(v: number): string {
-  if (v === 0) return '待支付'
-  if (v === 1) return '成功'
-  if (v === 2) return '失败'
-  if (v === 3) return '已关闭'
-  return `未知(${v})`
-}
-
-function statusBadgeClass(v: number): string {
-  if (v === 1) return 'bg-emerald-100 text-emerald-800'
-  if (v === 2) return 'bg-rose-100 text-rose-800'
-  if (v === 3) return 'bg-slate-100 text-slate-600'
-  return 'bg-amber-100 text-amber-900'
-}
-
 function formatAmount(amount: number, currency: string) {
-  return `${(amount / 100).toFixed(2)} ${currency || 'CNY'}`
+  return formatCentsWithCurrency(amount, currency)
 }
 
 function formatTime(ts: number) {
-  const d = new Date(ts * 1000)
-  return d.toLocaleString()
+  return formatUnixSeconds(ts)
 }
 
 async function reload() {
   loading.value = true
   error.value = ''
   try {
-    const res = await merchantConsoleGet<{ orders: MerchantOrderItem[] }>('/v1/merchant/orders', {
+    const res = await fetchMerchantOrders({
       order_no: keyword.value,
       status: status.value,
       limit: 50,
@@ -293,7 +239,7 @@ async function openDetail(orderNo: string) {
   detailError.value = ''
   detail.value = null
   try {
-    detail.value = await merchantConsoleGet<MerchantOrderDetailResp>('/v1/merchant/order/detail', { order_no: orderNo })
+    detail.value = await fetchMerchantOrderDetail(orderNo)
   } catch {
     detailError.value = '加载详情失败'
   } finally {
@@ -305,7 +251,7 @@ async function retryNotify(orderNo: string) {
   retrying.value = true
   error.value = ''
   try {
-    await merchantConsolePost<{ ok: boolean }>('/v1/merchant/order/retry_notify', { order_no: orderNo })
+    await postRetryMerchantNotify(orderNo)
   } catch {
     error.value = '重发通知失败'
   } finally {

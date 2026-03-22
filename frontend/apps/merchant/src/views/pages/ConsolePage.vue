@@ -1,13 +1,10 @@
 <template>
   <div class="space-y-8">
-    <div>
-      <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">控制台</h1>
-      <p class="mt-1 text-sm text-slate-600">今日经营概况与账户状态一目了然</p>
-    </div>
+    <PageHeader title="控制台" description="今日经营概况与账户状态一目了然" />
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-emerald-200/80 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-400 opacity-40 blur-2xl transition group-hover:opacity-60" />
+      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-300 opacity-25 blur-2xl transition group-hover:opacity-40" />
         <div class="relative">
           <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -21,8 +18,8 @@
         </div>
       </div>
 
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-emerald-200/80 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-cyan-400 opacity-40 blur-2xl transition group-hover:opacity-60" />
+      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-400 opacity-20 blur-2xl transition group-hover:opacity-40" />
         <div class="relative">
           <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -36,8 +33,8 @@
         </div>
       </div>
 
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-emerald-200/80 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-teal-400 opacity-40 blur-2xl transition group-hover:opacity-60" />
+      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-300 opacity-20 blur-2xl transition group-hover:opacity-40" />
         <div class="relative">
           <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -51,8 +48,8 @@
         </div>
       </div>
 
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-emerald-200/80 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-400 opacity-40 blur-2xl transition group-hover:opacity-60" />
+      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-400 opacity-15 blur-2xl transition group-hover:opacity-30" />
         <div class="relative">
           <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
@@ -67,49 +64,35 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/90 to-white p-6 shadow-sm">
+    <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50/95 to-white p-6 shadow-sm">
       <div class="flex flex-wrap items-start gap-3">
-        <span class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+        <span class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-200/80 text-slate-700">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </span>
         <div class="min-w-0 flex-1">
-          <div class="text-sm font-semibold text-emerald-900">使用提示</div>
-          <p class="mt-1 text-sm leading-relaxed text-emerald-900/80">{{ tipText }}</p>
+          <div class="text-sm font-semibold text-slate-900">使用提示</div>
+          <p class="mt-1 text-sm leading-relaxed text-slate-600">{{ tipText }}</p>
         </div>
       </div>
-      <div v-if="error" class="mt-4 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm text-rose-800">
-        {{ error }}
-      </div>
+      <ErrorCallout v-if="error" class="mt-4" :message="error" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { merchantConsoleGet } from '../../lib/merchantApi'
+import { computed } from 'vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
+import ErrorCallout from '@/components/ui/ErrorCallout.vue'
+import { useMerchantSummary } from '@/composables/useMerchantSummary'
+import { formatYuanLabel } from '@/utils/format'
 
-type MerchantSummaryResp = {
-  today_amount: number
-  today_count: number
-  success_rate: number
-  balance: number
-  merchant_id: string
-}
+const { summary, error } = useMerchantSummary()
 
-const summary = ref<MerchantSummaryResp | null>(null)
-const error = ref('')
+const todayAmountText = computed(() => formatYuanLabel(summary.value?.today_amount ?? 0))
 
-const todayAmountText = computed(() => {
-  const v = summary.value?.today_amount ?? 0
-  return `¥ ${(v / 100).toFixed(2)}`
-})
-
-const balanceText = computed(() => {
-  const v = summary.value?.balance ?? 0
-  return `¥ ${(v / 100).toFixed(2)}`
-})
+const balanceText = computed(() => formatYuanLabel(summary.value?.balance ?? 0))
 
 const successRateText = computed(() => {
   const v = summary.value?.success_rate
@@ -126,18 +109,5 @@ const orderCountText = computed(() => {
 const tipText = computed(() => {
   if (!summary.value) return '连接数据后即可查看实时指标。请先在「开发配置」中确认商户参数，并确保网关服务已启动。'
   return '可在「开发配置」中联调下单与回调，在「交易管理」中查询订单与通知记录。'
-})
-
-async function load() {
-  error.value = ''
-  try {
-    summary.value = await merchantConsoleGet<MerchantSummaryResp>('/v1/merchant/summary')
-  } catch {
-    error.value = '数据加载失败：请确认已登录且网关服务正常运行。'
-  }
-}
-
-onMounted(() => {
-  void load()
 })
 </script>

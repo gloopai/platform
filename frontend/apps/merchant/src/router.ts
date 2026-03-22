@@ -5,6 +5,7 @@ import MerchantLayout from './views/MerchantLayout.vue'
 import ConsolePage from './views/pages/ConsolePage.vue'
 import DevelopersPage from './views/pages/DevelopersPage.vue'
 import FinancePage from './views/pages/FinancePage.vue'
+import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import TransactionsPage from './views/pages/TransactionsPage.vue'
 
 export const router = createRouter({
@@ -19,6 +20,8 @@ export const router = createRouter({
         { path: 'console', component: ConsolePage },
         { path: 'transactions', component: TransactionsPage },
         { path: 'finance', component: FinancePage },
+        { path: 'products', component: ModulePlaceholderPage },
+        { path: 'account', component: ModulePlaceholderPage },
         { path: 'developers', component: DevelopersPage },
       ],
     },

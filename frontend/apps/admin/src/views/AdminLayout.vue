@@ -1,6 +1,5 @@
 <template>
   <div class="admin-shell flex h-screen w-full flex-col overflow-hidden bg-slate-100">
-    <!-- Top bar: logo (left) · context · actions + user (right) -->
     <header
       class="relative z-20 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-slate-200/90 bg-white/90 px-4 shadow-sm backdrop-blur-md"
     >
@@ -12,8 +11,8 @@
           P
         </div>
         <div class="min-w-0">
-          <div class="truncate text-sm font-semibold tracking-tight text-slate-900">总管理台</div>
-          <div class="truncate text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">Pay Console</div>
+          <div class="truncate text-sm font-semibold tracking-tight text-slate-900">聚合支付 · 总管理台</div>
+          <div class="truncate text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">Pay Ops Console</div>
         </div>
       </div>
 
@@ -96,7 +95,6 @@
     </header>
 
     <div class="flex min-h-0 min-w-0 flex-1">
-      <!-- Sidebar: multi-level nav + collapse -->
       <aside
         :class="[
           'relative flex shrink-0 flex-col border-r border-slate-800/80 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-400 transition-[width] duration-200 ease-out',
@@ -130,127 +128,102 @@
         </div>
 
         <nav ref="navScrollRef" class="admin-nav-scroll flex-1 space-y-1 overflow-y-auto px-2 py-3">
-          <!-- 系统概览 -->
-          <div
-            class="relative"
-            @mouseenter="onLeafEnter('/stats')"
-            @mouseleave="onLeafLeave"
-          >
-            <RouterLink
-              to="/stats"
-              class="group flex items-center rounded-lg py-2.5 text-sm font-medium transition"
-              :class="sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'"
-              active-class="nav-active"
-            >
-              <span class="nav-icon shrink-0 text-slate-500 group-hover:text-slate-300" v-html="icons.chart" />
-              <span v-show="!sidebarCollapsed" class="truncate">系统概览</span>
-            </RouterLink>
+          <template v-for="entry in adminMenu" :key="entry.kind === 'leaf' ? entry.to : entry.key">
+            <!-- 单页 -->
             <div
-              v-show="sidebarCollapsed && leafTooltip === '/stats'"
-              class="nav-flyout absolute left-full top-1/2 z-[100] -translate-y-1/2 pl-2"
-            >
-              <div
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-xl ring-1 ring-black/40"
-              >
-                系统概览
-              </div>
-            </div>
-          </div>
-
-          <!-- 业务管理（可展开 / 折叠态悬停浮层） -->
-          <div class="pt-2">
-            <div
-              v-if="!sidebarCollapsed"
-              class="space-y-1"
-            >
-              <button
-                type="button"
-                class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-300 transition hover:bg-white/5"
-                @click="businessOpen = !businessOpen"
-              >
-                <span class="flex min-w-0 items-center gap-3">
-                  <span class="nav-icon shrink-0 text-slate-500" v-html="icons.briefcase" />
-                  <span class="truncate">业务管理</span>
-                </span>
-                <svg
-                  class="h-4 w-4 shrink-0 text-slate-500 transition"
-                  :class="businessOpen ? 'rotate-180' : ''"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </button>
-
-              <div v-show="businessOpen" class="space-y-0.5 border-l border-white/10 pl-4 ml-6">
-                <RouterLink
-                  v-for="child in businessChildren"
-                  :key="child.to"
-                  :to="child.to"
-                  class="group flex items-center gap-2 rounded-md py-2 pl-2 pr-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
-                  active-class="nav-sub-active"
-                >
-                  <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600 group-hover:bg-slate-400" />
-                  <span class="truncate">{{ child.label }}</span>
-                </RouterLink>
-              </div>
-            </div>
-
-            <div
-              v-else
-              ref="businessHoverRef"
+              v-if="entry.kind === 'leaf'"
               class="relative"
-              @mouseenter="onBusinessEnter"
-              @mouseleave="onBusinessLeave"
+              @mouseenter="onLeafEnter(entry.to)"
+              @mouseleave="onLeafLeave"
             >
-              <button
-                type="button"
-                class="flex w-full items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition hover:bg-white/5"
-                :class="isBusinessRoute ? 'nav-active' : 'text-slate-300'"
+              <RouterLink
+                :to="entry.to"
+                class="group flex items-center rounded-lg py-2.5 text-sm font-medium transition"
+                :class="sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'"
+                active-class="nav-active"
               >
-                <span class="nav-icon shrink-0 text-slate-500" :class="isBusinessRoute ? '!text-indigo-300' : ''" v-html="icons.briefcase" />
-              </button>
-            </div>
-          </div>
-
-          <!-- 运营与审计 -->
-          <div
-            class="relative mt-1"
-            @mouseenter="onLeafEnter('/audit')"
-            @mouseleave="onLeafLeave"
-          >
-            <RouterLink
-              to="/audit"
-              class="group flex items-center rounded-lg py-2.5 text-sm font-medium transition"
-              :class="sidebarCollapsed ? 'justify-center px-2' : 'gap-3 px-3'"
-              active-class="nav-active"
-            >
-              <span class="nav-icon shrink-0 text-slate-500 group-hover:text-slate-300" v-html="icons.shield" />
-              <span v-show="!sidebarCollapsed" class="truncate">运营与审计</span>
-            </RouterLink>
-            <div
-              v-show="sidebarCollapsed && leafTooltip === '/audit'"
-              class="nav-flyout absolute left-full top-1/2 z-[100] -translate-y-1/2 pl-2"
-            >
+                <span class="nav-icon shrink-0 text-slate-500 group-hover:text-slate-300" v-html="icons[entry.icon]" />
+                <span v-show="!sidebarCollapsed" class="truncate">{{ entry.label }}</span>
+              </RouterLink>
               <div
-                class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-xl ring-1 ring-black/40"
+                v-show="sidebarCollapsed && leafTooltip === entry.to"
+                class="nav-flyout absolute left-full top-1/2 z-[100] -translate-y-1/2 pl-2"
               >
-                运营与审计
+                <div
+                  class="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-xl ring-1 ring-black/40"
+                >
+                  {{ entry.label }}
+                </div>
               </div>
             </div>
-          </div>
+
+            <!-- 分组 -->
+            <div v-else class="pt-1">
+              <div v-if="!sidebarCollapsed" class="space-y-1">
+                <button
+                  type="button"
+                  class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium text-slate-300 transition hover:bg-white/5"
+                  @click="toggleGroup(entry.key)"
+                >
+                  <span class="flex min-w-0 items-center gap-3">
+                    <span class="nav-icon shrink-0 text-slate-500" v-html="icons[entry.icon]" />
+                    <span class="truncate">{{ entry.label }}</span>
+                  </span>
+                  <svg
+                    class="h-4 w-4 shrink-0 text-slate-500 transition"
+                    :class="openGroups[entry.key] ? 'rotate-180' : ''"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <div v-show="openGroups[entry.key]" class="ml-6 space-y-0.5 border-l border-white/10 pl-4">
+                  <RouterLink
+                    v-for="child in entry.children"
+                    :key="child.to"
+                    :to="child.to"
+                    class="group flex items-center gap-2 rounded-md py-2 pl-2 pr-2 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
+                    active-class="nav-sub-active"
+                  >
+                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-600 group-hover:bg-slate-400" />
+                    <span class="truncate">{{ child.label }}</span>
+                  </RouterLink>
+                </div>
+              </div>
+
+              <div
+                v-else
+                :ref="(el) => setGroupTriggerRef(entry.key, el)"
+                class="relative"
+                @mouseenter="() => onGroupFlyoutEnter(entry.key)"
+                @mouseleave="onGroupFlyoutLeave"
+              >
+                <button
+                  type="button"
+                  class="flex w-full items-center justify-center rounded-lg px-2 py-2.5 text-sm font-medium transition hover:bg-white/5"
+                  :class="isGroupRouteActive(entry) ? 'nav-active' : 'text-slate-300'"
+                >
+                  <span
+                    class="nav-icon shrink-0 text-slate-500"
+                    :class="isGroupRouteActive(entry) ? '!text-indigo-300' : ''"
+                    v-html="icons[entry.icon]"
+                  />
+                </button>
+              </div>
+            </div>
+          </template>
         </nav>
 
         <div v-show="!sidebarCollapsed" class="border-t border-white/5 p-3">
           <div class="rounded-lg bg-white/5 px-3 py-2 text-[10px] leading-relaxed text-slate-500">
-            环境提示：生产操作将影响线上资金与路由，请谨慎变更。
+            聚合多通道生产环境：变更路由与资金类操作前请二次确认。
           </div>
         </div>
       </aside>
 
-      <!-- Main -->
       <main class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-slate-100/80">
         <div class="min-h-full w-full p-4 sm:p-6 lg:p-8">
           <RouterView />
@@ -259,38 +232,40 @@
     </div>
   </div>
 
-  <!-- 浮层挂到 body，避免被侧栏 nav 的 overflow-y-auto 裁剪 -->
   <Teleport to="body">
     <div
-      v-show="businessFlyout && sidebarCollapsed"
+      v-show="flyoutKey && sidebarCollapsed"
       class="fixed z-[300] min-w-[208px] overflow-hidden rounded-xl border border-slate-700 bg-slate-900 py-2 shadow-2xl ring-1 ring-black/50"
-      :style="{ top: `${businessFlyoutPos.top}px`, left: `${businessFlyoutPos.left}px` }"
-      @mouseenter="onBusinessFlyoutPanelEnter"
-      @mouseleave="onBusinessFlyoutPanelLeave"
+      :style="{ top: `${flyoutPos.top}px`, left: `${flyoutPos.left}px` }"
+      @mouseenter="onFlyoutPanelEnter"
+      @mouseleave="onFlyoutPanelLeave"
     >
-      <div class="border-b border-white/10 px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-        业务管理
-      </div>
-      <div class="mt-1 space-y-0.5 px-1">
-        <RouterLink
-          v-for="child in businessChildren"
-          :key="child.to"
-          :to="child.to"
-          class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
-          active-class="nav-flyout-active"
-          @click="closeBusinessFlyout"
-        >
-          <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-500" />
-          <span class="truncate">{{ child.label }}</span>
-        </RouterLink>
-      </div>
+      <template v-if="flyoutGroup">
+        <div class="border-b border-white/10 px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+          {{ flyoutGroup.label }}
+        </div>
+        <div class="mt-1 space-y-0.5 px-1">
+          <RouterLink
+            v-for="child in flyoutGroup.children"
+            :key="child.to"
+            :to="child.to"
+            class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
+            active-class="nav-flyout-active"
+            @click="closeFlyout"
+          >
+            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-500" />
+            <span class="truncate">{{ child.label }}</span>
+          </RouterLink>
+        </div>
+      </template>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
+import { adminMenu, adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuGroup } from '../adminMenu'
 import { adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
 
 type RefreshFn = () => void
@@ -315,17 +290,30 @@ const userMenuRoot = ref<HTMLElement | null>(null)
 
 const sidebarCollapsed = ref(typeof localStorage !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === '1')
 
-const businessOpen = ref(true)
-const businessFlyout = ref(false)
+const openGroups = reactive<Record<string, boolean>>({})
+for (const e of adminMenu) {
+  if (e.kind === 'group') openGroups[e.key] = true
+}
+
+const flyoutKey = ref<string | null>(null)
 const leafTooltip = ref<string | null>(null)
 
 const navScrollRef = ref<HTMLElement | null>(null)
-const businessHoverRef = ref<HTMLElement | null>(null)
-const businessFlyoutPos = ref({ top: 0, left: 0 })
+const groupTriggerRefs = ref<Record<string, HTMLElement | null>>({})
+const flyoutPos = ref({ top: 0, left: 0 })
 
 let leafTimer: ReturnType<typeof setTimeout> | null = null
-let businessTimer: ReturnType<typeof setTimeout> | null = null
+let groupTimer: ReturnType<typeof setTimeout> | null = null
 const HOVER_MS = 140
+
+function setGroupTriggerRef(key: string, el: unknown) {
+  if (!el) {
+    groupTriggerRefs.value[key] = null
+    return
+  }
+  const dom = el instanceof HTMLElement ? el : null
+  groupTriggerRefs.value[key] = dom
+}
 
 function clearLeafTimer() {
   if (leafTimer) {
@@ -334,54 +322,64 @@ function clearLeafTimer() {
   }
 }
 
-function clearBusinessTimer() {
-  if (businessTimer) {
-    clearTimeout(businessTimer)
-    businessTimer = null
+function clearGroupTimer() {
+  if (groupTimer) {
+    clearTimeout(groupTimer)
+    groupTimer = null
   }
 }
 
-function updateBusinessFlyoutPosition() {
-  const el = businessHoverRef.value
+function updateFlyoutPosition() {
+  const k = flyoutKey.value
+  if (!k) return
+  const el = groupTriggerRefs.value[k]
   if (!el) return
   const r = el.getBoundingClientRect()
-  businessFlyoutPos.value = { top: r.top, left: r.right + 8 }
+  flyoutPos.value = { top: r.top, left: r.right + 8 }
 }
 
-function onBusinessEnter() {
-  clearBusinessTimer()
+function onGroupFlyoutEnter(key: string) {
+  clearGroupTimer()
   clearLeafTimer()
   leafTooltip.value = null
-  businessFlyout.value = true
-  nextTick(() => updateBusinessFlyoutPosition())
+  flyoutKey.value = key
+  nextTick(() => updateFlyoutPosition())
 }
 
-function onBusinessLeave() {
-  clearBusinessTimer()
-  businessTimer = setTimeout(() => {
-    businessFlyout.value = false
-    businessTimer = null
+function onGroupFlyoutLeave() {
+  clearGroupTimer()
+  groupTimer = setTimeout(() => {
+    flyoutKey.value = null
+    groupTimer = null
   }, HOVER_MS)
 }
 
-function onBusinessFlyoutPanelEnter() {
-  clearBusinessTimer()
+function onFlyoutPanelEnter() {
+  clearGroupTimer()
 }
 
-function onBusinessFlyoutPanelLeave() {
-  onBusinessLeave()
+function onFlyoutPanelLeave() {
+  onGroupFlyoutLeave()
 }
 
-function closeBusinessFlyout() {
-  clearBusinessTimer()
-  businessFlyout.value = false
+function closeFlyout() {
+  clearGroupTimer()
+  flyoutKey.value = null
+}
+
+function toggleGroup(key: string) {
+  openGroups[key] = !openGroups[key]
+}
+
+function isGroupRouteActive(entry: AdminMenuGroup): boolean {
+  return pathBelongsToGroup(route.path, entry)
 }
 
 function onLeafEnter(path: string) {
   if (!sidebarCollapsed.value) return
   clearLeafTimer()
-  clearBusinessTimer()
-  businessFlyout.value = false
+  clearGroupTimer()
+  flyoutKey.value = null
   leafTooltip.value = path
 }
 
@@ -400,32 +398,28 @@ function toggleSidebar() {
   } catch {
   }
   clearLeafTimer()
-  clearBusinessTimer()
-  businessFlyout.value = false
+  clearGroupTimer()
+  flyoutKey.value = null
   leafTooltip.value = null
 }
 
-const icons = {
+const icons: Record<string, string> = {
   chart: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>`,
   briefcase: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zm-6 0h-4V5h4v2z" /></svg>`,
+  layers: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4 8-4M12 11v10" /></svg>`,
+  credit: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>`,
   shield: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`,
+  cog: `<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
 }
 
-const businessChildren = [
-  { to: '/merchants', label: '商户管理' },
-  { to: '/channels', label: '通道与路由' },
-]
+const pageTitle = computed(() => adminPathTitle[route.path] ?? '管理台')
 
-const isBusinessRoute = computed(() => route.path === '/merchants' || route.path === '/channels')
-
-const pathTitle: Record<string, string> = {
-  '/stats': '系统概览',
-  '/merchants': '商户管理',
-  '/channels': '通道与路由',
-  '/audit': '运营与审计',
-}
-
-const pageTitle = computed(() => pathTitle[route.path] ?? '管理台')
+const flyoutGroup = computed((): AdminMenuGroup | null => {
+  const k = flyoutKey.value
+  if (!k) return null
+  const e = adminMenu.find((x) => x.kind === 'group' && x.key === k)
+  return e && e.kind === 'group' ? e : null
+})
 
 const displayName = computed(() => '管理员')
 const userInitial = computed(() => displayName.value.slice(0, 1).toUpperCase())
@@ -454,36 +448,37 @@ function onDocClick(e: MouseEvent) {
 watch(
   () => route.path,
   (p) => {
-    if (p === '/merchants' || p === '/channels') businessOpen.value = true
+    const gk = findGroupKeyForPath(p)
+    if (gk) openGroups[gk] = true
   },
   { immediate: true },
 )
 
 watch(sidebarCollapsed, (c) => {
   if (!c) {
-    businessFlyout.value = false
+    flyoutKey.value = null
     leafTooltip.value = null
-  } else if (businessFlyout.value) {
-    nextTick(() => updateBusinessFlyoutPosition())
+  } else if (flyoutKey.value) {
+    nextTick(() => updateFlyoutPosition())
   }
 })
 
-watch(businessFlyout, (v) => {
-  if (v) nextTick(() => updateBusinessFlyoutPosition())
+watch(flyoutKey, (v) => {
+  if (v) nextTick(() => updateFlyoutPosition())
 })
 
 watchEffect((onCleanup) => {
   const nav = navScrollRef.value
   if (!nav) return
   const onScroll = () => {
-    if (businessFlyout.value) updateBusinessFlyoutPosition()
+    if (flyoutKey.value) updateFlyoutPosition()
   }
   nav.addEventListener('scroll', onScroll, { passive: true })
   onCleanup(() => nav.removeEventListener('scroll', onScroll))
 })
 
 function onWindowResizeOrScroll() {
-  if (businessFlyout.value) updateBusinessFlyoutPosition()
+  if (flyoutKey.value) updateFlyoutPosition()
 }
 
 onMounted(() => {
@@ -496,7 +491,7 @@ onUnmounted(() => {
 })
 onBeforeUnmount(() => {
   clearLeafTimer()
-  clearBusinessTimer()
+  clearGroupTimer()
 })
 </script>
 

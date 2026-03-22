@@ -1,9 +1,6 @@
 <template>
   <div class="space-y-8">
-    <div>
-      <h1 class="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">财务中心</h1>
-      <p class="mt-1 text-sm text-slate-600">资金流水、提现与对账（部分能力为占位）</p>
-    </div>
+    <PageHeader title="财务中心" description="资金流水、提现与对账（部分能力为占位）" />
 
     <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
       <div class="flex flex-wrap items-center justify-between gap-2">
@@ -45,9 +42,9 @@
     </div>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm">
+      <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white to-slate-50/50 p-6 shadow-sm">
         <div class="flex items-start gap-3">
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200/80 text-slate-700">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-1a2 2 0 00-2-2h-1" />
             </svg>
@@ -57,16 +54,16 @@
             <p class="mt-1 text-sm text-slate-600">发起余额提现至绑定银行卡（占位能力）</p>
             <button
               type="button"
-              class="mt-4 rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-50"
+              class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
             >
               发起提现
             </button>
           </div>
         </div>
       </div>
-      <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white to-cyan-50/30 p-6 shadow-sm">
+      <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white to-slate-50/50 p-6 shadow-sm">
         <div class="flex items-start gap-3">
-          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-800">
+          <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-200/80 text-slate-700">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
@@ -77,13 +74,13 @@
             <div class="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:bg-cyan-50"
+                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
               >
                 下载 CSV
               </button>
               <button
                 type="button"
-                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:bg-cyan-50"
+                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
               >
                 下载 Excel
               </button>
@@ -93,45 +90,35 @@
       </div>
     </div>
 
-    <div v-if="error" class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-      {{ error }}
-    </div>
+    <ErrorCallout v-if="error" :message="error" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { merchantConsoleGet } from '../../lib/merchantApi'
-
-type MerchantFundLogItem = {
-  id: number
-  order_no: string
-  change_type: string
-  amount: number
-  balance_before: number
-  balance_after: number
-  reason: string
-  created_at: number
-}
+import PageHeader from '@/components/layout/PageHeader.vue'
+import ErrorCallout from '@/components/ui/ErrorCallout.vue'
+import { fetchMerchantFundLogs } from '@/api/finance'
+import type { MerchantFundLogItem } from '@/types/merchant.api'
+import { formatUnixSeconds, formatYuanLabel } from '@/utils/format'
 
 const logs = ref<MerchantFundLogItem[]>([])
 const loading = ref(false)
 const error = ref('')
 
 function formatAmount(v: number) {
-  return `¥ ${(v / 100).toFixed(2)}`
+  return formatYuanLabel(v)
 }
 
 function formatTime(ts: number) {
-  const d = new Date(ts * 1000)
-  return d.toLocaleString()
+  return formatUnixSeconds(ts)
 }
 
 async function reload() {
   loading.value = true
   error.value = ''
   try {
-    const res = await merchantConsoleGet<{ logs: MerchantFundLogItem[] }>('/v1/merchant/fund_logs', { limit: 50 })
+    const res = await fetchMerchantFundLogs(50)
     logs.value = res.logs || []
   } catch {
     error.value = '加载失败：请确认已登录且网关已启动。'

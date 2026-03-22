@@ -1,12 +1,12 @@
 <template>
-  <div class="relative flex min-h-full flex-col overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
-    <div class="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
-    <div class="pointer-events-none absolute -right-16 bottom-10 h-64 w-64 rounded-full bg-cyan-300/25 blur-3xl" />
+  <div class="relative flex min-h-full flex-col overflow-hidden bg-gradient-to-br from-slate-100/90 via-white to-slate-50">
+    <div class="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-slate-300/25 blur-3xl" />
+    <div class="pointer-events-none absolute -right-16 bottom-10 h-64 w-64 rounded-full bg-slate-400/15 blur-3xl" />
 
     <div class="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-12 sm:py-16">
       <div class="mb-8 flex flex-col items-center text-center">
         <div
-          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-lg font-bold text-white shadow-xl shadow-emerald-500/30"
+          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 text-lg font-bold text-white shadow-xl shadow-slate-900/20"
         >
           P
         </div>
@@ -20,7 +20,7 @@
             <span class="text-xs font-medium text-slate-600">商户号 merchant_id</span>
             <input
               v-model.trim="merchantId"
-              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition placeholder:text-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/25"
               autocomplete="username"
             />
           </label>
@@ -28,14 +28,14 @@
             <span class="text-xs font-medium text-slate-600">API 密钥 api_secret</span>
             <input
               v-model.trim="apiSecret"
-              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/25"
               type="password"
               autocomplete="current-password"
             />
           </label>
           <button
             type="button"
-            class="mt-2 flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-500 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-40"
+            class="mt-2 flex w-full items-center justify-center rounded-xl bg-slate-800 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500/40 disabled:cursor-not-allowed disabled:opacity-40"
             :disabled="loading || !merchantId || !apiSecret"
             @click="login"
           >
@@ -64,13 +64,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { saveMerchantAuth, saveMerchantSession } from '../lib/merchantApi'
-
-type MerchantLoginResp = {
-  token: string
-  expires_at: number
-  merchant_id: string
-}
+import { MERCHANT_API } from '@/api/endpoints'
+import { saveMerchantAuth, saveMerchantSession } from '@/lib/merchantApi'
+import type { MerchantLoginResponse } from '@/types/merchant.api'
 
 const router = useRouter()
 const merchantId = ref(localStorage.getItem('merchant_id') || 'm_demo')
@@ -82,7 +78,7 @@ async function login() {
   loading.value = true
   error.value = ''
   try {
-    const resp = await fetch('/v1/merchant/login', {
+    const resp = await fetch(MERCHANT_API.login, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ merchant_id: merchantId.value, api_secret: apiSecret.value }),
@@ -91,7 +87,7 @@ async function login() {
       error.value = `登录失败（${resp.status}）`
       return
     }
-    const data = (await resp.json()) as MerchantLoginResp
+    const data = (await resp.json()) as MerchantLoginResponse
     saveMerchantAuth({ merchantId: merchantId.value, apiSecret: apiSecret.value })
     saveMerchantSession({ token: data.token, expiresAt: data.expires_at, merchantId: data.merchant_id })
     await router.replace('/console')

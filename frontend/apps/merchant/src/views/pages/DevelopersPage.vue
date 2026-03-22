@@ -33,7 +33,7 @@
 
     <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
       <div class="flex flex-wrap items-center gap-2">
-        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">2</span>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-xs font-bold text-white">2</span>
         <h2 class="text-sm font-semibold text-slate-900">下单联调</h2>
       </div>
       <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">/v1/pay/order</code> 创建订单并跳转收银台。</p>
@@ -52,7 +52,7 @@
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
-          class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:from-emerald-500 hover:to-teal-500 disabled:cursor-not-allowed disabled:opacity-40"
+          class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="loading || !merchantId || !apiSecret || !merchantOrderNo || amount <= 0"
           @click="createOrder"
         >
@@ -67,13 +67,13 @@
         </button>
       </div>
 
-      <div v-if="result" class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-4 text-sm text-emerald-950">
+      <div v-if="result" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-4 text-sm text-slate-900">
         <div class="font-mono text-xs">
           order_no: <span class="font-semibold">{{ result.order_no }}</span>
         </div>
         <div class="mt-3 flex flex-wrap gap-3">
-          <a class="font-semibold text-emerald-800 underline decoration-emerald-400/80 underline-offset-2 hover:text-emerald-900" :href="result.checkout_url" target="_blank" rel="noreferrer">打开 checkout_url</a>
-          <a class="font-semibold text-emerald-800 underline decoration-emerald-400/80 underline-offset-2 hover:text-emerald-900" :href="localCheckoutUrl" target="_blank" rel="noreferrer">打开独立收银台</a>
+          <a class="font-semibold text-slate-800 underline decoration-slate-400/90 underline-offset-2 hover:text-slate-950" :href="result.checkout_url" target="_blank" rel="noreferrer">打开 checkout_url</a>
+          <a class="font-semibold text-slate-800 underline decoration-slate-400/90 underline-offset-2 hover:text-slate-950" :href="localCheckoutUrl" target="_blank" rel="noreferrer">打开独立收银台</a>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
 
     <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
       <div class="flex flex-wrap items-center gap-2">
-        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600 text-xs font-bold text-white">3</span>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-600 text-xs font-bold text-white">3</span>
         <h2 class="text-sm font-semibold text-slate-900">模拟上游回调</h2>
       </div>
       <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">/v1/callback/notify</code>，验证支付成功、入账与异步通知。</p>
@@ -111,7 +111,7 @@
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="button"
-          class="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-500/20 transition hover:from-violet-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+          class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="mockLoading || !result?.order_no || mockChannelId <= 0 || mockPaidAmount <= 0 || !mockUpstreamTradeNo || !mockChannelSecret"
           @click="mockNotify"
         >
@@ -126,7 +126,7 @@
         </button>
       </div>
 
-      <div v-if="mockOk" class="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">回调成功</div>
+      <div v-if="mockOk" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900">回调成功</div>
       <div v-if="mockError" class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
         {{ mockError }}
       </div>
@@ -165,7 +165,8 @@
 <script setup lang="ts">
 import md5 from 'blueimp-md5'
 import { computed, ref, watch } from 'vue'
-import { loadMerchantAuth, saveMerchantAuth } from '../../lib/merchantApi'
+import { OPEN_API } from '@/api/endpoints'
+import { loadMerchantAuth, saveMerchantAuth } from '@/lib/merchantApi'
 
 type CreateOrderResp = {
   order_no: string
@@ -232,7 +233,7 @@ async function createOrder() {
       notify_url: notifyUrl.value,
     }
     const sign = md5Sign(params, apiSecret.value)
-    const resp = await fetch('/v1/pay/order', {
+    const resp = await fetch(OPEN_API.payOrder, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...params, sign }),
@@ -266,7 +267,7 @@ async function mockNotify() {
       channel_id: String(mockChannelId.value),
     }
     const sign = md5Sign(params, mockChannelSecret.value)
-    const resp = await fetch('/v1/callback/notify', {
+    const resp = await fetch(OPEN_API.callbackNotify, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...params, sign }),
@@ -350,9 +351,9 @@ const signOutput = computed(() => {
 
 <style scoped>
 .input-merchant {
-  @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-inner transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20;
+  @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-inner transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20;
 }
 .textarea-merchant {
-  @apply w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-xs text-slate-900 shadow-inner focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20;
+  @apply w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-xs text-slate-900 shadow-inner focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20;
 }
 </style>
