@@ -1,4 +1,4 @@
-package config
+package consulx
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func BindJSON[T any](ctx context.Context, s *Store, key string, dst *Var[T]) (func(), error) {
+func BindJSON[T any](ctx context.Context, s *ConfigStore, key string, dst *Var[T]) (func(), error) {
 	if s == nil {
 		return func() {}, errors.New("store required")
 	}
@@ -40,7 +40,7 @@ func BindJSON[T any](ctx context.Context, s *Store, key string, dst *Var[T]) (fu
 		}
 	}
 
-	cancel := s.OnKey(key, func(ev Event) {
+	cancel := s.OnKey(key, func(ev ConfigEvent) {
 		apply(ev.Data)
 	})
 	return cancel, nil

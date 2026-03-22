@@ -7,8 +7,7 @@ import (
 	"database/sql"
 
 	"github.com/gloopai/pay/channel/channelclient"
-	consulconfig "github.com/gloopai/pay/common/consul/config"
-	consulresolver "github.com/gloopai/pay/common/consul/resolver"
+	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/store"
@@ -41,7 +40,7 @@ type ServiceContext struct {
 
 	NsqProducer *nsq.Producer
 
-	RuntimeConfig *consulconfig.Store
+	RuntimeConfig *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -53,7 +52,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	consulresolver.Register()
+	consulx.RegisterResolver()
 
 	orderCli := zrpc.MustNewClient(c.OrderRpc)
 	settleCli := zrpc.MustNewClient(c.SettleRpc)
@@ -73,8 +72,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	notifyLogsStore := store.NewNotifyLogsStore(sqlDB)
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	sessionsStore := store.NewSessionsStore(sqlDB)
-	var runtimeCfg *consulconfig.Store
-	if cfg, err := consulconfig.NewStore("", consulconfig.GlobalPrefix(), consulconfig.ServicePrefix(c.Name)); err == nil {
+	var runtimeCfg *consulx.ConfigStore
+	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
 	}

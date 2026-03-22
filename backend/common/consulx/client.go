@@ -1,4 +1,4 @@
-package consul
+package consulx
 
 import (
 	"net/url"

@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gloopai/pay/common/consul"
+	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/handler"
 	"github.com/gloopai/pay/gateway/internal/middleware"
@@ -34,7 +34,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	consul.SetBaseConfig(consul.BaseConfig{Addr: c.Consul.Addr})
+	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
 	server := rest.MustNewServer(c.RestConf)
 	server.Use(middleware.NewTraceHeaderMiddleware().Handle)
@@ -44,7 +44,7 @@ func main() {
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 
-	reg, err := consul.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, fmt.Sprintf("%s:%d", c.Host, c.Port), c.Consul.Host)
+	reg, err := consulx.RegisterService(c.Consul.Addr, c.Consul.Service, c.Consul.ID, fmt.Sprintf("%s:%d", c.Host, c.Port), c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}

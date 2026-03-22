@@ -18,7 +18,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gloopai/pay/common/consul"
+	"github.com/gloopai/pay/common/consulx"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
 )
@@ -43,7 +43,7 @@ func main() {
 	)
 	flag.Parse()
 
-	consul.SetBaseConfig(consul.BaseConfig{Addr: *consulAddr})
+	consulx.SetBaseConfig(consulx.BaseConfig{Addr: *consulAddr})
 
 	db, err := sql.Open("mysql", *mysqlDSN)
 	if err != nil {
@@ -75,7 +75,7 @@ func main() {
 		}
 	}()
 
-	reg, err := consul.Register(*consulAddr, *consulSvc, *consulID, healthSrv.Addr, *consulHost)
+	reg, err := consulx.RegisterService(*consulAddr, *consulSvc, *consulID, healthSrv.Addr, *consulHost)
 	if err != nil {
 		panic(err)
 	}

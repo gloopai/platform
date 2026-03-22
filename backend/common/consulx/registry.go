@@ -1,4 +1,4 @@
-package consul
+package consulx
 
 import (
 	"errors"
@@ -9,12 +9,12 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-type Registrar struct {
+type ServiceRegistrar struct {
 	serviceID string
 	client    *api.Client
 }
 
-func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Registrar, error) {
+func RegisterService(consulAddr, serviceName, serviceID, listenOn, host string) (*ServiceRegistrar, error) {
 	consulAddr = strings.TrimSpace(consulAddr)
 	if consulAddr == "" {
 		return nil, errors.New("consul addr required")
@@ -45,11 +45,11 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 
 	checkHost := host
 	if host == "127.0.0.1" || host == "localhost" {
-		client, err := NewClient(consulAddr)
+		cli, err := NewClient(consulAddr)
 		if err != nil {
 			return nil, err
 		}
-		nodeName := consulNodeName(client)
+		nodeName := consulNodeName(cli)
 		if isLikelyDockerNodeName(nodeName) {
 			checkHost = "host.docker.internal"
 		}
@@ -64,13 +64,13 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 				DeregisterCriticalServiceAfter: "1m",
 			},
 		}
-		if err := client.Agent().ServiceRegister(reg); err != nil {
+		if err := cli.Agent().ServiceRegister(reg); err != nil {
 			return nil, err
 		}
-		return &Registrar{serviceID: serviceID, client: client}, nil
+		return &ServiceRegistrar{serviceID: serviceID, client: cli}, nil
 	}
 
-	client, err := NewClient(consulAddr)
+	cli, err := NewClient(consulAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -85,14 +85,14 @@ func Register(consulAddr, serviceName, serviceID, listenOn, host string) (*Regis
 			DeregisterCriticalServiceAfter: "1m",
 		},
 	}
-	if err := client.Agent().ServiceRegister(reg); err != nil {
+	if err := cli.Agent().ServiceRegister(reg); err != nil {
 		return nil, err
 	}
 
-	return &Registrar{serviceID: serviceID, client: client}, nil
+	return &ServiceRegistrar{serviceID: serviceID, client: cli}, nil
 }
 
-func (r *Registrar) Deregister() error {
+func (r *ServiceRegistrar) Deregister() error {
 	if r == nil || r.serviceID == "" || r.client == nil {
 		return nil
 	}

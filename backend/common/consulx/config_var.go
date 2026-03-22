@@ -1,4 +1,4 @@
-package config
+package consulx
 
 import "sync/atomic"
 

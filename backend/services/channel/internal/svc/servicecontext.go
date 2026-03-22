@@ -5,7 +5,7 @@ import (
 
 	"github.com/gloopai/pay/channel/internal/config"
 	"github.com/gloopai/pay/channel/internal/store"
-	consulconfig "github.com/gloopai/pay/common/consul/config"
+	"github.com/gloopai/pay/common/consulx"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -13,7 +13,7 @@ type ServiceContext struct {
 	Config        config.Config
 	Sql           *sql.DB
 	Store         *store.ChannelsStore
-	RuntimeConfig *consulconfig.Store
+	RuntimeConfig *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -24,8 +24,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
-	var runtimeCfg *consulconfig.Store
-	if cfg, err := consulconfig.NewStore("", consulconfig.GlobalPrefix(), consulconfig.ServicePrefix(c.Name)); err == nil {
+	var runtimeCfg *consulx.ConfigStore
+	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
 	}

@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gloopai/pay/common/consul"
+	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/settle/internal/config"
 	"github.com/gloopai/pay/settle/internal/server"
 	"github.com/gloopai/pay/settle/internal/svc"
@@ -34,7 +34,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	consul.SetBaseConfig(consul.BaseConfig{Addr: c.Consul.Addr})
+	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
@@ -47,7 +47,7 @@ func main() {
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 
-	reg, err := consul.Register(c.Consul.Addr, c.Consul.Service, c.Consul.ID, c.ListenOn, c.Consul.Host)
+	reg, err := consulx.RegisterService(c.Consul.Addr, c.Consul.Service, c.Consul.ID, c.ListenOn, c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}

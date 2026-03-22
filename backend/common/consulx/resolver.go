@@ -1,4 +1,4 @@
-package resolver
+package consulx
 
 import (
 	"context"
@@ -7,30 +7,29 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gloopai/pay/common/consul"
 	"github.com/hashicorp/consul/api"
 	grpcresolver "google.golang.org/grpc/resolver"
 )
 
-var once sync.Once
+var resolverOnce sync.Once
 
-func Register() {
-	once.Do(func() {
-		grpcresolver.Register(&builder{})
+func RegisterResolver() {
+	resolverOnce.Do(func() {
+		grpcresolver.Register(&resolverBuilder{})
 	})
 }
 
-type builder struct{}
+type resolverBuilder struct{}
 
-func (b *builder) Scheme() string { return "consul" }
+func (b *resolverBuilder) Scheme() string { return "consul" }
 
-func (b *builder) Build(target grpcresolver.Target, cc grpcresolver.ClientConn, _ grpcresolver.BuildOptions) (grpcresolver.Resolver, error) {
+func (b *resolverBuilder) Build(target grpcresolver.Target, cc grpcresolver.ClientConn, _ grpcresolver.BuildOptions) (grpcresolver.Resolver, error) {
 	consulAddr := strings.TrimSpace(target.URL.Host)
 	service := strings.TrimPrefix(strings.TrimSpace(target.URL.Path), "/")
 	if service == "" {
 		service = strings.TrimSpace(target.Endpoint())
 	}
-	client, err := consul.NewClient(consulAddr)
+	client, err := NewClient(consulAddr)
 	if err != nil {
 		return nil, err
 	}
