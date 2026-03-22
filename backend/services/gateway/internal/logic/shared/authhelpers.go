@@ -1,4 +1,4 @@
-package logic
+package shared
 
 import (
 	"crypto/rand"
@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 )
 
-func newToken() (string, error) {
+func NewToken() (string, error) {
 	var b [32]byte
 	if _, err := rand.Read(b[:]); err != nil {
 		return "", err
@@ -14,8 +14,7 @@ func newToken() (string, error) {
 	return hex.EncodeToString(b[:]), nil
 }
 
-func tokenHash(token string) string {
+func TokenHash(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])
 }
-

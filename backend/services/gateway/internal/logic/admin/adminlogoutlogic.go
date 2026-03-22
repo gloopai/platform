@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,7 +32,6 @@ func (l *AdminLogoutLogic) AdminLogout(token string) (*types.AdminLogoutResp, er
 	if l.svcCtx.Config.AdminToken != "" && tok == l.svcCtx.Config.AdminToken {
 		return &types.AdminLogoutResp{Ok: true}, nil
 	}
-	_ = l.svcCtx.Sessions.DeleteAdminSession(l.ctx, tokenHash(tok))
+	_ = l.svcCtx.Sessions.DeleteAdminSession(l.ctx, shared.TokenHash(tok))
 	return &types.AdminLogoutResp{Ok: true}, nil
 }
-

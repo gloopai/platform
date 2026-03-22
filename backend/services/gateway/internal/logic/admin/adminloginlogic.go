@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -42,12 +43,12 @@ func (l *AdminLoginLogic) AdminLogin(req *types.AdminLoginReq) (*types.AdminLogi
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	tok, err := newToken()
+	tok, err := shared.NewToken()
 	if err != nil {
 		return nil, err
 	}
 	expiresAt := time.Now().Add(24 * time.Hour)
-	if err := l.svcCtx.Sessions.CreateAdminSession(l.ctx, u.ID, tokenHash(tok), expiresAt); err != nil {
+	if err := l.svcCtx.Sessions.CreateAdminSession(l.ctx, u.ID, shared.TokenHash(tok), expiresAt); err != nil {
 		return nil, err
 	}
 	return &types.AdminLoginResp{
@@ -55,4 +56,3 @@ func (l *AdminLoginLogic) AdminLogin(req *types.AdminLoginReq) (*types.AdminLogi
 		ExpiresAt: expiresAt.Unix(),
 	}, nil
 }
-

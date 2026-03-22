@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
+	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -34,7 +35,7 @@ func (l *AdminUpdateMerchantLogic) AdminUpdateMerchant(req *types.AdminUpdateMer
 
 	secret := ""
 	if req.ResetSecret {
-		tok, err := newToken()
+		tok, err := shared.NewToken()
 		if err != nil {
 			return nil, err
 		}
