@@ -7,7 +7,7 @@ import (
 
 	"github.com/gloopai/pay/merchant/internal/store"
 	"github.com/gloopai/pay/merchant/internal/svc"
-	merchantpb "github.com/gloopai/pay/merchant/merchant"
+	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

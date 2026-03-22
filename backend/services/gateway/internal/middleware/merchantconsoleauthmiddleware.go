@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/gateway/internal/store"
-	"github.com/gloopai/pay/merchant/merchantclient"
+	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 )
 
 type MerchantConsoleAuthMiddleware struct {

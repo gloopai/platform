@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gloopai/pay/merchant/merchantclient"
+	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

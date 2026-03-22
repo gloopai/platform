@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-	"github.com/gloopai/pay/merchant/merchantclient"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -7,7 +7,7 @@ package settleclient
 import (
 	"context"
 
-	"github.com/gloopai/pay/settle/settle/settle"
+	"github.com/gloopai/pay/common/pb/settle"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

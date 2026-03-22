@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
+	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/order/internal/svc"
-	"github.com/gloopai/pay/order/order/order"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -25,7 +25,7 @@ func NewMarkPaidLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MarkPaid
 	}
 }
 
-func (l *MarkPaidLogic) MarkPaid(in *order.MarkPaidReq) (*order.MarkPaidResp, error) {
+func (l *MarkPaidLogic) MarkPaid(in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp, error) {
 	if in.GetOrderNo() == "" {
 		return nil, status.Error(codes.InvalidArgument, "order_no required")
 	}
@@ -37,5 +37,5 @@ func (l *MarkPaidLogic) MarkPaid(in *order.MarkPaidReq) (*order.MarkPaidResp, er
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mark paid failed")
 	}
-	return &order.MarkPaidResp{Changed: changed}, nil
+	return &orderpb.MarkPaidResp{Changed: changed}, nil
 }

@@ -6,14 +6,14 @@ package svc
 import (
 	"database/sql"
 
-	"github.com/gloopai/pay/channel/channelclient"
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/grpcclient/channelclient"
+	"github.com/gloopai/pay/common/grpcclient/merchantclient"
+	"github.com/gloopai/pay/common/grpcclient/orderclient"
+	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/store"
-	"github.com/gloopai/pay/merchant/merchantclient"
-	"github.com/gloopai/pay/order/orderclient"
-	"github.com/gloopai/pay/settle/settleclient"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
 	"github.com/zeromicro/go-zero/rest"

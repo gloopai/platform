@@ -7,7 +7,7 @@ package channelclient
 import (
 	"context"
 
-	"github.com/gloopai/pay/channel/channel/channel"
+	"github.com/gloopai/pay/common/pb/channel"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

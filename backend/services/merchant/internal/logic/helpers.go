@@ -2,7 +2,7 @@ package logic
 
 import (
 	"github.com/gloopai/pay/merchant/internal/store"
-	merchantpb "github.com/gloopai/pay/merchant/merchant"
+	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 )
 
 func toMerchantInfo(m *store.Merchant) *merchantpb.MerchantInfo {

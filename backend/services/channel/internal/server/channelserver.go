@@ -7,14 +7,14 @@ package server
 import (
 	"context"
 
-	"github.com/gloopai/pay/channel/channel/channel"
 	"github.com/gloopai/pay/channel/internal/logic"
 	"github.com/gloopai/pay/channel/internal/svc"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 )
 
 type ChannelServer struct {
 	svcCtx *svc.ServiceContext
-	channel.UnimplementedChannelServer
+	channelpb.UnimplementedChannelServer
 }
 
 func NewChannelServer(svcCtx *svc.ServiceContext) *ChannelServer {
@@ -23,7 +23,7 @@ func NewChannelServer(svcCtx *svc.ServiceContext) *ChannelServer {
 	}
 }
 
-func (s *ChannelServer) Route(ctx context.Context, in *channel.RouteReq) (*channel.RouteResp, error) {
+func (s *ChannelServer) Route(ctx context.Context, in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
 	l := logic.NewRouteLogic(ctx, s.svcCtx)
 	return l.Route(in)
 }

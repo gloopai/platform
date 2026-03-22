@@ -7,11 +7,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	channelpb "github.com/gloopai/pay/channel/channel/channel"
 	"github.com/gloopai/pay/channel/internal/config"
 	"github.com/gloopai/pay/channel/internal/server"
 	"github.com/gloopai/pay/channel/internal/svc"
 	"github.com/gloopai/pay/common/consulx"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"

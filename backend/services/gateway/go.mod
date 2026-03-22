@@ -2,22 +2,10 @@ module github.com/gloopai/pay/gateway
 
 go 1.25.7
 
-replace github.com/gloopai/pay/channel => ../channel
-
-replace github.com/gloopai/pay/order => ../order
-
-replace github.com/gloopai/pay/settle => ../settle
-
-replace github.com/gloopai/pay/merchant => ../merchant
-
 replace github.com/gloopai/pay/common => ../../common
 
 require (
-	github.com/gloopai/pay/channel v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/merchant v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/order v0.0.0-00010101000000-000000000000
-	github.com/gloopai/pay/settle v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/zeromicro/go-zero v1.10.0

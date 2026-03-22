@@ -7,7 +7,7 @@ package orderclient
 import (
 	"context"
 
-	"github.com/gloopai/pay/order/order/order"
+	"github.com/gloopai/pay/common/pb/order"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

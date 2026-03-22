@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"github.com/gloopai/pay/channel/channel/channel"
 	"github.com/gloopai/pay/channel/internal/svc"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -25,11 +25,11 @@ func NewRouteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RouteLogic 
 	}
 }
 
-func (l *RouteLogic) Route(in *channel.RouteReq) (*channel.RouteResp, error) {
+func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
 	channelId, err := l.svcCtx.Store.Route(l.ctx, in.GetPayType(), in.GetAmount())
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
 	}
 
-	return &channel.RouteResp{ChannelId: channelId}, nil
+	return &channelpb.RouteResp{ChannelId: channelId}, nil
 }

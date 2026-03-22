@@ -10,7 +10,7 @@ import (
 
 	"github.com/gloopai/pay/order/internal/store"
 	"github.com/gloopai/pay/order/internal/svc"
-	"github.com/gloopai/pay/order/order/order"
+	orderpb "github.com/gloopai/pay/common/pb/order"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -31,7 +31,7 @@ func NewCreateOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 	}
 }
 
-func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderReq) (*order.CreateOrderResp, error) {
+func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.CreateOrderResp, error) {
 	if in.GetMerchantId() == "" || in.GetMerchantOrderNo() == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id and merchant_order_no required")
 	}
@@ -41,7 +41,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderReq) (*order.CreateO
 
 	existing, err := l.svcCtx.Orders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 	if err == nil {
-		return &order.CreateOrderResp{
+		return &orderpb.CreateOrderResp{
 			Order:   toOrderInfo(existing),
 			Existed: true,
 		}, nil
@@ -58,7 +58,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderReq) (*order.CreateO
 	if !ok {
 		existing, err := l.svcCtx.Orders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 		if err == nil {
-			return &order.CreateOrderResp{
+			return &orderpb.CreateOrderResp{
 				Order:   toOrderInfo(existing),
 				Existed: true,
 			}, nil
@@ -97,7 +97,7 @@ func (l *CreateOrderLogic) CreateOrder(in *order.CreateOrderReq) (*order.CreateO
 		return nil, status.Error(codes.Internal, "load created order failed")
 	}
 
-	return &order.CreateOrderResp{
+	return &orderpb.CreateOrderResp{
 		Order:   toOrderInfo(created),
 		Existed: false,
 	}, nil
@@ -111,8 +111,8 @@ func newOrderNo() (string, error) {
 	return "P" + time.Now().UTC().Format("20060102150405") + hex.EncodeToString(b[:8]), nil
 }
 
-func toOrderInfo(rec *store.OrderRecord) *order.OrderInfo {
-	return &order.OrderInfo{
+func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
+	return &orderpb.OrderInfo{
 		OrderNo:         rec.OrderNo,
 		MerchantId:      rec.MerchantId,
 		MerchantOrderNo: rec.MerchantOrderNo,

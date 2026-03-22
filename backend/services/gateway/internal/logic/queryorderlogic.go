@@ -6,9 +6,9 @@ package logic
 import (
 	"context"
 
+	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-	"github.com/gloopai/pay/order/orderclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

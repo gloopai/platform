@@ -4,7 +4,9 @@ go 1.25.7
 
 require (
 	github.com/hashicorp/consul/api v1.33.4
+	github.com/zeromicro/go-zero v1.10.0
 	google.golang.org/grpc v1.79.3
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -24,5 +26,4 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	golang.org/x/exp v0.0.0-20250808145144-a408d31f581a // indirect
 	golang.org/x/sys v0.39.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
 )

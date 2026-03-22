@@ -7,7 +7,7 @@ package merchantclient
 import (
 	"context"
 
-	"github.com/gloopai/pay/merchant/merchant"
+	"github.com/gloopai/pay/common/pb/merchant"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

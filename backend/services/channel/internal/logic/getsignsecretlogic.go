@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/gloopai/pay/channel/channel/channel"
 	"github.com/gloopai/pay/channel/internal/svc"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,7 +25,7 @@ func NewGetSignSecretLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 	}
 }
 
-func (l *GetSignSecretLogic) GetSignSecret(in *channel.GetSignSecretReq) (*channel.GetSignSecretResp, error) {
+func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*channelpb.GetSignSecretResp, error) {
 	if in.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
@@ -36,5 +36,5 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channel.GetSignSecretReq) (*chann
 		}
 		return nil, status.Error(codes.Internal, "query channel failed")
 	}
-	return &channel.GetSignSecretResp{SignSecret: secret}, nil
+	return &channelpb.GetSignSecretResp{SignSecret: secret}, nil
 }

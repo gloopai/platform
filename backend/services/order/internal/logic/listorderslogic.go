@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/order/internal/svc"
-	"github.com/gloopai/pay/order/order/order"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -26,7 +26,7 @@ func NewListOrdersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListOr
 	}
 }
 
-func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrdersResp, error) {
+func (l *ListOrdersLogic) ListOrders(in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
 	merchantId := strings.TrimSpace(in.GetMerchantId())
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
@@ -37,10 +37,10 @@ func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrders
 		return nil, status.Error(codes.Internal, "list orders failed")
 	}
 
-	out := make([]*order.OrderInfo, 0, len(records))
+	out := make([]*orderpb.OrderInfo, 0, len(records))
 	for i := range records {
 		rec := records[i]
 		out = append(out, toOrderInfo(&rec))
 	}
-	return &order.ListOrdersResp{Orders: out}, nil
+	return &orderpb.ListOrdersResp{Orders: out}, nil
 }

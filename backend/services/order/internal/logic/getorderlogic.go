@@ -7,7 +7,7 @@ import (
 
 	"github.com/gloopai/pay/order/internal/store"
 	"github.com/gloopai/pay/order/internal/svc"
-	"github.com/gloopai/pay/order/order/order"
+	orderpb "github.com/gloopai/pay/common/pb/order"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -28,7 +28,7 @@ func NewGetOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOrder
 	}
 }
 
-func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, error) {
+func (l *GetOrderLogic) GetOrder(in *orderpb.GetOrderReq) (*orderpb.GetOrderResp, error) {
 	var (
 		rec *store.OrderRecord
 		err error
@@ -51,7 +51,7 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, er
 		return nil, status.Error(codes.NotFound, "order not found")
 	}
 
-	return &order.GetOrderResp{
+	return &orderpb.GetOrderResp{
 		Order: toOrderInfo(rec),
 	}, nil
 }

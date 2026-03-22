@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
+	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/settle/internal/svc"
-	"github.com/gloopai/pay/settle/settle/settle"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -25,7 +25,7 @@ func NewCreditLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreditLogi
 	}
 }
 
-func (l *CreditLogic) Credit(in *settle.CreditReq) (*settle.CreditResp, error) {
+func (l *CreditLogic) Credit(in *settlepb.CreditReq) (*settlepb.CreditResp, error) {
 	if in.GetMerchantId() == "" || in.GetOrderNo() == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id and order_no required")
 	}
@@ -37,7 +37,7 @@ func (l *CreditLogic) Credit(in *settle.CreditReq) (*settle.CreditResp, error) {
 	if err != nil {
 		return nil, status.Error(codes.Internal, "credit failed")
 	}
-	return &settle.CreditResp{
+	return &settlepb.CreditResp{
 		Changed: changed,
 		Balance: balance,
 	}, nil

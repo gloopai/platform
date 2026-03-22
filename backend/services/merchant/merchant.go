@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	"github.com/gloopai/pay/common/consulx"
+	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	"github.com/gloopai/pay/merchant/internal/config"
 	"github.com/gloopai/pay/merchant/internal/server"
 	"github.com/gloopai/pay/merchant/internal/svc"
-	merchantpb "github.com/gloopai/pay/merchant/merchant"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"

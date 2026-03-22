@@ -7,14 +7,14 @@ package server
 import (
 	"context"
 
+	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/settle/internal/logic"
 	"github.com/gloopai/pay/settle/internal/svc"
-	"github.com/gloopai/pay/settle/settle/settle"
 )
 
 type SettleServer struct {
 	svcCtx *svc.ServiceContext
-	settle.UnimplementedSettleServer
+	settlepb.UnimplementedSettleServer
 }
 
 func NewSettleServer(svcCtx *svc.ServiceContext) *SettleServer {
@@ -23,7 +23,7 @@ func NewSettleServer(svcCtx *svc.ServiceContext) *SettleServer {
 	}
 }
 
-func (s *SettleServer) Credit(ctx context.Context, in *settle.CreditReq) (*settle.CreditResp, error) {
+func (s *SettleServer) Credit(ctx context.Context, in *settlepb.CreditReq) (*settlepb.CreditResp, error) {
 	l := logic.NewCreditLogic(ctx, s.svcCtx)
 	return l.Credit(in)
 }

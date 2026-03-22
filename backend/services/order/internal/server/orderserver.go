@@ -9,12 +9,12 @@ import (
 
 	"github.com/gloopai/pay/order/internal/logic"
 	"github.com/gloopai/pay/order/internal/svc"
-	"github.com/gloopai/pay/order/order/order"
+	orderpb "github.com/gloopai/pay/common/pb/order"
 )
 
 type OrderServer struct {
 	svcCtx *svc.ServiceContext
-	order.UnimplementedOrderServer
+	orderpb.UnimplementedOrderServer
 }
 
 func NewOrderServer(svcCtx *svc.ServiceContext) *OrderServer {
@@ -23,17 +23,17 @@ func NewOrderServer(svcCtx *svc.ServiceContext) *OrderServer {
 	}
 }
 
-func (s *OrderServer) CreateOrder(ctx context.Context, in *order.CreateOrderReq) (*order.CreateOrderResp, error) {
+func (s *OrderServer) CreateOrder(ctx context.Context, in *orderpb.CreateOrderReq) (*orderpb.CreateOrderResp, error) {
 	l := logic.NewCreateOrderLogic(ctx, s.svcCtx)
 	return l.CreateOrder(in)
 }
 
-func (s *OrderServer) GetOrder(ctx context.Context, in *order.GetOrderReq) (*order.GetOrderResp, error) {
+func (s *OrderServer) GetOrder(ctx context.Context, in *orderpb.GetOrderReq) (*orderpb.GetOrderResp, error) {
 	l := logic.NewGetOrderLogic(ctx, s.svcCtx)
 	return l.GetOrder(in)
 }
 
-func (s *OrderServer) MarkPaid(ctx context.Context, in *order.MarkPaidReq) (*order.MarkPaidResp, error) {
+func (s *OrderServer) MarkPaid(ctx context.Context, in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp, error) {
 	l := logic.NewMarkPaidLogic(ctx, s.svcCtx)
 	return l.MarkPaid(in)
 }

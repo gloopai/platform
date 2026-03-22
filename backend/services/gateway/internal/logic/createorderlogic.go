@@ -7,10 +7,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/channel/channelclient"
+	"github.com/gloopai/pay/common/grpcclient/channelclient"
+	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
-	"github.com/gloopai/pay/order/orderclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

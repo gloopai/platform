@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package merchant;
-option go_package="./merchant";
+option go_package = "github.com/gloopai/pay/common/pb/merchant;merchant";
 
 service Merchant {
   rpc GetMerchant(GetMerchantReq) returns(GetMerchantResp);
@@ -77,4 +77,3 @@ message UpdateMerchantReq {
 message UpsertMerchantResp {
   MerchantInfo merchant = 1;
 }
-
