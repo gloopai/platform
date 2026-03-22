@@ -1,9 +1,0 @@
-go 1.25.7
-
-use (
-	./common
-	./services/core
-	./services/gateway
-	./services/notice-consumer
-	./services/trade
-)
