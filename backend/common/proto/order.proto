@@ -199,6 +199,8 @@ message AdminListOrdersResp {
 message AdminDayOverviewReq {
   // 自然日 YYYY-MM-DD（服务器本地时区）
   string date = 1;
+  // 为空表示全站；非空仅统计该商户
+  string merchant_id = 2;
 }
 
 message AdminDayOverviewResp {

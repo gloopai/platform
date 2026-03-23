@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"math"
+	"strings"
 	"time"
 )
 
@@ -26,12 +27,12 @@ type TodayTotals struct {
 }
 
 type ProductAggRow struct {
-	ProductCode  string
-	ProductName  string
-	OrderCount   int64
-	PaidAmount   int64
-	PaidCount    int64
-	FailedCount  int64
+	ProductCode string
+	ProductName string
+	OrderCount  int64
+	PaidAmount  int64
+	PaidCount   int64
+	FailedCount int64
 }
 
 type ChannelAggRow struct {
@@ -47,15 +48,25 @@ type ChannelAggRow struct {
 func (s *OrderStatsStore) TodayOverview(ctx context.Context) (TodayTotals, []ProductAggRow, []ChannelAggRow, error) {
 	now := time.Now().In(time.Local)
 	day := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
-	return s.DayOverview(ctx, day)
+	return s.DayOverview(ctx, day, "")
 }
 
 // DayOverview 按本地自然日 [day 00:00, day+1 00:00) 聚合订单（与 TodayOverview 同一套指标）。
-func (s *OrderStatsStore) DayOverview(ctx context.Context, day time.Time) (TodayTotals, []ProductAggRow, []ChannelAggRow, error) {
+func (s *OrderStatsStore) DayOverview(ctx context.Context, day time.Time, merchantId string) (TodayTotals, []ProductAggRow, []ChannelAggRow, error) {
 	start := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
 	end := start.AddDate(0, 0, 1)
 	startArg := start.Format("2006-01-02 15:04:05")
 	endArg := end.Format("2006-01-02 15:04:05")
+	merchantId = strings.TrimSpace(merchantId)
+
+	where := "created_at >= ? AND created_at < ?"
+	whereArgs := []any{startArg, endArg}
+	merchantCondAlias := ""
+	if merchantId != "" {
+		where += " AND merchant_id = ?"
+		merchantCondAlias = "  AND o.merchant_id = ?\n"
+		whereArgs = append(whereArgs, merchantId)
+	}
 
 	var t TodayTotals
 	err := s.db.QueryRowContext(ctx, `
@@ -67,8 +78,8 @@ SELECT
   COALESCE(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END), 0)
 FROM orders
-WHERE created_at >= ? AND created_at < ?
-`, startArg, endArg).Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
+WHERE `+where+`
+`, whereArgs...).Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
 	if err != nil {
 		return TodayTotals{}, nil, nil, err
 	}
@@ -84,9 +95,10 @@ SELECT
 FROM orders o
 LEFT JOIN pay_products pp ON pp.code = o.pay_product_code
 WHERE o.created_at >= ? AND o.created_at < ?
+`+merchantCondAlias+`
 GROUP BY COALESCE(NULLIF(TRIM(o.pay_product_code), ''), '(未指定产品)')
 ORDER BY 4 DESC, 3 DESC
-`, startArg, endArg)
+`, append([]any{}, whereArgs...)...)
 	if err != nil {
 		return TodayTotals{}, nil, nil, err
 	}
@@ -115,9 +127,10 @@ SELECT
 FROM orders o
 LEFT JOIN channels c ON c.id = o.channel_id
 WHERE o.created_at >= ? AND o.created_at < ?
+`+merchantCondAlias+`
 GROUP BY o.channel_id
 ORDER BY 4 DESC, 3 DESC
-`, startArg, endArg)
+`, append([]any{}, whereArgs...)...)
 	if err != nil {
 		return TodayTotals{}, products, nil, err
 	}

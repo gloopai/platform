@@ -25,6 +25,7 @@ func NewAdminDayOverviewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *AdminDayOverviewLogic) AdminDayOverview(in *orderpb.AdminDayOverviewReq) (*orderpb.AdminDayOverviewResp, error) {
 	ds := strings.TrimSpace(in.GetDate())
+	merchantID := strings.TrimSpace(in.GetMerchantId())
 	if ds == "" {
 		return nil, status.Error(codes.InvalidArgument, "date is required (YYYY-MM-DD)")
 	}
@@ -33,7 +34,7 @@ func (l *AdminDayOverviewLogic) AdminDayOverview(in *orderpb.AdminDayOverviewReq
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
 
-	tot, prods, chs, err := l.svcCtx.OrderStats.DayOverview(l.ctx, day)
+	tot, prods, chs, err := l.svcCtx.OrderStats.DayOverview(l.ctx, day, merchantID)
 	if err != nil {
 		return nil, err
 	}

@@ -1673,7 +1673,9 @@ func (x *AdminListOrdersResp) GetOrders() []*OrderInfo {
 type AdminDayOverviewReq struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 自然日 YYYY-MM-DD（服务器本地时区）
-	Date          string `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Date string `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	// 为空表示全站；非空仅统计该商户
+	MerchantId    string `protobuf:"bytes,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1711,6 +1713,13 @@ func (*AdminDayOverviewReq) Descriptor() ([]byte, []int) {
 func (x *AdminDayOverviewReq) GetDate() string {
 	if x != nil {
 		return x.Date
+	}
+	return ""
+}
+
+func (x *AdminDayOverviewReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
 	}
 	return ""
 }
@@ -1950,9 +1959,11 @@ const file_order_proto_rawDesc = "" +
 	"\x05limit\x18\x04 \x01(\x03R\x05limitB\t\n" +
 	"\a_status\"?\n" +
 	"\x13AdminListOrdersResp\x12(\n" +
-	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\")\n" +
+	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\"J\n" +
 	"\x13AdminDayOverviewReq\x12\x12\n" +
-	"\x04date\x18\x01 \x01(\tR\x04date\"\xda\x01\n" +
+	"\x04date\x18\x01 \x01(\tR\x04date\x12\x1f\n" +
+	"\vmerchant_id\x18\x02 \x01(\tR\n" +
+	"merchantId\"\xda\x01\n" +
 	"\x14AdminDayOverviewResp\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12/\n" +
 	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12A\n" +

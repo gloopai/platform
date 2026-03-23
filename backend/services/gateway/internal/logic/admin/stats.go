@@ -80,7 +80,10 @@ func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error)
 }
 
 func (s *AdminStats) AdminDayOverview(req *types.AdminDayOverviewReq) (*types.AdminDayOverviewResp, error) {
-	r, err := s.svcCtx.OrderRpc.AdminDayOverview(s.ctx, &orderpb.AdminDayOverviewReq{Date: req.Date})
+	r, err := s.svcCtx.OrderRpc.AdminDayOverview(s.ctx, &orderpb.AdminDayOverviewReq{
+		Date:       req.Date,
+		MerchantId: req.MerchantId,
+	})
 	if err != nil {
 		return nil, err
 	}

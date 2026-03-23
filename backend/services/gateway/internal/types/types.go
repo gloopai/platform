@@ -19,31 +19,31 @@ type CreateOrderReq struct {
 }
 
 type CreateOrderResp struct {
-	OrderNo          string `json:"order_no"`
-	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"pay_product_id"`
-	PayProductCode   string `json:"pay_product_code"`
-	CheckoutUrl      string `json:"checkout_url"`
-	ChannelLocked    int32  `json:"channel_locked"`
+	OrderNo        string `json:"order_no"`
+	Status         int32  `json:"status"`
+	ChannelId      int64  `json:"channel_id"`
+	PayProductId   int64  `json:"pay_product_id"`
+	PayProductCode string `json:"pay_product_code"`
+	CheckoutUrl    string `json:"checkout_url"`
+	ChannelLocked  int32  `json:"channel_locked"`
 }
 
 type OrderInfo struct {
-	OrderNo          string `json:"order_no"`
-	MerchantId       string `json:"merchant_id"`
-	MerchantOrderNo  string `json:"merchant_order_no"`
-	Amount           int64  `json:"amount"`
-	Currency         string `json:"currency"`
-	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"pay_product_id"`
-	PayProductCode   string `json:"pay_product_code"`
-	PayProductName   string `json:"pay_product_name"`
-	ChannelLocked    int32  `json:"channel_locked"`
-	PaidAmount       int64  `json:"paid_amount"`
-	ReturnUrl        string `json:"return_url"`
-	NotifyUrl        string `json:"notify_url"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
+	OrderNo         string `json:"order_no"`
+	MerchantId      string `json:"merchant_id"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency"`
+	Status          int32  `json:"status"`
+	ChannelId       int64  `json:"channel_id"`
+	PayProductId    int64  `json:"pay_product_id"`
+	PayProductCode  string `json:"pay_product_code"`
+	PayProductName  string `json:"pay_product_name"`
+	ChannelLocked   int32  `json:"channel_locked"`
+	PaidAmount      int64  `json:"paid_amount"`
+	ReturnUrl       string `json:"return_url"`
+	NotifyUrl       string `json:"notify_url"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
 }
 
 type PayProductItem struct {
@@ -69,13 +69,13 @@ type TerminalOrderReq struct {
 }
 
 type TerminalOrderResp struct {
-	Order        OrderInfo        `json:"order"`
-	PayProducts  []PayProductItem `json:"pay_products"`
+	Order       OrderInfo        `json:"order"`
+	PayProducts []PayProductItem `json:"pay_products"`
 }
 
 type TerminalPayReq struct {
-	OrderNo         string `json:"order_no"`
-	PayProductCode  string `json:"pay_product_code,optional"`
+	OrderNo        string `json:"order_no"`
+	PayProductCode string `json:"pay_product_code,optional"`
 }
 
 type TerminalPayResp struct {
@@ -165,17 +165,17 @@ type MerchantOrdersReq struct {
 }
 
 type MerchantOrderItem struct {
-	OrderNo          string `json:"order_no"`
-	MerchantOrderNo  string `json:"merchant_order_no"`
-	Amount           int64  `json:"amount"`
-	Currency         string `json:"currency"`
-	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
-	PayProductCode   string `json:"pay_product_code"`
-	PayProductName   string `json:"pay_product_name"`
-	PaidAmount       int64  `json:"paid_amount"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
-	CreatedAt        int64  `json:"created_at"`
+	OrderNo         string `json:"order_no"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency"`
+	Status          int32  `json:"status"`
+	ChannelId       int64  `json:"channel_id"`
+	PayProductCode  string `json:"pay_product_code"`
+	PayProductName  string `json:"pay_product_name"`
+	PaidAmount      int64  `json:"paid_amount"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
+	CreatedAt       int64  `json:"created_at"`
 }
 
 type MerchantOrdersResp struct {
@@ -311,7 +311,7 @@ type AdminUpdateMerchantReq struct {
 	PayProductIds         []int64                `json:"pay_product_ids,optional"`
 	PayoutProductIds      []int64                `json:"payout_product_ids,optional"`
 	CollectGrants         []MerchantCollectGrant `json:"collect_grants,optional"` // 若提供则覆盖代收白名单（含空数组）
-	PayoutGrants          []MerchantPayoutGrant  `json:"payout_grants,optional"` // 若提供则覆盖代付白名单
+	PayoutGrants          []MerchantPayoutGrant  `json:"payout_grants,optional"`  // 若提供则覆盖代付白名单
 }
 
 type AdminUpsertMerchantResp struct {
@@ -494,45 +494,45 @@ type AdminRoutingSummaryResp struct {
 // --- 管理台统计（C5：监控看板简版） ---
 
 type AdminStatsTotals struct {
-	OrderCount               int64   `json:"order_count"`
-	PaidAmount               int64   `json:"paid_amount"`
-	PaidCount                int64   `json:"paid_count"`
-	FailedCount              int64   `json:"failed_count"`
-	PendingCount             int64   `json:"pending_count"`
-	ClosedCount              int64   `json:"closed_count"`
-	ConversionRatePct        float64 `json:"conversion_rate_pct"`
-	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+	OrderCount             int64   `json:"order_count"`
+	PaidAmount             int64   `json:"paid_amount"`
+	PaidCount              int64   `json:"paid_count"`
+	FailedCount            int64   `json:"failed_count"`
+	PendingCount           int64   `json:"pending_count"`
+	ClosedCount            int64   `json:"closed_count"`
+	ConversionRatePct      float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct float64 `json:"terminal_success_rate_pct"`
 }
 
 type AdminStatsProductRow struct {
-	ProductCode              string  `json:"product_code"`
-	ProductName              string  `json:"product_name"`
-	OrderCount               int64   `json:"order_count"`
-	PaidAmount               int64   `json:"paid_amount"`
-	PaidCount                int64   `json:"paid_count"`
-	FailedCount              int64   `json:"failed_count"`
-	ConversionRatePct        float64 `json:"conversion_rate_pct"`
-	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+	ProductCode            string  `json:"product_code"`
+	ProductName            string  `json:"product_name"`
+	OrderCount             int64   `json:"order_count"`
+	PaidAmount             int64   `json:"paid_amount"`
+	PaidCount              int64   `json:"paid_count"`
+	FailedCount            int64   `json:"failed_count"`
+	ConversionRatePct      float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct float64 `json:"terminal_success_rate_pct"`
 }
 
 type AdminStatsChannelRow struct {
-	ChannelId                int64   `json:"channel_id"`
-	ChannelName              string  `json:"channel_name"`
-	OrderCount               int64   `json:"order_count"`
-	PaidAmount               int64   `json:"paid_amount"`
-	PaidCount                int64   `json:"paid_count"`
-	FailedCount              int64   `json:"failed_count"`
-	ConversionRatePct        float64 `json:"conversion_rate_pct"`
-	TerminalSuccessRatePct   float64 `json:"terminal_success_rate_pct"`
+	ChannelId              int64   `json:"channel_id"`
+	ChannelName            string  `json:"channel_name"`
+	OrderCount             int64   `json:"order_count"`
+	PaidAmount             int64   `json:"paid_amount"`
+	PaidCount              int64   `json:"paid_count"`
+	FailedCount            int64   `json:"failed_count"`
+	ConversionRatePct      float64 `json:"conversion_rate_pct"`
+	TerminalSuccessRatePct float64 `json:"terminal_success_rate_pct"`
 }
 
 type AdminStatsOverviewResp struct {
-	Range             string                 `json:"range"`
-	Totals            AdminStatsTotals       `json:"totals"`
-	ByPayProduct      []AdminStatsProductRow `json:"by_pay_product"`
-	ByChannel         []AdminStatsChannelRow `json:"by_channel"`
-	EnabledChannels   int64                  `json:"enabled_channels"`
-	FusedChannels     int64                  `json:"fused_channels"`
+	Range           string                 `json:"range"`
+	Totals          AdminStatsTotals       `json:"totals"`
+	ByPayProduct    []AdminStatsProductRow `json:"by_pay_product"`
+	ByChannel       []AdminStatsChannelRow `json:"by_channel"`
+	EnabledChannels int64                  `json:"enabled_channels"`
+	FusedChannels   int64                  `json:"fused_channels"`
 }
 
 type AdminOrdersReq struct {
@@ -564,7 +564,8 @@ type AdminOrdersResp struct {
 // --- 对账：按日平台账快照（与系统概览同源聚合，可选历史日） ---
 
 type AdminDayOverviewReq struct {
-	Date string `form:"date"`
+	Date       string `form:"date"`
+	MerchantId string `form:"merchant_id,optional"`
 }
 
 type AdminDayOverviewResp struct {

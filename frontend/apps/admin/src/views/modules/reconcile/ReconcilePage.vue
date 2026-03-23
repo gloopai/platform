@@ -18,6 +18,16 @@
           @change="load"
         />
       </label>
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="font-medium text-slate-700">商户（可选）</span>
+        <input
+          v-model.trim="merchantId"
+          type="text"
+          placeholder="merchant_id"
+          class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm"
+          @keyup.enter="load"
+        />
+      </label>
       <button
         type="button"
         class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50"
@@ -64,6 +74,7 @@ function todayLocalISODate(): string {
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 
 const dateStr = ref(todayLocalISODate())
+const merchantId = ref('')
 const loading = ref(true)
 const error = ref('')
 const data = ref<ReconcileDayOverview | null>(null)
@@ -73,6 +84,7 @@ async function load() {
   error.value = ''
   try {
     const q = new URLSearchParams({ date: dateStr.value })
+    if (merchantId.value) q.set('merchant_id', merchantId.value)
     data.value = await adminGet<ReconcileDayOverview>(`/v1/admin/reconcile/day?${q.toString()}`)
   } catch {
     error.value = '加载失败，请确认日期格式为 YYYY-MM-DD 且已登录'
