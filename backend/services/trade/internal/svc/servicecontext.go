@@ -18,8 +18,8 @@ type ServiceContext struct {
 	PayOrders           *store.PayinOrdersStore
 	PayoutOrders        *store.PayoutOrdersStore
 	Channels            *store.ChannelsStore
-	MerchantPayProducts *store.MerchantPayinProductsStore
-	PayProducts         *store.PayinProductsStore
+	MerchantPayinProducts *store.MerchantPayinProductsStore
+	PayinProducts         *store.PayinProductsStore
 	PayoutProducts      *store.PayoutProductsStore
 	OrderStats          *store.OrderStatsStore
 	RoutingSummary      *store.RoutingSummaryStore
@@ -52,8 +52,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PayOrders:           store.NewPayinOrdersStore(sqlDB),
 		PayoutOrders:        store.NewPayoutOrdersStore(sqlDB),
 		Channels:            store.NewChannelsStore(sqlDB),
-		MerchantPayProducts: store.NewMerchantPayinProductsStore(sqlDB),
-		PayProducts:         store.NewPayinProductsStore(sqlDB),
+		MerchantPayinProducts: store.NewMerchantPayinProductsStore(sqlDB),
+		PayinProducts:         store.NewPayinProductsStore(sqlDB),
 		PayoutProducts:      store.NewPayoutProductsStore(sqlDB),
 		OrderStats:          store.NewOrderStatsStore(sqlDB),
 		RoutingSummary:      store.NewRoutingSummaryStore(sqlDB),

@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// PayProductAdmin 管理台支付产品行。
-type PayProductAdmin struct {
+// PayinProductAdmin 管理台支付产品行。
+type PayinProductAdmin struct {
 	ID        int64
 	Code      string
 	Name      string
@@ -16,18 +16,18 @@ type PayProductAdmin struct {
 	Enabled   bool
 }
 
-// PayProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
-type PayProductBindingAdmin struct {
+// PayinProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
+type PayinProductBindingAdmin struct {
 	ID           int64
-	PayProductID int64
+	PayinProductID int64
 	ChannelID    int64
 	ChannelName  string
 	Weight       int64
 	Enabled      bool
 }
 
-// AdminListAllPayProducts 全部支付产品（含停用）。
-func (s *PayinProductsStore) AdminListAllPayProducts(ctx context.Context) ([]PayProductAdmin, error) {
+// AdminListAllPayinProducts 全部支付产品（含停用）。
+func (s *PayinProductsStore) AdminListAllPayinProducts(ctx context.Context) ([]PayinProductAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT id, code, name, sort_order, enabled
 FROM payin_products
@@ -37,9 +37,9 @@ ORDER BY sort_order ASC, id ASC
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayProductAdmin
+	var out []PayinProductAdmin
 	for rows.Next() {
-		var p PayProductAdmin
+		var p PayinProductAdmin
 		var en int
 		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en); err != nil {
 			return nil, err
@@ -50,9 +50,9 @@ ORDER BY sort_order ASC, id ASC
 	return out, rows.Err()
 }
 
-// AdminGetPayProduct 按 ID。
-func (s *PayinProductsStore) AdminGetPayProduct(ctx context.Context, id int64) (*PayProductAdmin, error) {
-	var p PayProductAdmin
+// AdminGetPayinProduct 按 ID。
+func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64) (*PayinProductAdmin, error) {
+	var p PayinProductAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
 SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
@@ -64,8 +64,8 @@ SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMI
 	return &p, nil
 }
 
-// AdminCreatePayProduct 新建；code 唯一。
-func (s *PayinProductsStore) AdminCreatePayProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
+// AdminCreatePayinProduct 新建；code 唯一。
+func (s *PayinProductsStore) AdminCreatePayinProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
 	en := 0
 	if enabled {
 		en = 1
@@ -83,8 +83,8 @@ INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 	return id, nil
 }
 
-// AdminUpdatePayProduct 更新。
-func (s *PayinProductsStore) AdminUpdatePayProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
+// AdminUpdatePayinProduct 更新。
+func (s *PayinProductsStore) AdminUpdatePayinProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
 	en := 0
 	if enabled {
 		en = 1
@@ -106,7 +106,7 @@ UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updat
 }
 
 // AdminListBindings 某产品下的通道绑定。
-func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayProductBindingAdmin, error) {
+func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayinProductBindingAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payin_product_channels ppc
@@ -118,11 +118,11 @@ ORDER BY ppc.id ASC
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayProductBindingAdmin
+	var out []PayinProductBindingAdmin
 	for rows.Next() {
-		var b PayProductBindingAdmin
+		var b PayinProductBindingAdmin
 		var en int
-		if err := rows.Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
+		if err := rows.Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
 			return nil, err
 		}
 		b.Enabled = en == 1
@@ -184,15 +184,15 @@ UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WH
 }
 
 // AdminGetBindingByID 单条绑定（含通道名）。
-func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayProductBindingAdmin, error) {
-	var b PayProductBindingAdmin
+func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayinProductBindingAdmin, error) {
+	var b PayinProductBindingAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
 SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
+`, bindingID).Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
 	if err != nil {
 		return nil, err
 	}

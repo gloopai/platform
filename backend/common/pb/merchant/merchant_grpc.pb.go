@@ -24,9 +24,9 @@ const (
 	Merchant_ListMerchants_FullMethodName                 = "/merchant.Merchant/ListMerchants"
 	Merchant_CreateMerchant_FullMethodName                = "/merchant.Merchant/CreateMerchant"
 	Merchant_UpdateMerchant_FullMethodName                = "/merchant.Merchant/UpdateMerchant"
-	Merchant_ReplaceMerchantPayProducts_FullMethodName    = "/merchant.Merchant/ReplaceMerchantPayProducts"
+	Merchant_ReplaceMerchantPayinProducts_FullMethodName  = "/merchant.Merchant/ReplaceMerchantPayinProducts"
 	Merchant_ReplaceMerchantPayoutProducts_FullMethodName = "/merchant.Merchant/ReplaceMerchantPayoutProducts"
-	Merchant_ListMerchantPayProductIds_FullMethodName     = "/merchant.Merchant/ListMerchantPayProductIds"
+	Merchant_ListMerchantPayinProductIds_FullMethodName   = "/merchant.Merchant/ListMerchantPayinProductIds"
 	Merchant_ListMerchantPayoutProductIds_FullMethodName  = "/merchant.Merchant/ListMerchantPayoutProductIds"
 )
 
@@ -39,9 +39,9 @@ type MerchantClient interface {
 	ListMerchants(ctx context.Context, in *ListMerchantsReq, opts ...grpc.CallOption) (*ListMerchantsResp, error)
 	CreateMerchant(ctx context.Context, in *CreateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 	UpdateMerchant(ctx context.Context, in *UpdateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
-	ReplaceMerchantPayProducts(ctx context.Context, in *ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayProductsResp, error)
+	ReplaceMerchantPayinProducts(ctx context.Context, in *ReplaceMerchantPayinProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayinProductsResp, error)
 	ReplaceMerchantPayoutProducts(ctx context.Context, in *ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayoutProductsResp, error)
-	ListMerchantPayProductIds(ctx context.Context, in *ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayProductIdsResp, error)
+	ListMerchantPayinProductIds(ctx context.Context, in *ListMerchantPayinProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayinProductIdsResp, error)
 	ListMerchantPayoutProductIds(ctx context.Context, in *ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayoutProductIdsResp, error)
 }
 
@@ -103,10 +103,10 @@ func (c *merchantClient) UpdateMerchant(ctx context.Context, in *UpdateMerchantR
 	return out, nil
 }
 
-func (c *merchantClient) ReplaceMerchantPayProducts(ctx context.Context, in *ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayProductsResp, error) {
+func (c *merchantClient) ReplaceMerchantPayinProducts(ctx context.Context, in *ReplaceMerchantPayinProductsReq, opts ...grpc.CallOption) (*ReplaceMerchantPayinProductsResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ReplaceMerchantPayProductsResp)
-	err := c.cc.Invoke(ctx, Merchant_ReplaceMerchantPayProducts_FullMethodName, in, out, cOpts...)
+	out := new(ReplaceMerchantPayinProductsResp)
+	err := c.cc.Invoke(ctx, Merchant_ReplaceMerchantPayinProducts_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,10 +123,10 @@ func (c *merchantClient) ReplaceMerchantPayoutProducts(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *merchantClient) ListMerchantPayProductIds(ctx context.Context, in *ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayProductIdsResp, error) {
+func (c *merchantClient) ListMerchantPayinProductIds(ctx context.Context, in *ListMerchantPayinProductIdsReq, opts ...grpc.CallOption) (*ListMerchantPayinProductIdsResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListMerchantPayProductIdsResp)
-	err := c.cc.Invoke(ctx, Merchant_ListMerchantPayProductIds_FullMethodName, in, out, cOpts...)
+	out := new(ListMerchantPayinProductIdsResp)
+	err := c.cc.Invoke(ctx, Merchant_ListMerchantPayinProductIds_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -152,9 +152,9 @@ type MerchantServer interface {
 	ListMerchants(context.Context, *ListMerchantsReq) (*ListMerchantsResp, error)
 	CreateMerchant(context.Context, *CreateMerchantReq) (*UpsertMerchantResp, error)
 	UpdateMerchant(context.Context, *UpdateMerchantReq) (*UpsertMerchantResp, error)
-	ReplaceMerchantPayProducts(context.Context, *ReplaceMerchantPayProductsReq) (*ReplaceMerchantPayProductsResp, error)
+	ReplaceMerchantPayinProducts(context.Context, *ReplaceMerchantPayinProductsReq) (*ReplaceMerchantPayinProductsResp, error)
 	ReplaceMerchantPayoutProducts(context.Context, *ReplaceMerchantPayoutProductsReq) (*ReplaceMerchantPayoutProductsResp, error)
-	ListMerchantPayProductIds(context.Context, *ListMerchantPayProductIdsReq) (*ListMerchantPayProductIdsResp, error)
+	ListMerchantPayinProductIds(context.Context, *ListMerchantPayinProductIdsReq) (*ListMerchantPayinProductIdsResp, error)
 	ListMerchantPayoutProductIds(context.Context, *ListMerchantPayoutProductIdsReq) (*ListMerchantPayoutProductIdsResp, error)
 	mustEmbedUnimplementedMerchantServer()
 }
@@ -181,14 +181,14 @@ func (UnimplementedMerchantServer) CreateMerchant(context.Context, *CreateMercha
 func (UnimplementedMerchantServer) UpdateMerchant(context.Context, *UpdateMerchantReq) (*UpsertMerchantResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateMerchant not implemented")
 }
-func (UnimplementedMerchantServer) ReplaceMerchantPayProducts(context.Context, *ReplaceMerchantPayProductsReq) (*ReplaceMerchantPayProductsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReplaceMerchantPayProducts not implemented")
+func (UnimplementedMerchantServer) ReplaceMerchantPayinProducts(context.Context, *ReplaceMerchantPayinProductsReq) (*ReplaceMerchantPayinProductsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplaceMerchantPayinProducts not implemented")
 }
 func (UnimplementedMerchantServer) ReplaceMerchantPayoutProducts(context.Context, *ReplaceMerchantPayoutProductsReq) (*ReplaceMerchantPayoutProductsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReplaceMerchantPayoutProducts not implemented")
 }
-func (UnimplementedMerchantServer) ListMerchantPayProductIds(context.Context, *ListMerchantPayProductIdsReq) (*ListMerchantPayProductIdsResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantPayProductIds not implemented")
+func (UnimplementedMerchantServer) ListMerchantPayinProductIds(context.Context, *ListMerchantPayinProductIdsReq) (*ListMerchantPayinProductIdsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantPayinProductIds not implemented")
 }
 func (UnimplementedMerchantServer) ListMerchantPayoutProductIds(context.Context, *ListMerchantPayoutProductIdsReq) (*ListMerchantPayoutProductIdsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantPayoutProductIds not implemented")
@@ -304,20 +304,20 @@ func _Merchant_UpdateMerchant_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Merchant_ReplaceMerchantPayProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReplaceMerchantPayProductsReq)
+func _Merchant_ReplaceMerchantPayinProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplaceMerchantPayinProductsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MerchantServer).ReplaceMerchantPayProducts(ctx, in)
+		return srv.(MerchantServer).ReplaceMerchantPayinProducts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Merchant_ReplaceMerchantPayProducts_FullMethodName,
+		FullMethod: Merchant_ReplaceMerchantPayinProducts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServer).ReplaceMerchantPayProducts(ctx, req.(*ReplaceMerchantPayProductsReq))
+		return srv.(MerchantServer).ReplaceMerchantPayinProducts(ctx, req.(*ReplaceMerchantPayinProductsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -340,20 +340,20 @@ func _Merchant_ReplaceMerchantPayoutProducts_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Merchant_ListMerchantPayProductIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListMerchantPayProductIdsReq)
+func _Merchant_ListMerchantPayinProductIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMerchantPayinProductIdsReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MerchantServer).ListMerchantPayProductIds(ctx, in)
+		return srv.(MerchantServer).ListMerchantPayinProductIds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Merchant_ListMerchantPayProductIds_FullMethodName,
+		FullMethod: Merchant_ListMerchantPayinProductIds_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MerchantServer).ListMerchantPayProductIds(ctx, req.(*ListMerchantPayProductIdsReq))
+		return srv.(MerchantServer).ListMerchantPayinProductIds(ctx, req.(*ListMerchantPayinProductIdsReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -404,16 +404,16 @@ var Merchant_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Merchant_UpdateMerchant_Handler,
 		},
 		{
-			MethodName: "ReplaceMerchantPayProducts",
-			Handler:    _Merchant_ReplaceMerchantPayProducts_Handler,
+			MethodName: "ReplaceMerchantPayinProducts",
+			Handler:    _Merchant_ReplaceMerchantPayinProducts_Handler,
 		},
 		{
 			MethodName: "ReplaceMerchantPayoutProducts",
 			Handler:    _Merchant_ReplaceMerchantPayoutProducts_Handler,
 		},
 		{
-			MethodName: "ListMerchantPayProductIds",
-			Handler:    _Merchant_ListMerchantPayProductIds_Handler,
+			MethodName: "ListMerchantPayinProductIds",
+			Handler:    _Merchant_ListMerchantPayinProductIds_Handler,
 		},
 		{
 			MethodName: "ListMerchantPayoutProductIds",

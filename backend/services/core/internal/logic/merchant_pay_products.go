@@ -12,64 +12,64 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type ReplaceMerchantPayProductsLogic struct {
+type ReplaceMerchantPayinProductsLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewReplaceMerchantPayProductsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ReplaceMerchantPayProductsLogic {
-	return &ReplaceMerchantPayProductsLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
+func NewReplaceMerchantPayinProductsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ReplaceMerchantPayinProductsLogic {
+	return &ReplaceMerchantPayinProductsLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
 }
 
-func (l *ReplaceMerchantPayProductsLogic) ReplaceMerchantPayProducts(in *merchantpb.ReplaceMerchantPayProductsReq) (*merchantpb.ReplaceMerchantPayProductsResp, error) {
+func (l *ReplaceMerchantPayinProductsLogic) ReplaceMerchantPayinProducts(in *merchantpb.ReplaceMerchantPayinProductsReq) (*merchantpb.ReplaceMerchantPayinProductsResp, error) {
 	mid := strings.TrimSpace(in.GetMerchantId())
 	if mid == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 	var grants []store.PayinGrant
 	for _, g := range in.GetGrants() {
-		if g == nil || g.GetPayProductId() <= 0 {
+		if g == nil || g.GetPayinProductId() <= 0 {
 			continue
 		}
-		cg := store.PayinGrant{PayinProductID: g.GetPayProductId()}
+		cg := store.PayinGrant{PayinProductID: g.GetPayinProductId()}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			cg.RateBps = &v
 		}
 		grants = append(grants, cg)
 	}
-	if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, mid, grants); err != nil {
+	if err := l.svcCtx.MerchantPayinProducts.Replace(l.ctx, mid, grants); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return &merchantpb.ReplaceMerchantPayProductsResp{Ok: true}, nil
+	return &merchantpb.ReplaceMerchantPayinProductsResp{Ok: true}, nil
 }
 
-type ListMerchantPayProductIdsLogic struct {
+type ListMerchantPayinProductIdsLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewListMerchantPayProductIdsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListMerchantPayProductIdsLogic {
-	return &ListMerchantPayProductIdsLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
+func NewListMerchantPayinProductIdsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListMerchantPayinProductIdsLogic {
+	return &ListMerchantPayinProductIdsLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
 }
 
-func (l *ListMerchantPayProductIdsLogic) ListMerchantPayProductIds(in *merchantpb.ListMerchantPayProductIdsReq) (*merchantpb.ListMerchantPayProductIdsResp, error) {
-	grants, err := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, in.GetMerchantId())
+func (l *ListMerchantPayinProductIdsLogic) ListMerchantPayinProductIds(in *merchantpb.ListMerchantPayinProductIdsReq) (*merchantpb.ListMerchantPayinProductIdsResp, error) {
+	grants, err := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, in.GetMerchantId())
 	if err != nil {
 		return nil, err
 	}
 	out := make([]*merchantpb.MerchantPayinGrant, 0, len(grants))
 	for _, g := range grants {
-		row := &merchantpb.MerchantPayinGrant{PayProductId: g.PayinProductID}
+		row := &merchantpb.MerchantPayinGrant{PayinProductId: g.PayinProductID}
 		if g.RateBps != nil {
 			v := *g.RateBps
 			row.MerchantRateBps = &v
 		}
 		out = append(out, row)
 	}
-	return &merchantpb.ListMerchantPayProductIdsResp{Grants: out}, nil
+	return &merchantpb.ListMerchantPayinProductIdsResp{Grants: out}, nil
 }
 
 type ReplaceMerchantPayoutProductsLogic struct {

@@ -24,18 +24,18 @@ type (
 		UpdateChannel(ctx context.Context, in *channel.UpsertChannelReq, opts ...grpc.CallOption) (*channel.UpsertChannelResp, error)
 		GetRoutingSummary(ctx context.Context, in *channel.GetRoutingSummaryReq, opts ...grpc.CallOption) (*channel.GetRoutingSummaryResp, error)
 
-		ListTerminalPayProducts(ctx context.Context, in *channel.ListTerminalPayProductsReq, opts ...grpc.CallOption) (*channel.ListTerminalPayProductsResp, error)
-		MerchantHasPayProductCode(ctx context.Context, in *channel.MerchantHasPayProductCodeReq, opts ...grpc.CallOption) (*channel.MerchantHasPayProductCodeResp, error)
+		ListTerminalPayinProducts(ctx context.Context, in *channel.ListTerminalPayinProductsReq, opts ...grpc.CallOption) (*channel.ListTerminalPayinProductsResp, error)
+		MerchantHasPayinProductCode(ctx context.Context, in *channel.MerchantHasPayinProductCodeReq, opts ...grpc.CallOption) (*channel.MerchantHasPayinProductCodeResp, error)
 		ResolveLockedChannelForMerchant(ctx context.Context, in *channel.ResolveLockedChannelForMerchantReq, opts ...grpc.CallOption) (*channel.ResolveLockedChannelForMerchantResp, error)
-		GetPayProductDisplayName(ctx context.Context, in *channel.GetPayProductDisplayNameReq, opts ...grpc.CallOption) (*channel.GetPayProductDisplayNameResp, error)
+		GetPayinProductDisplayName(ctx context.Context, in *channel.GetPayinProductDisplayNameReq, opts ...grpc.CallOption) (*channel.GetPayinProductDisplayNameResp, error)
 
-		AdminListPayProducts(ctx context.Context, in *channel.AdminListPayProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayProductsResp, error)
-		AdminCreatePayProduct(ctx context.Context, in *channel.AdminCreatePayProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductResp, error)
-		AdminUpdatePayProduct(ctx context.Context, in *channel.AdminUpdatePayProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductResp, error)
-		AdminListPayProductBindings(ctx context.Context, in *channel.AdminListPayProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayProductBindingsResp, error)
-		AdminUpsertPayProductBinding(ctx context.Context, in *channel.AdminUpsertPayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductBindingResp, error)
-		AdminUpdatePayProductBinding(ctx context.Context, in *channel.AdminUpdatePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayProductBindingResp, error)
-		AdminDeletePayProductBinding(ctx context.Context, in *channel.AdminDeletePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayProductBindingResp, error)
+		AdminListPayinProducts(ctx context.Context, in *channel.AdminListPayinProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayinProductsResp, error)
+		AdminCreatePayinProduct(ctx context.Context, in *channel.AdminCreatePayinProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductResp, error)
+		AdminUpdatePayinProduct(ctx context.Context, in *channel.AdminUpdatePayinProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductResp, error)
+		AdminListPayinProductBindings(ctx context.Context, in *channel.AdminListPayinProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayinProductBindingsResp, error)
+		AdminUpsertPayinProductBinding(ctx context.Context, in *channel.AdminUpsertPayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductBindingResp, error)
+		AdminUpdatePayinProductBinding(ctx context.Context, in *channel.AdminUpdatePayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayinProductBindingResp, error)
+		AdminDeletePayinProductBinding(ctx context.Context, in *channel.AdminDeletePayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayinProductBindingResp, error)
 
 		AdminListPayoutProducts(ctx context.Context, in *channel.AdminListPayoutProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductsResp, error)
 		AdminCreatePayoutProduct(ctx context.Context, in *channel.AdminCreatePayoutProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductResp, error)
@@ -83,48 +83,48 @@ func (m *defaultChannel) GetRoutingSummary(ctx context.Context, in *channel.GetR
 	return m.client().GetRoutingSummary(ctx, in, opts...)
 }
 
-func (m *defaultChannel) ListTerminalPayProducts(ctx context.Context, in *channel.ListTerminalPayProductsReq, opts ...grpc.CallOption) (*channel.ListTerminalPayProductsResp, error) {
-	return m.client().ListTerminalPayProducts(ctx, in, opts...)
+func (m *defaultChannel) ListTerminalPayinProducts(ctx context.Context, in *channel.ListTerminalPayinProductsReq, opts ...grpc.CallOption) (*channel.ListTerminalPayinProductsResp, error) {
+	return m.client().ListTerminalPayinProducts(ctx, in, opts...)
 }
 
-func (m *defaultChannel) MerchantHasPayProductCode(ctx context.Context, in *channel.MerchantHasPayProductCodeReq, opts ...grpc.CallOption) (*channel.MerchantHasPayProductCodeResp, error) {
-	return m.client().MerchantHasPayProductCode(ctx, in, opts...)
+func (m *defaultChannel) MerchantHasPayinProductCode(ctx context.Context, in *channel.MerchantHasPayinProductCodeReq, opts ...grpc.CallOption) (*channel.MerchantHasPayinProductCodeResp, error) {
+	return m.client().MerchantHasPayinProductCode(ctx, in, opts...)
 }
 
 func (m *defaultChannel) ResolveLockedChannelForMerchant(ctx context.Context, in *channel.ResolveLockedChannelForMerchantReq, opts ...grpc.CallOption) (*channel.ResolveLockedChannelForMerchantResp, error) {
 	return m.client().ResolveLockedChannelForMerchant(ctx, in, opts...)
 }
 
-func (m *defaultChannel) GetPayProductDisplayName(ctx context.Context, in *channel.GetPayProductDisplayNameReq, opts ...grpc.CallOption) (*channel.GetPayProductDisplayNameResp, error) {
-	return m.client().GetPayProductDisplayName(ctx, in, opts...)
+func (m *defaultChannel) GetPayinProductDisplayName(ctx context.Context, in *channel.GetPayinProductDisplayNameReq, opts ...grpc.CallOption) (*channel.GetPayinProductDisplayNameResp, error) {
+	return m.client().GetPayinProductDisplayName(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminListPayProducts(ctx context.Context, in *channel.AdminListPayProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayProductsResp, error) {
-	return m.client().AdminListPayProducts(ctx, in, opts...)
+func (m *defaultChannel) AdminListPayinProducts(ctx context.Context, in *channel.AdminListPayinProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayinProductsResp, error) {
+	return m.client().AdminListPayinProducts(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminCreatePayProduct(ctx context.Context, in *channel.AdminCreatePayProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductResp, error) {
-	return m.client().AdminCreatePayProduct(ctx, in, opts...)
+func (m *defaultChannel) AdminCreatePayinProduct(ctx context.Context, in *channel.AdminCreatePayinProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductResp, error) {
+	return m.client().AdminCreatePayinProduct(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminUpdatePayProduct(ctx context.Context, in *channel.AdminUpdatePayProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductResp, error) {
-	return m.client().AdminUpdatePayProduct(ctx, in, opts...)
+func (m *defaultChannel) AdminUpdatePayinProduct(ctx context.Context, in *channel.AdminUpdatePayinProductReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductResp, error) {
+	return m.client().AdminUpdatePayinProduct(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminListPayProductBindings(ctx context.Context, in *channel.AdminListPayProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayProductBindingsResp, error) {
-	return m.client().AdminListPayProductBindings(ctx, in, opts...)
+func (m *defaultChannel) AdminListPayinProductBindings(ctx context.Context, in *channel.AdminListPayinProductBindingsReq, opts ...grpc.CallOption) (*channel.AdminListPayinProductBindingsResp, error) {
+	return m.client().AdminListPayinProductBindings(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminUpsertPayProductBinding(ctx context.Context, in *channel.AdminUpsertPayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayProductBindingResp, error) {
-	return m.client().AdminUpsertPayProductBinding(ctx, in, opts...)
+func (m *defaultChannel) AdminUpsertPayinProductBinding(ctx context.Context, in *channel.AdminUpsertPayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayinProductBindingResp, error) {
+	return m.client().AdminUpsertPayinProductBinding(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminUpdatePayProductBinding(ctx context.Context, in *channel.AdminUpdatePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayProductBindingResp, error) {
-	return m.client().AdminUpdatePayProductBinding(ctx, in, opts...)
+func (m *defaultChannel) AdminUpdatePayinProductBinding(ctx context.Context, in *channel.AdminUpdatePayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayinProductBindingResp, error) {
+	return m.client().AdminUpdatePayinProductBinding(ctx, in, opts...)
 }
 
-func (m *defaultChannel) AdminDeletePayProductBinding(ctx context.Context, in *channel.AdminDeletePayProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayProductBindingResp, error) {
-	return m.client().AdminDeletePayProductBinding(ctx, in, opts...)
+func (m *defaultChannel) AdminDeletePayinProductBinding(ctx context.Context, in *channel.AdminDeletePayinProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayinProductBindingResp, error) {
+	return m.client().AdminDeletePayinProductBinding(ctx, in, opts...)
 }
 
 func (m *defaultChannel) AdminListPayoutProducts(ctx context.Context, in *channel.AdminListPayoutProductsReq, opts ...grpc.CallOption) (*channel.AdminListPayoutProductsResp, error) {

@@ -49,7 +49,7 @@
         数据日期：<span class="font-mono text-slate-700">{{ data.date }}</span>（按订单创建时间落在该日内）
       </p>
       <StatsKpiRow :totals="data.totals" />
-      <StatsBreakdownTables :products="data.by_pay_product" :channels="data.by_channel" />
+      <StatsBreakdownTables :products="data.by_payin_product" :channels="data.by_channel" />
     </template>
   </div>
 </template>

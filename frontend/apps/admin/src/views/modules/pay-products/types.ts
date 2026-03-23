@@ -1,4 +1,4 @@
-export type PayProduct = {
+export type PayinProduct = {
   id: number
   code: string
   name: string
@@ -6,7 +6,7 @@ export type PayProduct = {
   enabled: boolean
 }
 
-export type PayProductBinding = {
+export type PayinProductBinding = {
   id: number
   payin_product_id?: number
   payout_product_id?: number
@@ -16,7 +16,7 @@ export type PayProductBinding = {
   enabled: boolean
 }
 
-export type PayProductChannelOption = {
+export type PayinProductChannelOption = {
   id: number
   name: string
   pay_type: string

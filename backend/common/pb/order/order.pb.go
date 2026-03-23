@@ -162,18 +162,18 @@ func (x *CreatePayoutOrderReq) GetNetAmount() int64 {
 }
 
 type CreateOrderReq struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId      string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	MerchantOrderNo string                 `protobuf:"bytes,2,opt,name=merchant_order_no,json=merchantOrderNo,proto3" json:"merchant_order_no,omitempty"`
-	Amount          int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	Subject         string                 `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`
-	ReturnUrl       string                 `protobuf:"bytes,6,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
-	NotifyUrl       string                 `protobuf:"bytes,7,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
-	PayType         string                 `protobuf:"bytes,8,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	ChannelId       int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	PayProductId    int64                  `protobuf:"varint,10,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	PayProductCode  string                 `protobuf:"bytes,11,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId       string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	MerchantOrderNo  string                 `protobuf:"bytes,2,opt,name=merchant_order_no,json=merchantOrderNo,proto3" json:"merchant_order_no,omitempty"`
+	Amount           int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency         string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	Subject          string                 `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`
+	ReturnUrl        string                 `protobuf:"bytes,6,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
+	NotifyUrl        string                 `protobuf:"bytes,7,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
+	PayType          string                 `protobuf:"bytes,8,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	ChannelId        int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayinProductId   int64                  `protobuf:"varint,10,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	PayinProductCode string                 `protobuf:"bytes,11,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
 	// 下单时由网关/交易写入：商户 API 指定通道时为 1
 	ChannelLocked  int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
 	FeeMode        int64 `protobuf:"varint,13,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
@@ -278,16 +278,16 @@ func (x *CreateOrderReq) GetChannelId() int64 {
 	return 0
 }
 
-func (x *CreateOrderReq) GetPayProductId() int64 {
+func (x *CreateOrderReq) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *CreateOrderReq) GetPayProductCode() string {
+func (x *CreateOrderReq) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
@@ -603,30 +603,30 @@ func (x *MarkPaidResp) GetChanged() bool {
 }
 
 type OrderInfo struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo         string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
-	MerchantId      string                 `protobuf:"bytes,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	MerchantOrderNo string                 `protobuf:"bytes,3,opt,name=merchant_order_no,json=merchantOrderNo,proto3" json:"merchant_order_no,omitempty"`
-	Amount          int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
-	Currency        string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
-	Status          int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
-	ChannelId       int64                  `protobuf:"varint,7,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	CreatedAt       int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	ReturnUrl       string                 `protobuf:"bytes,10,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
-	NotifyUrl       string                 `protobuf:"bytes,11,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
-	UpstreamTradeNo string                 `protobuf:"bytes,12,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
-	PaidAmount      int64                  `protobuf:"varint,13,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
-	PayProductId    int64                  `protobuf:"varint,14,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	PayProductCode  string                 `protobuf:"bytes,15,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
-	ChannelLocked   int32                  `protobuf:"varint,16,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
-	FeeMode         int64                  `protobuf:"varint,17,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
-	FeeRateBps      int64                  `protobuf:"varint,18,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
-	FeeFixedAmount  int64                  `protobuf:"varint,19,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
-	FeeAmount       int64                  `protobuf:"varint,20,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
-	NetAmount       int64                  `protobuf:"varint,21,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrderNo          string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
+	MerchantId       string                 `protobuf:"bytes,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	MerchantOrderNo  string                 `protobuf:"bytes,3,opt,name=merchant_order_no,json=merchantOrderNo,proto3" json:"merchant_order_no,omitempty"`
+	Amount           int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency         string                 `protobuf:"bytes,5,opt,name=currency,proto3" json:"currency,omitempty"`
+	Status           int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
+	ChannelId        int64                  `protobuf:"varint,7,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	CreatedAt        int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt        int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ReturnUrl        string                 `protobuf:"bytes,10,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
+	NotifyUrl        string                 `protobuf:"bytes,11,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
+	UpstreamTradeNo  string                 `protobuf:"bytes,12,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
+	PaidAmount       int64                  `protobuf:"varint,13,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
+	PayinProductId   int64                  `protobuf:"varint,14,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	PayinProductCode string                 `protobuf:"bytes,15,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
+	ChannelLocked    int32                  `protobuf:"varint,16,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	FeeMode          int64                  `protobuf:"varint,17,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	FeeRateBps       int64                  `protobuf:"varint,18,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
+	FeeFixedAmount   int64                  `protobuf:"varint,19,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	FeeAmount        int64                  `protobuf:"varint,20,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount        int64                  `protobuf:"varint,21,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *OrderInfo) Reset() {
@@ -750,16 +750,16 @@ func (x *OrderInfo) GetPaidAmount() int64 {
 	return 0
 }
 
-func (x *OrderInfo) GetPayProductId() int64 {
+func (x *OrderInfo) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *OrderInfo) GetPayProductCode() string {
+func (x *OrderInfo) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
@@ -1026,9 +1026,9 @@ type PrepareTerminalPayReq struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	OrderNo string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
 	// 用户在收银台选择的支付产品编码；为空则沿用订单已有编码
-	PayProductCode string `protobuf:"bytes,2,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	PayinProductCode string `protobuf:"bytes,2,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *PrepareTerminalPayReq) Reset() {
@@ -1068,18 +1068,18 @@ func (x *PrepareTerminalPayReq) GetOrderNo() string {
 	return ""
 }
 
-func (x *PrepareTerminalPayReq) GetPayProductCode() string {
+func (x *PrepareTerminalPayReq) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
 
 type PrepareTerminalPayResp struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId      int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	PayProductId   int64                  `protobuf:"varint,2,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	PayProductCode string                 `protobuf:"bytes,3,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId        int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayinProductId   int64                  `protobuf:"varint,2,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	PayinProductCode string                 `protobuf:"bytes,3,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
 	// 跳转或二维码内容（mock 场景可与 pay_url 相同）
 	PayUrl    string `protobuf:"bytes,4,opt,name=pay_url,json=payUrl,proto3" json:"pay_url,omitempty"`
 	QrPayload string `protobuf:"bytes,5,opt,name=qr_payload,json=qrPayload,proto3" json:"qr_payload,omitempty"`
@@ -1126,16 +1126,16 @@ func (x *PrepareTerminalPayResp) GetChannelId() int64 {
 	return 0
 }
 
-func (x *PrepareTerminalPayResp) GetPayProductId() int64 {
+func (x *PrepareTerminalPayResp) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *PrepareTerminalPayResp) GetPayProductCode() string {
+func (x *PrepareTerminalPayResp) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
@@ -1501,7 +1501,7 @@ type AdminTodayOverviewResp struct {
 	state           protoimpl.MessageState  `protogen:"open.v1"`
 	Range           string                  `protobuf:"bytes,1,opt,name=range,proto3" json:"range,omitempty"`
 	Totals          *AdminStatsTotals       `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals,omitempty"`
-	ByPayProduct    []*AdminStatsProductRow `protobuf:"bytes,3,rep,name=by_pay_product,json=byPayProduct,proto3" json:"by_pay_product,omitempty"`
+	ByPayinProduct  []*AdminStatsProductRow `protobuf:"bytes,3,rep,name=by_payin_product,json=byPayinProduct,proto3" json:"by_payin_product,omitempty"`
 	ByChannel       []*AdminStatsChannelRow `protobuf:"bytes,4,rep,name=by_channel,json=byChannel,proto3" json:"by_channel,omitempty"`
 	EnabledChannels int64                   `protobuf:"varint,5,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
 	FusedChannels   int64                   `protobuf:"varint,6,opt,name=fused_channels,json=fusedChannels,proto3" json:"fused_channels,omitempty"`
@@ -1553,9 +1553,9 @@ func (x *AdminTodayOverviewResp) GetTotals() *AdminStatsTotals {
 	return nil
 }
 
-func (x *AdminTodayOverviewResp) GetByPayProduct() []*AdminStatsProductRow {
+func (x *AdminTodayOverviewResp) GetByPayinProduct() []*AdminStatsProductRow {
 	if x != nil {
-		return x.ByPayProduct
+		return x.ByPayinProduct
 	}
 	return nil
 }
@@ -1945,13 +1945,13 @@ func (x *AdminDayOverviewReq) GetMerchantId() string {
 }
 
 type AdminDayOverviewResp struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Date          string                  `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
-	Totals        *AdminStatsTotals       `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals,omitempty"`
-	ByPayProduct  []*AdminStatsProductRow `protobuf:"bytes,3,rep,name=by_pay_product,json=byPayProduct,proto3" json:"by_pay_product,omitempty"`
-	ByChannel     []*AdminStatsChannelRow `protobuf:"bytes,4,rep,name=by_channel,json=byChannel,proto3" json:"by_channel,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState  `protogen:"open.v1"`
+	Date           string                  `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Totals         *AdminStatsTotals       `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals,omitempty"`
+	ByPayinProduct []*AdminStatsProductRow `protobuf:"bytes,3,rep,name=by_payin_product,json=byPayinProduct,proto3" json:"by_payin_product,omitempty"`
+	ByChannel      []*AdminStatsChannelRow `protobuf:"bytes,4,rep,name=by_channel,json=byChannel,proto3" json:"by_channel,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AdminDayOverviewResp) Reset() {
@@ -1998,9 +1998,9 @@ func (x *AdminDayOverviewResp) GetTotals() *AdminStatsTotals {
 	return nil
 }
 
-func (x *AdminDayOverviewResp) GetByPayProduct() []*AdminStatsProductRow {
+func (x *AdminDayOverviewResp) GetByPayinProduct() []*AdminStatsProductRow {
 	if x != nil {
-		return x.ByPayProduct
+		return x.ByPayinProduct
 	}
 	return nil
 }
@@ -2037,7 +2037,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"fee_amount\x18\f \x01(\x03R\tfeeAmount\x12\x1d\n" +
 	"\n" +
-	"net_amount\x18\r \x01(\x03R\tnetAmount\"\xbf\x04\n" +
+	"net_amount\x18\r \x01(\x03R\tnetAmount\"\xc7\x04\n" +
 	"\x0eCreateOrderReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12*\n" +
@@ -2051,10 +2051,10 @@ const file_order_proto_rawDesc = "" +
 	"notify_url\x18\a \x01(\tR\tnotifyUrl\x12\x19\n" +
 	"\bpay_type\x18\b \x01(\tR\apayType\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\t \x01(\x03R\tchannelId\x12$\n" +
-	"\x0epay_product_id\x18\n" +
-	" \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\v \x01(\tR\x0epayProductCode\x12%\n" +
+	"channel_id\x18\t \x01(\x03R\tchannelId\x12(\n" +
+	"\x10payin_product_id\x18\n" +
+	" \x01(\x03R\x0epayinProductId\x12,\n" +
+	"\x12payin_product_code\x18\v \x01(\tR\x10payinProductCode\x12%\n" +
 	"\x0echannel_locked\x18\f \x01(\x05R\rchannelLocked\x12\x19\n" +
 	"\bfee_mode\x18\r \x01(\x03R\afeeMode\x12 \n" +
 	"\ffee_rate_bps\x18\x0e \x01(\x03R\n" +
@@ -2082,7 +2082,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\xc3\x05\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\xcb\x05\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -2104,9 +2104,9 @@ const file_order_proto_rawDesc = "" +
 	"notify_url\x18\v \x01(\tR\tnotifyUrl\x12*\n" +
 	"\x11upstream_trade_no\x18\f \x01(\tR\x0fupstreamTradeNo\x12\x1f\n" +
 	"\vpaid_amount\x18\r \x01(\x03R\n" +
-	"paidAmount\x12$\n" +
-	"\x0epay_product_id\x18\x0e \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\x0f \x01(\tR\x0epayProductCode\x12%\n" +
+	"paidAmount\x12(\n" +
+	"\x10payin_product_id\x18\x0e \x01(\x03R\x0epayinProductId\x12,\n" +
+	"\x12payin_product_code\x18\x0f \x01(\tR\x10payinProductCode\x12%\n" +
 	"\x0echannel_locked\x18\x10 \x01(\x05R\rchannelLocked\x12\x19\n" +
 	"\bfee_mode\x18\x11 \x01(\x03R\afeeMode\x12 \n" +
 	"\ffee_rate_bps\x18\x12 \x01(\x03R\n" +
@@ -2131,15 +2131,15 @@ const file_order_proto_rawDesc = "" +
 	"\ftotal_amount\x18\x01 \x01(\x03R\vtotalAmount\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x03R\n" +
 	"totalCount\x12#\n" +
-	"\rsuccess_count\x18\x03 \x01(\x03R\fsuccessCount\"\\\n" +
+	"\rsuccess_count\x18\x03 \x01(\x03R\fsuccessCount\"`\n" +
 	"\x15PrepareTerminalPayReq\x12\x19\n" +
-	"\border_no\x18\x01 \x01(\tR\aorderNo\x12(\n" +
-	"\x10pay_product_code\x18\x02 \x01(\tR\x0epayProductCode\"\xda\x01\n" +
+	"\border_no\x18\x01 \x01(\tR\aorderNo\x12,\n" +
+	"\x12payin_product_code\x18\x02 \x01(\tR\x10payinProductCode\"\xe2\x01\n" +
 	"\x16PrepareTerminalPayResp\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12$\n" +
-	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\x03 \x01(\tR\x0epayProductCode\x12\x17\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12(\n" +
+	"\x10payin_product_id\x18\x02 \x01(\x03R\x0epayinProductId\x12,\n" +
+	"\x12payin_product_code\x18\x03 \x01(\tR\x10payinProductCode\x12\x17\n" +
 	"\apay_url\x18\x04 \x01(\tR\x06payUrl\x12\x1d\n" +
 	"\n" +
 	"qr_payload\x18\x05 \x01(\tR\tqrPayload\x12\x19\n" +
@@ -2181,11 +2181,11 @@ const file_order_proto_rawDesc = "" +
 	"paid_count\x18\x05 \x01(\x03R\tpaidCount\x12!\n" +
 	"\ffailed_count\x18\x06 \x01(\x03R\vfailedCount\x12.\n" +
 	"\x13conversion_rate_pct\x18\a \x01(\x01R\x11conversionRatePct\x129\n" +
-	"\x19terminal_success_rate_pct\x18\b \x01(\x01R\x16terminalSuccessRatePct\"\xb0\x02\n" +
+	"\x19terminal_success_rate_pct\x18\b \x01(\x01R\x16terminalSuccessRatePct\"\xb4\x02\n" +
 	"\x16AdminTodayOverviewResp\x12\x14\n" +
 	"\x05range\x18\x01 \x01(\tR\x05range\x12/\n" +
-	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12A\n" +
-	"\x0eby_pay_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\fbyPayProduct\x12:\n" +
+	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12E\n" +
+	"\x10by_payin_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\x0ebyPayinProduct\x12:\n" +
 	"\n" +
 	"by_channel\x18\x04 \x03(\v2\x1b.order.AdminStatsChannelRowR\tbyChannel\x12)\n" +
 	"\x10enabled_channels\x18\x05 \x01(\x03R\x0fenabledChannels\x12%\n" +
@@ -2220,11 +2220,11 @@ const file_order_proto_rawDesc = "" +
 	"\x13AdminDayOverviewReq\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
-	"merchantId\"\xda\x01\n" +
+	"merchantId\"\xde\x01\n" +
 	"\x14AdminDayOverviewResp\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12/\n" +
-	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12A\n" +
-	"\x0eby_pay_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\fbyPayProduct\x12:\n" +
+	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12E\n" +
+	"\x10by_payin_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\x0ebyPayinProduct\x12:\n" +
 	"\n" +
 	"by_channel\x18\x04 \x03(\v2\x1b.order.AdminStatsChannelRowR\tbyChannel2\xe3\a\n" +
 	"\x05Order\x12<\n" +
@@ -2289,12 +2289,12 @@ var file_order_proto_depIdxs = []int32{
 	7,  // 1: order.GetOrderResp.order:type_name -> order.OrderInfo
 	7,  // 2: order.ListOrdersResp.orders:type_name -> order.OrderInfo
 	15, // 3: order.AdminTodayOverviewResp.totals:type_name -> order.AdminStatsTotals
-	16, // 4: order.AdminTodayOverviewResp.by_pay_product:type_name -> order.AdminStatsProductRow
+	16, // 4: order.AdminTodayOverviewResp.by_payin_product:type_name -> order.AdminStatsProductRow
 	17, // 5: order.AdminTodayOverviewResp.by_channel:type_name -> order.AdminStatsChannelRow
 	20, // 6: order.ListMerchantNotifyLogsResp.logs:type_name -> order.MerchantNotifyLogItem
 	7,  // 7: order.AdminListOrdersResp.orders:type_name -> order.OrderInfo
 	15, // 8: order.AdminDayOverviewResp.totals:type_name -> order.AdminStatsTotals
-	16, // 9: order.AdminDayOverviewResp.by_pay_product:type_name -> order.AdminStatsProductRow
+	16, // 9: order.AdminDayOverviewResp.by_payin_product:type_name -> order.AdminStatsProductRow
 	17, // 10: order.AdminDayOverviewResp.by_channel:type_name -> order.AdminStatsChannelRow
 	1,  // 11: order.Order.CreateOrder:input_type -> order.CreateOrderReq
 	3,  // 12: order.Order.GetOrder:input_type -> order.GetOrderReq

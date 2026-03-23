@@ -1,7 +1,7 @@
 export type RoutingSummary = {
   algorithm_key: string
   algorithm_label: string
-  enabled_pay_products: number
+  enabled_payin_products: number
   enabled_payout_products: number
   enabled_channels: number
   active_bindings: number

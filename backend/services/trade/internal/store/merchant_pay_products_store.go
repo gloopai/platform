@@ -33,7 +33,7 @@ SELECT COUNT(*) FROM merchant_payin_products WHERE merchant_id = ? AND enabled =
 }
 
 // MerchantHasPayinProductCode 与 gateway 侧逻辑对齐：未配置白名单则开放；已配置则必须在白名单内。
-func (s *MerchantPayinProductsStore) MerchantHasPayProductCode(ctx context.Context, merchantID, payinProductCode string) (bool, error) {
+func (s *MerchantPayinProductsStore) MerchantHasPayinProductCode(ctx context.Context, merchantID, payinProductCode string) (bool, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	code := strings.TrimSpace(payinProductCode)
 	if merchantID == "" || code == "" {

@@ -153,7 +153,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 	nameByCode := c.payProductNameByCode(c.ctx)
 	out := make([]types.MerchantOrderItem, 0, len(items))
 	for _, o := range items {
-		code := o.GetPayProductCode()
+		code := o.GetPayinProductCode()
 		out = append(out, types.MerchantOrderItem{
 			OrderNo:          o.GetOrderNo(),
 			MerchantOrderNo:  o.GetMerchantOrderNo(),
@@ -162,7 +162,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
 			PayinProductCode: code,
-			PayProductName:   lookupPayProductName(nameByCode, code),
+			PayinProductName:   lookupPayinProductName(nameByCode, code),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
 			FeeRateBps:       o.GetFeeRateBps(),
@@ -187,20 +187,20 @@ func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsRe
 		return nil, err
 	}
 	nameByCode := c.payProductNameByCode(c.ctx)
-	rows := r.GetByPayProduct()
+	rows := r.GetByPayinProduct()
 	items := make([]types.MerchantProductStatsItem, 0, len(rows))
 	for _, x := range rows {
 		code := strings.TrimSpace(x.GetProductCode())
 		name := strings.TrimSpace(x.GetProductName())
 		if name == "" {
-			name = lookupPayProductName(nameByCode, code)
+			name = lookupPayinProductName(nameByCode, code)
 		}
 		if name == "" {
 			name = code
 		}
 		items = append(items, types.MerchantProductStatsItem{
 			PayinProductCode: code,
-			PayProductName:   name,
+			PayinProductName:   name,
 			OrderCount:       x.GetOrderCount(),
 			PaidAmount:       x.GetPaidAmount(),
 			PaidCount:        x.GetPaidCount(),
@@ -222,9 +222,9 @@ func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsRe
 }
 
 func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]string {
-	r, err := c.svcCtx.ChannelRpc.AdminListPayProducts(ctx, &channelpb.AdminListPayProductsReq{})
+	r, err := c.svcCtx.ChannelRpc.AdminListPayinProducts(ctx, &channelpb.AdminListPayinProductsReq{})
 	if err != nil {
-		c.Errorf("AdminListPayProducts: %v", err)
+		c.Errorf("AdminListPayinProducts: %v", err)
 		return nil
 	}
 	m := make(map[string]string, len(r.GetProducts()))
@@ -236,7 +236,7 @@ func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]s
 	return m
 }
 
-func lookupPayProductName(byCode map[string]string, code string) string {
+func lookupPayinProductName(byCode map[string]string, code string) string {
 	if code == "" || byCode == nil {
 		return ""
 	}
@@ -303,8 +303,8 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 	o := r.GetOrder()
 
 	payProductName := ""
-	if code := o.GetPayProductCode(); code != "" {
-		if dn, err := c.svcCtx.ChannelRpc.GetPayProductDisplayName(c.ctx, &channelpb.GetPayProductDisplayNameReq{Code: code}); err == nil && dn != nil {
+	if code := o.GetPayinProductCode(); code != "" {
+		if dn, err := c.svcCtx.ChannelRpc.GetPayinProductDisplayName(c.ctx, &channelpb.GetPayinProductDisplayNameReq{Code: code}); err == nil && dn != nil {
 			payProductName = dn.GetName()
 		}
 	}
@@ -339,9 +339,9 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayProductId:     o.GetPayProductId(),
-			PayinProductCode: o.GetPayProductCode(),
-			PayProductName:   payProductName,
+			PayinProductId:     o.GetPayinProductId(),
+			PayinProductCode: o.GetPayinProductCode(),
+			PayinProductName:   payProductName,
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),

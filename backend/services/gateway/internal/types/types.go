@@ -26,7 +26,7 @@ type CreatePayoutOrderReq struct {
 	NotifyUrl         string `json:"notify_url,optional"`
 	PayType           string `json:"pay_type,optional"`
 	ChannelId         int64  `json:"channel_id,optional"`
-	PayProductId      int64  `json:"payin_product_id,optional"`
+	PayinProductId      int64  `json:"payin_product_id,optional"`
 	PayoutProductCode string `json:"payout_product_code,optional"`
 	FeeMode           int64  `json:"fee_mode,optional"`
 	FeeRateBps        int64  `json:"fee_rate_bps,optional"`
@@ -42,7 +42,7 @@ type CreateOrderResp struct {
 	OrderNo          string `json:"order_no"`
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"payin_product_id"`
+	PayinProductId     int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	CheckoutUrl      string `json:"checkout_url"`
 	ChannelLocked    int32  `json:"channel_locked"`
@@ -56,9 +56,9 @@ type OrderInfo struct {
 	Currency         string `json:"currency"`
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"payin_product_id"`
+	PayinProductId     int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
-	PayProductName   string `json:"pay_product_name"`
+	PayinProductName   string `json:"payin_product_name"`
 	ChannelLocked    int32  `json:"channel_locked"`
 	PaidAmount       int64  `json:"paid_amount"`
 	FeeMode          int64  `json:"fee_mode"`
@@ -71,7 +71,7 @@ type OrderInfo struct {
 	UpstreamTradeNo  string `json:"upstream_trade_no"`
 }
 
-type PayProductItem struct {
+type PayinProductItem struct {
 	Code string `json:"code"`
 	Name string `json:"name"`
 }
@@ -108,7 +108,7 @@ type TerminalOrderReq struct {
 
 type TerminalOrderResp struct {
 	Order       OrderInfo        `json:"order"`
-	PayProducts []PayProductItem `json:"payin_products"`
+	PayinProducts []PayinProductItem `json:"payin_products"`
 }
 
 type TerminalPayReq struct {
@@ -118,7 +118,7 @@ type TerminalPayReq struct {
 
 type TerminalPayResp struct {
 	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"payin_product_id"`
+	PayinProductId     int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PayUrl           string `json:"pay_url"`
 	QrPayload        string `json:"qr_payload"`
@@ -230,7 +230,7 @@ type MerchantProductStatsReq struct {
 
 type MerchantProductStatsItem struct {
 	PayinProductCode string  `json:"payin_product_code"`
-	PayProductName   string  `json:"pay_product_name"`
+	PayinProductName   string  `json:"payin_product_name"`
 	OrderCount       int64   `json:"order_count"`
 	PaidAmount       int64   `json:"paid_amount"`
 	PaidCount        int64   `json:"paid_count"`
@@ -258,7 +258,7 @@ type MerchantOrderItem struct {
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
 	PayinProductCode string `json:"payin_product_code"`
-	PayProductName   string `json:"pay_product_name"`
+	PayinProductName   string `json:"payin_product_name"`
 	PaidAmount       int64  `json:"paid_amount"`
 	FeeMode          int64  `json:"fee_mode"`
 	FeeRateBps       int64  `json:"fee_rate_bps"`
@@ -360,7 +360,7 @@ type MerchantLogoutResp struct {
 }
 
 type MerchantPayinGrant struct {
-	PayProductId    int64  `json:"payin_product_id"`
+	PayinProductId    int64  `json:"payin_product_id"`
 	MerchantRateBps *int64 `json:"merchant_rate_bps,omitempty"`
 }
 
@@ -382,7 +382,7 @@ type AdminMerchantInfo struct {
 	IpWhitelist          string                `json:"ip_whitelist"`
 	PayinBalance         int64                 `json:"payin_balance"`
 	PayoutBalance        int64                 `json:"payout_balance"`
-	PayProductIds        []int64               `json:"payin_product_ids"`
+	PayinProductIds        []int64               `json:"payin_product_ids"`
 	PayoutProductIds     []int64               `json:"payout_product_ids"`
 	PayinGrants          []MerchantPayinGrant  `json:"payin_grants"`
 	PayoutGrants         []MerchantPayoutGrant `json:"payout_grants"`
@@ -400,7 +400,7 @@ type AdminCreateMerchantReq struct {
 	NotifyUrl            string  `json:"notify_url,optional"`
 	ReturnUrl            string  `json:"return_url,optional"`
 	IpWhitelist          string  `json:"ip_whitelist,optional"`
-	PayProductIds        []int64 `json:"payin_product_ids,optional"`
+	PayinProductIds        []int64 `json:"payin_product_ids,optional"`
 	PayoutProductIds     []int64 `json:"payout_product_ids,optional"`
 }
 
@@ -413,7 +413,7 @@ type AdminUpdateMerchantReq struct {
 	ReturnUrl            string                `json:"return_url,optional"`
 	IpWhitelist          string                `json:"ip_whitelist,optional"`
 	ResetSecret          bool                  `json:"reset_secret,optional"`
-	PayProductIds        []int64               `json:"payin_product_ids,optional"`
+	PayinProductIds        []int64               `json:"payin_product_ids,optional"`
 	PayoutProductIds     []int64               `json:"payout_product_ids,optional"`
 	PayinGrants          []MerchantPayinGrant  `json:"payin_grants,optional"`  // 若提供则覆盖代收白名单（含空数组）
 	PayoutGrants         []MerchantPayoutGrant `json:"payout_grants,optional"` // 若提供则覆盖代付白名单
@@ -437,7 +437,7 @@ type AdminTransferPayinToPayoutResp struct {
 
 // --- 支付产品（对外 code）与上游通道绑定 ---
 
-type AdminPayProductInfo struct {
+type AdminPayinProductInfo struct {
 	Id        int64  `json:"id"`
 	Code      string `json:"code"`
 	Name      string `json:"name"`
@@ -445,22 +445,22 @@ type AdminPayProductInfo struct {
 	Enabled   bool   `json:"enabled"`
 }
 
-type AdminListPayProductsResp struct {
-	Products []AdminPayProductInfo `json:"products"`
+type AdminListPayinProductsResp struct {
+	Products []AdminPayinProductInfo `json:"products"`
 }
 
-type AdminCreatePayProductReq struct {
+type AdminCreatePayinProductReq struct {
 	Code      string `json:"code"`
 	Name      string `json:"name"`
 	SortOrder int64  `json:"sort_order,optional"`
 	Enabled   bool   `json:"enabled,optional"`
 }
 
-type AdminUpsertPayProductResp struct {
-	Product AdminPayProductInfo `json:"product"`
+type AdminUpsertPayinProductResp struct {
+	Product AdminPayinProductInfo `json:"product"`
 }
 
-type AdminUpdatePayProductReq struct {
+type AdminUpdatePayinProductReq struct {
 	Id        int64  `path:"id"`
 	Code      string `json:"code"`
 	Name      string `json:"name"`
@@ -468,49 +468,49 @@ type AdminUpdatePayProductReq struct {
 	Enabled   bool   `json:"enabled,optional"`
 }
 
-type AdminPayProductBindingInfo struct {
-	Id           int64  `json:"id"`
-	PayProductId int64  `json:"payin_product_id"`
-	ChannelId    int64  `json:"channel_id"`
-	ChannelName  string `json:"channel_name"`
-	Weight       int64  `json:"weight"`
-	Enabled      bool   `json:"enabled"`
+type AdminPayinProductBindingInfo struct {
+	Id             int64  `json:"id"`
+	PayinProductId int64  `json:"payin_product_id"`
+	ChannelId      int64  `json:"channel_id"`
+	ChannelName    string `json:"channel_name"`
+	Weight         int64  `json:"weight"`
+	Enabled        bool   `json:"enabled"`
 }
 
-type AdminListPayProductBindingsReq struct {
+type AdminListPayinProductBindingsReq struct {
 	Id int64 `path:"id"`
 }
 
-type AdminListPayProductBindingsResp struct {
-	Bindings []AdminPayProductBindingInfo `json:"bindings"`
+type AdminListPayinProductBindingsResp struct {
+	Bindings []AdminPayinProductBindingInfo `json:"bindings"`
 }
 
-type AdminUpsertPayProductBindingReq struct {
-	PayProductId int64 `path:"id"`
-	ChannelId    int64 `json:"channel_id"`
-	Weight       int64 `json:"weight"`
-	Enabled      bool  `json:"enabled,optional"`
+type AdminUpsertPayinProductBindingReq struct {
+	PayinProductId int64 `path:"id"`
+	ChannelId      int64 `json:"channel_id"`
+	Weight         int64 `json:"weight"`
+	Enabled        bool  `json:"enabled,optional"`
 }
 
-type AdminUpsertPayProductBindingResp struct {
-	Binding AdminPayProductBindingInfo `json:"binding"`
+type AdminUpsertPayinProductBindingResp struct {
+	Binding AdminPayinProductBindingInfo `json:"binding"`
 }
 
-type AdminUpdatePayProductBindingReq struct {
+type AdminUpdatePayinProductBindingReq struct {
 	Id      int64 `path:"id"`
 	Weight  int64 `json:"weight"`
 	Enabled bool  `json:"enabled,optional"`
 }
 
-type AdminUpdatePayProductBindingResp struct {
-	Binding AdminPayProductBindingInfo `json:"binding"`
+type AdminUpdatePayinProductBindingResp struct {
+	Binding AdminPayinProductBindingInfo `json:"binding"`
 }
 
-type AdminDeletePayProductBindingReq struct {
+type AdminDeletePayinProductBindingReq struct {
 	Id int64 `path:"id"`
 }
 
-type AdminDeletePayProductBindingResp struct {
+type AdminDeletePayinProductBindingResp struct {
 	Ok bool `json:"ok"`
 }
 
@@ -598,7 +598,7 @@ type AdminDeletePayoutProductBindingResp struct {
 type AdminRoutingSummaryResp struct {
 	AlgorithmKey                 string `json:"algorithm_key"`
 	AlgorithmLabel               string `json:"algorithm_label"`
-	EnabledPayProducts           int64  `json:"enabled_payin_products"`
+	EnabledPayinProducts           int64  `json:"enabled_payin_products"`
 	EnabledPayoutProducts        int64  `json:"enabled_payout_products"`
 	EnabledChannels              int64  `json:"enabled_channels"`
 	ActiveBindings               int64  `json:"active_bindings"`
@@ -646,7 +646,7 @@ type AdminStatsChannelRow struct {
 type AdminStatsOverviewResp struct {
 	Range           string                 `json:"range"`
 	Totals          AdminStatsTotals       `json:"totals"`
-	ByPayProduct    []AdminStatsProductRow `json:"by_pay_product"`
+	ByPayinProduct    []AdminStatsProductRow `json:"by_payin_product"`
 	ByChannel       []AdminStatsChannelRow `json:"by_channel"`
 	EnabledChannels int64                  `json:"enabled_channels"`
 	FusedChannels   int64                  `json:"fused_channels"`
@@ -667,7 +667,7 @@ type AdminOrderRow struct {
 	Currency         string `json:"currency"`
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
-	PayProductId     int64  `json:"payin_product_id"`
+	PayinProductId     int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PaidAmount       int64  `json:"paid_amount"`
 	FeeMode          int64  `json:"fee_mode"`
@@ -730,7 +730,7 @@ type AdminDayOverviewReq struct {
 type AdminDayOverviewResp struct {
 	Date         string                 `json:"date"`
 	Totals       AdminStatsTotals       `json:"totals"`
-	ByPayProduct []AdminStatsProductRow `json:"by_pay_product"`
+	ByPayinProduct []AdminStatsProductRow `json:"by_payin_product"`
 	ByChannel    []AdminStatsChannelRow `json:"by_channel"`
 }
 

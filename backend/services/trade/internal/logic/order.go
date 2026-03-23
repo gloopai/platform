@@ -71,7 +71,7 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		_ = l.svcCtx.Redis.Del(l.ctx, lockKey).Err()
 		return nil, status.Error(codes.Internal, "generate order_no failed")
 	}
-	payCode := strings.TrimSpace(in.GetPayProductCode())
+	payCode := strings.TrimSpace(in.GetPayinProductCode())
 	if payCode == "" {
 		payCode = strings.TrimSpace(in.GetPayType())
 	}
@@ -83,8 +83,8 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		Currency:        in.GetCurrency(),
 		Status:          store.OrderStatusPending,
 		ChannelId:       in.GetChannelId(),
-		PayProductId:    in.GetPayProductId(),
-		PayProductCode:  payCode,
+		PayinProductId:    in.GetPayinProductId(),
+		PayinProductCode:  payCode,
 		ChannelLocked:   in.GetChannelLocked(),
 		PaidAmount:      0,
 		FeeMode:         in.GetFeeMode(),
@@ -284,8 +284,8 @@ func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
 		Currency:        rec.Currency,
 		Status:          rec.Status,
 		ChannelId:       rec.ChannelId,
-		PayProductId:    rec.PayProductId,
-		PayProductCode:  rec.PayProductCode,
+		PayinProductId:    rec.PayinProductId,
+		PayinProductCode:  rec.PayinProductCode,
 		ChannelLocked:   rec.ChannelLocked,
 		FeeMode:         rec.FeeMode,
 		FeeRateBps:      rec.FeeRateBps,

@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// PayProductOption 收银台展示的支付产品（与 payin_products 一致，按订单金额过滤可用通道）。
-type PayProductOption struct {
+// PayinProductOption 收银台展示的支付产品（与 payin_products 一致，按订单金额过滤可用通道）。
+type PayinProductOption struct {
 	Code string
 	Name string
 }
@@ -38,8 +38,8 @@ SELECT COUNT(*) FROM merchant_payin_products WHERE merchant_id = ? AND enabled =
 	return n > 0, nil
 }
 
-// ListTerminalPayProducts 收银台用：已配置白名单则只展示白名单内可用产品；未配置则与 ListAvailableForAmount 一致。
-func (s *PayinProductsStore) ListTerminalPayProducts(ctx context.Context, merchantID string, amount int64) ([]PayProductOption, error) {
+// ListTerminalPayinProducts 收银台用：已配置白名单则只展示白名单内可用产品；未配置则与 ListAvailableForAmount 一致。
+func (s *PayinProductsStore) ListTerminalPayinProducts(ctx context.Context, merchantID string, amount int64) ([]PayinProductOption, error) {
 	strict, err := s.MerchantPayWhitelistStrict(ctx, merchantID)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *PayinProductsStore) ListTerminalPayProducts(ctx context.Context, mercha
 }
 
 // ListAvailableForAmount 返回：至少有一条可用上游通道、且金额在通道限额内的支付产品。
-func (s *PayinProductsStore) ListAvailableForAmount(ctx context.Context, amount int64) ([]PayProductOption, error) {
+func (s *PayinProductsStore) ListAvailableForAmount(ctx context.Context, amount int64) ([]PayinProductOption, error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT DISTINCT pp.code, pp.name
 FROM payin_products pp
@@ -68,9 +68,9 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	}
 	defer rows.Close()
 
-	var out []PayProductOption
+	var out []PayinProductOption
 	for rows.Next() {
-		var o PayProductOption
+		var o PayinProductOption
 		if err := rows.Scan(&o.Code, &o.Name); err != nil {
 			return nil, err
 		}
@@ -86,7 +86,7 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	return s.listLegacyChannelPayTypes(ctx, amount)
 }
 
-func (s *PayinProductsStore) listLegacyChannelPayTypes(ctx context.Context, amount int64) ([]PayProductOption, error) {
+func (s *PayinProductsStore) listLegacyChannelPayTypes(ctx context.Context, amount int64) ([]PayinProductOption, error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT DISTINCT COALESCE(NULLIF(TRIM(pay_type), ''), 'mock')
 FROM channels
@@ -100,13 +100,13 @@ ORDER BY 1
 	}
 	defer rows.Close()
 
-	var out []PayProductOption
+	var out []PayinProductOption
 	for rows.Next() {
 		var code string
 		if err := rows.Scan(&code); err != nil {
 			return nil, err
 		}
-		out = append(out, PayProductOption{Code: code, Name: code})
+		out = append(out, PayinProductOption{Code: code, Name: code})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -114,8 +114,8 @@ ORDER BY 1
 	return out, nil
 }
 
-// ListAvailableForMerchantAndAmount 商户白名单内、且金额满足通道限额的支付产品（未配置白名单时请用 ListTerminalPayProducts）。
-func (s *PayinProductsStore) ListAvailableForMerchantAndAmount(ctx context.Context, merchantID string, amount int64) ([]PayProductOption, error) {
+// ListAvailableForMerchantAndAmount 商户白名单内、且金额满足通道限额的支付产品（未配置白名单时请用 ListTerminalPayinProducts）。
+func (s *PayinProductsStore) ListAvailableForMerchantAndAmount(ctx context.Context, merchantID string, amount int64) ([]PayinProductOption, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return nil, nil
@@ -137,9 +137,9 @@ ORDER BY mpp.sort_order ASC, pp.sort_order ASC, pp.id ASC
 	}
 	defer rows.Close()
 
-	var out []PayProductOption
+	var out []PayinProductOption
 	for rows.Next() {
-		var o PayProductOption
+		var o PayinProductOption
 		if err := rows.Scan(&o.Code, &o.Name); err != nil {
 			return nil, err
 		}
@@ -152,7 +152,7 @@ ORDER BY mpp.sort_order ASC, pp.sort_order ASC, pp.id ASC
 }
 
 // MerchantHasPayinProductCode 判断商户是否可使用该支付产品编码；未配置白名单时视为开放模式（任意有效产品编码在后续路由中再校验）。
-func (s *PayinProductsStore) MerchantHasPayProductCode(ctx context.Context, merchantID, payinProductCode string) (bool, error) {
+func (s *PayinProductsStore) MerchantHasPayinProductCode(ctx context.Context, merchantID, payinProductCode string) (bool, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	code := strings.TrimSpace(payinProductCode)
 	if merchantID == "" || code == "" {
@@ -182,7 +182,7 @@ LIMIT 1
 	return true, nil
 }
 
-// ResolveLockedChannelForMerchant 商户 API 指定 channel_id 时，解析对应的 pay_product（白名单开启时通道须落在白名单关联的产品上；开放模式仅校验通道与金额）。
+// ResolveLockedChannelForMerchant 商户 API 指定 channel_id 时，解析对应的 payin_product（白名单开启时通道须落在白名单关联的产品上；开放模式仅校验通道与金额）。
 func (s *PayinProductsStore) ResolveLockedChannelForMerchant(ctx context.Context, merchantID string, channelID int64, amount int64) (payProductID int64, payinProductCode string, err error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" || channelID <= 0 {
@@ -229,8 +229,8 @@ LIMIT 1
 	return payProductID, payinProductCode, nil
 }
 
-// GetPayProductDisplayName 按 code 取展示名，不存在则返回 code。
-func (s *PayinProductsStore) GetPayProductDisplayName(ctx context.Context, code string) (string, error) {
+// GetPayinProductDisplayName 按 code 取展示名，不存在则返回 code。
+func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, code string) (string, error) {
 	code = strings.TrimSpace(code)
 	if code == "" {
 		return "", nil

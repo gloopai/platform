@@ -208,37 +208,37 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/payin_products",
-					Handler: adminhandler.AdminListPayProductsHandler(serverCtx),
+					Handler: adminhandler.AdminListPayinProductsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/payin_products",
-					Handler: adminhandler.AdminCreatePayProductHandler(serverCtx),
+					Handler: adminhandler.AdminCreatePayinProductHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/payin_products/:id",
-					Handler: adminhandler.AdminUpdatePayProductHandler(serverCtx),
+					Handler: adminhandler.AdminUpdatePayinProductHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/payin_products/:id/bindings",
-					Handler: adminhandler.AdminListPayProductBindingsHandler(serverCtx),
+					Handler: adminhandler.AdminListPayinProductBindingsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/payin_products/:id/bindings",
-					Handler: adminhandler.AdminUpsertPayProductBindingHandler(serverCtx),
+					Handler: adminhandler.AdminUpsertPayinProductBindingHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/payin_product_bindings/:id",
-					Handler: adminhandler.AdminUpdatePayProductBindingHandler(serverCtx),
+					Handler: adminhandler.AdminUpdatePayinProductBindingHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodDelete,
 					Path:    "/v1/admin/payin_product_bindings/:id",
-					Handler: adminhandler.AdminDeletePayProductBindingHandler(serverCtx),
+					Handler: adminhandler.AdminDeletePayinProductBindingHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

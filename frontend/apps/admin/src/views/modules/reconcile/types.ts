@@ -4,6 +4,6 @@ import type { StatsChannelRow, StatsProductRow, StatsTotals } from '../stats/typ
 export type ReconcileDayOverview = {
   date: string
   totals: StatsTotals
-  by_pay_product: StatsProductRow[]
+  by_payin_product: StatsProductRow[]
   by_channel: StatsChannelRow[]
 }

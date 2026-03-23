@@ -68,10 +68,10 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	}
 }
 
-func payBindingToProto(b *store.PayProductBindingAdmin) *channelpb.AdminPayProductBindingRow {
-	return &channelpb.AdminPayProductBindingRow{
+func payBindingToProto(b *store.PayinProductBindingAdmin) *channelpb.AdminPayinProductBindingRow {
+	return &channelpb.AdminPayinProductBindingRow{
 		Id:           b.ID,
-		PayProductId: b.PayProductID,
+		PayinProductId: b.PayinProductID,
 		ChannelId:    b.ChannelID,
 		ChannelName:  b.ChannelName,
 		Weight:       b.Weight,
@@ -162,7 +162,7 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 	return &channelpb.GetRoutingSummaryResp{
 		AlgorithmKey:                 "weighted_random_within_product",
 		AlgorithmLabel:               "支付产品内加权随机（同产品多上游按权重分流）",
-		EnabledPayProducts:           rs.EnabledPayProducts,
+		EnabledPayinProducts:           rs.EnabledPayinProducts,
 		EnabledPayoutProducts:        rs.EnabledPayoutProducts,
 		EnabledChannels:              rs.EnabledChannels,
 		ActiveBindings:               rs.ActiveBindings,
@@ -173,50 +173,50 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 	}, nil
 }
 
-func (s *ChannelServer) ListTerminalPayProducts(ctx context.Context, req *channelpb.ListTerminalPayProductsReq) (*channelpb.ListTerminalPayProductsResp, error) {
-	opts, err := s.svcCtx.PayProducts.ListTerminalPayProducts(ctx, req.GetMerchantId(), req.GetAmount())
+func (s *ChannelServer) ListTerminalPayinProducts(ctx context.Context, req *channelpb.ListTerminalPayinProductsReq) (*channelpb.ListTerminalPayinProductsResp, error) {
+	opts, err := s.svcCtx.PayinProducts.ListTerminalPayinProducts(ctx, req.GetMerchantId(), req.GetAmount())
 	if err != nil {
 		return nil, err
 	}
-	out := make([]*channelpb.PayProductOption, 0, len(opts))
+	out := make([]*channelpb.PayinProductOption, 0, len(opts))
 	for _, o := range opts {
-		out = append(out, &channelpb.PayProductOption{Code: o.Code, Name: o.Name})
+		out = append(out, &channelpb.PayinProductOption{Code: o.Code, Name: o.Name})
 	}
-	return &channelpb.ListTerminalPayProductsResp{Products: out}, nil
+	return &channelpb.ListTerminalPayinProductsResp{Products: out}, nil
 }
 
-func (s *ChannelServer) MerchantHasPayProductCode(ctx context.Context, req *channelpb.MerchantHasPayProductCodeReq) (*channelpb.MerchantHasPayProductCodeResp, error) {
-	ok, err := s.svcCtx.PayProducts.MerchantHasPayProductCode(ctx, req.GetMerchantId(), req.GetPayProductCode())
+func (s *ChannelServer) MerchantHasPayinProductCode(ctx context.Context, req *channelpb.MerchantHasPayinProductCodeReq) (*channelpb.MerchantHasPayinProductCodeResp, error) {
+	ok, err := s.svcCtx.PayinProducts.MerchantHasPayinProductCode(ctx, req.GetMerchantId(), req.GetPayinProductCode())
 	if err != nil {
 		return nil, err
 	}
-	return &channelpb.MerchantHasPayProductCodeResp{Ok: ok}, nil
+	return &channelpb.MerchantHasPayinProductCodeResp{Ok: ok}, nil
 }
 
 func (s *ChannelServer) ResolveLockedChannelForMerchant(ctx context.Context, req *channelpb.ResolveLockedChannelForMerchantReq) (*channelpb.ResolveLockedChannelForMerchantResp, error) {
-	ppid, code, err := s.svcCtx.PayProducts.ResolveLockedChannelForMerchant(ctx, req.GetMerchantId(), req.GetChannelId(), req.GetAmount())
+	ppid, code, err := s.svcCtx.PayinProducts.ResolveLockedChannelForMerchant(ctx, req.GetMerchantId(), req.GetChannelId(), req.GetAmount())
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
 	}
-	return &channelpb.ResolveLockedChannelForMerchantResp{PayProductId: ppid, PayProductCode: code}, nil
+	return &channelpb.ResolveLockedChannelForMerchantResp{PayinProductId: ppid, PayinProductCode: code}, nil
 }
 
-func (s *ChannelServer) GetPayProductDisplayName(ctx context.Context, req *channelpb.GetPayProductDisplayNameReq) (*channelpb.GetPayProductDisplayNameResp, error) {
-	name, err := s.svcCtx.PayProducts.GetPayProductDisplayName(ctx, req.GetCode())
+func (s *ChannelServer) GetPayinProductDisplayName(ctx context.Context, req *channelpb.GetPayinProductDisplayNameReq) (*channelpb.GetPayinProductDisplayNameResp, error) {
+	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode())
 	if err != nil {
 		return nil, err
 	}
-	return &channelpb.GetPayProductDisplayNameResp{Name: name}, nil
+	return &channelpb.GetPayinProductDisplayNameResp{Name: name}, nil
 }
 
-func (s *ChannelServer) AdminListPayProducts(ctx context.Context, _ *channelpb.AdminListPayProductsReq) (*channelpb.AdminListPayProductsResp, error) {
-	rows, err := s.svcCtx.PayProducts.AdminListAllPayProducts(ctx)
+func (s *ChannelServer) AdminListPayinProducts(ctx context.Context, _ *channelpb.AdminListPayinProductsReq) (*channelpb.AdminListPayinProductsResp, error) {
+	rows, err := s.svcCtx.PayinProducts.AdminListAllPayinProducts(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]*channelpb.AdminPayProductRow, 0, len(rows))
+	out := make([]*channelpb.AdminPayinProductRow, 0, len(rows))
 	for _, p := range rows {
-		out = append(out, &channelpb.AdminPayProductRow{
+		out = append(out, &channelpb.AdminPayinProductRow{
 			Id:        p.ID,
 			Code:      p.Code,
 			Name:      p.Name,
@@ -224,10 +224,10 @@ func (s *ChannelServer) AdminListPayProducts(ctx context.Context, _ *channelpb.A
 			Enabled:   p.Enabled,
 		})
 	}
-	return &channelpb.AdminListPayProductsResp{Products: out}, nil
+	return &channelpb.AdminListPayinProductsResp{Products: out}, nil
 }
 
-func (s *ChannelServer) AdminCreatePayProduct(ctx context.Context, req *channelpb.AdminCreatePayProductReq) (*channelpb.AdminUpsertPayProductResp, error) {
+func (s *ChannelServer) AdminCreatePayinProduct(ctx context.Context, req *channelpb.AdminCreatePayinProductReq) (*channelpb.AdminUpsertPayinProductResp, error) {
 	code := strings.TrimSpace(req.GetCode())
 	name := strings.TrimSpace(req.GetName())
 	if code == "" {
@@ -236,23 +236,23 @@ func (s *ChannelServer) AdminCreatePayProduct(ctx context.Context, req *channelp
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name required")
 	}
-	id, err := s.svcCtx.PayProducts.AdminCreatePayProduct(ctx, code, name, req.GetSortOrder(), req.GetEnabled())
+	id, err := s.svcCtx.PayinProducts.AdminCreatePayinProduct(ctx, code, name, req.GetSortOrder(), req.GetEnabled())
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate") {
 			return nil, status.Error(codes.AlreadyExists, "code already exists")
 		}
 		return nil, err
 	}
-	p, err := s.svcCtx.PayProducts.AdminGetPayProduct(ctx, id)
+	p, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return &channelpb.AdminUpsertPayProductResp{Product: &channelpb.AdminPayProductRow{
+	return &channelpb.AdminUpsertPayinProductResp{Product: &channelpb.AdminPayinProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled,
 	}}, nil
 }
 
-func (s *ChannelServer) AdminUpdatePayProduct(ctx context.Context, req *channelpb.AdminUpdatePayProductReq) (*channelpb.AdminUpsertPayProductResp, error) {
+func (s *ChannelServer) AdminUpdatePayinProduct(ctx context.Context, req *channelpb.AdminUpdatePayinProductReq) (*channelpb.AdminUpsertPayinProductResp, error) {
 	if req.GetId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -261,7 +261,7 @@ func (s *ChannelServer) AdminUpdatePayProduct(ctx context.Context, req *channelp
 	if code == "" || name == "" {
 		return nil, status.Error(codes.InvalidArgument, "code and name required")
 	}
-	err := s.svcCtx.PayProducts.AdminUpdatePayProduct(ctx, req.GetId(), code, name, req.GetSortOrder(), req.GetEnabled())
+	err := s.svcCtx.PayinProducts.AdminUpdatePayinProduct(ctx, req.GetId(), code, name, req.GetSortOrder(), req.GetEnabled())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
@@ -271,110 +271,110 @@ func (s *ChannelServer) AdminUpdatePayProduct(ctx context.Context, req *channelp
 		}
 		return nil, err
 	}
-	p, err := s.svcCtx.PayProducts.AdminGetPayProduct(ctx, req.GetId())
+	p, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
 	}
-	return &channelpb.AdminUpsertPayProductResp{Product: &channelpb.AdminPayProductRow{
+	return &channelpb.AdminUpsertPayinProductResp{Product: &channelpb.AdminPayinProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled,
 	}}, nil
 }
 
-func (s *ChannelServer) AdminListPayProductBindings(ctx context.Context, req *channelpb.AdminListPayProductBindingsReq) (*channelpb.AdminListPayProductBindingsResp, error) {
-	if req.GetPayProductId() <= 0 {
+func (s *ChannelServer) AdminListPayinProductBindings(ctx context.Context, req *channelpb.AdminListPayinProductBindingsReq) (*channelpb.AdminListPayinProductBindingsResp, error) {
+	if req.GetPayinProductId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
-	if _, err := s.svcCtx.PayProducts.AdminGetPayProduct(ctx, req.GetPayProductId()); err != nil {
+	if _, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetPayinProductId()); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
 	}
-	rows, err := s.svcCtx.PayProducts.AdminListBindings(ctx, req.GetPayProductId())
+	rows, err := s.svcCtx.PayinProducts.AdminListBindings(ctx, req.GetPayinProductId())
 	if err != nil {
 		return nil, err
 	}
-	out := make([]*channelpb.AdminPayProductBindingRow, 0, len(rows))
+	out := make([]*channelpb.AdminPayinProductBindingRow, 0, len(rows))
 	for _, b := range rows {
 		out = append(out, payBindingToProto(&b))
 	}
-	return &channelpb.AdminListPayProductBindingsResp{Bindings: out}, nil
+	return &channelpb.AdminListPayinProductBindingsResp{Bindings: out}, nil
 }
 
-func (s *ChannelServer) AdminUpsertPayProductBinding(ctx context.Context, req *channelpb.AdminUpsertPayProductBindingReq) (*channelpb.AdminUpsertPayProductBindingResp, error) {
-	if req.GetPayProductId() <= 0 || req.GetChannelId() <= 0 {
-		return nil, status.Error(codes.InvalidArgument, "pay_product_id and channel_id required")
+func (s *ChannelServer) AdminUpsertPayinProductBinding(ctx context.Context, req *channelpb.AdminUpsertPayinProductBindingReq) (*channelpb.AdminUpsertPayinProductBindingResp, error) {
+	if req.GetPayinProductId() <= 0 || req.GetChannelId() <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "payin_product_id and channel_id required")
 	}
 	if req.GetWeight() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "weight must be positive")
 	}
-	if _, err := s.svcCtx.PayProducts.AdminGetPayProduct(ctx, req.GetPayProductId()); err != nil {
+	if _, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetPayinProductId()); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
 	}
-	ok, err := s.svcCtx.PayProducts.AdminChannelExists(ctx, req.GetChannelId())
+	ok, err := s.svcCtx.PayinProducts.AdminChannelExists(ctx, req.GetChannelId())
 	if err != nil {
 		return nil, err
 	}
 	if !ok {
 		return nil, status.Error(codes.NotFound, "channel not found")
 	}
-	sup, err := s.svcCtx.PayProducts.AdminChannelSupportsPayin(ctx, req.GetChannelId())
+	sup, err := s.svcCtx.PayinProducts.AdminChannelSupportsPayin(ctx, req.GetChannelId())
 	if err != nil {
 		return nil, err
 	}
 	if !sup {
 		return nil, status.Error(codes.FailedPrecondition, "channel does not support payin")
 	}
-	bid, err := s.svcCtx.PayProducts.AdminUpsertBinding(ctx, req.GetPayProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled())
+	bid, err := s.svcCtx.PayinProducts.AdminUpsertBinding(ctx, req.GetPayinProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		return nil, err
 	}
-	b, err := s.svcCtx.PayProducts.AdminGetBindingByID(ctx, bid)
+	b, err := s.svcCtx.PayinProducts.AdminGetBindingByID(ctx, bid)
 	if err != nil {
 		return nil, err
 	}
-	return &channelpb.AdminUpsertPayProductBindingResp{Binding: payBindingToProto(b)}, nil
+	return &channelpb.AdminUpsertPayinProductBindingResp{Binding: payBindingToProto(b)}, nil
 }
 
-func (s *ChannelServer) AdminUpdatePayProductBinding(ctx context.Context, req *channelpb.AdminUpdatePayProductBindingReq) (*channelpb.AdminUpdatePayProductBindingResp, error) {
+func (s *ChannelServer) AdminUpdatePayinProductBinding(ctx context.Context, req *channelpb.AdminUpdatePayinProductBindingReq) (*channelpb.AdminUpdatePayinProductBindingResp, error) {
 	if req.GetId() <= 0 || req.GetWeight() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id and positive weight required")
 	}
-	err := s.svcCtx.PayProducts.AdminUpdateBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
+	err := s.svcCtx.PayinProducts.AdminUpdateBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
-	b, err := s.svcCtx.PayProducts.AdminGetBindingByID(ctx, req.GetId())
+	b, err := s.svcCtx.PayinProducts.AdminGetBindingByID(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
-	return &channelpb.AdminUpdatePayProductBindingResp{Binding: payBindingToProto(b)}, nil
+	return &channelpb.AdminUpdatePayinProductBindingResp{Binding: payBindingToProto(b)}, nil
 }
 
-func (s *ChannelServer) AdminDeletePayProductBinding(ctx context.Context, req *channelpb.AdminDeletePayProductBindingReq) (*channelpb.AdminDeletePayProductBindingResp, error) {
+func (s *ChannelServer) AdminDeletePayinProductBinding(ctx context.Context, req *channelpb.AdminDeletePayinProductBindingReq) (*channelpb.AdminDeletePayinProductBindingResp, error) {
 	if req.GetId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
-	err := s.svcCtx.PayProducts.AdminDeleteBinding(ctx, req.GetId())
+	err := s.svcCtx.PayinProducts.AdminDeleteBinding(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
-	return &channelpb.AdminDeletePayProductBindingResp{Ok: true}, nil
+	return &channelpb.AdminDeletePayinProductBindingResp{Ok: true}, nil
 }
 
 func (s *ChannelServer) AdminListPayoutProducts(ctx context.Context, _ *channelpb.AdminListPayoutProductsReq) (*channelpb.AdminListPayoutProductsResp, error) {
@@ -475,7 +475,7 @@ func (s *ChannelServer) AdminUpsertPayoutProductBinding(ctx context.Context, req
 		}
 		return nil, err
 	}
-	chOk, err := s.svcCtx.PayProducts.AdminChannelExists(ctx, req.GetChannelId())
+	chOk, err := s.svcCtx.PayinProducts.AdminChannelExists(ctx, req.GetChannelId())
 	if err != nil {
 		return nil, err
 	}

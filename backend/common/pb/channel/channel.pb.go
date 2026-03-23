@@ -74,11 +74,11 @@ func (x *RouteReq) GetPayType() string {
 }
 
 type RouteResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	PayProductId  int64                  `protobuf:"varint,2,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId      int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	PayinProductId int64                  `protobuf:"varint,2,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RouteResp) Reset() {
@@ -118,9 +118,9 @@ func (x *RouteResp) GetChannelId() int64 {
 	return 0
 }
 
-func (x *RouteResp) GetPayProductId() int64 {
+func (x *RouteResp) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
@@ -737,7 +737,7 @@ type GetRoutingSummaryResp struct {
 	state                        protoimpl.MessageState `protogen:"open.v1"`
 	AlgorithmKey                 string                 `protobuf:"bytes,1,opt,name=algorithm_key,json=algorithmKey,proto3" json:"algorithm_key,omitempty"`
 	AlgorithmLabel               string                 `protobuf:"bytes,2,opt,name=algorithm_label,json=algorithmLabel,proto3" json:"algorithm_label,omitempty"`
-	EnabledPayProducts           int64                  `protobuf:"varint,3,opt,name=enabled_pay_products,json=enabledPayProducts,proto3" json:"enabled_pay_products,omitempty"`
+	EnabledPayinProducts         int64                  `protobuf:"varint,3,opt,name=enabled_payin_products,json=enabledPayinProducts,proto3" json:"enabled_payin_products,omitempty"`
 	EnabledPayoutProducts        int64                  `protobuf:"varint,4,opt,name=enabled_payout_products,json=enabledPayoutProducts,proto3" json:"enabled_payout_products,omitempty"`
 	EnabledChannels              int64                  `protobuf:"varint,5,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
 	ActiveBindings               int64                  `protobuf:"varint,6,opt,name=active_bindings,json=activeBindings,proto3" json:"active_bindings,omitempty"`
@@ -793,9 +793,9 @@ func (x *GetRoutingSummaryResp) GetAlgorithmLabel() string {
 	return ""
 }
 
-func (x *GetRoutingSummaryResp) GetEnabledPayProducts() int64 {
+func (x *GetRoutingSummaryResp) GetEnabledPayinProducts() int64 {
 	if x != nil {
-		return x.EnabledPayProducts
+		return x.EnabledPayinProducts
 	}
 	return 0
 }
@@ -849,7 +849,7 @@ func (x *GetRoutingSummaryResp) GetFusedChannels() int64 {
 	return 0
 }
 
-type ListTerminalPayProductsReq struct {
+type ListTerminalPayinProductsReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
@@ -857,20 +857,20 @@ type ListTerminalPayProductsReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTerminalPayProductsReq) Reset() {
-	*x = ListTerminalPayProductsReq{}
+func (x *ListTerminalPayinProductsReq) Reset() {
+	*x = ListTerminalPayinProductsReq{}
 	mi := &file_channel_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTerminalPayProductsReq) String() string {
+func (x *ListTerminalPayinProductsReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTerminalPayProductsReq) ProtoMessage() {}
+func (*ListTerminalPayinProductsReq) ProtoMessage() {}
 
-func (x *ListTerminalPayProductsReq) ProtoReflect() protoreflect.Message {
+func (x *ListTerminalPayinProductsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -882,26 +882,26 @@ func (x *ListTerminalPayProductsReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTerminalPayProductsReq.ProtoReflect.Descriptor instead.
-func (*ListTerminalPayProductsReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListTerminalPayinProductsReq.ProtoReflect.Descriptor instead.
+func (*ListTerminalPayinProductsReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ListTerminalPayProductsReq) GetMerchantId() string {
+func (x *ListTerminalPayinProductsReq) GetMerchantId() string {
 	if x != nil {
 		return x.MerchantId
 	}
 	return ""
 }
 
-func (x *ListTerminalPayProductsReq) GetAmount() int64 {
+func (x *ListTerminalPayinProductsReq) GetAmount() int64 {
 	if x != nil {
 		return x.Amount
 	}
 	return 0
 }
 
-type PayProductOption struct {
+type PayinProductOption struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -909,20 +909,20 @@ type PayProductOption struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PayProductOption) Reset() {
-	*x = PayProductOption{}
+func (x *PayinProductOption) Reset() {
+	*x = PayinProductOption{}
 	mi := &file_channel_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PayProductOption) String() string {
+func (x *PayinProductOption) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PayProductOption) ProtoMessage() {}
+func (*PayinProductOption) ProtoMessage() {}
 
-func (x *PayProductOption) ProtoReflect() protoreflect.Message {
+func (x *PayinProductOption) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -934,46 +934,46 @@ func (x *PayProductOption) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PayProductOption.ProtoReflect.Descriptor instead.
-func (*PayProductOption) Descriptor() ([]byte, []int) {
+// Deprecated: Use PayinProductOption.ProtoReflect.Descriptor instead.
+func (*PayinProductOption) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *PayProductOption) GetCode() string {
+func (x *PayinProductOption) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *PayProductOption) GetName() string {
+func (x *PayinProductOption) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type ListTerminalPayProductsResp struct {
+type ListTerminalPayinProductsResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Products      []*PayProductOption    `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+	Products      []*PayinProductOption  `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListTerminalPayProductsResp) Reset() {
-	*x = ListTerminalPayProductsResp{}
+func (x *ListTerminalPayinProductsResp) Reset() {
+	*x = ListTerminalPayinProductsResp{}
 	mi := &file_channel_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListTerminalPayProductsResp) String() string {
+func (x *ListTerminalPayinProductsResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListTerminalPayProductsResp) ProtoMessage() {}
+func (*ListTerminalPayinProductsResp) ProtoMessage() {}
 
-func (x *ListTerminalPayProductsResp) ProtoReflect() protoreflect.Message {
+func (x *ListTerminalPayinProductsResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -985,40 +985,40 @@ func (x *ListTerminalPayProductsResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListTerminalPayProductsResp.ProtoReflect.Descriptor instead.
-func (*ListTerminalPayProductsResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListTerminalPayinProductsResp.ProtoReflect.Descriptor instead.
+func (*ListTerminalPayinProductsResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ListTerminalPayProductsResp) GetProducts() []*PayProductOption {
+func (x *ListTerminalPayinProductsResp) GetProducts() []*PayinProductOption {
 	if x != nil {
 		return x.Products
 	}
 	return nil
 }
 
-type MerchantHasPayProductCodeReq struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId     string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	PayProductCode string                 `protobuf:"bytes,2,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+type MerchantHasPayinProductCodeReq struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId       string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	PayinProductCode string                 `protobuf:"bytes,2,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
-func (x *MerchantHasPayProductCodeReq) Reset() {
-	*x = MerchantHasPayProductCodeReq{}
+func (x *MerchantHasPayinProductCodeReq) Reset() {
+	*x = MerchantHasPayinProductCodeReq{}
 	mi := &file_channel_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MerchantHasPayProductCodeReq) String() string {
+func (x *MerchantHasPayinProductCodeReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MerchantHasPayProductCodeReq) ProtoMessage() {}
+func (*MerchantHasPayinProductCodeReq) ProtoMessage() {}
 
-func (x *MerchantHasPayProductCodeReq) ProtoReflect() protoreflect.Message {
+func (x *MerchantHasPayinProductCodeReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1030,46 +1030,46 @@ func (x *MerchantHasPayProductCodeReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MerchantHasPayProductCodeReq.ProtoReflect.Descriptor instead.
-func (*MerchantHasPayProductCodeReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use MerchantHasPayinProductCodeReq.ProtoReflect.Descriptor instead.
+func (*MerchantHasPayinProductCodeReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *MerchantHasPayProductCodeReq) GetMerchantId() string {
+func (x *MerchantHasPayinProductCodeReq) GetMerchantId() string {
 	if x != nil {
 		return x.MerchantId
 	}
 	return ""
 }
 
-func (x *MerchantHasPayProductCodeReq) GetPayProductCode() string {
+func (x *MerchantHasPayinProductCodeReq) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
 
-type MerchantHasPayProductCodeResp struct {
+type MerchantHasPayinProductCodeResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MerchantHasPayProductCodeResp) Reset() {
-	*x = MerchantHasPayProductCodeResp{}
+func (x *MerchantHasPayinProductCodeResp) Reset() {
+	*x = MerchantHasPayinProductCodeResp{}
 	mi := &file_channel_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MerchantHasPayProductCodeResp) String() string {
+func (x *MerchantHasPayinProductCodeResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MerchantHasPayProductCodeResp) ProtoMessage() {}
+func (*MerchantHasPayinProductCodeResp) ProtoMessage() {}
 
-func (x *MerchantHasPayProductCodeResp) ProtoReflect() protoreflect.Message {
+func (x *MerchantHasPayinProductCodeResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1081,12 +1081,12 @@ func (x *MerchantHasPayProductCodeResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MerchantHasPayProductCodeResp.ProtoReflect.Descriptor instead.
-func (*MerchantHasPayProductCodeResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use MerchantHasPayinProductCodeResp.ProtoReflect.Descriptor instead.
+func (*MerchantHasPayinProductCodeResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *MerchantHasPayProductCodeResp) GetOk() bool {
+func (x *MerchantHasPayinProductCodeResp) GetOk() bool {
 	if x != nil {
 		return x.Ok
 	}
@@ -1154,11 +1154,11 @@ func (x *ResolveLockedChannelForMerchantReq) GetAmount() int64 {
 }
 
 type ResolveLockedChannelForMerchantResp struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	PayProductId   int64                  `protobuf:"varint,1,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	PayProductCode string                 `protobuf:"bytes,2,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	PayinProductId   int64                  `protobuf:"varint,1,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	PayinProductCode string                 `protobuf:"bytes,2,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ResolveLockedChannelForMerchantResp) Reset() {
@@ -1191,41 +1191,41 @@ func (*ResolveLockedChannelForMerchantResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *ResolveLockedChannelForMerchantResp) GetPayProductId() int64 {
+func (x *ResolveLockedChannelForMerchantResp) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *ResolveLockedChannelForMerchantResp) GetPayProductCode() string {
+func (x *ResolveLockedChannelForMerchantResp) GetPayinProductCode() string {
 	if x != nil {
-		return x.PayProductCode
+		return x.PayinProductCode
 	}
 	return ""
 }
 
-type GetPayProductDisplayNameReq struct {
+type GetPayinProductDisplayNameReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetPayProductDisplayNameReq) Reset() {
-	*x = GetPayProductDisplayNameReq{}
+func (x *GetPayinProductDisplayNameReq) Reset() {
+	*x = GetPayinProductDisplayNameReq{}
 	mi := &file_channel_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetPayProductDisplayNameReq) String() string {
+func (x *GetPayinProductDisplayNameReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetPayProductDisplayNameReq) ProtoMessage() {}
+func (*GetPayinProductDisplayNameReq) ProtoMessage() {}
 
-func (x *GetPayProductDisplayNameReq) ProtoReflect() protoreflect.Message {
+func (x *GetPayinProductDisplayNameReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1237,39 +1237,39 @@ func (x *GetPayProductDisplayNameReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetPayProductDisplayNameReq.ProtoReflect.Descriptor instead.
-func (*GetPayProductDisplayNameReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetPayinProductDisplayNameReq.ProtoReflect.Descriptor instead.
+func (*GetPayinProductDisplayNameReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *GetPayProductDisplayNameReq) GetCode() string {
+func (x *GetPayinProductDisplayNameReq) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-type GetPayProductDisplayNameResp struct {
+type GetPayinProductDisplayNameResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetPayProductDisplayNameResp) Reset() {
-	*x = GetPayProductDisplayNameResp{}
+func (x *GetPayinProductDisplayNameResp) Reset() {
+	*x = GetPayinProductDisplayNameResp{}
 	mi := &file_channel_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetPayProductDisplayNameResp) String() string {
+func (x *GetPayinProductDisplayNameResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetPayProductDisplayNameResp) ProtoMessage() {}
+func (*GetPayinProductDisplayNameResp) ProtoMessage() {}
 
-func (x *GetPayProductDisplayNameResp) ProtoReflect() protoreflect.Message {
+func (x *GetPayinProductDisplayNameResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1281,38 +1281,38 @@ func (x *GetPayProductDisplayNameResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetPayProductDisplayNameResp.ProtoReflect.Descriptor instead.
-func (*GetPayProductDisplayNameResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetPayinProductDisplayNameResp.ProtoReflect.Descriptor instead.
+func (*GetPayinProductDisplayNameResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *GetPayProductDisplayNameResp) GetName() string {
+func (x *GetPayinProductDisplayNameResp) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type AdminListPayProductsReq struct {
+type AdminListPayinProductsReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminListPayProductsReq) Reset() {
-	*x = AdminListPayProductsReq{}
+func (x *AdminListPayinProductsReq) Reset() {
+	*x = AdminListPayinProductsReq{}
 	mi := &file_channel_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminListPayProductsReq) String() string {
+func (x *AdminListPayinProductsReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminListPayProductsReq) ProtoMessage() {}
+func (*AdminListPayinProductsReq) ProtoMessage() {}
 
-func (x *AdminListPayProductsReq) ProtoReflect() protoreflect.Message {
+func (x *AdminListPayinProductsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1324,12 +1324,12 @@ func (x *AdminListPayProductsReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminListPayProductsReq.ProtoReflect.Descriptor instead.
-func (*AdminListPayProductsReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminListPayinProductsReq.ProtoReflect.Descriptor instead.
+func (*AdminListPayinProductsReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{20}
 }
 
-type AdminPayProductRow struct {
+type AdminPayinProductRow struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
@@ -1340,20 +1340,20 @@ type AdminPayProductRow struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminPayProductRow) Reset() {
-	*x = AdminPayProductRow{}
+func (x *AdminPayinProductRow) Reset() {
+	*x = AdminPayinProductRow{}
 	mi := &file_channel_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminPayProductRow) String() string {
+func (x *AdminPayinProductRow) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminPayProductRow) ProtoMessage() {}
+func (*AdminPayinProductRow) ProtoMessage() {}
 
-func (x *AdminPayProductRow) ProtoReflect() protoreflect.Message {
+func (x *AdminPayinProductRow) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1365,67 +1365,67 @@ func (x *AdminPayProductRow) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminPayProductRow.ProtoReflect.Descriptor instead.
-func (*AdminPayProductRow) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminPayinProductRow.ProtoReflect.Descriptor instead.
+func (*AdminPayinProductRow) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *AdminPayProductRow) GetId() int64 {
+func (x *AdminPayinProductRow) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *AdminPayProductRow) GetCode() string {
+func (x *AdminPayinProductRow) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *AdminPayProductRow) GetName() string {
+func (x *AdminPayinProductRow) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *AdminPayProductRow) GetSortOrder() int64 {
+func (x *AdminPayinProductRow) GetSortOrder() int64 {
 	if x != nil {
 		return x.SortOrder
 	}
 	return 0
 }
 
-func (x *AdminPayProductRow) GetEnabled() bool {
+func (x *AdminPayinProductRow) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminListPayProductsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Products      []*AdminPayProductRow  `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+type AdminListPayinProductsResp struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Products      []*AdminPayinProductRow `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminListPayProductsResp) Reset() {
-	*x = AdminListPayProductsResp{}
+func (x *AdminListPayinProductsResp) Reset() {
+	*x = AdminListPayinProductsResp{}
 	mi := &file_channel_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminListPayProductsResp) String() string {
+func (x *AdminListPayinProductsResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminListPayProductsResp) ProtoMessage() {}
+func (*AdminListPayinProductsResp) ProtoMessage() {}
 
-func (x *AdminListPayProductsResp) ProtoReflect() protoreflect.Message {
+func (x *AdminListPayinProductsResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1437,19 +1437,19 @@ func (x *AdminListPayProductsResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminListPayProductsResp.ProtoReflect.Descriptor instead.
-func (*AdminListPayProductsResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminListPayinProductsResp.ProtoReflect.Descriptor instead.
+func (*AdminListPayinProductsResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *AdminListPayProductsResp) GetProducts() []*AdminPayProductRow {
+func (x *AdminListPayinProductsResp) GetProducts() []*AdminPayinProductRow {
 	if x != nil {
 		return x.Products
 	}
 	return nil
 }
 
-type AdminCreatePayProductReq struct {
+type AdminCreatePayinProductReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
@@ -1459,20 +1459,20 @@ type AdminCreatePayProductReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminCreatePayProductReq) Reset() {
-	*x = AdminCreatePayProductReq{}
+func (x *AdminCreatePayinProductReq) Reset() {
+	*x = AdminCreatePayinProductReq{}
 	mi := &file_channel_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminCreatePayProductReq) String() string {
+func (x *AdminCreatePayinProductReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminCreatePayProductReq) ProtoMessage() {}
+func (*AdminCreatePayinProductReq) ProtoMessage() {}
 
-func (x *AdminCreatePayProductReq) ProtoReflect() protoreflect.Message {
+func (x *AdminCreatePayinProductReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1484,40 +1484,40 @@ func (x *AdminCreatePayProductReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminCreatePayProductReq.ProtoReflect.Descriptor instead.
-func (*AdminCreatePayProductReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminCreatePayinProductReq.ProtoReflect.Descriptor instead.
+func (*AdminCreatePayinProductReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *AdminCreatePayProductReq) GetCode() string {
+func (x *AdminCreatePayinProductReq) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *AdminCreatePayProductReq) GetName() string {
+func (x *AdminCreatePayinProductReq) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *AdminCreatePayProductReq) GetSortOrder() int64 {
+func (x *AdminCreatePayinProductReq) GetSortOrder() int64 {
 	if x != nil {
 		return x.SortOrder
 	}
 	return 0
 }
 
-func (x *AdminCreatePayProductReq) GetEnabled() bool {
+func (x *AdminCreatePayinProductReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminUpdatePayProductReq struct {
+type AdminUpdatePayinProductReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`
@@ -1528,20 +1528,20 @@ type AdminUpdatePayProductReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminUpdatePayProductReq) Reset() {
-	*x = AdminUpdatePayProductReq{}
+func (x *AdminUpdatePayinProductReq) Reset() {
+	*x = AdminUpdatePayinProductReq{}
 	mi := &file_channel_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpdatePayProductReq) String() string {
+func (x *AdminUpdatePayinProductReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpdatePayProductReq) ProtoMessage() {}
+func (*AdminUpdatePayinProductReq) ProtoMessage() {}
 
-func (x *AdminUpdatePayProductReq) ProtoReflect() protoreflect.Message {
+func (x *AdminUpdatePayinProductReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1553,67 +1553,67 @@ func (x *AdminUpdatePayProductReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpdatePayProductReq.ProtoReflect.Descriptor instead.
-func (*AdminUpdatePayProductReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpdatePayinProductReq.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayinProductReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *AdminUpdatePayProductReq) GetId() int64 {
+func (x *AdminUpdatePayinProductReq) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *AdminUpdatePayProductReq) GetCode() string {
+func (x *AdminUpdatePayinProductReq) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
 	return ""
 }
 
-func (x *AdminUpdatePayProductReq) GetName() string {
+func (x *AdminUpdatePayinProductReq) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *AdminUpdatePayProductReq) GetSortOrder() int64 {
+func (x *AdminUpdatePayinProductReq) GetSortOrder() int64 {
 	if x != nil {
 		return x.SortOrder
 	}
 	return 0
 }
 
-func (x *AdminUpdatePayProductReq) GetEnabled() bool {
+func (x *AdminUpdatePayinProductReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminUpsertPayProductResp struct {
+type AdminUpsertPayinProductResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Product       *AdminPayProductRow    `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
+	Product       *AdminPayinProductRow  `protobuf:"bytes,1,opt,name=product,proto3" json:"product,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminUpsertPayProductResp) Reset() {
-	*x = AdminUpsertPayProductResp{}
+func (x *AdminUpsertPayinProductResp) Reset() {
+	*x = AdminUpsertPayinProductResp{}
 	mi := &file_channel_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpsertPayProductResp) String() string {
+func (x *AdminUpsertPayinProductResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpsertPayProductResp) ProtoMessage() {}
+func (*AdminUpsertPayinProductResp) ProtoMessage() {}
 
-func (x *AdminUpsertPayProductResp) ProtoReflect() protoreflect.Message {
+func (x *AdminUpsertPayinProductResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1625,39 +1625,39 @@ func (x *AdminUpsertPayProductResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpsertPayProductResp.ProtoReflect.Descriptor instead.
-func (*AdminUpsertPayProductResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpsertPayinProductResp.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayinProductResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *AdminUpsertPayProductResp) GetProduct() *AdminPayProductRow {
+func (x *AdminUpsertPayinProductResp) GetProduct() *AdminPayinProductRow {
 	if x != nil {
 		return x.Product
 	}
 	return nil
 }
 
-type AdminListPayProductBindingsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PayProductId  int64                  `protobuf:"varint,1,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type AdminListPayinProductBindingsReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PayinProductId int64                  `protobuf:"varint,1,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *AdminListPayProductBindingsReq) Reset() {
-	*x = AdminListPayProductBindingsReq{}
+func (x *AdminListPayinProductBindingsReq) Reset() {
+	*x = AdminListPayinProductBindingsReq{}
 	mi := &file_channel_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminListPayProductBindingsReq) String() string {
+func (x *AdminListPayinProductBindingsReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminListPayProductBindingsReq) ProtoMessage() {}
+func (*AdminListPayinProductBindingsReq) ProtoMessage() {}
 
-func (x *AdminListPayProductBindingsReq) ProtoReflect() protoreflect.Message {
+func (x *AdminListPayinProductBindingsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1669,44 +1669,44 @@ func (x *AdminListPayProductBindingsReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminListPayProductBindingsReq.ProtoReflect.Descriptor instead.
-func (*AdminListPayProductBindingsReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminListPayinProductBindingsReq.ProtoReflect.Descriptor instead.
+func (*AdminListPayinProductBindingsReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *AdminListPayProductBindingsReq) GetPayProductId() int64 {
+func (x *AdminListPayinProductBindingsReq) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-type AdminPayProductBindingRow struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	PayProductId  int64                  `protobuf:"varint,2,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	ChannelId     int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ChannelName   string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
-	Weight        int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
-	Enabled       bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type AdminPayinProductBindingRow struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	PayinProductId int64                  `protobuf:"varint,2,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	ChannelId      int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelName    string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
+	Weight         int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
+	Enabled        bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *AdminPayProductBindingRow) Reset() {
-	*x = AdminPayProductBindingRow{}
+func (x *AdminPayinProductBindingRow) Reset() {
+	*x = AdminPayinProductBindingRow{}
 	mi := &file_channel_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminPayProductBindingRow) String() string {
+func (x *AdminPayinProductBindingRow) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminPayProductBindingRow) ProtoMessage() {}
+func (*AdminPayinProductBindingRow) ProtoMessage() {}
 
-func (x *AdminPayProductBindingRow) ProtoReflect() protoreflect.Message {
+func (x *AdminPayinProductBindingRow) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1718,74 +1718,74 @@ func (x *AdminPayProductBindingRow) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminPayProductBindingRow.ProtoReflect.Descriptor instead.
-func (*AdminPayProductBindingRow) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminPayinProductBindingRow.ProtoReflect.Descriptor instead.
+func (*AdminPayinProductBindingRow) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *AdminPayProductBindingRow) GetId() int64 {
+func (x *AdminPayinProductBindingRow) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *AdminPayProductBindingRow) GetPayProductId() int64 {
+func (x *AdminPayinProductBindingRow) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *AdminPayProductBindingRow) GetChannelId() int64 {
+func (x *AdminPayinProductBindingRow) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
 	return 0
 }
 
-func (x *AdminPayProductBindingRow) GetChannelName() string {
+func (x *AdminPayinProductBindingRow) GetChannelName() string {
 	if x != nil {
 		return x.ChannelName
 	}
 	return ""
 }
 
-func (x *AdminPayProductBindingRow) GetWeight() int64 {
+func (x *AdminPayinProductBindingRow) GetWeight() int64 {
 	if x != nil {
 		return x.Weight
 	}
 	return 0
 }
 
-func (x *AdminPayProductBindingRow) GetEnabled() bool {
+func (x *AdminPayinProductBindingRow) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminListPayProductBindingsResp struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	Bindings      []*AdminPayProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+type AdminListPayinProductBindingsResp struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	Bindings      []*AdminPayinProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminListPayProductBindingsResp) Reset() {
-	*x = AdminListPayProductBindingsResp{}
+func (x *AdminListPayinProductBindingsResp) Reset() {
+	*x = AdminListPayinProductBindingsResp{}
 	mi := &file_channel_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminListPayProductBindingsResp) String() string {
+func (x *AdminListPayinProductBindingsResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminListPayProductBindingsResp) ProtoMessage() {}
+func (*AdminListPayinProductBindingsResp) ProtoMessage() {}
 
-func (x *AdminListPayProductBindingsResp) ProtoReflect() protoreflect.Message {
+func (x *AdminListPayinProductBindingsResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1797,42 +1797,42 @@ func (x *AdminListPayProductBindingsResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminListPayProductBindingsResp.ProtoReflect.Descriptor instead.
-func (*AdminListPayProductBindingsResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminListPayinProductBindingsResp.ProtoReflect.Descriptor instead.
+func (*AdminListPayinProductBindingsResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *AdminListPayProductBindingsResp) GetBindings() []*AdminPayProductBindingRow {
+func (x *AdminListPayinProductBindingsResp) GetBindings() []*AdminPayinProductBindingRow {
 	if x != nil {
 		return x.Bindings
 	}
 	return nil
 }
 
-type AdminUpsertPayProductBindingReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PayProductId  int64                  `protobuf:"varint,1,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
-	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Weight        int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
-	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type AdminUpsertPayinProductBindingReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PayinProductId int64                  `protobuf:"varint,1,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	ChannelId      int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Weight         int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
+	Enabled        bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *AdminUpsertPayProductBindingReq) Reset() {
-	*x = AdminUpsertPayProductBindingReq{}
+func (x *AdminUpsertPayinProductBindingReq) Reset() {
+	*x = AdminUpsertPayinProductBindingReq{}
 	mi := &file_channel_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpsertPayProductBindingReq) String() string {
+func (x *AdminUpsertPayinProductBindingReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpsertPayProductBindingReq) ProtoMessage() {}
+func (*AdminUpsertPayinProductBindingReq) ProtoMessage() {}
 
-func (x *AdminUpsertPayProductBindingReq) ProtoReflect() protoreflect.Message {
+func (x *AdminUpsertPayinProductBindingReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1844,60 +1844,60 @@ func (x *AdminUpsertPayProductBindingReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpsertPayProductBindingReq.ProtoReflect.Descriptor instead.
-func (*AdminUpsertPayProductBindingReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpsertPayinProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayinProductBindingReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *AdminUpsertPayProductBindingReq) GetPayProductId() int64 {
+func (x *AdminUpsertPayinProductBindingReq) GetPayinProductId() int64 {
 	if x != nil {
-		return x.PayProductId
+		return x.PayinProductId
 	}
 	return 0
 }
 
-func (x *AdminUpsertPayProductBindingReq) GetChannelId() int64 {
+func (x *AdminUpsertPayinProductBindingReq) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
 	return 0
 }
 
-func (x *AdminUpsertPayProductBindingReq) GetWeight() int64 {
+func (x *AdminUpsertPayinProductBindingReq) GetWeight() int64 {
 	if x != nil {
 		return x.Weight
 	}
 	return 0
 }
 
-func (x *AdminUpsertPayProductBindingReq) GetEnabled() bool {
+func (x *AdminUpsertPayinProductBindingReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminUpsertPayProductBindingResp struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Binding       *AdminPayProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
+type AdminUpsertPayinProductBindingResp struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Binding       *AdminPayinProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminUpsertPayProductBindingResp) Reset() {
-	*x = AdminUpsertPayProductBindingResp{}
+func (x *AdminUpsertPayinProductBindingResp) Reset() {
+	*x = AdminUpsertPayinProductBindingResp{}
 	mi := &file_channel_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpsertPayProductBindingResp) String() string {
+func (x *AdminUpsertPayinProductBindingResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpsertPayProductBindingResp) ProtoMessage() {}
+func (*AdminUpsertPayinProductBindingResp) ProtoMessage() {}
 
-func (x *AdminUpsertPayProductBindingResp) ProtoReflect() protoreflect.Message {
+func (x *AdminUpsertPayinProductBindingResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1909,19 +1909,19 @@ func (x *AdminUpsertPayProductBindingResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpsertPayProductBindingResp.ProtoReflect.Descriptor instead.
-func (*AdminUpsertPayProductBindingResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpsertPayinProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminUpsertPayinProductBindingResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *AdminUpsertPayProductBindingResp) GetBinding() *AdminPayProductBindingRow {
+func (x *AdminUpsertPayinProductBindingResp) GetBinding() *AdminPayinProductBindingRow {
 	if x != nil {
 		return x.Binding
 	}
 	return nil
 }
 
-type AdminUpdatePayProductBindingReq struct {
+type AdminUpdatePayinProductBindingReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Weight        int64                  `protobuf:"varint,2,opt,name=weight,proto3" json:"weight,omitempty"`
@@ -1930,20 +1930,20 @@ type AdminUpdatePayProductBindingReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminUpdatePayProductBindingReq) Reset() {
-	*x = AdminUpdatePayProductBindingReq{}
+func (x *AdminUpdatePayinProductBindingReq) Reset() {
+	*x = AdminUpdatePayinProductBindingReq{}
 	mi := &file_channel_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpdatePayProductBindingReq) String() string {
+func (x *AdminUpdatePayinProductBindingReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpdatePayProductBindingReq) ProtoMessage() {}
+func (*AdminUpdatePayinProductBindingReq) ProtoMessage() {}
 
-func (x *AdminUpdatePayProductBindingReq) ProtoReflect() protoreflect.Message {
+func (x *AdminUpdatePayinProductBindingReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1955,53 +1955,53 @@ func (x *AdminUpdatePayProductBindingReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpdatePayProductBindingReq.ProtoReflect.Descriptor instead.
-func (*AdminUpdatePayProductBindingReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpdatePayinProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayinProductBindingReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{31}
 }
 
-func (x *AdminUpdatePayProductBindingReq) GetId() int64 {
+func (x *AdminUpdatePayinProductBindingReq) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *AdminUpdatePayProductBindingReq) GetWeight() int64 {
+func (x *AdminUpdatePayinProductBindingReq) GetWeight() int64 {
 	if x != nil {
 		return x.Weight
 	}
 	return 0
 }
 
-func (x *AdminUpdatePayProductBindingReq) GetEnabled() bool {
+func (x *AdminUpdatePayinProductBindingReq) GetEnabled() bool {
 	if x != nil {
 		return x.Enabled
 	}
 	return false
 }
 
-type AdminUpdatePayProductBindingResp struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Binding       *AdminPayProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
+type AdminUpdatePayinProductBindingResp struct {
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	Binding       *AdminPayinProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminUpdatePayProductBindingResp) Reset() {
-	*x = AdminUpdatePayProductBindingResp{}
+func (x *AdminUpdatePayinProductBindingResp) Reset() {
+	*x = AdminUpdatePayinProductBindingResp{}
 	mi := &file_channel_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminUpdatePayProductBindingResp) String() string {
+func (x *AdminUpdatePayinProductBindingResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminUpdatePayProductBindingResp) ProtoMessage() {}
+func (*AdminUpdatePayinProductBindingResp) ProtoMessage() {}
 
-func (x *AdminUpdatePayProductBindingResp) ProtoReflect() protoreflect.Message {
+func (x *AdminUpdatePayinProductBindingResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2013,39 +2013,39 @@ func (x *AdminUpdatePayProductBindingResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminUpdatePayProductBindingResp.ProtoReflect.Descriptor instead.
-func (*AdminUpdatePayProductBindingResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminUpdatePayinProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminUpdatePayinProductBindingResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *AdminUpdatePayProductBindingResp) GetBinding() *AdminPayProductBindingRow {
+func (x *AdminUpdatePayinProductBindingResp) GetBinding() *AdminPayinProductBindingRow {
 	if x != nil {
 		return x.Binding
 	}
 	return nil
 }
 
-type AdminDeletePayProductBindingReq struct {
+type AdminDeletePayinProductBindingReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminDeletePayProductBindingReq) Reset() {
-	*x = AdminDeletePayProductBindingReq{}
+func (x *AdminDeletePayinProductBindingReq) Reset() {
+	*x = AdminDeletePayinProductBindingReq{}
 	mi := &file_channel_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminDeletePayProductBindingReq) String() string {
+func (x *AdminDeletePayinProductBindingReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminDeletePayProductBindingReq) ProtoMessage() {}
+func (*AdminDeletePayinProductBindingReq) ProtoMessage() {}
 
-func (x *AdminDeletePayProductBindingReq) ProtoReflect() protoreflect.Message {
+func (x *AdminDeletePayinProductBindingReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2057,39 +2057,39 @@ func (x *AdminDeletePayProductBindingReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminDeletePayProductBindingReq.ProtoReflect.Descriptor instead.
-func (*AdminDeletePayProductBindingReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminDeletePayinProductBindingReq.ProtoReflect.Descriptor instead.
+func (*AdminDeletePayinProductBindingReq) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *AdminDeletePayProductBindingReq) GetId() int64 {
+func (x *AdminDeletePayinProductBindingReq) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-type AdminDeletePayProductBindingResp struct {
+type AdminDeletePayinProductBindingResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AdminDeletePayProductBindingResp) Reset() {
-	*x = AdminDeletePayProductBindingResp{}
+func (x *AdminDeletePayinProductBindingResp) Reset() {
+	*x = AdminDeletePayinProductBindingResp{}
 	mi := &file_channel_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AdminDeletePayProductBindingResp) String() string {
+func (x *AdminDeletePayinProductBindingResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AdminDeletePayProductBindingResp) ProtoMessage() {}
+func (*AdminDeletePayinProductBindingResp) ProtoMessage() {}
 
-func (x *AdminDeletePayProductBindingResp) ProtoReflect() protoreflect.Message {
+func (x *AdminDeletePayinProductBindingResp) ProtoReflect() protoreflect.Message {
 	mi := &file_channel_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2101,12 +2101,12 @@ func (x *AdminDeletePayProductBindingResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AdminDeletePayProductBindingResp.ProtoReflect.Descriptor instead.
-func (*AdminDeletePayProductBindingResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use AdminDeletePayinProductBindingResp.ProtoReflect.Descriptor instead.
+func (*AdminDeletePayinProductBindingResp) Descriptor() ([]byte, []int) {
 	return file_channel_proto_rawDescGZIP(), []int{34}
 }
 
-func (x *AdminDeletePayProductBindingResp) GetOk() bool {
+func (x *AdminDeletePayinProductBindingResp) GetOk() bool {
 	if x != nil {
 		return x.Ok
 	}
@@ -2940,11 +2940,11 @@ const file_channel_proto_rawDesc = "" +
 	"\rchannel.proto\x12\achannel\"=\n" +
 	"\bRouteReq\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x19\n" +
-	"\bpay_type\x18\x02 \x01(\tR\apayType\"P\n" +
+	"\bpay_type\x18\x02 \x01(\tR\apayType\"T\n" +
 	"\tRouteResp\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12$\n" +
-	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\"1\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12(\n" +
+	"\x10payin_product_id\x18\x02 \x01(\x03R\x0epayinProductId\"1\n" +
 	"\x10GetSignSecretReq\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\x03R\tchannelId\"4\n" +
@@ -3005,11 +3005,11 @@ const file_channel_proto_rawDesc = "" +
 	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"B\n" +
 	"\x11UpsertChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\x16\n" +
-	"\x14GetRoutingSummaryReq\"\x8c\x04\n" +
+	"\x14GetRoutingSummaryReq\"\x90\x04\n" +
 	"\x15GetRoutingSummaryResp\x12#\n" +
 	"\ralgorithm_key\x18\x01 \x01(\tR\falgorithmKey\x12'\n" +
-	"\x0falgorithm_label\x18\x02 \x01(\tR\x0ealgorithmLabel\x120\n" +
-	"\x14enabled_pay_products\x18\x03 \x01(\x03R\x12enabledPayProducts\x126\n" +
+	"\x0falgorithm_label\x18\x02 \x01(\tR\x0ealgorithmLabel\x124\n" +
+	"\x16enabled_payin_products\x18\x03 \x01(\x03R\x14enabledPayinProducts\x126\n" +
 	"\x17enabled_payout_products\x18\x04 \x01(\x03R\x15enabledPayoutProducts\x12)\n" +
 	"\x10enabled_channels\x18\x05 \x01(\x03R\x0fenabledChannels\x12'\n" +
 	"\x0factive_bindings\x18\x06 \x01(\x03R\x0eactiveBindings\x124\n" +
@@ -3017,89 +3017,89 @@ const file_channel_proto_rawDesc = "" +
 	"\x1emerchants_with_payin_whitelist\x18\b \x01(\x03R\x1bmerchantsWithPayinWhitelist\x12E\n" +
 	"\x1fmerchants_with_payout_whitelist\x18\t \x01(\x03R\x1cmerchantsWithPayoutWhitelist\x12%\n" +
 	"\x0efused_channels\x18\n" +
-	" \x01(\x03R\rfusedChannels\"U\n" +
-	"\x1aListTerminalPayProductsReq\x12\x1f\n" +
+	" \x01(\x03R\rfusedChannels\"W\n" +
+	"\x1cListTerminalPayinProductsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\":\n" +
-	"\x10PayProductOption\x12\x12\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\"<\n" +
+	"\x12PayinProductOption\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"T\n" +
-	"\x1bListTerminalPayProductsResp\x125\n" +
-	"\bproducts\x18\x01 \x03(\v2\x19.channel.PayProductOptionR\bproducts\"i\n" +
-	"\x1cMerchantHasPayProductCodeReq\x12\x1f\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"X\n" +
+	"\x1dListTerminalPayinProductsResp\x127\n" +
+	"\bproducts\x18\x01 \x03(\v2\x1b.channel.PayinProductOptionR\bproducts\"o\n" +
+	"\x1eMerchantHasPayinProductCodeReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
-	"merchantId\x12(\n" +
-	"\x10pay_product_code\x18\x02 \x01(\tR\x0epayProductCode\"/\n" +
-	"\x1dMerchantHasPayProductCodeResp\x12\x0e\n" +
+	"merchantId\x12,\n" +
+	"\x12payin_product_code\x18\x02 \x01(\tR\x10payinProductCode\"1\n" +
+	"\x1fMerchantHasPayinProductCodeResp\x12\x0e\n" +
 	"\x02ok\x18\x01 \x01(\bR\x02ok\"|\n" +
 	"\"ResolveLockedChannelForMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
-	"\x06amount\x18\x03 \x01(\x03R\x06amount\"u\n" +
-	"#ResolveLockedChannelForMerchantResp\x12$\n" +
-	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\x12(\n" +
-	"\x10pay_product_code\x18\x02 \x01(\tR\x0epayProductCode\"1\n" +
-	"\x1bGetPayProductDisplayNameReq\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\tR\x04code\"2\n" +
-	"\x1cGetPayProductDisplayNameResp\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x19\n" +
-	"\x17AdminListPayProductsReq\"\x85\x01\n" +
-	"\x12AdminPayProductRow\x12\x0e\n" +
+	"\x06amount\x18\x03 \x01(\x03R\x06amount\"}\n" +
+	"#ResolveLockedChannelForMerchantResp\x12(\n" +
+	"\x10payin_product_id\x18\x01 \x01(\x03R\x0epayinProductId\x12,\n" +
+	"\x12payin_product_code\x18\x02 \x01(\tR\x10payinProductCode\"3\n" +
+	"\x1dGetPayinProductDisplayNameReq\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\"4\n" +
+	"\x1eGetPayinProductDisplayNameResp\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x1b\n" +
+	"\x19AdminListPayinProductsReq\"\x87\x01\n" +
+	"\x14AdminPayinProductRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"sort_order\x18\x04 \x01(\x03R\tsortOrder\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"S\n" +
-	"\x18AdminListPayProductsResp\x127\n" +
-	"\bproducts\x18\x01 \x03(\v2\x1b.channel.AdminPayProductRowR\bproducts\"{\n" +
-	"\x18AdminCreatePayProductReq\x12\x12\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"W\n" +
+	"\x1aAdminListPayinProductsResp\x129\n" +
+	"\bproducts\x18\x01 \x03(\v2\x1d.channel.AdminPayinProductRowR\bproducts\"}\n" +
+	"\x1aAdminCreatePayinProductReq\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"sort_order\x18\x03 \x01(\x03R\tsortOrder\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\"\x8b\x01\n" +
-	"\x18AdminUpdatePayProductReq\x12\x0e\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabled\"\x8d\x01\n" +
+	"\x1aAdminUpdatePayinProductReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04code\x18\x02 \x01(\tR\x04code\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"sort_order\x18\x04 \x01(\x03R\tsortOrder\x12\x18\n" +
-	"\aenabled\x18\x05 \x01(\bR\aenabled\"R\n" +
-	"\x19AdminUpsertPayProductResp\x125\n" +
-	"\aproduct\x18\x01 \x01(\v2\x1b.channel.AdminPayProductRowR\aproduct\"F\n" +
-	"\x1eAdminListPayProductBindingsReq\x12$\n" +
-	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\"\xda\x01\n" +
-	"\x19AdminPayProductBindingRow\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12$\n" +
-	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\x12\x1d\n" +
+	"\aenabled\x18\x05 \x01(\bR\aenabled\"V\n" +
+	"\x1bAdminUpsertPayinProductResp\x127\n" +
+	"\aproduct\x18\x01 \x01(\v2\x1d.channel.AdminPayinProductRowR\aproduct\"L\n" +
+	" AdminListPayinProductBindingsReq\x12(\n" +
+	"\x10payin_product_id\x18\x01 \x01(\x03R\x0epayinProductId\"\xe0\x01\n" +
+	"\x1bAdminPayinProductBindingRow\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12(\n" +
+	"\x10payin_product_id\x18\x02 \x01(\x03R\x0epayinProductId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x16\n" +
 	"\x06weight\x18\x05 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x06 \x01(\bR\aenabledJ\x04\b\a\x10\bR\rcost_rate_bps\"a\n" +
-	"\x1fAdminListPayProductBindingsResp\x12>\n" +
-	"\bbindings\x18\x01 \x03(\v2\".channel.AdminPayProductBindingRowR\bbindings\"\xad\x01\n" +
-	"\x1fAdminUpsertPayProductBindingReq\x12$\n" +
-	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\x12\x1d\n" +
+	"\aenabled\x18\x06 \x01(\bR\aenabledJ\x04\b\a\x10\bR\rcost_rate_bps\"e\n" +
+	"!AdminListPayinProductBindingsResp\x12@\n" +
+	"\bbindings\x18\x01 \x03(\v2$.channel.AdminPayinProductBindingRowR\bbindings\"\xb3\x01\n" +
+	"!AdminUpsertPayinProductBindingReq\x12(\n" +
+	"\x10payin_product_id\x18\x01 \x01(\x03R\x0epayinProductId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06weight\x18\x03 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabledJ\x04\b\x05\x10\x06R\rcost_rate_bps\"`\n" +
-	" AdminUpsertPayProductBindingResp\x12<\n" +
-	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"x\n" +
-	"\x1fAdminUpdatePayProductBindingReq\x12\x0e\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabledJ\x04\b\x05\x10\x06R\rcost_rate_bps\"d\n" +
+	"\"AdminUpsertPayinProductBindingResp\x12>\n" +
+	"\abinding\x18\x01 \x01(\v2$.channel.AdminPayinProductBindingRowR\abinding\"z\n" +
+	"!AdminUpdatePayinProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06weight\x18\x02 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabledJ\x04\b\x04\x10\x05R\rcost_rate_bps\"`\n" +
-	" AdminUpdatePayProductBindingResp\x12<\n" +
-	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"1\n" +
-	"\x1fAdminDeletePayProductBindingReq\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"2\n" +
-	" AdminDeletePayProductBindingResp\x12\x0e\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabledJ\x04\b\x04\x10\x05R\rcost_rate_bps\"d\n" +
+	"\"AdminUpdatePayinProductBindingResp\x12>\n" +
+	"\abinding\x18\x01 \x01(\v2$.channel.AdminPayinProductBindingRowR\abinding\"3\n" +
+	"!AdminDeletePayinProductBindingReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"4\n" +
+	"\"AdminDeletePayinProductBindingResp\x12\x0e\n" +
 	"\x02ok\x18\x01 \x01(\bR\x02ok\"\x1c\n" +
 	"\x1aAdminListPayoutProductsReq\"\x88\x01\n" +
 	"\x15AdminPayoutProductRow\x12\x0e\n" +
@@ -3155,25 +3155,25 @@ const file_channel_proto_rawDesc = "" +
 	"\"AdminDeletePayoutProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"5\n" +
 	"#AdminDeletePayoutProductBindingResp\x12\x0e\n" +
-	"\x02ok\x18\x01 \x01(\bR\x02ok2\xfe\x12\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok2\xba\x13\n" +
 	"\aChannel\x12.\n" +
 	"\x05Route\x12\x11.channel.RouteReq\x1a\x12.channel.RouteResp\x12F\n" +
 	"\rGetSignSecret\x12\x19.channel.GetSignSecretReq\x1a\x1a.channel.GetSignSecretResp\x12C\n" +
 	"\fListChannels\x12\x18.channel.ListChannelsReq\x1a\x19.channel.ListChannelsResp\x12F\n" +
 	"\rCreateChannel\x12\x19.channel.UpsertChannelReq\x1a\x1a.channel.UpsertChannelResp\x12F\n" +
 	"\rUpdateChannel\x12\x19.channel.UpsertChannelReq\x1a\x1a.channel.UpsertChannelResp\x12R\n" +
-	"\x11GetRoutingSummary\x12\x1d.channel.GetRoutingSummaryReq\x1a\x1e.channel.GetRoutingSummaryResp\x12d\n" +
-	"\x17ListTerminalPayProducts\x12#.channel.ListTerminalPayProductsReq\x1a$.channel.ListTerminalPayProductsResp\x12j\n" +
-	"\x19MerchantHasPayProductCode\x12%.channel.MerchantHasPayProductCodeReq\x1a&.channel.MerchantHasPayProductCodeResp\x12|\n" +
-	"\x1fResolveLockedChannelForMerchant\x12+.channel.ResolveLockedChannelForMerchantReq\x1a,.channel.ResolveLockedChannelForMerchantResp\x12g\n" +
-	"\x18GetPayProductDisplayName\x12$.channel.GetPayProductDisplayNameReq\x1a%.channel.GetPayProductDisplayNameResp\x12[\n" +
-	"\x14AdminListPayProducts\x12 .channel.AdminListPayProductsReq\x1a!.channel.AdminListPayProductsResp\x12^\n" +
-	"\x15AdminCreatePayProduct\x12!.channel.AdminCreatePayProductReq\x1a\".channel.AdminUpsertPayProductResp\x12^\n" +
-	"\x15AdminUpdatePayProduct\x12!.channel.AdminUpdatePayProductReq\x1a\".channel.AdminUpsertPayProductResp\x12p\n" +
-	"\x1bAdminListPayProductBindings\x12'.channel.AdminListPayProductBindingsReq\x1a(.channel.AdminListPayProductBindingsResp\x12s\n" +
-	"\x1cAdminUpsertPayProductBinding\x12(.channel.AdminUpsertPayProductBindingReq\x1a).channel.AdminUpsertPayProductBindingResp\x12s\n" +
-	"\x1cAdminUpdatePayProductBinding\x12(.channel.AdminUpdatePayProductBindingReq\x1a).channel.AdminUpdatePayProductBindingResp\x12s\n" +
-	"\x1cAdminDeletePayProductBinding\x12(.channel.AdminDeletePayProductBindingReq\x1a).channel.AdminDeletePayProductBindingResp\x12d\n" +
+	"\x11GetRoutingSummary\x12\x1d.channel.GetRoutingSummaryReq\x1a\x1e.channel.GetRoutingSummaryResp\x12j\n" +
+	"\x19ListTerminalPayinProducts\x12%.channel.ListTerminalPayinProductsReq\x1a&.channel.ListTerminalPayinProductsResp\x12p\n" +
+	"\x1bMerchantHasPayinProductCode\x12'.channel.MerchantHasPayinProductCodeReq\x1a(.channel.MerchantHasPayinProductCodeResp\x12|\n" +
+	"\x1fResolveLockedChannelForMerchant\x12+.channel.ResolveLockedChannelForMerchantReq\x1a,.channel.ResolveLockedChannelForMerchantResp\x12m\n" +
+	"\x1aGetPayinProductDisplayName\x12&.channel.GetPayinProductDisplayNameReq\x1a'.channel.GetPayinProductDisplayNameResp\x12a\n" +
+	"\x16AdminListPayinProducts\x12\".channel.AdminListPayinProductsReq\x1a#.channel.AdminListPayinProductsResp\x12d\n" +
+	"\x17AdminCreatePayinProduct\x12#.channel.AdminCreatePayinProductReq\x1a$.channel.AdminUpsertPayinProductResp\x12d\n" +
+	"\x17AdminUpdatePayinProduct\x12#.channel.AdminUpdatePayinProductReq\x1a$.channel.AdminUpsertPayinProductResp\x12v\n" +
+	"\x1dAdminListPayinProductBindings\x12).channel.AdminListPayinProductBindingsReq\x1a*.channel.AdminListPayinProductBindingsResp\x12y\n" +
+	"\x1eAdminUpsertPayinProductBinding\x12*.channel.AdminUpsertPayinProductBindingReq\x1a+.channel.AdminUpsertPayinProductBindingResp\x12y\n" +
+	"\x1eAdminUpdatePayinProductBinding\x12*.channel.AdminUpdatePayinProductBindingReq\x1a+.channel.AdminUpdatePayinProductBindingResp\x12y\n" +
+	"\x1eAdminDeletePayinProductBinding\x12*.channel.AdminDeletePayinProductBindingReq\x1a+.channel.AdminDeletePayinProductBindingResp\x12d\n" +
 	"\x17AdminListPayoutProducts\x12#.channel.AdminListPayoutProductsReq\x1a$.channel.AdminListPayoutProductsResp\x12g\n" +
 	"\x18AdminCreatePayoutProduct\x12$.channel.AdminCreatePayoutProductReq\x1a%.channel.AdminUpsertPayoutProductResp\x12g\n" +
 	"\x18AdminUpdatePayoutProduct\x12$.channel.AdminUpdatePayoutProductReq\x1a%.channel.AdminUpsertPayoutProductResp\x12y\n" +
@@ -3207,30 +3207,30 @@ var file_channel_proto_goTypes = []any{
 	(*UpsertChannelResp)(nil),                   // 8: channel.UpsertChannelResp
 	(*GetRoutingSummaryReq)(nil),                // 9: channel.GetRoutingSummaryReq
 	(*GetRoutingSummaryResp)(nil),               // 10: channel.GetRoutingSummaryResp
-	(*ListTerminalPayProductsReq)(nil),          // 11: channel.ListTerminalPayProductsReq
-	(*PayProductOption)(nil),                    // 12: channel.PayProductOption
-	(*ListTerminalPayProductsResp)(nil),         // 13: channel.ListTerminalPayProductsResp
-	(*MerchantHasPayProductCodeReq)(nil),        // 14: channel.MerchantHasPayProductCodeReq
-	(*MerchantHasPayProductCodeResp)(nil),       // 15: channel.MerchantHasPayProductCodeResp
+	(*ListTerminalPayinProductsReq)(nil),        // 11: channel.ListTerminalPayinProductsReq
+	(*PayinProductOption)(nil),                  // 12: channel.PayinProductOption
+	(*ListTerminalPayinProductsResp)(nil),       // 13: channel.ListTerminalPayinProductsResp
+	(*MerchantHasPayinProductCodeReq)(nil),      // 14: channel.MerchantHasPayinProductCodeReq
+	(*MerchantHasPayinProductCodeResp)(nil),     // 15: channel.MerchantHasPayinProductCodeResp
 	(*ResolveLockedChannelForMerchantReq)(nil),  // 16: channel.ResolveLockedChannelForMerchantReq
 	(*ResolveLockedChannelForMerchantResp)(nil), // 17: channel.ResolveLockedChannelForMerchantResp
-	(*GetPayProductDisplayNameReq)(nil),         // 18: channel.GetPayProductDisplayNameReq
-	(*GetPayProductDisplayNameResp)(nil),        // 19: channel.GetPayProductDisplayNameResp
-	(*AdminListPayProductsReq)(nil),             // 20: channel.AdminListPayProductsReq
-	(*AdminPayProductRow)(nil),                  // 21: channel.AdminPayProductRow
-	(*AdminListPayProductsResp)(nil),            // 22: channel.AdminListPayProductsResp
-	(*AdminCreatePayProductReq)(nil),            // 23: channel.AdminCreatePayProductReq
-	(*AdminUpdatePayProductReq)(nil),            // 24: channel.AdminUpdatePayProductReq
-	(*AdminUpsertPayProductResp)(nil),           // 25: channel.AdminUpsertPayProductResp
-	(*AdminListPayProductBindingsReq)(nil),      // 26: channel.AdminListPayProductBindingsReq
-	(*AdminPayProductBindingRow)(nil),           // 27: channel.AdminPayProductBindingRow
-	(*AdminListPayProductBindingsResp)(nil),     // 28: channel.AdminListPayProductBindingsResp
-	(*AdminUpsertPayProductBindingReq)(nil),     // 29: channel.AdminUpsertPayProductBindingReq
-	(*AdminUpsertPayProductBindingResp)(nil),    // 30: channel.AdminUpsertPayProductBindingResp
-	(*AdminUpdatePayProductBindingReq)(nil),     // 31: channel.AdminUpdatePayProductBindingReq
-	(*AdminUpdatePayProductBindingResp)(nil),    // 32: channel.AdminUpdatePayProductBindingResp
-	(*AdminDeletePayProductBindingReq)(nil),     // 33: channel.AdminDeletePayProductBindingReq
-	(*AdminDeletePayProductBindingResp)(nil),    // 34: channel.AdminDeletePayProductBindingResp
+	(*GetPayinProductDisplayNameReq)(nil),       // 18: channel.GetPayinProductDisplayNameReq
+	(*GetPayinProductDisplayNameResp)(nil),      // 19: channel.GetPayinProductDisplayNameResp
+	(*AdminListPayinProductsReq)(nil),           // 20: channel.AdminListPayinProductsReq
+	(*AdminPayinProductRow)(nil),                // 21: channel.AdminPayinProductRow
+	(*AdminListPayinProductsResp)(nil),          // 22: channel.AdminListPayinProductsResp
+	(*AdminCreatePayinProductReq)(nil),          // 23: channel.AdminCreatePayinProductReq
+	(*AdminUpdatePayinProductReq)(nil),          // 24: channel.AdminUpdatePayinProductReq
+	(*AdminUpsertPayinProductResp)(nil),         // 25: channel.AdminUpsertPayinProductResp
+	(*AdminListPayinProductBindingsReq)(nil),    // 26: channel.AdminListPayinProductBindingsReq
+	(*AdminPayinProductBindingRow)(nil),         // 27: channel.AdminPayinProductBindingRow
+	(*AdminListPayinProductBindingsResp)(nil),   // 28: channel.AdminListPayinProductBindingsResp
+	(*AdminUpsertPayinProductBindingReq)(nil),   // 29: channel.AdminUpsertPayinProductBindingReq
+	(*AdminUpsertPayinProductBindingResp)(nil),  // 30: channel.AdminUpsertPayinProductBindingResp
+	(*AdminUpdatePayinProductBindingReq)(nil),   // 31: channel.AdminUpdatePayinProductBindingReq
+	(*AdminUpdatePayinProductBindingResp)(nil),  // 32: channel.AdminUpdatePayinProductBindingResp
+	(*AdminDeletePayinProductBindingReq)(nil),   // 33: channel.AdminDeletePayinProductBindingReq
+	(*AdminDeletePayinProductBindingResp)(nil),  // 34: channel.AdminDeletePayinProductBindingResp
 	(*AdminListPayoutProductsReq)(nil),          // 35: channel.AdminListPayoutProductsReq
 	(*AdminPayoutProductRow)(nil),               // 36: channel.AdminPayoutProductRow
 	(*AdminListPayoutProductsResp)(nil),         // 37: channel.AdminListPayoutProductsResp
@@ -3250,12 +3250,12 @@ var file_channel_proto_goTypes = []any{
 var file_channel_proto_depIdxs = []int32{
 	5,  // 0: channel.ListChannelsResp.channels:type_name -> channel.ChannelRow
 	5,  // 1: channel.UpsertChannelResp.channel:type_name -> channel.ChannelRow
-	12, // 2: channel.ListTerminalPayProductsResp.products:type_name -> channel.PayProductOption
-	21, // 3: channel.AdminListPayProductsResp.products:type_name -> channel.AdminPayProductRow
-	21, // 4: channel.AdminUpsertPayProductResp.product:type_name -> channel.AdminPayProductRow
-	27, // 5: channel.AdminListPayProductBindingsResp.bindings:type_name -> channel.AdminPayProductBindingRow
-	27, // 6: channel.AdminUpsertPayProductBindingResp.binding:type_name -> channel.AdminPayProductBindingRow
-	27, // 7: channel.AdminUpdatePayProductBindingResp.binding:type_name -> channel.AdminPayProductBindingRow
+	12, // 2: channel.ListTerminalPayinProductsResp.products:type_name -> channel.PayinProductOption
+	21, // 3: channel.AdminListPayinProductsResp.products:type_name -> channel.AdminPayinProductRow
+	21, // 4: channel.AdminUpsertPayinProductResp.product:type_name -> channel.AdminPayinProductRow
+	27, // 5: channel.AdminListPayinProductBindingsResp.bindings:type_name -> channel.AdminPayinProductBindingRow
+	27, // 6: channel.AdminUpsertPayinProductBindingResp.binding:type_name -> channel.AdminPayinProductBindingRow
+	27, // 7: channel.AdminUpdatePayinProductBindingResp.binding:type_name -> channel.AdminPayinProductBindingRow
 	36, // 8: channel.AdminListPayoutProductsResp.products:type_name -> channel.AdminPayoutProductRow
 	36, // 9: channel.AdminUpsertPayoutProductResp.product:type_name -> channel.AdminPayoutProductRow
 	42, // 10: channel.AdminListPayoutProductBindingsResp.bindings:type_name -> channel.AdminPayoutProductBindingRow
@@ -3267,17 +3267,17 @@ var file_channel_proto_depIdxs = []int32{
 	7,  // 16: channel.Channel.CreateChannel:input_type -> channel.UpsertChannelReq
 	7,  // 17: channel.Channel.UpdateChannel:input_type -> channel.UpsertChannelReq
 	9,  // 18: channel.Channel.GetRoutingSummary:input_type -> channel.GetRoutingSummaryReq
-	11, // 19: channel.Channel.ListTerminalPayProducts:input_type -> channel.ListTerminalPayProductsReq
-	14, // 20: channel.Channel.MerchantHasPayProductCode:input_type -> channel.MerchantHasPayProductCodeReq
+	11, // 19: channel.Channel.ListTerminalPayinProducts:input_type -> channel.ListTerminalPayinProductsReq
+	14, // 20: channel.Channel.MerchantHasPayinProductCode:input_type -> channel.MerchantHasPayinProductCodeReq
 	16, // 21: channel.Channel.ResolveLockedChannelForMerchant:input_type -> channel.ResolveLockedChannelForMerchantReq
-	18, // 22: channel.Channel.GetPayProductDisplayName:input_type -> channel.GetPayProductDisplayNameReq
-	20, // 23: channel.Channel.AdminListPayProducts:input_type -> channel.AdminListPayProductsReq
-	23, // 24: channel.Channel.AdminCreatePayProduct:input_type -> channel.AdminCreatePayProductReq
-	24, // 25: channel.Channel.AdminUpdatePayProduct:input_type -> channel.AdminUpdatePayProductReq
-	26, // 26: channel.Channel.AdminListPayProductBindings:input_type -> channel.AdminListPayProductBindingsReq
-	29, // 27: channel.Channel.AdminUpsertPayProductBinding:input_type -> channel.AdminUpsertPayProductBindingReq
-	31, // 28: channel.Channel.AdminUpdatePayProductBinding:input_type -> channel.AdminUpdatePayProductBindingReq
-	33, // 29: channel.Channel.AdminDeletePayProductBinding:input_type -> channel.AdminDeletePayProductBindingReq
+	18, // 22: channel.Channel.GetPayinProductDisplayName:input_type -> channel.GetPayinProductDisplayNameReq
+	20, // 23: channel.Channel.AdminListPayinProducts:input_type -> channel.AdminListPayinProductsReq
+	23, // 24: channel.Channel.AdminCreatePayinProduct:input_type -> channel.AdminCreatePayinProductReq
+	24, // 25: channel.Channel.AdminUpdatePayinProduct:input_type -> channel.AdminUpdatePayinProductReq
+	26, // 26: channel.Channel.AdminListPayinProductBindings:input_type -> channel.AdminListPayinProductBindingsReq
+	29, // 27: channel.Channel.AdminUpsertPayinProductBinding:input_type -> channel.AdminUpsertPayinProductBindingReq
+	31, // 28: channel.Channel.AdminUpdatePayinProductBinding:input_type -> channel.AdminUpdatePayinProductBindingReq
+	33, // 29: channel.Channel.AdminDeletePayinProductBinding:input_type -> channel.AdminDeletePayinProductBindingReq
 	35, // 30: channel.Channel.AdminListPayoutProducts:input_type -> channel.AdminListPayoutProductsReq
 	38, // 31: channel.Channel.AdminCreatePayoutProduct:input_type -> channel.AdminCreatePayoutProductReq
 	39, // 32: channel.Channel.AdminUpdatePayoutProduct:input_type -> channel.AdminUpdatePayoutProductReq
@@ -3291,17 +3291,17 @@ var file_channel_proto_depIdxs = []int32{
 	8,  // 40: channel.Channel.CreateChannel:output_type -> channel.UpsertChannelResp
 	8,  // 41: channel.Channel.UpdateChannel:output_type -> channel.UpsertChannelResp
 	10, // 42: channel.Channel.GetRoutingSummary:output_type -> channel.GetRoutingSummaryResp
-	13, // 43: channel.Channel.ListTerminalPayProducts:output_type -> channel.ListTerminalPayProductsResp
-	15, // 44: channel.Channel.MerchantHasPayProductCode:output_type -> channel.MerchantHasPayProductCodeResp
+	13, // 43: channel.Channel.ListTerminalPayinProducts:output_type -> channel.ListTerminalPayinProductsResp
+	15, // 44: channel.Channel.MerchantHasPayinProductCode:output_type -> channel.MerchantHasPayinProductCodeResp
 	17, // 45: channel.Channel.ResolveLockedChannelForMerchant:output_type -> channel.ResolveLockedChannelForMerchantResp
-	19, // 46: channel.Channel.GetPayProductDisplayName:output_type -> channel.GetPayProductDisplayNameResp
-	22, // 47: channel.Channel.AdminListPayProducts:output_type -> channel.AdminListPayProductsResp
-	25, // 48: channel.Channel.AdminCreatePayProduct:output_type -> channel.AdminUpsertPayProductResp
-	25, // 49: channel.Channel.AdminUpdatePayProduct:output_type -> channel.AdminUpsertPayProductResp
-	28, // 50: channel.Channel.AdminListPayProductBindings:output_type -> channel.AdminListPayProductBindingsResp
-	30, // 51: channel.Channel.AdminUpsertPayProductBinding:output_type -> channel.AdminUpsertPayProductBindingResp
-	32, // 52: channel.Channel.AdminUpdatePayProductBinding:output_type -> channel.AdminUpdatePayProductBindingResp
-	34, // 53: channel.Channel.AdminDeletePayProductBinding:output_type -> channel.AdminDeletePayProductBindingResp
+	19, // 46: channel.Channel.GetPayinProductDisplayName:output_type -> channel.GetPayinProductDisplayNameResp
+	22, // 47: channel.Channel.AdminListPayinProducts:output_type -> channel.AdminListPayinProductsResp
+	25, // 48: channel.Channel.AdminCreatePayinProduct:output_type -> channel.AdminUpsertPayinProductResp
+	25, // 49: channel.Channel.AdminUpdatePayinProduct:output_type -> channel.AdminUpsertPayinProductResp
+	28, // 50: channel.Channel.AdminListPayinProductBindings:output_type -> channel.AdminListPayinProductBindingsResp
+	30, // 51: channel.Channel.AdminUpsertPayinProductBinding:output_type -> channel.AdminUpsertPayinProductBindingResp
+	32, // 52: channel.Channel.AdminUpdatePayinProductBinding:output_type -> channel.AdminUpdatePayinProductBindingResp
+	34, // 53: channel.Channel.AdminDeletePayinProductBinding:output_type -> channel.AdminDeletePayinProductBindingResp
 	37, // 54: channel.Channel.AdminListPayoutProducts:output_type -> channel.AdminListPayoutProductsResp
 	40, // 55: channel.Channel.AdminCreatePayoutProduct:output_type -> channel.AdminUpsertPayoutProductResp
 	40, // 56: channel.Channel.AdminUpdatePayoutProduct:output_type -> channel.AdminUpsertPayoutProductResp

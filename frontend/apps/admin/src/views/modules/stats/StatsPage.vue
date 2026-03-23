@@ -16,7 +16,7 @@
         :enabled-channels="data.enabled_channels"
         :fused-channels="data.fused_channels"
       />
-      <StatsBreakdownTables :products="data.by_pay_product" :channels="data.by_channel" />
+      <StatsBreakdownTables :products="data.by_payin_product" :channels="data.by_channel" />
     </template>
   </div>
 </template>

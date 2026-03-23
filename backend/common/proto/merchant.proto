@@ -9,14 +9,14 @@ service Merchant {
   rpc ListMerchants(ListMerchantsReq) returns(ListMerchantsResp);
   rpc CreateMerchant(CreateMerchantReq) returns(UpsertMerchantResp);
   rpc UpdateMerchant(UpdateMerchantReq) returns(UpsertMerchantResp);
-  rpc ReplaceMerchantPayProducts(ReplaceMerchantPayProductsReq) returns (ReplaceMerchantPayProductsResp);
+  rpc ReplaceMerchantPayinProducts(ReplaceMerchantPayinProductsReq) returns (ReplaceMerchantPayinProductsResp);
   rpc ReplaceMerchantPayoutProducts(ReplaceMerchantPayoutProductsReq) returns (ReplaceMerchantPayoutProductsResp);
-  rpc ListMerchantPayProductIds(ListMerchantPayProductIdsReq) returns (ListMerchantPayProductIdsResp);
+  rpc ListMerchantPayinProductIds(ListMerchantPayinProductIdsReq) returns (ListMerchantPayinProductIdsResp);
   rpc ListMerchantPayoutProductIds(ListMerchantPayoutProductIdsReq) returns (ListMerchantPayoutProductIdsResp);
 }
 
 message MerchantPayinGrant {
-  int64 pay_product_id = 1;
+  int64 payin_product_id = 1;
   optional int64 merchant_rate_bps = 2;
 }
 
@@ -41,7 +41,7 @@ message MerchantInfo {
   int64 payout_balance = 17;
   string notify_url = 10;
   string return_url = 11;
-  repeated int64 pay_product_ids = 12;
+  repeated int64 payin_product_ids = 12;
   repeated int64 payout_product_ids = 13;
   repeated MerchantPayinGrant payin_grants = 14;
   repeated MerchantPayoutGrant payout_grants = 15;
@@ -89,7 +89,7 @@ message CreateMerchantReq {
   string notify_url = 6;
   string return_url = 7;
   string ip_whitelist = 8;
-  repeated int64 pay_product_ids = 9;
+  repeated int64 payin_product_ids = 9;
   repeated int64 payout_product_ids = 10;
 }
 
@@ -108,12 +108,12 @@ message UpsertMerchantResp {
   MerchantInfo merchant = 1;
 }
 
-message ReplaceMerchantPayProductsReq {
+message ReplaceMerchantPayinProductsReq {
   string merchant_id = 1;
   repeated MerchantPayinGrant grants = 2;
 }
 
-message ReplaceMerchantPayProductsResp {
+message ReplaceMerchantPayinProductsResp {
   bool ok = 1;
 }
 
@@ -126,11 +126,11 @@ message ReplaceMerchantPayoutProductsResp {
   bool ok = 1;
 }
 
-message ListMerchantPayProductIdsReq {
+message ListMerchantPayinProductIdsReq {
   string merchant_id = 1;
 }
 
-message ListMerchantPayProductIdsResp {
+message ListMerchantPayinProductIdsResp {
   repeated MerchantPayinGrant grants = 1;
 }
 

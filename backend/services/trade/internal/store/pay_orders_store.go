@@ -38,7 +38,7 @@ func (s *PayinOrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
 	_, err := s.db.ExecContext(ctx, `
 INSERT INTO payin_orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payin_product_id, payin_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ChannelLocked, rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.ReturnUrl, rec.NotifyUrl)
+`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayinProductId, nullIfEmpty(rec.PayinProductCode), rec.ChannelLocked, rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.ReturnUrl, rec.NotifyUrl)
 	return err
 }
 

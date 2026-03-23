@@ -32,7 +32,7 @@ func (r *AdminRouting) AdminRoutingSummary() (*types.AdminRoutingSummaryResp, er
 	return &types.AdminRoutingSummaryResp{
 		AlgorithmKey:                 s.GetAlgorithmKey(),
 		AlgorithmLabel:               s.GetAlgorithmLabel(),
-		EnabledPayProducts:           s.GetEnabledPayProducts(),
+		EnabledPayinProducts:           s.GetEnabledPayinProducts(),
 		EnabledPayoutProducts:        s.GetEnabledPayoutProducts(),
 		EnabledChannels:              s.GetEnabledChannels(),
 		ActiveBindings:               s.GetActiveBindings(),

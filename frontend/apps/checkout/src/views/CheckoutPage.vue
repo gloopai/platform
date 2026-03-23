@@ -264,11 +264,11 @@ type OrderInfo = {
   channel_locked?: number
 }
 
-type PayProductItem = { code: string; name: string }
+type PayinProductItem = { code: string; name: string }
 
 type TerminalOrderPayload = {
   order: OrderInfo
-  payin_products?: PayProductItem[]
+  payin_products?: PayinProductItem[]
 }
 
 type MethodRow = { key: string; name: string; desc: string }
@@ -308,7 +308,7 @@ const showQrModal = ref(false)
 const prepayPayload = ref<{ pay_url: string; qr_payload: string; pay_mode: string } | null>(null)
 const paying = ref(false)
 const selectedMethod = ref('')
-const serverPayProducts = ref<PayProductItem[] | null>(null)
+const serverPayinProducts = ref<PayinProductItem[] | null>(null)
 const copiedOrderNo = ref(false)
 
 const startedAt = Date.now()
@@ -362,7 +362,7 @@ const statusClass = computed(() => {
 const isWeChat = computed(() => /micromessenger/i.test(navigator.userAgent))
 
 const methodsSorted = computed((): MethodRow[] => {
-  const fromServer = serverPayProducts.value
+  const fromServer = serverPayinProducts.value
   const base: MethodRow[] =
     fromServer && fromServer.length > 0
       ? fromServer.map((p) => ({
@@ -445,7 +445,7 @@ async function load() {
   merchantOrderNoDisplay.value = data.order.merchant_order_no || ''
   payinProductCodeOnOrder.value = data.order.payin_product_code || ''
   channelLocked.value = Number(data.order.channel_locked) === 1
-  serverPayProducts.value = data.payin_products && data.payin_products.length > 0 ? data.payin_products : null
+  serverPayinProducts.value = data.payin_products && data.payin_products.length > 0 ? data.payin_products : null
 }
 
 async function refresh() {

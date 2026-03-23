@@ -67,11 +67,11 @@
 </template>
 
 <script setup lang="ts">
-import type { PayProduct } from './types'
+import type { PayinProduct } from './types'
 
 const props = withDefaults(
   defineProps<{
-    model: PayProduct
+    model: PayinProduct
     saving: boolean
     saved: boolean
     error: string
@@ -85,10 +85,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   save: []
   reset: []
-  'update:model': [v: PayProduct]
+  'update:model': [v: PayinProduct]
 }>()
 
-function patch(p: Partial<PayProduct>) {
+function patch(p: Partial<PayinProduct>) {
   emit('update:model', { ...props.model, ...p })
 }
 </script>

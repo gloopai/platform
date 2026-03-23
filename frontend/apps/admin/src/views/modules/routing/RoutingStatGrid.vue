@@ -25,7 +25,7 @@ const cells = computed(() => {
   const s = props.summary
   const dash = props.loading ? '…' : '—'
   return [
-    { label: '代收产品（启用）', value: s ? s.enabled_pay_products : dash },
+    { label: '代收产品（启用）', value: s ? s.enabled_payin_products : dash },
     { label: '代付产品（启用）', value: s ? s.enabled_payout_products : dash },
     { label: '上游通道（启用）', value: s ? s.enabled_channels : dash },
     { label: '代收绑定（启用）', value: s ? s.active_bindings : dash },

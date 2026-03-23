@@ -81,7 +81,7 @@ func (l *AdminDayOverviewLogic) AdminDayOverview(in *orderpb.AdminDayOverviewReq
 	return &orderpb.AdminDayOverviewResp{
 		Date:         ds,
 		Totals:       totals,
-		ByPayProduct: outProd,
+		ByPayinProduct: outProd,
 		ByChannel:    outCh,
 	}, nil
 }

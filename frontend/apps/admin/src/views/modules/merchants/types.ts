@@ -27,7 +27,7 @@ export type AdminMerchantInfo = {
   payout_grants?: MerchantPayoutGrant[]
 }
 
-export type PayProductRow = { id: number; code: string; name: string }
+export type ProductRow = { id: number; code: string; name: string }
 
 export type MerchantForm = {
   merchant_id: string

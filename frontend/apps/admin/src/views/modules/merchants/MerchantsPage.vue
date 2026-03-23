@@ -131,7 +131,7 @@
         </div>
 
         <div v-show="rightTab === 'bindings_payin'" role="tabpanel">
-          <MerchantPayProductsCard
+          <MerchantPayinProductsCard
             v-if="!isNew && selectedMerchant"
             embedded
             :grants="selectedMerchant.payin_grants || []"
@@ -248,10 +248,10 @@ import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 import { adminDisplaySettings, formatAdminMoney } from '../../../lib/displaySettings'
 
 import MerchantFormCard from './MerchantFormCard.vue'
-import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
+import MerchantPayinProductsCard from './MerchantPayinProductsCard.vue'
 import MerchantPayoutProductsCard from './MerchantPayoutProductsCard.vue'
 import MerchantsHeader from './MerchantsHeader.vue'
-import type { AdminMerchantInfo, MerchantForm, MerchantPayinGrant, MerchantPayoutGrant, PayProductRow } from './types'
+import type { AdminMerchantInfo, MerchantForm, MerchantPayinGrant, MerchantPayoutGrant, ProductRow } from './types'
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
@@ -272,8 +272,8 @@ const transferLoading = ref(false)
 const transferMsg = ref('')
 
 const merchants = ref<AdminMerchantInfo[]>([])
-const payProducts = ref<PayProductRow[]>([])
-const payoutProducts = ref<PayProductRow[]>([])
+const payProducts = ref<ProductRow[]>([])
+const payoutProducts = ref<ProductRow[]>([])
 const selectedMerchantId = ref<string | null>(null)
 const rightTab = ref<'basic' | 'bindings_payin' | 'bindings_payout'>('basic')
 const drawerOpen = ref(false)
@@ -393,7 +393,7 @@ function openNew() {
 async function loadPayProducts() {
   loadingProducts.value = true
   try {
-    const res = await adminGet<{ products: PayProductRow[] }>('/v1/admin/payin_products')
+    const res = await adminGet<{ products: ProductRow[] }>('/v1/admin/payin_products')
     payProducts.value = res.products || []
   } catch {
     payProducts.value = []
@@ -405,7 +405,7 @@ async function loadPayProducts() {
 async function loadPayoutProducts() {
   loadingPayoutProducts.value = true
   try {
-    const res = await adminGet<{ products: PayProductRow[] }>('/v1/admin/payout_products')
+    const res = await adminGet<{ products: ProductRow[] }>('/v1/admin/payout_products')
     payoutProducts.value = res.products || []
   } catch {
     payoutProducts.value = []

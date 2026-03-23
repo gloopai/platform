@@ -13,18 +13,18 @@ service Channel {
 
   rpc GetRoutingSummary(GetRoutingSummaryReq) returns (GetRoutingSummaryResp);
 
-  rpc ListTerminalPayProducts(ListTerminalPayProductsReq) returns (ListTerminalPayProductsResp);
-  rpc MerchantHasPayProductCode(MerchantHasPayProductCodeReq) returns (MerchantHasPayProductCodeResp);
+  rpc ListTerminalPayinProducts(ListTerminalPayinProductsReq) returns (ListTerminalPayinProductsResp);
+  rpc MerchantHasPayinProductCode(MerchantHasPayinProductCodeReq) returns (MerchantHasPayinProductCodeResp);
   rpc ResolveLockedChannelForMerchant(ResolveLockedChannelForMerchantReq) returns (ResolveLockedChannelForMerchantResp);
-  rpc GetPayProductDisplayName(GetPayProductDisplayNameReq) returns (GetPayProductDisplayNameResp);
+  rpc GetPayinProductDisplayName(GetPayinProductDisplayNameReq) returns (GetPayinProductDisplayNameResp);
 
-  rpc AdminListPayProducts(AdminListPayProductsReq) returns (AdminListPayProductsResp);
-  rpc AdminCreatePayProduct(AdminCreatePayProductReq) returns (AdminUpsertPayProductResp);
-  rpc AdminUpdatePayProduct(AdminUpdatePayProductReq) returns (AdminUpsertPayProductResp);
-  rpc AdminListPayProductBindings(AdminListPayProductBindingsReq) returns (AdminListPayProductBindingsResp);
-  rpc AdminUpsertPayProductBinding(AdminUpsertPayProductBindingReq) returns (AdminUpsertPayProductBindingResp);
-  rpc AdminUpdatePayProductBinding(AdminUpdatePayProductBindingReq) returns (AdminUpdatePayProductBindingResp);
-  rpc AdminDeletePayProductBinding(AdminDeletePayProductBindingReq) returns (AdminDeletePayProductBindingResp);
+  rpc AdminListPayinProducts(AdminListPayinProductsReq) returns (AdminListPayinProductsResp);
+  rpc AdminCreatePayinProduct(AdminCreatePayinProductReq) returns (AdminUpsertPayinProductResp);
+  rpc AdminUpdatePayinProduct(AdminUpdatePayinProductReq) returns (AdminUpsertPayinProductResp);
+  rpc AdminListPayinProductBindings(AdminListPayinProductBindingsReq) returns (AdminListPayinProductBindingsResp);
+  rpc AdminUpsertPayinProductBinding(AdminUpsertPayinProductBindingReq) returns (AdminUpsertPayinProductBindingResp);
+  rpc AdminUpdatePayinProductBinding(AdminUpdatePayinProductBindingReq) returns (AdminUpdatePayinProductBindingResp);
+  rpc AdminDeletePayinProductBinding(AdminDeletePayinProductBindingReq) returns (AdminDeletePayinProductBindingResp);
 
   rpc AdminListPayoutProducts(AdminListPayoutProductsReq) returns (AdminListPayoutProductsResp);
   rpc AdminCreatePayoutProduct(AdminCreatePayoutProductReq) returns (AdminUpsertPayoutProductResp);
@@ -42,7 +42,7 @@ message RouteReq {
 
 message RouteResp {
   int64 channel_id = 1;
-  int64 pay_product_id = 2;
+  int64 payin_product_id = 2;
 }
 
 message GetSignSecretReq {
@@ -110,7 +110,7 @@ message GetRoutingSummaryReq {}
 message GetRoutingSummaryResp {
   string algorithm_key = 1;
   string algorithm_label = 2;
-  int64 enabled_pay_products = 3;
+  int64 enabled_payin_products = 3;
   int64 enabled_payout_products = 4;
   int64 enabled_channels = 5;
   int64 active_bindings = 6;
@@ -120,26 +120,26 @@ message GetRoutingSummaryResp {
   int64 fused_channels = 10;
 }
 
-message ListTerminalPayProductsReq {
+message ListTerminalPayinProductsReq {
   string merchant_id = 1;
   int64 amount = 2;
 }
 
-message PayProductOption {
+message PayinProductOption {
   string code = 1;
   string name = 2;
 }
 
-message ListTerminalPayProductsResp {
-  repeated PayProductOption products = 1;
+message ListTerminalPayinProductsResp {
+  repeated PayinProductOption products = 1;
 }
 
-message MerchantHasPayProductCodeReq {
+message MerchantHasPayinProductCodeReq {
   string merchant_id = 1;
-  string pay_product_code = 2;
+  string payin_product_code = 2;
 }
 
-message MerchantHasPayProductCodeResp {
+message MerchantHasPayinProductCodeResp {
   bool ok = 1;
 }
 
@@ -150,21 +150,21 @@ message ResolveLockedChannelForMerchantReq {
 }
 
 message ResolveLockedChannelForMerchantResp {
-  int64 pay_product_id = 1;
-  string pay_product_code = 2;
+  int64 payin_product_id = 1;
+  string payin_product_code = 2;
 }
 
-message GetPayProductDisplayNameReq {
+message GetPayinProductDisplayNameReq {
   string code = 1;
 }
 
-message GetPayProductDisplayNameResp {
+message GetPayinProductDisplayNameResp {
   string name = 1;
 }
 
-message AdminListPayProductsReq {}
+message AdminListPayinProductsReq {}
 
-message AdminPayProductRow {
+message AdminPayinProductRow {
   int64 id = 1;
   string code = 2;
   string name = 3;
@@ -172,18 +172,18 @@ message AdminPayProductRow {
   bool enabled = 5;
 }
 
-message AdminListPayProductsResp {
-  repeated AdminPayProductRow products = 1;
+message AdminListPayinProductsResp {
+  repeated AdminPayinProductRow products = 1;
 }
 
-message AdminCreatePayProductReq {
+message AdminCreatePayinProductReq {
   string code = 1;
   string name = 2;
   int64 sort_order = 3;
   bool enabled = 4;
 }
 
-message AdminUpdatePayProductReq {
+message AdminUpdatePayinProductReq {
   int64 id = 1;
   string code = 2;
   string name = 3;
@@ -191,17 +191,17 @@ message AdminUpdatePayProductReq {
   bool enabled = 5;
 }
 
-message AdminUpsertPayProductResp {
-  AdminPayProductRow product = 1;
+message AdminUpsertPayinProductResp {
+  AdminPayinProductRow product = 1;
 }
 
-message AdminListPayProductBindingsReq {
-  int64 pay_product_id = 1;
+message AdminListPayinProductBindingsReq {
+  int64 payin_product_id = 1;
 }
 
-message AdminPayProductBindingRow {
+message AdminPayinProductBindingRow {
   int64 id = 1;
-  int64 pay_product_id = 2;
+  int64 payin_product_id = 2;
   int64 channel_id = 3;
   string channel_name = 4;
   int64 weight = 5;
@@ -210,12 +210,12 @@ message AdminPayProductBindingRow {
   reserved "cost_rate_bps";
 }
 
-message AdminListPayProductBindingsResp {
-  repeated AdminPayProductBindingRow bindings = 1;
+message AdminListPayinProductBindingsResp {
+  repeated AdminPayinProductBindingRow bindings = 1;
 }
 
-message AdminUpsertPayProductBindingReq {
-  int64 pay_product_id = 1;
+message AdminUpsertPayinProductBindingReq {
+  int64 payin_product_id = 1;
   int64 channel_id = 2;
   int64 weight = 3;
   bool enabled = 4;
@@ -223,11 +223,11 @@ message AdminUpsertPayProductBindingReq {
   reserved "cost_rate_bps";
 }
 
-message AdminUpsertPayProductBindingResp {
-  AdminPayProductBindingRow binding = 1;
+message AdminUpsertPayinProductBindingResp {
+  AdminPayinProductBindingRow binding = 1;
 }
 
-message AdminUpdatePayProductBindingReq {
+message AdminUpdatePayinProductBindingReq {
   int64 id = 1;
   int64 weight = 2;
   bool enabled = 3;
@@ -235,15 +235,15 @@ message AdminUpdatePayProductBindingReq {
   reserved "cost_rate_bps";
 }
 
-message AdminUpdatePayProductBindingResp {
-  AdminPayProductBindingRow binding = 1;
+message AdminUpdatePayinProductBindingResp {
+  AdminPayinProductBindingRow binding = 1;
 }
 
-message AdminDeletePayProductBindingReq {
+message AdminDeletePayinProductBindingReq {
   int64 id = 1;
 }
 
-message AdminDeletePayProductBindingResp {
+message AdminDeletePayinProductBindingResp {
   bool ok = 1;
 }
 

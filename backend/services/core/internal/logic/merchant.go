@@ -68,9 +68,9 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		return nil, err
 	}
 
-	if len(in.GetPayProductIds()) > 0 {
-		grants := payinGrantsFromProductIDs(in.GetPayProductIds())
-		if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, merchantId, grants); err != nil {
+	if len(in.GetPayinProductIds()) > 0 {
+		grants := payinGrantsFromProductIDs(in.GetPayinProductIds())
+		if err := l.svcCtx.MerchantPayinProducts.Replace(l.ctx, merchantId, grants); err != nil {
 			return nil, status.Error(codes.Internal, "save merchant pay products failed")
 		}
 	}
@@ -88,9 +88,9 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		}
 		return nil, err
 	}
-	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	ids, _ := l.svcCtx.MerchantPayinProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
 	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids, pids, payinGrants, pg)}, nil
 }
@@ -178,9 +178,9 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	if err != nil {
 		return nil, err
 	}
-	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	ids, _ := l.svcCtx.MerchantPayinProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
 	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated, ids, pids, payinGrants, pg)}, nil
 }
@@ -211,9 +211,9 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 		}
 		return nil, err
 	}
-	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
+	ids, _ := l.svcCtx.MerchantPayinProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
 	return &merchantpb.GetMerchantResp{
 		Merchant: toMerchantInfo(m, ids, pids, payinGrants, pg),
@@ -281,7 +281,7 @@ func (l *ListMerchantsLogic) ListMerchants(in *merchantpb.ListMerchantsReq) (*me
 	out := make([]*merchantpb.MerchantInfo, 0, len(items))
 	for i := range items {
 		m := items[i]
-		ids, err := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, m.MerchantId)
+		ids, err := l.svcCtx.MerchantPayinProducts.ListProductIDs(l.ctx, m.MerchantId)
 		if err != nil {
 			return nil, status.Error(codes.Internal, "load merchant pay products failed")
 		}
@@ -289,7 +289,7 @@ func (l *ListMerchantsLogic) ListMerchants(in *merchantpb.ListMerchantsReq) (*me
 		if err != nil {
 			return nil, status.Error(codes.Internal, "load merchant payout products failed")
 		}
-		payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, m.MerchantId)
+		payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, m.MerchantId)
 		pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, m.MerchantId)
 		out = append(out, toMerchantInfo(&m, ids, pids, payinGrants, pg))
 	}
@@ -310,7 +310,7 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 	}
 	pbCG := make([]*merchantpb.MerchantPayinGrant, 0, len(payinGrants))
 	for _, g := range payinGrants {
-		row := &merchantpb.MerchantPayinGrant{PayProductId: g.PayinProductID}
+		row := &merchantpb.MerchantPayinGrant{PayinProductId: g.PayinProductID}
 		if g.RateBps != nil {
 			v := *g.RateBps
 			row.MerchantRateBps = &v
@@ -347,7 +347,7 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		WithdrawnAmount:      m.WithdrawnAmount,
 		NotifyUrl:            m.NotifyUrl,
 		ReturnUrl:            m.ReturnUrl,
-		PayProductIds:        payProductIds,
+		PayinProductIds:        payProductIds,
 		PayoutProductIds:     payoutProductIds,
 		PayinGrants:          pbCG,
 		PayoutGrants:         pbPG,

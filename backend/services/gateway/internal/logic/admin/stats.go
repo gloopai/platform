@@ -41,8 +41,8 @@ func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error)
 		TerminalSuccessRatePct: t.GetTerminalSuccessRatePct(),
 	}
 
-	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayProduct()))
-	for _, p := range r.GetByPayProduct() {
+	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayinProduct()))
+	for _, p := range r.GetByPayinProduct() {
 		outProd = append(outProd, types.AdminStatsProductRow{
 			ProductCode:            p.GetProductCode(),
 			ProductName:            p.GetProductName(),
@@ -72,7 +72,7 @@ func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error)
 	return &types.AdminStatsOverviewResp{
 		Range:           r.GetRange(),
 		Totals:          totals,
-		ByPayProduct:    outProd,
+		ByPayinProduct:    outProd,
 		ByChannel:       outCh,
 		EnabledChannels: r.GetEnabledChannels(),
 		FusedChannels:   r.GetFusedChannels(),
@@ -99,8 +99,8 @@ func (s *AdminStats) AdminDayOverview(req *types.AdminDayOverviewReq) (*types.Ad
 		TerminalSuccessRatePct: t.GetTerminalSuccessRatePct(),
 	}
 
-	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayProduct()))
-	for _, p := range r.GetByPayProduct() {
+	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayinProduct()))
+	for _, p := range r.GetByPayinProduct() {
 		outProd = append(outProd, types.AdminStatsProductRow{
 			ProductCode:            p.GetProductCode(),
 			ProductName:            p.GetProductName(),
@@ -130,7 +130,7 @@ func (s *AdminStats) AdminDayOverview(req *types.AdminDayOverviewReq) (*types.Ad
 	return &types.AdminDayOverviewResp{
 		Date:         r.GetDate(),
 		Totals:       totals,
-		ByPayProduct: outProd,
+		ByPayinProduct: outProd,
 		ByChannel:    outCh,
 	}, nil
 }

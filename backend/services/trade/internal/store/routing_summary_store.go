@@ -7,7 +7,7 @@ import (
 
 // RoutingSummary 路由相关表的可观测计数（供管理台「路由策略」页展示）。
 type RoutingSummary struct {
-	EnabledPayProducts           int64
+	EnabledPayinProducts           int64
 	EnabledPayoutProducts        int64
 	EnabledChannels              int64
 	ActiveBindings               int64
@@ -38,7 +38,7 @@ SELECT
   (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payout_products WHERE enabled = 1),
   (SELECT COUNT(*) FROM channels WHERE enabled = 1 AND fuse_enabled = 1)
 `).Scan(
-		&out.EnabledPayProducts,
+		&out.EnabledPayinProducts,
 		&out.EnabledPayoutProducts,
 		&out.EnabledChannels,
 		&out.ActiveBindings,

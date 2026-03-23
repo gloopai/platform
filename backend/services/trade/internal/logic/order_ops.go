@@ -68,7 +68,7 @@ func (l *AdminTodayOverviewLogic) AdminTodayOverview(*orderpb.AdminTodayOverview
 	return &orderpb.AdminTodayOverviewResp{
 		Range:           "today",
 		Totals:          totals,
-		ByPayProduct:    outProd,
+		ByPayinProduct:    outProd,
 		ByChannel:       outCh,
 		EnabledChannels: rs.EnabledChannels,
 		FusedChannels:   rs.FusedChannels,

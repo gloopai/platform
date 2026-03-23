@@ -14,7 +14,7 @@ type ServiceContext struct {
 	Config                 config.Config
 	Sql                    *sql.DB
 	Merchants              *store.MerchantsStore
-	MerchantPayProducts    *store.MerchantPayinProductsStore
+	MerchantPayinProducts    *store.MerchantPayinProductsStore
 	MerchantPayoutProducts *store.MerchantPayoutProductsStore
 	Settle                 *store.SettleStore
 	RuntimeConfig          *consulx.ConfigStore
@@ -37,7 +37,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:                 c,
 		Sql:                    sqlDB,
 		Merchants:              store.NewMerchantsStore(sqlDB),
-		MerchantPayProducts:    store.NewMerchantPayinProductsStore(sqlDB),
+		MerchantPayinProducts:    store.NewMerchantPayinProductsStore(sqlDB),
 		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(sqlDB),
 		Settle:                 store.NewSettleStore(sqlDB),
 		RuntimeConfig:          runtimeCfg,

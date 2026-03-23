@@ -34,7 +34,7 @@ export type StatsChannelRow = {
 export type StatsOverview = {
   range: string
   totals: StatsTotals
-  by_pay_product: StatsProductRow[]
+  by_payin_product: StatsProductRow[]
   by_channel: StatsChannelRow[]
   enabled_channels: number
   fused_channels: number

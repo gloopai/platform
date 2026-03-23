@@ -27,8 +27,8 @@ type OrderRecord struct {
 	Currency        string
 	Status          int32
 	ChannelId       int64
-	PayProductId    int64
-	PayProductCode  string
+	PayinProductId    int64
+	PayinProductCode  string
 	ChannelLocked   int32
 	ReturnUrl       string
 	NotifyUrl       string
@@ -57,8 +57,8 @@ func scanOrder(row rowScanner) (*OrderRecord, error) {
 		&rec.Currency,
 		&rec.Status,
 		&rec.ChannelId,
-		&rec.PayProductId,
-		&rec.PayProductCode,
+		&rec.PayinProductId,
+		&rec.PayinProductCode,
 		&rec.ChannelLocked,
 		&rec.PaidAmount,
 		&rec.FeeMode,

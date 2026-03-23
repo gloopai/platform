@@ -16,7 +16,7 @@ type channelWeight struct {
 type routePick struct {
 	ChannelID    int64
 	Weight       int64
-	PayProductID int64
+	PayinProductID int64
 }
 
 type ChannelsStore struct {
@@ -34,7 +34,7 @@ func (s *ChannelsStore) Route(ctx context.Context, payinProductCode string, amou
 		return 0, 0, errors.New("pay_type (product code) required")
 	}
 
-	if ch, pid, e := s.routeByPayProduct(ctx, code, amount); e == nil && ch > 0 {
+	if ch, pid, e := s.routeByPayinProduct(ctx, code, amount); e == nil && ch > 0 {
 		return ch, pid, nil
 	}
 
@@ -45,7 +45,7 @@ func (s *ChannelsStore) Route(ctx context.Context, payinProductCode string, amou
 	return ch, 0, nil
 }
 
-func (s *ChannelsStore) routeByPayProduct(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
+func (s *ChannelsStore) routeByPayinProduct(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT c.id, ppc.weight, pp.id
 FROM payin_products pp
@@ -67,7 +67,7 @@ WHERE pp.code = ? AND pp.enabled = 1
 	var total int64
 	for rows.Next() {
 		var p routePick
-		if err := rows.Scan(&p.ChannelID, &p.Weight, &p.PayProductID); err != nil {
+		if err := rows.Scan(&p.ChannelID, &p.Weight, &p.PayinProductID); err != nil {
 			return 0, 0, err
 		}
 		picks = append(picks, p)
@@ -85,11 +85,11 @@ WHERE pp.code = ? AND pp.enabled = 1
 	for _, p := range picks {
 		acc += p.Weight
 		if r < acc {
-			return p.ChannelID, p.PayProductID, nil
+			return p.ChannelID, p.PayinProductID, nil
 		}
 	}
 	last := picks[len(picks)-1]
-	return last.ChannelID, last.PayProductID, nil
+	return last.ChannelID, last.PayinProductID, nil
 }
 
 func (s *ChannelsStore) routeLegacy(ctx context.Context, payType string, amount int64) (int64, error) {

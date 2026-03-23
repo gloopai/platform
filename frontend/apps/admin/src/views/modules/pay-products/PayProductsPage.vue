@@ -1,6 +1,6 @@
 <template>
   <div class="grid gap-4">
-    <PayProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="openNew" @refresh="reloadAll" />
+    <PayinProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="openNew" @refresh="reloadAll" />
 
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -88,7 +88,7 @@
       max-width-class="max-w-3xl"
     >
       <div v-if="drawerOpen" class="space-y-4">
-        <PayProductFormCard
+        <PayinProductFormCard
           :model="form"
           embedded
           hide-footer-actions
@@ -101,7 +101,7 @@
           @reset="resetProductForm"
         />
 
-        <PayProductBindingsCard
+        <PayinProductBindingsCard
           v-if="form.id"
           embedded
           :bindings="bindings"
@@ -157,10 +157,10 @@ import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
-import PayProductBindingsCard from './PayProductBindingsCard.vue'
-import PayProductFormCard from './PayProductFormCard.vue'
-import PayProductsHeader from './PayProductsHeader.vue'
-import type { PayProduct, PayProductBinding, PayProductChannelOption } from './types'
+import PayinProductBindingsCard from './PayProductBindingsCard.vue'
+import PayinProductFormCard from './PayProductFormCard.vue'
+import PayinProductsHeader from './PayProductsHeader.vue'
+import type { PayinProduct, PayinProductBinding, PayinProductChannelOption } from './types'
 
 const props = withDefaults(
   defineProps<{
@@ -185,8 +185,8 @@ const bindingError = ref('')
 const drawerOpen = ref(false)
 const searchQuery = ref('')
 
-const products = ref<PayProduct[]>([])
-const channels = ref<PayProductChannelOption[]>([])
+const products = ref<PayinProduct[]>([])
+const channels = ref<PayinProductChannelOption[]>([])
 const selectedProductId = ref<number | null>(null)
 
 const apiProducts = computed(() => (props.payoutMode ? '/v1/admin/payout_products' : '/v1/admin/payin_products'))
@@ -225,7 +225,7 @@ const filteredChannels = computed(() => {
   return channels.value.filter((c) => c.supports_payin !== false)
 })
 
-const emptyForm = (): PayProduct => ({
+const emptyForm = (): PayinProduct => ({
   id: 0,
   code: '',
   name: '',
@@ -233,8 +233,8 @@ const emptyForm = (): PayProduct => ({
   enabled: true,
 })
 
-const form = ref<PayProduct>(emptyForm())
-const bindings = ref<PayProductBinding[]>([])
+const form = ref<PayinProduct>(emptyForm())
+const bindings = ref<PayinProductBinding[]>([])
 
 const newBind = ref<{ channel_id: number; weight: number; enabled: boolean }>({
   channel_id: 0,
@@ -264,7 +264,7 @@ watch(searchQuery, () => {
   page.value = 1
 })
 
-function setForm(v: PayProduct) {
+function setForm(v: PayinProduct) {
   form.value = v
 }
 
@@ -274,7 +274,7 @@ function setNewBindDraft(v: { channel_id: number; weight: number; enabled: boole
 
 async function loadChannels() {
   try {
-    const data = await adminGet<{ channels: PayProductChannelOption[] }>('/v1/admin/channels')
+    const data = await adminGet<{ channels: PayinProductChannelOption[] }>('/v1/admin/channels')
     channels.value = data.channels || []
   } catch {
     channels.value = []
@@ -285,7 +285,7 @@ async function loadProducts() {
   loadingProducts.value = true
   productError.value = ''
   try {
-    const data = await adminGet<{ products: PayProduct[] }>(apiProducts.value)
+    const data = await adminGet<{ products: PayinProduct[] }>(apiProducts.value)
     products.value = data.products || []
     if (selectedProductId.value && products.value.some((p) => p.id === selectedProductId.value)) {
       applySelectedProduct()
@@ -302,10 +302,10 @@ async function loadBindings(productId: number) {
   loadingBindings.value = true
   bindingError.value = ''
   try {
-    const data = await adminGet<{ bindings: PayProductBinding[] }>(apiBindings(productId))
+    const data = await adminGet<{ bindings: PayinProductBinding[] }>(apiBindings(productId))
     const raw = data.bindings || []
     bindings.value = props.payoutMode
-      ? raw.map((b) => ({ ...b, payin_product_id: b.payout_product_id }))
+      ? raw.map((b) => ({ ...b, payout_product_id: b.payout_product_id }))
       : raw
   } catch {
     bindings.value = []
@@ -370,8 +370,8 @@ async function saveProduct() {
     const isUpdate = form.value.id > 0
     const url = isUpdate ? `${apiProducts.value}/${form.value.id}` : apiProducts.value
     const data = isUpdate
-      ? await adminPut<{ product: PayProduct }>(url, body)
-      : await adminPost<{ product: PayProduct }>(url, body)
+      ? await adminPut<{ product: PayinProduct }>(url, body)
+      : await adminPost<{ product: PayinProduct }>(url, body)
     const p = data.product
     const idx = products.value.findIndex((x) => x.id === p.id)
     if (idx >= 0) products.value[idx] = p

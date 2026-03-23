@@ -27,14 +27,14 @@ func NewAdminPayinProducts(ctx context.Context, svcCtx *svc.ServiceContext) *Adm
 	}
 }
 
-func (p *AdminPayinProducts) AdminListPayProducts() (*types.AdminListPayProductsResp, error) {
-	r, err := p.svcCtx.ChannelRpc.AdminListPayProducts(p.ctx, &channelpb.AdminListPayProductsReq{})
+func (p *AdminPayinProducts) AdminListPayinProducts() (*types.AdminListPayinProductsResp, error) {
+	r, err := p.svcCtx.ChannelRpc.AdminListPayinProducts(p.ctx, &channelpb.AdminListPayinProductsReq{})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]types.AdminPayProductInfo, 0, len(r.GetProducts()))
+	out := make([]types.AdminPayinProductInfo, 0, len(r.GetProducts()))
 	for _, row := range r.GetProducts() {
-		out = append(out, types.AdminPayProductInfo{
+		out = append(out, types.AdminPayinProductInfo{
 			Id:        row.GetId(),
 			Code:      row.GetCode(),
 			Name:      row.GetName(),
@@ -42,10 +42,10 @@ func (p *AdminPayinProducts) AdminListPayProducts() (*types.AdminListPayProducts
 			Enabled:   row.GetEnabled(),
 		})
 	}
-	return &types.AdminListPayProductsResp{Products: out}, nil
+	return &types.AdminListPayinProductsResp{Products: out}, nil
 }
 
-func (p *AdminPayinProducts) AdminCreatePayProduct(req *types.AdminCreatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
+func (p *AdminPayinProducts) AdminCreatePayinProduct(req *types.AdminCreatePayinProductReq) (*types.AdminUpsertPayinProductResp, error) {
 	code := strings.TrimSpace(req.Code)
 	name := strings.TrimSpace(req.Name)
 	if code == "" {
@@ -54,21 +54,21 @@ func (p *AdminPayinProducts) AdminCreatePayProduct(req *types.AdminCreatePayProd
 	if name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name required")
 	}
-	resp, err := p.svcCtx.ChannelRpc.AdminCreatePayProduct(p.ctx, &channelpb.AdminCreatePayProductReq{
+	resp, err := p.svcCtx.ChannelRpc.AdminCreatePayinProduct(p.ctx, &channelpb.AdminCreatePayinProductReq{
 		Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
 	})
 	if err != nil {
 		return nil, err
 	}
 	pr := resp.GetProduct()
-	return &types.AdminUpsertPayProductResp{
-		Product: types.AdminPayProductInfo{
+	return &types.AdminUpsertPayinProductResp{
+		Product: types.AdminPayinProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
 		},
 	}, nil
 }
 
-func (p *AdminPayinProducts) AdminUpdatePayProduct(req *types.AdminUpdatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
+func (p *AdminPayinProducts) AdminUpdatePayinProduct(req *types.AdminUpdatePayinProductReq) (*types.AdminUpsertPayinProductResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -77,47 +77,47 @@ func (p *AdminPayinProducts) AdminUpdatePayProduct(req *types.AdminUpdatePayProd
 	if code == "" || name == "" {
 		return nil, status.Error(codes.InvalidArgument, "code required")
 	}
-	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayProduct(p.ctx, &channelpb.AdminUpdatePayProductReq{
+	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayinProduct(p.ctx, &channelpb.AdminUpdatePayinProductReq{
 		Id: req.Id, Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
 	})
 	if err != nil {
 		return nil, err
 	}
 	pr := resp.GetProduct()
-	return &types.AdminUpsertPayProductResp{
-		Product: types.AdminPayProductInfo{
+	return &types.AdminUpsertPayinProductResp{
+		Product: types.AdminPayinProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
 		},
 	}, nil
 }
 
-func (p *AdminPayinProducts) AdminListPayProductBindings(req *types.AdminListPayProductBindingsReq) (*types.AdminListPayProductBindingsResp, error) {
+func (p *AdminPayinProducts) AdminListPayinProductBindings(req *types.AdminListPayinProductBindingsReq) (*types.AdminListPayinProductBindingsResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
-	r, err := p.svcCtx.ChannelRpc.AdminListPayProductBindings(p.ctx, &channelpb.AdminListPayProductBindingsReq{
-		PayProductId: req.Id,
+	r, err := p.svcCtx.ChannelRpc.AdminListPayinProductBindings(p.ctx, &channelpb.AdminListPayinProductBindingsReq{
+		PayinProductId: req.Id,
 	})
 	if err != nil {
 		return nil, err
 	}
-	out := make([]types.AdminPayProductBindingInfo, 0, len(r.GetBindings()))
+	out := make([]types.AdminPayinProductBindingInfo, 0, len(r.GetBindings()))
 	for _, b := range r.GetBindings() {
-		out = append(out, types.AdminPayProductBindingInfo{
-			Id:           b.GetId(),
-			PayProductId: b.GetPayProductId(),
-			ChannelId:    b.GetChannelId(),
-			ChannelName:  b.GetChannelName(),
-			Weight:       b.GetWeight(),
-			Enabled:      b.GetEnabled(),
+		out = append(out, types.AdminPayinProductBindingInfo{
+			Id:             b.GetId(),
+			PayinProductId: b.GetPayinProductId(),
+			ChannelId:      b.GetChannelId(),
+			ChannelName:    b.GetChannelName(),
+			Weight:         b.GetWeight(),
+			Enabled:        b.GetEnabled(),
 		})
 	}
-	return &types.AdminListPayProductBindingsResp{Bindings: out}, nil
+	return &types.AdminListPayinProductBindingsResp{Bindings: out}, nil
 }
 
-func (p *AdminPayinProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPayProductBindingReq) (*types.AdminUpsertPayProductBindingResp, error) {
-	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayProductBinding(p.ctx, &channelpb.AdminUpsertPayProductBindingReq{
-		PayProductId: req.PayProductId,
+func (p *AdminPayinProducts) AdminUpsertPayinProductBinding(req *types.AdminUpsertPayinProductBindingReq) (*types.AdminUpsertPayinProductBindingResp, error) {
+	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayinProductBinding(p.ctx, &channelpb.AdminUpsertPayinProductBindingReq{
+		PayinProductId: req.PayinProductId,
 		ChannelId:    req.ChannelId,
 		Weight:       req.Weight,
 		Enabled:      req.Enabled,
@@ -126,34 +126,34 @@ func (p *AdminPayinProducts) AdminUpsertPayProductBinding(req *types.AdminUpsert
 		return nil, err
 	}
 	b := resp.GetBinding()
-	bi := types.AdminPayProductBindingInfo{
-		Id: b.GetId(), PayProductId: b.GetPayProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
+	bi := types.AdminPayinProductBindingInfo{
+		Id: b.GetId(), PayinProductId: b.GetPayinProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
 	}
-	return &types.AdminUpsertPayProductBindingResp{Binding: bi}, nil
+	return &types.AdminUpsertPayinProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayinProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePayProductBindingReq) (*types.AdminUpdatePayProductBindingResp, error) {
-	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayProductBinding(p.ctx, &channelpb.AdminUpdatePayProductBindingReq{
+func (p *AdminPayinProducts) AdminUpdatePayinProductBinding(req *types.AdminUpdatePayinProductBindingReq) (*types.AdminUpdatePayinProductBindingResp, error) {
+	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayinProductBinding(p.ctx, &channelpb.AdminUpdatePayinProductBindingReq{
 		Id: req.Id, Weight: req.Weight, Enabled: req.Enabled,
 	})
 	if err != nil {
 		return nil, err
 	}
 	b := resp.GetBinding()
-	bi := types.AdminPayProductBindingInfo{
-		Id: b.GetId(), PayProductId: b.GetPayProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
+	bi := types.AdminPayinProductBindingInfo{
+		Id: b.GetId(), PayinProductId: b.GetPayinProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
 	}
-	return &types.AdminUpdatePayProductBindingResp{Binding: bi}, nil
+	return &types.AdminUpdatePayinProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayinProducts) AdminDeletePayProductBinding(req *types.AdminDeletePayProductBindingReq) (*types.AdminDeletePayProductBindingResp, error) {
-	_, err := p.svcCtx.ChannelRpc.AdminDeletePayProductBinding(p.ctx, &channelpb.AdminDeletePayProductBindingReq{Id: req.Id})
+func (p *AdminPayinProducts) AdminDeletePayinProductBinding(req *types.AdminDeletePayinProductBindingReq) (*types.AdminDeletePayinProductBindingResp, error) {
+	_, err := p.svcCtx.ChannelRpc.AdminDeletePayinProductBinding(p.ctx, &channelpb.AdminDeletePayinProductBindingReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}
-	return &types.AdminDeletePayProductBindingResp{Ok: true}, nil
+	return &types.AdminDeletePayinProductBindingResp{Ok: true}, nil
 }
 
 func (p *AdminPayinProducts) AdminListPayoutProducts() (*types.AdminListPayoutProductsResp, error) {

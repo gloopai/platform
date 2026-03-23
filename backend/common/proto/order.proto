@@ -51,8 +51,8 @@ message CreateOrderReq {
   string notify_url = 7;
   string pay_type = 8;
   int64 channel_id = 9;
-  int64 pay_product_id = 10;
-  string pay_product_code = 11;
+  int64 payin_product_id = 10;
+  string payin_product_code = 11;
   // 下单时由网关/交易写入：商户 API 指定通道时为 1
   int32 channel_locked = 12;
   int64 fee_mode = 13;
@@ -102,8 +102,8 @@ message OrderInfo {
   string notify_url = 11;
   string upstream_trade_no = 12;
   int64 paid_amount = 13;
-  int64 pay_product_id = 14;
-  string pay_product_code = 15;
+  int64 payin_product_id = 14;
+  string payin_product_code = 15;
   int32 channel_locked = 16;
   int64 fee_mode = 17;
   int64 fee_rate_bps = 18;
@@ -136,13 +136,13 @@ message TodaySummaryResp {
 message PrepareTerminalPayReq {
   string order_no = 1;
   // 用户在收银台选择的支付产品编码；为空则沿用订单已有编码
-  string pay_product_code = 2;
+  string payin_product_code = 2;
 }
 
 message PrepareTerminalPayResp {
   int64 channel_id = 1;
-  int64 pay_product_id = 2;
-  string pay_product_code = 3;
+  int64 payin_product_id = 2;
+  string payin_product_code = 3;
   // 跳转或二维码内容（mock 场景可与 pay_url 相同）
   string pay_url = 4;
   string qr_payload = 5;
@@ -188,7 +188,7 @@ message AdminStatsChannelRow {
 message AdminTodayOverviewResp {
   string range = 1;
   AdminStatsTotals totals = 2;
-  repeated AdminStatsProductRow by_pay_product = 3;
+  repeated AdminStatsProductRow by_payin_product = 3;
   repeated AdminStatsChannelRow by_channel = 4;
   int64 enabled_channels = 5;
   int64 fused_channels = 6;
@@ -236,6 +236,6 @@ message AdminDayOverviewReq {
 message AdminDayOverviewResp {
   string date = 1;
   AdminStatsTotals totals = 2;
-  repeated AdminStatsProductRow by_pay_product = 3;
+  repeated AdminStatsProductRow by_payin_product = 3;
   repeated AdminStatsChannelRow by_channel = 4;
 }

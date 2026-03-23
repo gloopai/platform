@@ -112,12 +112,12 @@ import { reactive, watch } from 'vue'
 
 import ChannelPicker from '../../../components/ChannelPicker.vue'
 
-import type { PayProductBinding, PayProductChannelOption } from './types'
+import type { PayinProductBinding, PayinProductChannelOption } from './types'
 
 const props = withDefaults(
   defineProps<{
-    bindings: PayProductBinding[]
-    channels: PayProductChannelOption[]
+    bindings: PayinProductBinding[]
+    channels: PayinProductChannelOption[]
     excludeChannelIds: number[]
     loading: boolean
     error: string
@@ -138,7 +138,7 @@ const emit = defineEmits<{
 const rowWeight = reactive<Record<number, number>>({})
 const rowEnabled = reactive<Record<number, boolean>>({})
 
-function syncRows(rows: PayProductBinding[]) {
+function syncRows(rows: PayinProductBinding[]) {
   Object.keys(rowWeight).forEach((k) => delete rowWeight[Number(k)])
   Object.keys(rowEnabled).forEach((k) => delete rowEnabled[Number(k)])
   for (const b of rows) {
@@ -165,7 +165,7 @@ function emitDraft(p: Partial<{ channel_id: number; weight: number; enabled: boo
   emit('update:draft', { ...props.draft, ...p })
 }
 
-function emitSaveRow(b: PayProductBinding) {
+function emitSaveRow(b: PayinProductBinding) {
   const w = rowWeight[b.id]
   const en = rowEnabled[b.id]
   emit('save-row', {

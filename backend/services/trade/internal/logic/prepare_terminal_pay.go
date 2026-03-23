@@ -47,24 +47,24 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.FailedPrecondition, "order not payable")
 	}
 
-	code := strings.TrimSpace(in.GetPayProductCode())
+	code := strings.TrimSpace(in.GetPayinProductCode())
 	if rec.ChannelLocked != 0 {
 		return l.prepareLockedTerminal(rec, orderNo, code)
 	}
 
 	if code == "" {
-		code = strings.TrimSpace(rec.PayProductCode)
+		code = strings.TrimSpace(rec.PayinProductCode)
 	}
 	if code == "" {
 		return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 	}
 
-	ok, err := l.svcCtx.MerchantPayProducts.MerchantHasPayProductCode(l.ctx, rec.MerchantId, code)
+	ok, err := l.svcCtx.MerchantPayinProducts.MerchantHasPayinProductCode(l.ctx, rec.MerchantId, code)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "check merchant pay products failed")
 	}
 	if !ok {
-		return nil, status.Error(codes.PermissionDenied, "pay_product not enabled for this merchant")
+		return nil, status.Error(codes.PermissionDenied, "payin_product not enabled for this merchant")
 	}
 
 	chID, payPID, err := l.svcCtx.Channels.Route(l.ctx, code, rec.Amount)
@@ -91,8 +91,8 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 
 	return &orderpb.PrepareTerminalPayResp{
 		ChannelId:      chID,
-		PayProductId:   payPID,
-		PayProductCode: code,
+		PayinProductId:   payPID,
+		PayinProductCode: code,
 		PayUrl:         payURL,
 		QrPayload:      qrPayload,
 		PayMode:        payMode,
@@ -100,21 +100,21 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 }
 
 func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, orderNo, code string) (*orderpb.PrepareTerminalPayResp, error) {
-	if rec.ChannelId <= 0 || rec.PayProductId <= 0 {
+	if rec.ChannelId <= 0 || rec.PayinProductId <= 0 {
 		return nil, status.Error(codes.FailedPrecondition, "locked order missing channel/route")
 	}
 	if code == "" {
-		code = strings.TrimSpace(rec.PayProductCode)
+		code = strings.TrimSpace(rec.PayinProductCode)
 	}
 	if code == "" {
 		return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 	}
-	if want := strings.TrimSpace(rec.PayProductCode); want != "" && code != want {
+	if want := strings.TrimSpace(rec.PayinProductCode); want != "" && code != want {
 		return nil, status.Error(codes.FailedPrecondition, "payin_product_code mismatch for locked order")
 	}
 
 	chID := rec.ChannelId
-	payPID := rec.PayProductId
+	payPID := rec.PayinProductId
 
 	if err := l.svcCtx.PayOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -132,8 +132,8 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 
 	return &orderpb.PrepareTerminalPayResp{
 		ChannelId:      chID,
-		PayProductId:   payPID,
-		PayProductCode: code,
+		PayinProductId:   payPID,
+		PayinProductCode: code,
 		PayUrl:         payURL,
 		QrPayload:      qrPayload,
 		PayMode:        payMode,

@@ -61,12 +61,12 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		}
 		channelLocked = 1
 		cid = channelID
-		ppid = rl.GetPayProductId()
-		payinProductCode = rl.GetPayProductCode()
+		ppid = rl.GetPayinProductId()
+		payinProductCode = rl.GetPayinProductCode()
 
 	case payType != "":
-		has, err := c.svcCtx.ChannelRpc.MerchantHasPayProductCode(c.ctx, &channelpb.MerchantHasPayProductCodeReq{
-			MerchantId: merchantID, PayProductCode: payType,
+		has, err := c.svcCtx.ChannelRpc.MerchantHasPayinProductCode(c.ctx, &channelpb.MerchantHasPayinProductCodeReq{
+			MerchantId: merchantID, PayinProductCode: payType,
 		})
 		if err != nil {
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
@@ -82,7 +82,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 			return nil, err
 		}
 		cid = route.GetChannelId()
-		ppid = route.GetPayProductId()
+		ppid = route.GetPayinProductId()
 		payinProductCode = payType
 		channelLocked = 0
 
@@ -107,8 +107,8 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		NotifyUrl:       req.NotifyUrl,
 		PayType:         payType,
 		ChannelId:       cid,
-		PayProductId:    ppid,
-		PayProductCode:  payinProductCode,
+		PayinProductId:    ppid,
+		PayinProductCode:  payinProductCode,
 		ChannelLocked:   channelLocked,
 		FeeMode:         feeMode,
 		FeeRateBps:      feeRateBps,
@@ -132,8 +132,8 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		OrderNo:          orderInfo.GetOrderNo(),
 		Status:           orderInfo.GetStatus(),
 		ChannelId:        orderInfo.GetChannelId(),
-		PayProductId:     orderInfo.GetPayProductId(),
-		PayinProductCode: orderInfo.GetPayProductCode(),
+		PayinProductId:     orderInfo.GetPayinProductId(),
+		PayinProductCode: orderInfo.GetPayinProductCode(),
 		CheckoutUrl:      checkoutURL,
 		ChannelLocked:    orderInfo.GetChannelLocked(),
 	}, nil
@@ -159,8 +159,8 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayProductId:     o.GetPayProductId(),
-			PayinProductCode: o.GetPayProductCode(),
+			PayinProductId:     o.GetPayinProductId(),
+			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
@@ -187,7 +187,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 	if payoutCode == "" {
 		return nil, status.Error(codes.InvalidArgument, "payout_product_code required")
 	}
-	payoutProductID := req.PayProductId
+	payoutProductID := req.PayinProductId
 	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
 	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
 		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID = calcPayoutFeeSnapshot(info.GetMerchant(), payoutCode, req.Amount)
@@ -230,8 +230,8 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		OrderNo:          o.GetOrderNo(),
 		Status:           o.GetStatus(),
 		ChannelId:        o.GetChannelId(),
-		PayProductId:     o.GetPayProductId(),
-		PayinProductCode: o.GetPayProductCode(),
+		PayinProductId:     o.GetPayinProductId(),
+		PayinProductCode: o.GetPayinProductCode(),
 		CheckoutUrl:      "",
 		ChannelLocked:    0,
 	}, nil
@@ -309,8 +309,8 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayProductId:     o.GetPayProductId(),
-			PayinProductCode: o.GetPayProductCode(),
+			PayinProductId:     o.GetPayinProductId(),
+			PayinProductCode: o.GetPayinProductCode(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
 			FeeRateBps:       o.GetFeeRateBps(),
@@ -348,29 +348,29 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 	}
 	o := r.GetOrder()
 
-	var items []types.PayProductItem
+	var items []types.PayinProductItem
 	if o.GetChannelLocked() != 0 {
-		code := o.GetPayProductCode()
+		code := o.GetPayinProductCode()
 		name := code
 		if code != "" {
-			if dn, err := c.svcCtx.ChannelRpc.GetPayProductDisplayName(c.ctx, &channelpb.GetPayProductDisplayNameReq{Code: code}); err == nil && dn.GetName() != "" {
+			if dn, err := c.svcCtx.ChannelRpc.GetPayinProductDisplayName(c.ctx, &channelpb.GetPayinProductDisplayNameReq{Code: code}); err == nil && dn.GetName() != "" {
 				name = dn.GetName()
 			}
 		}
 		if code != "" {
-			items = []types.PayProductItem{{Code: code, Name: name}}
+			items = []types.PayinProductItem{{Code: code, Name: name}}
 		}
 	} else {
-		lr, err := c.svcCtx.ChannelRpc.ListTerminalPayProducts(c.ctx, &channelpb.ListTerminalPayProductsReq{
+		lr, err := c.svcCtx.ChannelRpc.ListTerminalPayinProducts(c.ctx, &channelpb.ListTerminalPayinProductsReq{
 			MerchantId: o.GetMerchantId(), Amount: o.GetAmount(),
 		})
 		if err != nil {
 			return nil, err
 		}
 		opts := lr.GetProducts()
-		items = make([]types.PayProductItem, 0, len(opts))
+		items = make([]types.PayinProductItem, 0, len(opts))
 		for _, p := range opts {
-			items = append(items, types.PayProductItem{Code: p.GetCode(), Name: p.GetName()})
+			items = append(items, types.PayinProductItem{Code: p.GetCode(), Name: p.GetName()})
 		}
 	}
 
@@ -383,8 +383,8 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayProductId:     o.GetPayProductId(),
-			PayinProductCode: o.GetPayProductCode(),
+			PayinProductId:     o.GetPayinProductId(),
+			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
@@ -396,7 +396,7 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			NotifyUrl:        o.GetNotifyUrl(),
 			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
-		PayProducts: items,
+		PayinProducts: items,
 	}, nil
 }
 
@@ -415,30 +415,30 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 
 	if o.GetChannelLocked() == 0 {
 		if code == "" {
-			return nil, status.Error(codes.InvalidArgument, "pay_product_code required")
+			return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 		}
-		ok, err := c.svcCtx.ChannelRpc.MerchantHasPayProductCode(c.ctx, &channelpb.MerchantHasPayProductCodeReq{
-			MerchantId: o.GetMerchantId(), PayProductCode: code,
+		ok, err := c.svcCtx.ChannelRpc.MerchantHasPayinProductCode(c.ctx, &channelpb.MerchantHasPayinProductCodeReq{
+			MerchantId: o.GetMerchantId(), PayinProductCode: code,
 		})
 		if err != nil {
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
 		}
 		if !ok.GetOk() {
-			return nil, status.Error(codes.PermissionDenied, "pay_product_code not enabled for merchant")
+			return nil, status.Error(codes.PermissionDenied, "payin_product_code not enabled for merchant")
 		}
 	}
 
 	r, err := c.svcCtx.OrderRpc.PrepareTerminalPay(c.ctx, &orderclient.PrepareTerminalPayReq{
 		OrderNo:        orderNo,
-		PayProductCode: code,
+		PayinProductCode: code,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &types.TerminalPayResp{
 		ChannelId:        r.GetChannelId(),
-		PayProductId:     r.GetPayProductId(),
-		PayinProductCode: r.GetPayProductCode(),
+		PayinProductId:     r.GetPayinProductId(),
+		PayinProductCode: r.GetPayinProductCode(),
 		PayUrl:           r.GetPayUrl(),
 		QrPayload:        r.GetQrPayload(),
 		PayMode:          r.GetPayMode(),
@@ -597,7 +597,7 @@ func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int
 	}
 	feeRateBps = m.GetDefaultPayinRateBps()
 	for _, g := range m.GetPayinGrants() {
-		if g == nil || g.GetPayProductId() != payinProductID {
+		if g == nil || g.GetPayinProductId() != payinProductID {
 			continue
 		}
 		if g.MerchantRateBps != nil {

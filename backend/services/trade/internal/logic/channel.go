@@ -31,7 +31,7 @@ func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error)
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
 	}
 
-	return &channelpb.RouteResp{ChannelId: channelId, PayProductId: payProductID}, nil
+	return &channelpb.RouteResp{ChannelId: channelId, PayinProductId: payProductID}, nil
 }
 
 type GetSignSecretLogic struct {

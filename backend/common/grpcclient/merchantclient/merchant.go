@@ -27,9 +27,9 @@ type (
 		ListMerchants(ctx context.Context, in *ListMerchantsReq, opts ...grpc.CallOption) (*ListMerchantsResp, error)
 		CreateMerchant(ctx context.Context, in *CreateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
 		UpdateMerchant(ctx context.Context, in *UpdateMerchantReq, opts ...grpc.CallOption) (*UpsertMerchantResp, error)
-		ReplaceMerchantPayProducts(ctx context.Context, in *merchant.ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayProductsResp, error)
+		ReplaceMerchantPayinProducts(ctx context.Context, in *merchant.ReplaceMerchantPayinProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayinProductsResp, error)
 		ReplaceMerchantPayoutProducts(ctx context.Context, in *merchant.ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayoutProductsResp, error)
-		ListMerchantPayProductIds(ctx context.Context, in *merchant.ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayProductIdsResp, error)
+		ListMerchantPayinProductIds(ctx context.Context, in *merchant.ListMerchantPayinProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayinProductIdsResp, error)
 		ListMerchantPayoutProductIds(ctx context.Context, in *merchant.ListMerchantPayoutProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayoutProductIdsResp, error)
 	}
 
@@ -66,12 +66,12 @@ func (m *defaultMerchant) UpdateMerchant(ctx context.Context, in *UpdateMerchant
 	return m.client().UpdateMerchant(ctx, in, opts...)
 }
 
-func (m *defaultMerchant) ReplaceMerchantPayProducts(ctx context.Context, in *merchant.ReplaceMerchantPayProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayProductsResp, error) {
-	return m.client().ReplaceMerchantPayProducts(ctx, in, opts...)
+func (m *defaultMerchant) ReplaceMerchantPayinProducts(ctx context.Context, in *merchant.ReplaceMerchantPayinProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayinProductsResp, error) {
+	return m.client().ReplaceMerchantPayinProducts(ctx, in, opts...)
 }
 
-func (m *defaultMerchant) ListMerchantPayProductIds(ctx context.Context, in *merchant.ListMerchantPayProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayProductIdsResp, error) {
-	return m.client().ListMerchantPayProductIds(ctx, in, opts...)
+func (m *defaultMerchant) ListMerchantPayinProductIds(ctx context.Context, in *merchant.ListMerchantPayinProductIdsReq, opts ...grpc.CallOption) (*merchant.ListMerchantPayinProductIdsResp, error) {
+	return m.client().ListMerchantPayinProductIds(ctx, in, opts...)
 }
 
 func (m *defaultMerchant) ReplaceMerchantPayoutProducts(ctx context.Context, in *merchant.ReplaceMerchantPayoutProductsReq, opts ...grpc.CallOption) (*merchant.ReplaceMerchantPayoutProductsResp, error) {

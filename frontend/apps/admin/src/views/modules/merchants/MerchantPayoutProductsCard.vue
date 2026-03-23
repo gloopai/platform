@@ -102,12 +102,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import type { MerchantPayoutGrant, PayProductRow } from './types'
+import type { MerchantPayoutGrant, ProductRow } from './types'
 
 const props = withDefaults(
   defineProps<{
     grants: MerchantPayoutGrant[]
-    catalog: PayProductRow[]
+    catalog: ProductRow[]
     loading: boolean
     saving: boolean
     bindError: string
