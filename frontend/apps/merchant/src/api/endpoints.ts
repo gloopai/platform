@@ -7,6 +7,8 @@ export const MERCHANT_API = {
   summary: '/v1/merchant/summary',
   statsByProduct: '/v1/merchant/stats/by_product',
   orders: '/v1/merchant/orders',
+  collectOrders: '/v1/merchant/collect_orders',
+  payoutOrders: '/v1/merchant/payout_orders',
   orderDetail: '/v1/merchant/order/detail',
   retryNotify: '/v1/merchant/order/retry_notify',
   fundLogs: '/v1/merchant/fund_logs',

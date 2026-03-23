@@ -22,6 +22,26 @@ func (s *OrderServer) AdminListOrders(ctx context.Context, in *orderpb.AdminList
 	return l.AdminListOrders(in)
 }
 
+func (s *OrderServer) ListCollectOrders(ctx context.Context, in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
+	l := logic.NewListOrdersLogic(ctx, s.svcCtx)
+	return l.ListOrders(in)
+}
+
+func (s *OrderServer) ListPayoutOrders(ctx context.Context, in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
+	l := logic.NewPayoutOrderLogic(ctx, s.svcCtx)
+	return l.ListPayoutOrders(in)
+}
+
+func (s *OrderServer) AdminListCollectOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
+	l := logic.NewAdminListOrdersLogic(ctx, s.svcCtx)
+	return l.AdminListOrders(in)
+}
+
+func (s *OrderServer) AdminListPayoutOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
+	l := logic.NewPayoutOrderLogic(ctx, s.svcCtx)
+	return l.AdminListPayoutOrders(in)
+}
+
 func (s *OrderServer) AdminDayOverview(ctx context.Context, in *orderpb.AdminDayOverviewReq) (*orderpb.AdminDayOverviewResp, error) {
 	l := logic.NewAdminDayOverviewLogic(ctx, s.svcCtx)
 	return l.AdminDayOverview(in)

@@ -51,6 +51,40 @@ func AdminListOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func AdminListCollectOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.AdminOrdersReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+		l := logic.NewAdminOrders(r.Context(), svcCtx)
+		resp, err := l.AdminListCollectOrders(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
+func AdminListPayoutOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.AdminOrdersReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+		l := logic.NewAdminOrders(r.Context(), svcCtx)
+		resp, err := l.AdminListPayoutOrders(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func AdminReconcileDayHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminDayOverviewReq

@@ -175,6 +175,79 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 	}, nil
 }
 
+func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.CreateOrderResp, error) {
+	merchantID := strings.TrimSpace(req.MerchantId)
+	if merchantID == "" {
+		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	}
+	payoutCode := strings.TrimSpace(req.PayoutProductCode)
+	if payoutCode == "" {
+		payoutCode = strings.TrimSpace(req.PayType)
+	}
+	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
+		MerchantId:      merchantID,
+		MerchantOrderNo: req.MerchantOrderNo,
+		Amount:          req.Amount,
+		Currency:        req.Currency,
+		NotifyUrl:       req.NotifyUrl,
+		PayType:         payoutCode,
+		ChannelId:       req.ChannelId,
+		PayProductId:    req.PayProductId,
+		PayProductCode:  payoutCode,
+		FeeMode:         req.FeeMode,
+		FeeRateBps:      req.FeeRateBps,
+		FeeFixedAmount:  req.FeeFixedAmount,
+		FeeAmount:       req.FeeAmount,
+		NetAmount:       req.NetAmount,
+	})
+	if err != nil {
+		return nil, err
+	}
+	o := r.GetOrder()
+	return &types.CreateOrderResp{
+		OrderNo:        o.GetOrderNo(),
+		Status:         o.GetStatus(),
+		ChannelId:      o.GetChannelId(),
+		PayProductId:   o.GetPayProductId(),
+		PayProductCode: o.GetPayProductCode(),
+		CheckoutUrl:    "",
+		ChannelLocked:  0,
+	}, nil
+}
+
+func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrderResp, error) {
+	r, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
+		MerchantId:      req.MerchantId,
+		OrderNo:         req.OrderNo,
+		MerchantOrderNo: req.MerchantOrderNo,
+	})
+	if err != nil {
+		return nil, err
+	}
+	o := r.GetOrder()
+	return &types.QueryOrderResp{
+		Order: types.OrderInfo{
+			OrderNo:         o.GetOrderNo(),
+			MerchantId:      o.GetMerchantId(),
+			MerchantOrderNo: o.GetMerchantOrderNo(),
+			Amount:          o.GetAmount(),
+			Currency:        o.GetCurrency(),
+			Status:          o.GetStatus(),
+			ChannelId:       o.GetChannelId(),
+			PayProductId:    o.GetPayProductId(),
+			PayProductCode:  o.GetPayProductCode(),
+			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
+			NotifyUrl:       o.GetNotifyUrl(),
+			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+		},
+	}, nil
+}
+
 func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.TerminalOrderResp, err error) {
 	r, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
 		OrderNo: req.OrderNo,

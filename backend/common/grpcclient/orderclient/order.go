@@ -10,16 +10,16 @@ import (
 )
 
 type (
-	CreateOrderReq   = order.CreateOrderReq
-	CreateOrderResp  = order.CreateOrderResp
-	GetOrderReq      = order.GetOrderReq
-	GetOrderResp     = order.GetOrderResp
-	MarkPaidReq      = order.MarkPaidReq
-	MarkPaidResp     = order.MarkPaidResp
-	ListOrdersReq    = order.ListOrdersReq
-	ListOrdersResp   = order.ListOrdersResp
-	TodaySummaryReq  = order.TodaySummaryReq
-	TodaySummaryResp = order.TodaySummaryResp
+	CreateOrderReq         = order.CreateOrderReq
+	CreateOrderResp        = order.CreateOrderResp
+	GetOrderReq            = order.GetOrderReq
+	GetOrderResp           = order.GetOrderResp
+	MarkPaidReq            = order.MarkPaidReq
+	MarkPaidResp           = order.MarkPaidResp
+	ListOrdersReq          = order.ListOrdersReq
+	ListOrdersResp         = order.ListOrdersResp
+	TodaySummaryReq        = order.TodaySummaryReq
+	TodaySummaryResp       = order.TodaySummaryResp
 	PrepareTerminalPayReq  = order.PrepareTerminalPayReq
 	PrepareTerminalPayResp = order.PrepareTerminalPayResp
 	OrderInfo              = order.OrderInfo

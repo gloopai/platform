@@ -7,9 +7,9 @@ package server
 import (
 	"context"
 
+	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/logic"
 	"github.com/gloopai/pay/trade/internal/svc"
-	orderpb "github.com/gloopai/pay/common/pb/order"
 )
 
 type OrderServer struct {

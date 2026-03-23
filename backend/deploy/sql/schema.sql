@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS merchant_payout_products (
   CONSTRAINT fk_mppo_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE IF NOT EXISTS collect_orders (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_no VARCHAR(64) NOT NULL,
   merchant_id VARCHAR(64) NOT NULL,
@@ -158,8 +158,36 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_order_no (order_no),
-  UNIQUE KEY uk_merchant_order (merchant_id, merchant_order_no),
+  UNIQUE KEY uk_collect_order_no (order_no),
+  UNIQUE KEY uk_collect_merchant_order (merchant_id, merchant_order_no),
+  KEY idx_merchant_created (merchant_id, created_at),
+  KEY idx_status_updated (status, updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS payout_orders (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_no VARCHAR(64) NOT NULL,
+  merchant_id VARCHAR(64) NOT NULL,
+  merchant_order_no VARCHAR(64) NOT NULL,
+  amount BIGINT NOT NULL,
+  currency VARCHAR(8) NOT NULL DEFAULT 'CNY',
+  status TINYINT NOT NULL DEFAULT 0,
+  channel_id BIGINT NOT NULL DEFAULT 0,
+  payout_product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  payout_product_code VARCHAR(32) NULL,
+  paid_amount BIGINT NOT NULL DEFAULT 0,
+  fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '1=比例 2=固定 3=固定+比例',
+  fee_rate_bps INT NOT NULL DEFAULT 0,
+  fee_fixed_amount BIGINT NOT NULL DEFAULT 0,
+  fee_amount BIGINT NOT NULL DEFAULT 0,
+  net_amount BIGINT NOT NULL DEFAULT 0,
+  notify_url VARCHAR(512) NULL,
+  upstream_trade_no VARCHAR(128) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_payout_order_no (order_no),
+  UNIQUE KEY uk_payout_merchant_order (merchant_id, merchant_order_no),
   KEY idx_merchant_created (merchant_id, created_at),
   KEY idx_status_updated (status, updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

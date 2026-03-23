@@ -8,8 +8,12 @@ export type MerchantOrderListQuery = {
   limit?: number
 }
 
-export async function fetchMerchantOrders(params: MerchantOrderListQuery): Promise<MerchantOrdersListResp> {
-  return merchantConsoleGet<MerchantOrdersListResp>(MERCHANT_API.orders, params)
+export async function fetchMerchantOrders(
+  params: MerchantOrderListQuery,
+  mode: 'collect' | 'payout' = 'collect',
+): Promise<MerchantOrdersListResp> {
+  const endpoint = mode === 'payout' ? MERCHANT_API.payoutOrders : MERCHANT_API.collectOrders
+  return merchantConsoleGet<MerchantOrdersListResp>(endpoint, params)
 }
 
 export async function fetchMerchantOrderDetail(orderNo: string): Promise<MerchantOrderDetailResp> {

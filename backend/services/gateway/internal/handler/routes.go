@@ -35,9 +35,19 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: checkouthandler.CreateOrderHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPost,
+					Path:    "/v1/payout/order",
+					Handler: checkouthandler.CreatePayoutOrderHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/v1/pay/query",
 					Handler: checkouthandler.QueryOrderHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/payout/query",
+					Handler: checkouthandler.QueryPayoutOrderHandler(serverCtx),
 				},
 			}...,
 		),
@@ -66,6 +76,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/orders",
 					Handler: merchanthandler.MerchantOrdersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/merchant/collect_orders",
+					Handler: merchanthandler.MerchantCollectOrdersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/merchant/payout_orders",
+					Handler: merchanthandler.MerchantPayoutOrdersHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
@@ -254,6 +274,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/orders",
 					Handler: adminhandler.AdminListOrdersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/collect_orders",
+					Handler: adminhandler.AdminListCollectOrdersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/payout_orders",
+					Handler: adminhandler.AdminListPayoutOrdersHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

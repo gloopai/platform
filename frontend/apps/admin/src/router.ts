@@ -7,7 +7,8 @@ import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
-import OrdersPage from './views/modules/orders/OrdersPage.vue'
+import CollectOrdersPage from './views/modules/orders/CollectOrdersPage.vue'
+import PayoutOrdersPage from './views/modules/orders/PayoutOrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import RefundsPage from './views/modules/refunds/RefundsPage.vue'
 import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
@@ -31,7 +32,8 @@ export const router = createRouter({
         { path: 'merchant-payout-products', component: PayProductsPage, props: { payoutMode: true } },
         { path: 'routing', component: RouteStrategyPage },
         { path: 'channel-health', component: ChannelHealthPage },
-        { path: 'orders', component: OrdersPage },
+        { path: 'collect-orders', component: CollectOrdersPage },
+        { path: 'payout-orders', component: PayoutOrdersPage },
         { path: 'refunds', component: RefundsPage },
         { path: 'reconcile', component: ReconcilePage },
         { path: 'settlement', component: SettlementPage },

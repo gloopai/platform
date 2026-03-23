@@ -29,6 +29,18 @@ func NewAdminOrders(ctx context.Context, svcCtx *svc.ServiceContext) *AdminOrder
 }
 
 func (a *AdminOrders) AdminListOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
+	return a.adminListOrders(req, false)
+}
+
+func (a *AdminOrders) AdminListCollectOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
+	return a.adminListOrders(req, false)
+}
+
+func (a *AdminOrders) AdminListPayoutOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
+	return a.adminListOrders(req, true)
+}
+
+func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*types.AdminOrdersResp, error) {
 	pbreq := &orderpb.AdminListOrdersReq{
 		MerchantId: strings.TrimSpace(req.MerchantId),
 		Keyword:    strings.TrimSpace(req.Keyword),

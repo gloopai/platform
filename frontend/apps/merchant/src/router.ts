@@ -6,7 +6,8 @@ import ConsolePage from './views/pages/ConsolePage.vue'
 import DevelopersPage from './views/pages/DevelopersPage.vue'
 import FinancePage from './views/pages/FinancePage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
-import TransactionsPage from './views/pages/TransactionsPage.vue'
+import TransactionsCollectPage from './views/pages/TransactionsCollectPage.vue'
+import TransactionsPayoutPage from './views/pages/TransactionsPayoutPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -18,7 +19,8 @@ export const router = createRouter({
       children: [
         { path: '', redirect: '/console' },
         { path: 'console', component: ConsolePage },
-        { path: 'transactions', component: TransactionsPage },
+        { path: 'transactions-collect', component: TransactionsCollectPage },
+        { path: 'transactions-payout', component: TransactionsPayoutPage },
         { path: 'finance', component: FinancePage },
         { path: 'products', component: ModulePlaceholderPage },
         { path: 'account', component: ModulePlaceholderPage },

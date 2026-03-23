@@ -18,6 +18,26 @@ type CreateOrderReq struct {
 	Sign            string `json:"sign"`
 }
 
+type CreatePayoutOrderReq struct {
+	MerchantId       string `json:"merchant_id"`
+	MerchantOrderNo  string `json:"merchant_order_no"`
+	Amount           int64  `json:"amount"`
+	Currency         string `json:"currency,optional"`
+	NotifyUrl        string `json:"notify_url,optional"`
+	PayType          string `json:"pay_type,optional"`
+	ChannelId        int64  `json:"channel_id,optional"`
+	PayProductId     int64  `json:"pay_product_id,optional"`
+	PayoutProductCode string `json:"payout_product_code,optional"`
+	FeeMode          int64  `json:"fee_mode,optional"`
+	FeeRateBps       int64  `json:"fee_rate_bps,optional"`
+	FeeFixedAmount   int64  `json:"fee_fixed_amount,optional"`
+	FeeAmount        int64  `json:"fee_amount,optional"`
+	NetAmount        int64  `json:"net_amount,optional"`
+	Timestamp        int64  `json:"timestamp,optional"`
+	Nonce            string `json:"nonce,optional"`
+	Sign             string `json:"sign"`
+}
+
 type CreateOrderResp struct {
 	OrderNo        string `json:"order_no"`
 	Status         int32  `json:"status"`

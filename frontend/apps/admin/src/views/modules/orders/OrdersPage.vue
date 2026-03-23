@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">全站订单</h1>
+      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">{{ title }}</h1>
       <p class="mt-1 text-sm text-slate-600">
-        跨商户检索平台订单（只读，MVP）；关键词匹配平台单号、商户单号或商户 ID（精确）。
+        {{ description }}
       </p>
       <p v-if="error" class="mt-2 text-sm text-rose-600">{{ error }}</p>
     </div>
@@ -122,6 +122,16 @@ import { formatAdminMoney } from '../../../lib/displaySettings'
 
 import type { AdminOrderRow, AdminOrdersResp } from './types'
 
+const props = withDefaults(defineProps<{
+  title?: string
+  description?: string
+  endpoint?: string
+}>(), {
+  title: '全站订单',
+  description: '跨商户检索平台订单（只读，MVP）；关键词匹配平台单号、商户单号或商户 ID（精确）。',
+  endpoint: '/v1/admin/orders',
+})
+
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 
 const keyword = ref('')
@@ -173,7 +183,7 @@ function buildQuery(): string {
   if (status.value !== '') q.set('status', status.value)
   q.set('limit', '200')
   const s = q.toString()
-  return s ? `/v1/admin/orders?${s}` : '/v1/admin/orders'
+  return s ? `${props.endpoint}?${s}` : props.endpoint
 }
 
 async function reload() {

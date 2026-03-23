@@ -39,7 +39,7 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
 
-	existing, err := l.svcCtx.Orders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
+	existing, err := l.svcCtx.CollectOrders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 	if err == nil {
 		return &orderpb.CreateOrderResp{
 			Order:   toOrderInfo(existing),
@@ -56,7 +56,7 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		return nil, status.Error(codes.Internal, "redis error")
 	}
 	if !ok {
-		existing, err := l.svcCtx.Orders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
+		existing, err := l.svcCtx.CollectOrders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 		if err == nil {
 			return &orderpb.CreateOrderResp{
 				Order:   toOrderInfo(existing),
@@ -114,13 +114,13 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		rec.NetAmount = 0
 	}
 
-	if err := l.svcCtx.Orders.Insert(l.ctx, rec); err != nil {
+	if err := l.svcCtx.CollectOrders.Insert(l.ctx, rec); err != nil {
 		_ = l.svcCtx.Redis.Del(l.ctx, lockKey).Err()
 		return nil, status.Error(codes.Internal, "insert order failed")
 	}
 
 	_ = l.svcCtx.Redis.Expire(l.ctx, lockKey, 10*time.Minute).Err()
-	created, err := l.svcCtx.Orders.FindByOrderNo(l.ctx, orderNo)
+	created, err := l.svcCtx.CollectOrders.FindByOrderNo(l.ctx, orderNo)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load created order failed")
 	}
@@ -152,9 +152,9 @@ func (l *GetOrderLogic) GetOrder(in *orderpb.GetOrderReq) (*orderpb.GetOrderResp
 	)
 	switch {
 	case in.GetOrderNo() != "":
-		rec, err = l.svcCtx.Orders.FindByOrderNo(l.ctx, in.GetOrderNo())
+		rec, err = l.svcCtx.CollectOrders.FindByOrderNo(l.ctx, in.GetOrderNo())
 	case in.GetMerchantId() != "" && in.GetMerchantOrderNo() != "":
-		rec, err = l.svcCtx.Orders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
+		rec, err = l.svcCtx.CollectOrders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 	default:
 		return nil, status.Error(codes.InvalidArgument, "order_no or (merchant_id and merchant_order_no) required")
 	}
@@ -193,7 +193,7 @@ func (l *ListOrdersLogic) ListOrders(in *orderpb.ListOrdersReq) (*orderpb.ListOr
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 
-	records, err := l.svcCtx.Orders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetLimit())
+	records, err := l.svcCtx.CollectOrders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetLimit())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "list orders failed")
 	}
@@ -226,7 +226,7 @@ func (l *TodaySummaryLogic) TodaySummary(in *orderpb.TodaySummaryReq) (*orderpb.
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 
-	totalAmount, totalCount, successCount, err := l.svcCtx.Orders.TodaySummary(l.ctx, merchantId)
+	totalAmount, totalCount, successCount, err := l.svcCtx.CollectOrders.TodaySummary(l.ctx, merchantId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "today summary failed")
 	}
@@ -260,7 +260,7 @@ func (l *MarkPaidLogic) MarkPaid(in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp
 		return nil, status.Error(codes.InvalidArgument, "paid_amount must be positive")
 	}
 
-	changed, err := l.svcCtx.Orders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetUpstreamTradeNo(), in.GetChannelId())
+	changed, err := l.svcCtx.CollectOrders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetUpstreamTradeNo(), in.GetChannelId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mark paid failed")
 	}

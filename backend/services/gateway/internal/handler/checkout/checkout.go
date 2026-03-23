@@ -47,6 +47,42 @@ func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func CreatePayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.CreatePayoutOrderReq
+		if err := httpx.Parse(r, &req); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		resp, err := l.CreatePayoutOrder(&req)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
+func QueryPayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.QueryOrderReq
+		if err := httpx.Parse(r, &req); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		resp, err := l.QueryPayoutOrder(&req)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UpstreamNotifyReq

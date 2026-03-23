@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <PageHeader title="交易管理" description="查询订单、查看回调记录并重发通知" />
+    <PageHeader :title="title" :description="description" />
 
     <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -231,6 +231,16 @@ import type { MerchantOrderDetail, MerchantOrderDetailResp, MerchantOrderItem } 
 import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
 import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLabel } from '@/utils/orderStatus'
 
+const props = withDefaults(defineProps<{
+  title?: string
+  description?: string
+  mode?: 'collect' | 'payout'
+}>(), {
+  title: '交易管理',
+  description: '查询订单、查看回调记录并重发通知',
+  mode: 'collect',
+})
+
 const keyword = ref('')
 const status = ref('')
 const orders = ref<MerchantOrderItem[]>([])
@@ -282,7 +292,7 @@ async function reload() {
       order_no: keyword.value,
       status: status.value,
       limit: 200,
-    })
+    }, props.mode)
     orders.value = res.orders || []
   } catch {
     error.value = '加载失败：请确认已登录且网关已启动。'

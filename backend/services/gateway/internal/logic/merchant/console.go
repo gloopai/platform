@@ -74,6 +74,18 @@ func (c *MerchantConsole) MerchantDisplaySettings(req *types.MerchantDisplaySett
 }
 
 func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
+	return c.merchantOrders(req, false)
+}
+
+func (c *MerchantConsole) MerchantCollectOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
+	return c.merchantOrders(req, false)
+}
+
+func (c *MerchantConsole) MerchantPayoutOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
+	return c.merchantOrders(req, true)
+}
+
+func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bool) (*types.MerchantOrdersResp, error) {
 	orderStatus := int32(-1)
 	if strings.TrimSpace(req.Status) != "" {
 		v, err := strconv.ParseInt(strings.TrimSpace(req.Status), 10, 32)
@@ -83,6 +95,7 @@ func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.M
 		orderStatus = int32(v)
 	}
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
+	_ = payout
 	r, err := c.svcCtx.OrderRpc.ListOrders(c.ctx, &orderclient.ListOrdersReq{
 		MerchantId: merchantId,
 		Keyword:    req.OrderNo,

@@ -119,3 +119,29 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('currency_code', 'CNY'),
   ('currency_symbol', '¥')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+
+INSERT INTO collect_orders (
+  order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
+  pay_product_id, pay_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,
+  return_url, notify_url, upstream_trade_no
+)
+SELECT
+  'C-DEMO-001', 'm_demo', 'MO-C-DEMO-001', 1000, 'CNY', 1, c.id, pp.id, pp.code, 0, 1000, 1, 60, 0, 6, 994,
+  '', '', 'UP-C-DEMO-001'
+FROM channels c
+JOIN pay_products pp ON pp.code = 'mock'
+WHERE c.name = 'mock-channel'
+ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);
+
+INSERT INTO payout_orders (
+  order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
+  payout_product_id, payout_product_code, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,
+  notify_url, upstream_trade_no
+)
+SELECT
+  'P-DEMO-001', 'm_rate_mix', 'MO-P-DEMO-001', 2000, 'CNY', 1, c.id, pp.id, pp.code, 2000, 2, 0, 150, 150, 1850,
+  '', 'UP-P-DEMO-001'
+FROM channels c
+JOIN payout_products pp ON pp.code = 'bank_card'
+WHERE c.name = 'mock-channel-b'
+ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);

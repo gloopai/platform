@@ -35,7 +35,7 @@ func (l *AdminListOrdersLogic) AdminListOrders(in *orderpb.AdminListOrdersReq) (
 		}
 	}
 
-	records, err := l.svcCtx.Orders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
+	records, err := l.svcCtx.CollectOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "admin list orders failed")
 	}

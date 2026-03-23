@@ -8,6 +8,10 @@ service Order {
   rpc GetOrder(GetOrderReq) returns(GetOrderResp);
   rpc MarkPaid(MarkPaidReq) returns(MarkPaidResp);
   rpc ListOrders(ListOrdersReq) returns(ListOrdersResp);
+  rpc CreatePayoutOrder(CreatePayoutOrderReq) returns(CreateOrderResp);
+  rpc GetPayoutOrder(GetOrderReq) returns(GetOrderResp);
+  rpc ListCollectOrders(ListOrdersReq) returns(ListOrdersResp);
+  rpc ListPayoutOrders(ListOrdersReq) returns(ListOrdersResp);
   rpc TodaySummary(TodaySummaryReq) returns(TodaySummaryResp);
   // 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
   rpc PrepareTerminalPay(PrepareTerminalPayReq) returns (PrepareTerminalPayResp);
@@ -17,8 +21,26 @@ service Order {
   rpc ListMerchantNotifyLogs(ListMerchantNotifyLogsReq) returns (ListMerchantNotifyLogsResp);
   // 管理台：跨商户订单列表（merchant_id 为空则不限商户）
   rpc AdminListOrders(AdminListOrdersReq) returns (AdminListOrdersResp);
+  rpc AdminListCollectOrders(AdminListOrdersReq) returns (AdminListOrdersResp);
+  rpc AdminListPayoutOrders(AdminListOrdersReq) returns (AdminListOrdersResp);
   // 管理台：按自然日聚合订单（对账「平台账」快照；与上游文件比对为后续）
   rpc AdminDayOverview(AdminDayOverviewReq) returns (AdminDayOverviewResp);
+}
+
+message CreatePayoutOrderReq {
+  string merchant_id = 1;
+  string merchant_order_no = 2;
+  int64 amount = 3;
+  string currency = 4;
+  string notify_url = 5;
+  int64 channel_id = 6;
+  int64 payout_product_id = 7;
+  string payout_product_code = 8;
+  int64 fee_mode = 9;
+  int64 fee_rate_bps = 10;
+  int64 fee_fixed_amount = 11;
+  int64 fee_amount = 12;
+  int64 net_amount = 13;
 }
 
 message CreateOrderReq {

@@ -15,7 +15,8 @@ type ServiceContext struct {
 	Config              config.Config
 	Sql                 *sql.DB
 	Redis               *redis.Client
-	Orders              *store.OrdersStore
+	CollectOrders       *store.CollectOrdersStore
+	PayoutOrders        *store.PayoutOrdersStore
 	Channels            *store.ChannelsStore
 	MerchantPayProducts *store.MerchantPayProductsStore
 	PayProducts         *store.PayProductsStore
@@ -48,7 +49,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:              c,
 		Sql:                 sqlDB,
 		Redis:               rdb,
-		Orders:              store.NewOrdersStore(sqlDB),
+		CollectOrders:       store.NewCollectOrdersStore(sqlDB),
+		PayoutOrders:        store.NewPayoutOrdersStore(sqlDB),
 		Channels:            store.NewChannelsStore(sqlDB),
 		MerchantPayProducts: store.NewMerchantPayProductsStore(sqlDB),
 		PayProducts:         store.NewPayProductsStore(sqlDB),
