@@ -25,6 +25,8 @@ export type MerchantOrderItem = {
   channel_id: number
   /** 支付产品编码（微信/支付宝/mock 等），与开放平台 pay_type 一致 */
   pay_product_code: string
+  /** 管理台配置的展示名；缺省时前端仅用 `pay_product_code` */
+  pay_product_name?: string
   paid_amount: number
   upstream_trade_no: string
   created_at: number
@@ -54,6 +56,7 @@ export type MerchantOrderDetail = {
   channel_id: number
   pay_product_id: number
   pay_product_code: string
+  pay_product_name?: string
   return_url: string
   notify_url: string
   upstream_trade_no: string

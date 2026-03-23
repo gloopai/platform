@@ -8,6 +8,7 @@ import (
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/gateway/internal/middleware"
@@ -78,8 +79,10 @@ func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.M
 		return nil, err
 	}
 	items := r.GetOrders()
+	nameByCode := c.payProductNameByCode(c.ctx)
 	out := make([]types.MerchantOrderItem, 0, len(items))
 	for _, o := range items {
+		code := o.GetPayProductCode()
 		out = append(out, types.MerchantOrderItem{
 			OrderNo:         o.GetOrderNo(),
 			MerchantOrderNo: o.GetMerchantOrderNo(),
@@ -87,13 +90,36 @@ func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.M
 			Currency:        o.GetCurrency(),
 			Status:          o.GetStatus(),
 			ChannelId:       o.GetChannelId(),
-			PayProductCode:  o.GetPayProductCode(),
+			PayProductCode:  code,
+			PayProductName:  lookupPayProductName(nameByCode, code),
 			PaidAmount:      o.GetPaidAmount(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
 			CreatedAt:       o.GetCreatedAt(),
 		})
 	}
 	return &types.MerchantOrdersResp{Orders: out}, nil
+}
+
+func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]string {
+	r, err := c.svcCtx.ChannelRpc.AdminListPayProducts(ctx, &channelpb.AdminListPayProductsReq{})
+	if err != nil {
+		c.Errorf("AdminListPayProducts: %v", err)
+		return nil
+	}
+	m := make(map[string]string, len(r.GetProducts()))
+	for _, row := range r.GetProducts() {
+		if row.GetCode() != "" {
+			m[row.GetCode()] = row.GetName()
+		}
+	}
+	return m
+}
+
+func lookupPayProductName(byCode map[string]string, code string) string {
+	if code == "" || byCode == nil {
+		return ""
+	}
+	return byCode[code]
 }
 
 func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*types.MerchantFundLogsResp, error) {
@@ -132,6 +158,13 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 	}
 	o := r.GetOrder()
 
+	payProductName := ""
+	if code := o.GetPayProductCode(); code != "" {
+		if dn, err := c.svcCtx.ChannelRpc.GetPayProductDisplayName(c.ctx, &channelpb.GetPayProductDisplayNameReq{Code: code}); err == nil && dn != nil {
+			payProductName = dn.GetName()
+		}
+	}
+
 	nlr, err := c.svcCtx.OrderRpc.ListMerchantNotifyLogs(c.ctx, &orderpb.ListMerchantNotifyLogsReq{
 		MerchantId: merchantId,
 		OrderNo:    req.OrderNo,
@@ -164,6 +197,7 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 			ChannelId:       o.GetChannelId(),
 			PayProductId:    o.GetPayProductId(),
 			PayProductCode:  o.GetPayProductCode(),
+			PayProductName:  payProductName,
 			ChannelLocked:   o.GetChannelLocked(),
 			PaidAmount:      o.GetPaidAmount(),
 			ReturnUrl:       o.GetReturnUrl(),

@@ -11,7 +11,7 @@
 | 路径 | 说明 | 后端/页面状态 |
 |------|------|----------------|
 | `/console` | 控制台：今日流水、订单数、成功率、余额 | 已对接 `GET /v1/merchant/summary` |
-| `/transactions` | 交易管理：订单列表、详情、回调记录、重发通知 | 已对接 orders / detail / retry_notify |
+| `/transactions` | 交易管理：订单列表、详情、回调记录、重发通知 | 已对接 orders / detail / retry_notify；列表与详情展示 **支付产品展示名**（`pay_product_name`）与编码 |
 | `/finance` | 财务中心：资金流水、提现/对账占位 | 已对接 `GET /v1/merchant/fund_logs` |
 | `/products` | 产品与费率 | 占位页，文案见 `config/merchantPlaceholder.ts` |
 | `/account` | 账户与安全 | 占位页 |

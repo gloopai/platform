@@ -77,7 +77,15 @@
                   {{ statusLabel(o.status) }}
                 </span>
               </td>
-              <td class="px-4 py-3 align-top font-mono text-xs text-slate-700">{{ o.pay_product_code || '—' }}</td>
+              <td class="px-4 py-3 align-top">
+                <div class="font-medium text-slate-900">{{ payProductPrimary(o) }}</div>
+                <div
+                  v-if="payProductShowCodeLine(o)"
+                  class="mt-0.5 font-mono text-xs text-slate-500"
+                >
+                  {{ o.pay_product_code }}
+                </div>
+              </td>
               <td class="px-4 py-3 align-top text-slate-700">{{ o.upstream_trade_no || '—' }}</td>
               <td class="px-4 py-3 align-top text-slate-600">{{ formatTime(o.created_at) }}</td>
               <td class="px-4 py-3 align-top">
@@ -140,7 +148,13 @@
               </div>
               <div class="col-span-12 md:col-span-6">
                 <div class="text-xs font-medium text-slate-500">支付产品</div>
-                <div class="mt-1 font-mono text-sm text-slate-900">{{ detail?.order.pay_product_code || '—' }}</div>
+                <div class="mt-1 text-sm font-medium text-slate-900">{{ payProductPrimary(detail?.order) }}</div>
+                <div
+                  v-if="detail?.order && payProductShowCodeLine(detail.order)"
+                  class="mt-0.5 font-mono text-xs text-slate-600"
+                >
+                  {{ detail.order.pay_product_code }}
+                </div>
               </div>
               <div class="col-span-12">
                 <div class="text-xs font-medium text-slate-500">Notify URL</div>
@@ -198,7 +212,7 @@ import { onMounted, ref } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import { fetchMerchantOrderDetail, fetchMerchantOrders, postRetryMerchantNotify } from '@/api/orders'
-import type { MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
+import type { MerchantOrderDetail, MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
 import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
 import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLabel } from '@/utils/orderStatus'
 
@@ -220,6 +234,21 @@ function formatAmount(amount: number, currency: string) {
 
 function formatTime(ts: number) {
   return formatUnixSeconds(ts)
+}
+
+function payProductPrimary(o: MerchantOrderItem | MerchantOrderDetail | null | undefined) {
+  if (!o) return '—'
+  const name = o.pay_product_name?.trim()
+  const code = o.pay_product_code?.trim()
+  if (name) return name
+  if (code) return code
+  return '—'
+}
+
+function payProductShowCodeLine(o: MerchantOrderItem | MerchantOrderDetail) {
+  const name = o.pay_product_name?.trim()
+  const code = o.pay_product_code?.trim()
+  return !!(name && code && name !== code)
 }
 
 async function reload() {

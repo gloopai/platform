@@ -38,6 +38,7 @@ type OrderInfo struct {
 	ChannelId        int64  `json:"channel_id"`
 	PayProductId     int64  `json:"pay_product_id"`
 	PayProductCode   string `json:"pay_product_code"`
+	PayProductName   string `json:"pay_product_name"`
 	ChannelLocked    int32  `json:"channel_locked"`
 	PaidAmount       int64  `json:"paid_amount"`
 	ReturnUrl        string `json:"return_url"`
@@ -171,6 +172,7 @@ type MerchantOrderItem struct {
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
 	PayProductCode   string `json:"pay_product_code"`
+	PayProductName   string `json:"pay_product_name"`
 	PaidAmount       int64  `json:"paid_amount"`
 	UpstreamTradeNo  string `json:"upstream_trade_no"`
 	CreatedAt        int64  `json:"created_at"`
