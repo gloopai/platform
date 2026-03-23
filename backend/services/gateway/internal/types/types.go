@@ -534,3 +534,29 @@ type AdminStatsOverviewResp struct {
 	EnabledChannels   int64                  `json:"enabled_channels"`
 	FusedChannels     int64                  `json:"fused_channels"`
 }
+
+type AdminOrdersReq struct {
+	MerchantId string `form:"merchant_id,optional"`
+	Keyword    string `form:"keyword,optional"`
+	Status     string `form:"status,optional"`
+	Limit      int64  `form:"limit,optional"`
+}
+
+type AdminOrderRow struct {
+	OrderNo         string `json:"order_no"`
+	MerchantId      string `json:"merchant_id"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency"`
+	Status          int32  `json:"status"`
+	ChannelId       int64  `json:"channel_id"`
+	PayProductId    int64  `json:"pay_product_id"`
+	PayProductCode  string `json:"pay_product_code"`
+	PaidAmount      int64  `json:"paid_amount"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
+	CreatedAt       int64  `json:"created_at"`
+}
+
+type AdminOrdersResp struct {
+	Orders []AdminOrderRow `json:"orders"`
+}

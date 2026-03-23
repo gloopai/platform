@@ -30,7 +30,8 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/merchants` | 商户管理 | **已对接**：网关 `/v1/admin/merchants` 列表/创建/更新 |
-| `/merchant-products` | 支付产品与上游通道 | **已对接**：`pay_products` CRUD 与 `pay_product_channels` 绑定（权重、启用）；见 §4 |
+| `/merchant-products` | 代收产品与上游通道 | **已对接**：`pay_products` CRUD 与 `pay_product_channels` 绑定（权重、启用）；见 §4 |
+| `/merchant-payout-products` | 代付产品与上游通道 | **已对接**：`payout_products` 及绑定 API；与代收共用 `PayProductsPage`（`payoutMode`） |
 
 ### 2.3 通道与路由
 
@@ -44,7 +45,7 @@
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/orders` | 全站订单 | 跨商户订单检索、导出、异常处理；**占位** |
+| `/orders` | 全站订单 | **已对接（MVP）**：`GET /v1/admin/orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
 | `/refunds` | 退款与差错 | 退款审核、差错单、长短款；**占位** |
 | `/reconcile` | 对账中心 | 对账批次、差异处理；**占位** |
 | `/settlement` | 结算与提现 | 结算周期、提现审核、打款；**占位** |
@@ -112,8 +113,9 @@
   - `PUT /v1/admin/pay_product_bindings/:id`、`DELETE /v1/admin/pay_product_bindings/:id`
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
 - **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
+- **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
 
-其余菜单对应能力 **尚未实现**；前端以 `ModulePlaceholderPage` + `adminMenu.ts` 中 `adminPlaceholderMeta` 说明规划与待接入 API 提示。
+其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明。
 
 ---
 
@@ -129,6 +131,7 @@
 | `src/views/modules/channels/` | 通道管理（`ChannelsPage.vue` + `ChannelList` / `ChannelFormCard` 等） |
 | `src/views/modules/routing/` | 路由策略说明页（`RouteStrategyPage.vue` + 概览统计与配置入口卡片） |
 | `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
+| `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -146,6 +149,7 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/orders` 全站订单列表与 `GET /v1/admin/orders`；trade `AdminListOrders` RPC；菜单表补充代付产品路由说明。
 - **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`；`/stats` 与 `GET /v1/admin/stats/overview`。
 - **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
 - 文档与前端菜单随 `adminMenu.ts` 同步维护；变更时请更新本节或提交说明。

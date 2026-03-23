@@ -33,6 +33,7 @@ type (
 		PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error)
 		AdminTodayOverview(ctx context.Context, in *order.AdminTodayOverviewReq, opts ...grpc.CallOption) (*order.AdminTodayOverviewResp, error)
 		ListMerchantNotifyLogs(ctx context.Context, in *order.ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*order.ListMerchantNotifyLogsResp, error)
+		AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
 	}
 
 	defaultOrder struct {
@@ -78,4 +79,8 @@ func (m *defaultOrder) AdminTodayOverview(ctx context.Context, in *order.AdminTo
 
 func (m *defaultOrder) ListMerchantNotifyLogs(ctx context.Context, in *order.ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*order.ListMerchantNotifyLogsResp, error) {
 	return m.client().ListMerchantNotifyLogs(ctx, in, opts...)
+}
+
+func (m *defaultOrder) AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {
+	return m.client().AdminListOrders(ctx, in, opts...)
 }

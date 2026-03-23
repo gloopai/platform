@@ -16,3 +16,8 @@ func (s *OrderServer) ListMerchantNotifyLogs(ctx context.Context, in *orderpb.Li
 	l := logic.NewListMerchantNotifyLogsLogic(ctx, s.svcCtx)
 	return l.ListMerchantNotifyLogs(in)
 }
+
+func (s *OrderServer) AdminListOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
+	l := logic.NewAdminListOrdersLogic(ctx, s.svcCtx)
+	return l.AdminListOrders(in)
+}

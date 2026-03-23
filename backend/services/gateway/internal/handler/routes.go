@@ -230,6 +230,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/admin/stats/overview",
 					Handler: adminhandler.AdminStatsOverviewHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/orders",
+					Handler: adminhandler.AdminListOrdersHandler(serverCtx),
+				},
 			}...,
 		),
 	)

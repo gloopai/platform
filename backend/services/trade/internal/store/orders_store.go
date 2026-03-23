@@ -135,6 +135,54 @@ WHERE merchant_id = ?
 	return out, nil
 }
 
+// AdminList 管理台跨商户列表。merchantId 为空则不限商户；keyword 匹配 order_no、merchant_order_no 或 merchant_id（精确）。
+func (s *OrdersStore) AdminList(ctx context.Context, merchantId, keyword string, status int32, limit int64) ([]OrderRecord, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	keyword = strings.TrimSpace(keyword)
+	merchantId = strings.TrimSpace(merchantId)
+
+	query := `
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
+FROM orders
+WHERE 1=1`
+	args := []any{}
+	if merchantId != "" {
+		query += " AND merchant_id = ?"
+		args = append(args, merchantId)
+	}
+	if keyword != "" {
+		query += " AND (order_no = ? OR merchant_order_no = ? OR merchant_id = ?)"
+		args = append(args, keyword, keyword, keyword)
+	}
+	if status >= 0 {
+		query += " AND status = ?"
+		args = append(args, status)
+	}
+	query += " ORDER BY created_at DESC LIMIT ?"
+	args = append(args, limit)
+
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []OrderRecord
+	for rows.Next() {
+		rec, err := scanOrder(rows)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, *rec)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UpdatePendingPayRoute 待支付订单更新路由结果（收银台选定支付产品后调用）。
 func (s *OrdersStore) UpdatePendingPayRoute(ctx context.Context, orderNo string, channelID, payProductID int64, payProductCode string) error {
 	res, err := s.db.ExecContext(ctx, `

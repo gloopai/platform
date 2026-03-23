@@ -3,11 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from './views/LoginPage.vue'
 import AdminLayout from './views/AdminLayout.vue'
 import AuditPage from './views/pages/AuditPage.vue'
+import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.vue'
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
+import OrdersPage from './views/modules/orders/OrdersPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
 
 export const router = createRouter({
@@ -25,8 +27,8 @@ export const router = createRouter({
         { path: 'merchant-products', component: PayProductsPage, props: { payoutMode: false } },
         { path: 'merchant-payout-products', component: PayProductsPage, props: { payoutMode: true } },
         { path: 'routing', component: RouteStrategyPage },
-        { path: 'channel-health', component: ModulePlaceholderPage },
-        { path: 'orders', component: ModulePlaceholderPage },
+        { path: 'channel-health', component: ChannelHealthPage },
+        { path: 'orders', component: OrdersPage },
         { path: 'refunds', component: ModulePlaceholderPage },
         { path: 'reconcile', component: ModulePlaceholderPage },
         { path: 'settlement', component: ModulePlaceholderPage },

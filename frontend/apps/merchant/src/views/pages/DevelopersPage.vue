@@ -99,6 +99,40 @@
 
     <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
       <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-xs font-bold text-white">2b</span>
+        <h2 class="text-sm font-semibold text-slate-900">查单联调（开放接口）</h2>
+      </div>
+      <p class="mt-2 text-sm text-slate-600">
+        <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">GET /v1/pay/query</code>，参数与签名规则同开放平台；用于核对订单状态（MVP 仅展示原始 JSON）。
+      </p>
+      <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-8">
+          <span class="text-xs font-medium text-slate-600">order_no（平台订单号）</span>
+          <input v-model.trim="queryOrderNo" class="input-merchant font-mono text-xs" placeholder="创建订单返回的 order_no" />
+        </label>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+          :disabled="queryLoading || !merchantId || !apiSecret || !queryOrderNo"
+          @click="queryOpenOrder"
+        >
+          {{ queryLoading ? '查询中…' : '查询订单' }}
+        </button>
+      </div>
+      <pre
+        v-if="queryResultText"
+        class="mt-4 max-h-64 overflow-auto rounded-2xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs leading-relaxed text-slate-900"
+        >{{ queryResultText }}</pre
+      >
+      <div v-if="queryError" class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+        {{ queryError }}
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2">
         <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-600 text-xs font-bold text-white">3</span>
         <h2 class="text-sm font-semibold text-slate-900">模拟上游回调</h2>
       </div>
@@ -211,6 +245,11 @@ const loading = ref(false)
 const error = ref('')
 const result = ref<CreateOrderResp | null>(null)
 
+const queryOrderNo = ref('')
+const queryLoading = ref(false)
+const queryError = ref('')
+const queryResultText = ref('')
+
 const mockChannelId = ref(1)
 const mockPaidAmount = ref(amount.value)
 const mockUpstreamTradeNo = ref(`UP-${Date.now()}`)
@@ -266,6 +305,7 @@ async function createOrder() {
       return
     }
     result.value = (await resp.json()) as CreateOrderResp
+    queryOrderNo.value = result.value.order_no
     mockChannelId.value = result.value.channel_id || mockChannelId.value
     mockPaidAmount.value = amount.value
     mockOk.value = false
@@ -274,6 +314,41 @@ async function createOrder() {
     error.value = '网络错误'
   } finally {
     loading.value = false
+  }
+}
+
+async function queryOpenOrder() {
+  queryLoading.value = true
+  queryError.value = ''
+  queryResultText.value = ''
+  try {
+    const orderNo = queryOrderNo.value.trim()
+    if (!orderNo) {
+      queryError.value = '请填写 order_no'
+      return
+    }
+    const params: Record<string, string> = {
+      merchant_id: merchantId.value,
+      order_no: orderNo,
+      timestamp: String(Math.floor(Date.now() / 1000)),
+    }
+    const sign = md5Sign(params, apiSecret.value)
+    const qs = new URLSearchParams({ ...params, sign })
+    const resp = await fetch(`${OPEN_API.queryOrder}?${qs.toString()}`)
+    const text = await resp.text()
+    if (!resp.ok) {
+      queryError.value = text || `查询失败(${resp.status})`
+      return
+    }
+    try {
+      queryResultText.value = JSON.stringify(JSON.parse(text), null, 2)
+    } catch {
+      queryResultText.value = text
+    }
+  } catch {
+    queryError.value = '网络错误'
+  } finally {
+    queryLoading.value = false
   }
 }
 

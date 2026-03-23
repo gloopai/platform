@@ -44,3 +44,7 @@ func NewAdminRouting(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogi
 func NewAdminStats(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminStats {
 	return adminlogic.NewAdminStats(ctx, svcCtx)
 }
+
+func NewAdminOrders(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminOrders {
+	return adminlogic.NewAdminOrders(ctx, svcCtx)
+}

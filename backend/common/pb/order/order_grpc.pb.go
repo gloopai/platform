@@ -27,6 +27,7 @@ const (
 	Order_PrepareTerminalPay_FullMethodName     = "/order.Order/PrepareTerminalPay"
 	Order_AdminTodayOverview_FullMethodName     = "/order.Order/AdminTodayOverview"
 	Order_ListMerchantNotifyLogs_FullMethodName = "/order.Order/ListMerchantNotifyLogs"
+	Order_AdminListOrders_FullMethodName        = "/order.Order/AdminListOrders"
 )
 
 // OrderClient is the client API for Order service.
@@ -44,6 +45,8 @@ type OrderClient interface {
 	AdminTodayOverview(ctx context.Context, in *AdminTodayOverviewReq, opts ...grpc.CallOption) (*AdminTodayOverviewResp, error)
 	// 商户控制台：回调通知尝试记录
 	ListMerchantNotifyLogs(ctx context.Context, in *ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*ListMerchantNotifyLogsResp, error)
+	// 管理台：跨商户订单列表（merchant_id 为空则不限商户）
+	AdminListOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error)
 }
 
 type orderClient struct {
@@ -134,6 +137,16 @@ func (c *orderClient) ListMerchantNotifyLogs(ctx context.Context, in *ListMercha
 	return out, nil
 }
 
+func (c *orderClient) AdminListOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_AdminListOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServer is the server API for Order service.
 // All implementations must embed UnimplementedOrderServer
 // for forward compatibility.
@@ -149,6 +162,8 @@ type OrderServer interface {
 	AdminTodayOverview(context.Context, *AdminTodayOverviewReq) (*AdminTodayOverviewResp, error)
 	// 商户控制台：回调通知尝试记录
 	ListMerchantNotifyLogs(context.Context, *ListMerchantNotifyLogsReq) (*ListMerchantNotifyLogsResp, error)
+	// 管理台：跨商户订单列表（merchant_id 为空则不限商户）
+	AdminListOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error)
 	mustEmbedUnimplementedOrderServer()
 }
 
@@ -182,6 +197,9 @@ func (UnimplementedOrderServer) AdminTodayOverview(context.Context, *AdminTodayO
 }
 func (UnimplementedOrderServer) ListMerchantNotifyLogs(context.Context, *ListMerchantNotifyLogsReq) (*ListMerchantNotifyLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListMerchantNotifyLogs not implemented")
+}
+func (UnimplementedOrderServer) AdminListOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListOrders not implemented")
 }
 func (UnimplementedOrderServer) mustEmbedUnimplementedOrderServer() {}
 func (UnimplementedOrderServer) testEmbeddedByValue()               {}
@@ -348,6 +366,24 @@ func _Order_ListMerchantNotifyLogs_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_AdminListOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).AdminListOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_AdminListOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).AdminListOrders(ctx, req.(*AdminListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Order_ServiceDesc is the grpc.ServiceDesc for Order service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -386,6 +422,10 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListMerchantNotifyLogs",
 			Handler:    _Order_ListMerchantNotifyLogs_Handler,
+		},
+		{
+			MethodName: "AdminListOrders",
+			Handler:    _Order_AdminListOrders_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

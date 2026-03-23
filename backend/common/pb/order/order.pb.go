@@ -1557,6 +1557,119 @@ func (x *ListMerchantNotifyLogsResp) GetLogs() []*MerchantNotifyLogItem {
 	return nil
 }
 
+type AdminListOrdersReq struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Keyword    string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	// 未设置或 -1：不按状态筛选；0～3 与订单状态一致
+	Status        *int32 `protobuf:"varint,3,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	Limit         int64  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminListOrdersReq) Reset() {
+	*x = AdminListOrdersReq{}
+	mi := &file_order_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListOrdersReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListOrdersReq) ProtoMessage() {}
+
+func (x *AdminListOrdersReq) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListOrdersReq.ProtoReflect.Descriptor instead.
+func (*AdminListOrdersReq) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AdminListOrdersReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *AdminListOrdersReq) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+func (x *AdminListOrdersReq) GetStatus() int32 {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return 0
+}
+
+func (x *AdminListOrdersReq) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type AdminListOrdersResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Orders        []*OrderInfo           `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminListOrdersResp) Reset() {
+	*x = AdminListOrdersResp{}
+	mi := &file_order_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminListOrdersResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminListOrdersResp) ProtoMessage() {}
+
+func (x *AdminListOrdersResp) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminListOrdersResp.ProtoReflect.Descriptor instead.
+func (*AdminListOrdersResp) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *AdminListOrdersResp) GetOrders() []*OrderInfo {
+	if x != nil {
+		return x.Orders
+	}
+	return nil
+}
+
 var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
@@ -1715,7 +1828,16 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\x03R\tcreatedAt\"N\n" +
 	"\x1aListMerchantNotifyLogsResp\x120\n" +
-	"\x04logs\x18\x01 \x03(\v2\x1c.order.MerchantNotifyLogItemR\x04logs2\xb0\x04\n" +
+	"\x04logs\x18\x01 \x03(\v2\x1c.order.MerchantNotifyLogItemR\x04logs\"\x8d\x01\n" +
+	"\x12AdminListOrdersReq\x12\x1f\n" +
+	"\vmerchant_id\x18\x01 \x01(\tR\n" +
+	"merchantId\x12\x18\n" +
+	"\akeyword\x18\x02 \x01(\tR\akeyword\x12\x1b\n" +
+	"\x06status\x18\x03 \x01(\x05H\x00R\x06status\x88\x01\x01\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x03R\x05limitB\t\n" +
+	"\a_status\"?\n" +
+	"\x13AdminListOrdersResp\x12(\n" +
+	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders2\xfa\x04\n" +
 	"\x05Order\x12<\n" +
 	"\vCreateOrder\x12\x15.order.CreateOrderReq\x1a\x16.order.CreateOrderResp\x123\n" +
 	"\bGetOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x123\n" +
@@ -1725,7 +1847,8 @@ const file_order_proto_rawDesc = "" +
 	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryResp\x12Q\n" +
 	"\x12PrepareTerminalPay\x12\x1c.order.PrepareTerminalPayReq\x1a\x1d.order.PrepareTerminalPayResp\x12Q\n" +
 	"\x12AdminTodayOverview\x12\x1c.order.AdminTodayOverviewReq\x1a\x1d.order.AdminTodayOverviewResp\x12]\n" +
-	"\x16ListMerchantNotifyLogs\x12 .order.ListMerchantNotifyLogsReq\x1a!.order.ListMerchantNotifyLogsRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
+	"\x16ListMerchantNotifyLogs\x12 .order.ListMerchantNotifyLogsReq\x1a!.order.ListMerchantNotifyLogsResp\x12H\n" +
+	"\x0fAdminListOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once
@@ -1739,7 +1862,7 @@ func file_order_proto_rawDescGZIP() []byte {
 	return file_order_proto_rawDescData
 }
 
-var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_order_proto_goTypes = []any{
 	(*CreateOrderReq)(nil),             // 0: order.CreateOrderReq
 	(*CreateOrderResp)(nil),            // 1: order.CreateOrderResp
@@ -1762,6 +1885,8 @@ var file_order_proto_goTypes = []any{
 	(*ListMerchantNotifyLogsReq)(nil),  // 18: order.ListMerchantNotifyLogsReq
 	(*MerchantNotifyLogItem)(nil),      // 19: order.MerchantNotifyLogItem
 	(*ListMerchantNotifyLogsResp)(nil), // 20: order.ListMerchantNotifyLogsResp
+	(*AdminListOrdersReq)(nil),         // 21: order.AdminListOrdersReq
+	(*AdminListOrdersResp)(nil),        // 22: order.AdminListOrdersResp
 }
 var file_order_proto_depIdxs = []int32{
 	6,  // 0: order.CreateOrderResp.order:type_name -> order.OrderInfo
@@ -1771,27 +1896,30 @@ var file_order_proto_depIdxs = []int32{
 	15, // 4: order.AdminTodayOverviewResp.by_pay_product:type_name -> order.AdminStatsProductRow
 	16, // 5: order.AdminTodayOverviewResp.by_channel:type_name -> order.AdminStatsChannelRow
 	19, // 6: order.ListMerchantNotifyLogsResp.logs:type_name -> order.MerchantNotifyLogItem
-	0,  // 7: order.Order.CreateOrder:input_type -> order.CreateOrderReq
-	2,  // 8: order.Order.GetOrder:input_type -> order.GetOrderReq
-	4,  // 9: order.Order.MarkPaid:input_type -> order.MarkPaidReq
-	7,  // 10: order.Order.ListOrders:input_type -> order.ListOrdersReq
-	9,  // 11: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
-	11, // 12: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
-	13, // 13: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
-	18, // 14: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
-	1,  // 15: order.Order.CreateOrder:output_type -> order.CreateOrderResp
-	3,  // 16: order.Order.GetOrder:output_type -> order.GetOrderResp
-	5,  // 17: order.Order.MarkPaid:output_type -> order.MarkPaidResp
-	8,  // 18: order.Order.ListOrders:output_type -> order.ListOrdersResp
-	10, // 19: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
-	12, // 20: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
-	17, // 21: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
-	20, // 22: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	6,  // 7: order.AdminListOrdersResp.orders:type_name -> order.OrderInfo
+	0,  // 8: order.Order.CreateOrder:input_type -> order.CreateOrderReq
+	2,  // 9: order.Order.GetOrder:input_type -> order.GetOrderReq
+	4,  // 10: order.Order.MarkPaid:input_type -> order.MarkPaidReq
+	7,  // 11: order.Order.ListOrders:input_type -> order.ListOrdersReq
+	9,  // 12: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
+	11, // 13: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
+	13, // 14: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
+	18, // 15: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
+	21, // 16: order.Order.AdminListOrders:input_type -> order.AdminListOrdersReq
+	1,  // 17: order.Order.CreateOrder:output_type -> order.CreateOrderResp
+	3,  // 18: order.Order.GetOrder:output_type -> order.GetOrderResp
+	5,  // 19: order.Order.MarkPaid:output_type -> order.MarkPaidResp
+	8,  // 20: order.Order.ListOrders:output_type -> order.ListOrdersResp
+	10, // 21: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
+	12, // 22: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
+	17, // 23: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
+	20, // 24: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
+	22, // 25: order.Order.AdminListOrders:output_type -> order.AdminListOrdersResp
+	17, // [17:26] is the sub-list for method output_type
+	8,  // [8:17] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_order_proto_init() }
@@ -1799,13 +1927,14 @@ func file_order_proto_init() {
 	if File_order_proto != nil {
 		return
 	}
+	file_order_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_proto_rawDesc), len(file_order_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

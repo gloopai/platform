@@ -14,5 +14,6 @@ export const MERCHANT_API = {
 /** 开放网关（非 X-Merchant-Token） */
 export const OPEN_API = {
   payOrder: '/v1/pay/order',
+  queryOrder: '/v1/pay/query',
   callbackNotify: '/v1/callback/notify',
 } as const

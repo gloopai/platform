@@ -4,6 +4,8 @@
 
 本文与前端 `frontend/apps/merchant` 目录结构对应，便于后续改接口与调试。
 
+**整条主路径怎么联调**（下单 → 收银台 → 回调 → 查单）：见 [**端到端联调一遍**](./端到端联调一遍.md)。
+
 ---
 
 ## 1. 菜单与路由
@@ -64,6 +66,7 @@
 在 **`api/endpoints.ts`** 的 `OPEN_API` 中维护：
 
 - `POST /v1/pay/order` — 下单
+- `GET /v1/pay/query` — 查单（签名同开放平台，见开发页「查单联调」）
 - `POST /v1/callback/notify` — 模拟上游回调（开发页）
 
 `DevelopersPage.vue` 中已改为引用 `OPEN_API`，避免硬编码散落。

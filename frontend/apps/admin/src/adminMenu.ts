@@ -1,6 +1,6 @@
 /**
  * 聚合支付 · 总管理台导航与页面说明
- * 与 docs/admin-platform.md 对应；未实现接口在占位页标注「待接入」（`/merchant-products`、`/routing` 已对接）。
+ * 与 docs/admin-platform.md 对应；未实现接口在占位页标注「待接入」。
  */
 
 export type AdminMenuLeaf = {
@@ -114,16 +114,6 @@ export const adminPlaceholderMeta: Record<
     apiNote: string
   }
 > = {
-  '/channel-health': {
-    summary: '聚合各通道成功率、延迟、限额与熔断状态，便于运营及时切换。',
-    bullets: ['实时成功率与 RT', '通道熔断与人工开关', '历史趋势与告警'],
-    apiNote: '待接入：时序指标与告警服务',
-  },
-  '/orders': {
-    summary: '平台级订单检索、导出与异常处理入口（跨商户）。',
-    bullets: ['多维筛选与导出', '补单、关单、人工置成功（需权限）', '关联退款与清算批次'],
-    apiNote: '待接入：/v1/admin/orders',
-  },
   '/refunds': {
     summary: '处理退款单、差错争议与长款挂账。',
     bullets: ['退款审核与批量', '差错登记与调账', '与通道对账差异联动'],
