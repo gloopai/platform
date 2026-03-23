@@ -78,6 +78,46 @@
       </div>
       <ErrorCallout v-if="error" class="mt-4" :message="error" />
     </div>
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+      <div class="border-b border-slate-100 bg-slate-50/80 px-5 py-3">
+        <div class="text-sm font-semibold text-slate-900">今日按支付产品</div>
+        <div class="mt-0.5 text-xs text-slate-500">按支付产品统计订单量、成交额与成功率</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-left text-sm">
+          <thead class="border-b border-slate-100 bg-white text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-3">支付产品</th>
+              <th class="whitespace-nowrap px-4 py-3">订单数</th>
+              <th class="whitespace-nowrap px-4 py-3">成功笔数</th>
+              <th class="whitespace-nowrap px-4 py-3">失败笔数</th>
+              <th class="whitespace-nowrap px-4 py-3">成交额</th>
+              <th class="whitespace-nowrap px-4 py-3">成功率</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-if="loading">
+              <td class="px-4 py-8 text-center text-slate-500" colspan="6">加载中…</td>
+            </tr>
+            <tr v-else-if="(byProduct?.items?.length || 0) === 0">
+              <td class="px-4 py-8 text-center text-slate-500" colspan="6">暂无今日支付产品数据</td>
+            </tr>
+            <tr v-for="x in byProduct?.items || []" v-else :key="x.pay_product_code" class="hover:bg-slate-50/80">
+              <td class="px-4 py-3">
+                <div class="font-medium text-slate-900">{{ x.pay_product_name || x.pay_product_code }}</div>
+                <div class="mt-0.5 font-mono text-xs text-slate-500">{{ x.pay_product_code || '—' }}</div>
+              </td>
+              <td class="px-4 py-3 tabular-nums text-slate-800">{{ x.order_count }}</td>
+              <td class="px-4 py-3 tabular-nums text-emerald-700">{{ x.paid_count }}</td>
+              <td class="px-4 py-3 tabular-nums text-rose-700">{{ x.failed_count }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-900">{{ formatYuanLabel(x.paid_amount) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ x.success_rate_pct.toFixed(2) }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -88,7 +128,7 @@ import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import { useMerchantSummary } from '@/composables/useMerchantSummary'
 import { formatYuanLabel } from '@/utils/format'
 
-const { summary, error } = useMerchantSummary()
+const { summary, byProduct, error, loading } = useMerchantSummary()
 
 const todayAmountText = computed(() => formatYuanLabel(summary.value?.today_amount ?? 0))
 

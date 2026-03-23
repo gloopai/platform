@@ -3,8 +3,10 @@ package logic
 import (
 	"context"
 	"encoding/json"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
@@ -98,6 +100,51 @@ func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.M
 		})
 	}
 	return &types.MerchantOrdersResp{Orders: out}, nil
+}
+
+func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsReq) (*types.MerchantProductStatsResp, error) {
+	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
+	date := time.Now().Format("2006-01-02")
+	r, err := c.svcCtx.OrderRpc.AdminDayOverview(c.ctx, &orderpb.AdminDayOverviewReq{
+		Date:       date,
+		MerchantId: merchantId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	nameByCode := c.payProductNameByCode(c.ctx)
+	rows := r.GetByPayProduct()
+	items := make([]types.MerchantProductStatsItem, 0, len(rows))
+	for _, x := range rows {
+		code := strings.TrimSpace(x.GetProductCode())
+		name := strings.TrimSpace(x.GetProductName())
+		if name == "" {
+			name = lookupPayProductName(nameByCode, code)
+		}
+		if name == "" {
+			name = code
+		}
+		items = append(items, types.MerchantProductStatsItem{
+			PayProductCode: code,
+			PayProductName: name,
+			OrderCount:     x.GetOrderCount(),
+			PaidAmount:     x.GetPaidAmount(),
+			PaidCount:      x.GetPaidCount(),
+			FailedCount:    x.GetFailedCount(),
+			SuccessRatePct: x.GetTerminalSuccessRatePct(),
+		})
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].PaidAmount == items[j].PaidAmount {
+			return items[i].OrderCount > items[j].OrderCount
+		}
+		return items[i].PaidAmount > items[j].PaidAmount
+	})
+	return &types.MerchantProductStatsResp{
+		Date:       r.GetDate(),
+		MerchantId: merchantId,
+		Items:      items,
+	}, nil
 }
 
 func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]string {

@@ -160,6 +160,25 @@ type MerchantSummaryResp struct {
 	IpWhitelist string  `json:"ip_whitelist"`
 }
 
+type MerchantProductStatsReq struct {
+}
+
+type MerchantProductStatsItem struct {
+	PayProductCode string  `json:"pay_product_code"`
+	PayProductName string  `json:"pay_product_name"`
+	OrderCount     int64   `json:"order_count"`
+	PaidAmount     int64   `json:"paid_amount"`
+	PaidCount      int64   `json:"paid_count"`
+	FailedCount    int64   `json:"failed_count"`
+	SuccessRatePct float64 `json:"success_rate_pct"`
+}
+
+type MerchantProductStatsResp struct {
+	Date       string                     `json:"date"`
+	MerchantId string                     `json:"merchant_id"`
+	Items      []MerchantProductStatsItem `json:"items"`
+}
+
 type MerchantOrdersReq struct {
 	OrderNo string `form:"order_no,optional"`
 	Status  string `form:"status,optional"`

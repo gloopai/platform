@@ -5,6 +5,7 @@ export const MERCHANT_API = {
   login: '/v1/merchant/login',
   logout: '/v1/merchant/logout',
   summary: '/v1/merchant/summary',
+  statsByProduct: '/v1/merchant/stats/by_product',
   orders: '/v1/merchant/orders',
   orderDetail: '/v1/merchant/order/detail',
   retryNotify: '/v1/merchant/order/retry_notify',

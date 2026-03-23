@@ -54,6 +54,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/v1/merchant/stats/by_product",
+					Handler: merchanthandler.MerchantProductStatsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/v1/merchant/orders",
 					Handler: merchanthandler.MerchantOrdersHandler(serverCtx),
 				},

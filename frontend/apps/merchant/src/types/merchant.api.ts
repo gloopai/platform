@@ -16,6 +16,22 @@ export type MerchantSummary = {
   merchant_id: string
 }
 
+export type MerchantProductStatsItem = {
+  pay_product_code: string
+  pay_product_name: string
+  order_count: number
+  paid_amount: number
+  paid_count: number
+  failed_count: number
+  success_rate_pct: number
+}
+
+export type MerchantProductStatsResp = {
+  date: string
+  merchant_id: string
+  items: MerchantProductStatsItem[]
+}
+
 export type MerchantOrderItem = {
   order_no: string
   merchant_order_no: string
