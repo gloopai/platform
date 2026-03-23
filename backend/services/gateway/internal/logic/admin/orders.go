@@ -61,6 +61,11 @@ func (a *AdminOrders) AdminListOrders(req *types.AdminOrdersReq) (*types.AdminOr
 			PayProductId:    o.GetPayProductId(),
 			PayProductCode:  o.GetPayProductCode(),
 			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
 			CreatedAt:       o.GetCreatedAt(),
 		})

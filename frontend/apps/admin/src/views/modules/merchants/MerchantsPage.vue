@@ -146,13 +146,14 @@
           <MerchantPayoutProductsCard
             v-if="!isNew && selectedMerchant"
             embedded
-            :product-ids="selectedMerchant.payout_product_ids || []"
+            :grants="selectedMerchant.payout_grants || []"
             :catalog="payoutProducts"
             :loading="loadingPayoutProducts"
             :saving="bindingSaving"
             :bind-error="bindError"
             @remove="removePayoutProduct"
             @add="addPayoutProduct"
+            @update="updatePayoutGrant"
           />
           <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
             请先保存商户基本信息后再配置代付产品。
@@ -206,7 +207,7 @@ import MerchantFormCard from './MerchantFormCard.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
 import MerchantPayoutProductsCard from './MerchantPayoutProductsCard.vue'
 import MerchantsHeader from './MerchantsHeader.vue'
-import type { AdminMerchantInfo, MerchantForm, PayProductRow } from './types'
+import type { AdminMerchantInfo, MerchantForm, MerchantPayoutGrant, PayProductRow } from './types'
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
@@ -269,6 +270,24 @@ watch(searchQuery, () => {
 
 function formatMoney(v: number) {
   return formatAdminMoney(v)
+}
+
+function normalizedPayoutGrants(m: AdminMerchantInfo): MerchantPayoutGrant[] {
+  const grants = m.payout_grants || []
+  if (grants.length > 0) {
+    return grants.map((g) => ({
+      payout_product_id: g.payout_product_id,
+      merchant_rate_bps: g.merchant_rate_bps ?? 0,
+      fee_mode: g.fee_mode || 1,
+      fee_fixed_amount: g.fee_fixed_amount ?? 0,
+    }))
+  }
+  return (m.payout_product_ids || []).map((id) => ({
+    payout_product_id: id,
+    merchant_rate_bps: 0,
+    fee_mode: 1,
+    fee_fixed_amount: 0,
+  }))
 }
 
 function applySelectedToForm() {
@@ -377,7 +396,7 @@ async function saveForm() {
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
         pay_product_ids: selectedMerchant.value!.pay_product_ids || [],
-        payout_product_ids: selectedMerchant.value!.payout_product_ids || [],
+        payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
       })
       const row = resp.merchant
       const idx = merchants.value.findIndex((m) => m.merchant_id === row.merchant_id)
@@ -407,7 +426,7 @@ async function toggleLock() {
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
       pay_product_ids: m.pay_product_ids || [],
-      payout_product_ids: m.payout_product_ids || [],
+      payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
     const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
@@ -436,7 +455,7 @@ async function resetSecret() {
         return_url: m.return_url,
         ip_whitelist: m.ip_whitelist,
         pay_product_ids: m.pay_product_ids || [],
-        payout_product_ids: m.payout_product_ids || [],
+        payout_grants: normalizedPayoutGrants(m),
       },
     )
     const row = resp.merchant
@@ -464,7 +483,7 @@ async function persistPayProducts(newIds: number[]) {
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
       pay_product_ids: newIds,
-      payout_product_ids: m.payout_product_ids || [],
+      payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
     const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
@@ -478,7 +497,7 @@ async function persistPayProducts(newIds: number[]) {
   }
 }
 
-async function persistPayoutProducts(newIds: number[]) {
+async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
   const m = selectedMerchant.value
   if (!m) return
   bindingSaving.value = true
@@ -492,7 +511,7 @@ async function persistPayoutProducts(newIds: number[]) {
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
       pay_product_ids: m.pay_product_ids || [],
-      payout_product_ids: newIds,
+      payout_grants: newGrants,
     })
     const row = resp.merchant
     const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
@@ -526,17 +545,37 @@ function addPayProduct(productId: number) {
 function removePayoutProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m) return
-  const cur = [...(m.payout_product_ids || [])]
-  const next = cur.filter((id) => id !== productId)
+  const cur = normalizedPayoutGrants(m)
+  const next = cur.filter((x) => x.payout_product_id !== productId)
   void persistPayoutProducts(next)
 }
 
 function addPayoutProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m || productId <= 0) return
-  const cur = [...(m.payout_product_ids || [])]
-  if (cur.includes(productId)) return
-  cur.push(productId)
+  const cur = normalizedPayoutGrants(m)
+  if (cur.some((x) => x.payout_product_id === productId)) return
+  cur.push({
+    payout_product_id: productId,
+    merchant_rate_bps: 0,
+    fee_mode: 1,
+    fee_fixed_amount: 0,
+  })
+  void persistPayoutProducts(cur)
+}
+
+function updatePayoutGrant(grant: MerchantPayoutGrant) {
+  const m = selectedMerchant.value
+  if (!m) return
+  const cur = normalizedPayoutGrants(m)
+  const idx = cur.findIndex((x) => x.payout_product_id === grant.payout_product_id)
+  if (idx < 0) return
+  cur[idx] = {
+    payout_product_id: grant.payout_product_id,
+    merchant_rate_bps: grant.merchant_rate_bps ?? 0,
+    fee_mode: grant.fee_mode || 1,
+    fee_fixed_amount: grant.fee_fixed_amount ?? 0,
+  }
   void persistPayoutProducts(cur)
 }
 

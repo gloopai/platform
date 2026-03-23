@@ -87,11 +87,31 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 		PayProductCode:  payCode,
 		ChannelLocked:   in.GetChannelLocked(),
 		PaidAmount:      0,
+		FeeMode:         in.GetFeeMode(),
+		FeeRateBps:      in.GetFeeRateBps(),
+		FeeFixedAmount:  in.GetFeeFixedAmount(),
+		FeeAmount:       in.GetFeeAmount(),
+		NetAmount:       in.GetNetAmount(),
 		ReturnUrl:       in.GetReturnUrl(),
 		NotifyUrl:       in.GetNotifyUrl(),
 	}
 	if rec.Currency == "" {
 		rec.Currency = "CNY"
+	}
+	if rec.FeeMode < 1 || rec.FeeMode > 3 {
+		rec.FeeMode = 1
+	}
+	if rec.FeeRateBps < 0 {
+		rec.FeeRateBps = 0
+	}
+	if rec.FeeFixedAmount < 0 {
+		rec.FeeFixedAmount = 0
+	}
+	if rec.FeeAmount < 0 {
+		rec.FeeAmount = 0
+	}
+	if rec.NetAmount < 0 {
+		rec.NetAmount = 0
 	}
 
 	if err := l.svcCtx.Orders.Insert(l.ctx, rec); err != nil {
@@ -266,7 +286,12 @@ func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
 		ChannelId:       rec.ChannelId,
 		PayProductId:    rec.PayProductId,
 		PayProductCode:  rec.PayProductCode,
-		ChannelLocked:     rec.ChannelLocked,
+		ChannelLocked:   rec.ChannelLocked,
+		FeeMode:         rec.FeeMode,
+		FeeRateBps:      rec.FeeRateBps,
+		FeeFixedAmount:  rec.FeeFixedAmount,
+		FeeAmount:       rec.FeeAmount,
+		NetAmount:       rec.NetAmount,
 		CreatedAt:       rec.CreatedAt.Unix(),
 		UpdatedAt:       rec.UpdatedAt.Unix(),
 		ReturnUrl:       rec.ReturnUrl,

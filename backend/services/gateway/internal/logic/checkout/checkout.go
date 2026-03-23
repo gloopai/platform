@@ -10,9 +10,11 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
+	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
+	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 
@@ -90,6 +92,11 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		channelLocked = 0
 	}
 
+	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
+	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
+		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = calcCollectFeeSnapshot(info.GetMerchant(), ppid, req.Amount)
+	}
+
 	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
 		MerchantId:      req.MerchantId,
 		MerchantOrderNo: req.MerchantOrderNo,
@@ -103,6 +110,11 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		PayProductId:    ppid,
 		PayProductCode:  payProductCode,
 		ChannelLocked:   channelLocked,
+		FeeMode:         feeMode,
+		FeeRateBps:      feeRateBps,
+		FeeFixedAmount:  feeFixedAmount,
+		FeeAmount:       feeAmount,
+		NetAmount:       netAmount,
 	})
 	if err != nil {
 		return nil, err
@@ -151,6 +163,11 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 			PayProductCode:  o.GetPayProductCode(),
 			ChannelLocked:   o.GetChannelLocked(),
 			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
 			ReturnUrl:       o.GetReturnUrl(),
 			NotifyUrl:       o.GetNotifyUrl(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
@@ -206,6 +223,11 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			PayProductCode:  o.GetPayProductCode(),
 			ChannelLocked:   o.GetChannelLocked(),
 			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
 			ReturnUrl:       o.GetReturnUrl(),
 			NotifyUrl:       o.GetNotifyUrl(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
@@ -323,10 +345,14 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return notifyFail(NotifyCodeMarkPaidRaceMismatch, "mark paid race mismatch"), nil
 	}
 
+	creditAmount := req.PaidAmount
+	if o.GetNetAmount() > 0 {
+		creditAmount = o.GetNetAmount()
+	}
 	_, _ = c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
 		MerchantId: o.GetMerchantId(),
 		OrderNo:    o.GetOrderNo(),
-		Amount:     req.PaidAmount,
+		Amount:     creditAmount,
 		Reason:     "ORDER_PAID",
 	})
 
@@ -394,4 +420,37 @@ func md5Sign(params map[string]string, secret string) string {
 	b.WriteString(secret)
 	sum := md5.Sum([]byte(b.String()))
 	return hex.EncodeToString(sum[:])
+}
+
+func calcCollectFeeSnapshot(m *merchantpb.MerchantInfo, payProductID, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {
+	feeMode = 1
+	feeRateBps = 0
+	feeFixedAmount = 0
+	feeAmount = 0
+	netAmount = amount
+	if m == nil || amount <= 0 {
+		return
+	}
+	feeRateBps = m.GetDefaultCollectRateBps()
+	for _, g := range m.GetCollectGrants() {
+		if g == nil || g.GetPayProductId() != payProductID {
+			continue
+		}
+		if g.MerchantRateBps != nil {
+			feeRateBps = g.GetMerchantRateBps()
+		}
+		break
+	}
+	if feeRateBps < 0 {
+		feeRateBps = 0
+	}
+	feeAmount = amount * feeRateBps / 10000
+	if feeAmount < 0 {
+		feeAmount = 0
+	}
+	if feeAmount > amount {
+		feeAmount = amount
+	}
+	netAmount = amount - feeAmount
+	return
 }

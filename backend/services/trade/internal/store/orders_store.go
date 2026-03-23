@@ -36,6 +36,11 @@ type OrderRecord struct {
 	NotifyUrl       string
 	UpstreamTradeNo string
 	PaidAmount      int64
+	FeeMode         int64
+	FeeRateBps      int64
+	FeeFixedAmount  int64
+	FeeAmount       int64
+	NetAmount       int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }
@@ -50,7 +55,7 @@ func NewOrdersStore(db *sql.DB) *OrdersStore {
 
 func (s *OrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
@@ -60,7 +65,7 @@ LIMIT 1
 
 func (s *OrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE order_no = ?
 LIMIT 1
@@ -70,9 +75,9 @@ LIMIT 1
 
 func (s *OrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, pay_product_code, channel_locked, paid_amount, return_url, notify_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ChannelLocked, rec.PaidAmount, rec.ReturnUrl, rec.NotifyUrl)
+INSERT INTO orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, pay_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayProductId, nullIfEmpty(rec.PayProductCode), rec.ChannelLocked, rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.ReturnUrl, rec.NotifyUrl)
 	return err
 }
 
@@ -99,7 +104,7 @@ func (s *OrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword st
 	keyword = strings.TrimSpace(keyword)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE merchant_id = ?
 `
@@ -144,7 +149,7 @@ func (s *OrdersStore) AdminList(ctx context.Context, merchantId, keyword string,
 	merchantId = strings.TrimSpace(merchantId)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE 1=1`
 	args := []any{}
@@ -247,6 +252,11 @@ func scanOrder(row rowScanner) (*OrderRecord, error) {
 		&rec.PayProductCode,
 		&rec.ChannelLocked,
 		&rec.PaidAmount,
+		&rec.FeeMode,
+		&rec.FeeRateBps,
+		&rec.FeeFixedAmount,
+		&rec.FeeAmount,
+		&rec.NetAmount,
 		&rec.ReturnUrl,
 		&rec.NotifyUrl,
 		&rec.UpstreamTradeNo,

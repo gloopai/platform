@@ -23,6 +23,8 @@ message MerchantCollectGrant {
 message MerchantPayoutGrant {
   int64 payout_product_id = 1;
   optional int64 merchant_rate_bps = 2;
+  int64 fee_mode = 3; // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
+  int64 fee_fixed_amount = 4; // 分
 }
 
 message MerchantInfo {

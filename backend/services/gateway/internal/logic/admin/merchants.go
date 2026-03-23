@@ -55,6 +55,11 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 			v := *g.MerchantRateBps
 			row.MerchantRateBps = &v
 		}
+		row.FeeMode = g.GetFeeMode()
+		if row.FeeMode <= 0 {
+			row.FeeMode = 1
+		}
+		row.FeeFixedAmount = g.GetFeeFixedAmount()
 		pg = append(pg, row)
 	}
 	return types.AdminMerchantInfo{
@@ -178,7 +183,14 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 	if req.PayoutGrants != nil {
 		pbGrants := make([]*merchantpb.MerchantPayoutGrant, 0, len(req.PayoutGrants))
 		for _, g := range req.PayoutGrants {
-			row := &merchantpb.MerchantPayoutGrant{PayoutProductId: g.PayoutProductId}
+			row := &merchantpb.MerchantPayoutGrant{
+				PayoutProductId: g.PayoutProductId,
+				FeeMode:         g.FeeMode,
+				FeeFixedAmount:  g.FeeFixedAmount,
+			}
+			if row.FeeMode <= 0 {
+				row.FeeMode = 1
+			}
 			if g.MerchantRateBps != nil {
 				v := *g.MerchantRateBps
 				row.MerchantRateBps = &v
@@ -253,6 +265,11 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 			v := *g.MerchantRateBps
 			row.MerchantRateBps = &v
 		}
+		row.FeeMode = g.GetFeeMode()
+		if row.FeeMode <= 0 {
+			row.FeeMode = 1
+		}
+		row.FeeFixedAmount = g.GetFeeFixedAmount()
 		mi.PayoutGrants = append(mi.PayoutGrants, row)
 	}
 	return &types.AdminUpsertMerchantResp{Merchant: mi}, nil

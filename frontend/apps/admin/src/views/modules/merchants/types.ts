@@ -6,6 +6,8 @@ export type MerchantCollectGrant = {
 export type MerchantPayoutGrant = {
   payout_product_id: number
   merchant_rate_bps?: number | null
+  fee_mode: number
+  fee_fixed_amount: number
 }
 
 export type AdminMerchantInfo = {

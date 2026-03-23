@@ -77,6 +77,8 @@ type MerchantPayoutGrant struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	PayoutProductId int64                  `protobuf:"varint,1,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
 	MerchantRateBps *int64                 `protobuf:"varint,2,opt,name=merchant_rate_bps,json=merchantRateBps,proto3,oneof" json:"merchant_rate_bps,omitempty"`
+	FeeMode         int64                  `protobuf:"varint,3,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`                        // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
+	FeeFixedAmount  int64                  `protobuf:"varint,4,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"` // 分
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -121,6 +123,20 @@ func (x *MerchantPayoutGrant) GetPayoutProductId() int64 {
 func (x *MerchantPayoutGrant) GetMerchantRateBps() int64 {
 	if x != nil && x.MerchantRateBps != nil {
 		return *x.MerchantRateBps
+	}
+	return 0
+}
+
+func (x *MerchantPayoutGrant) GetFeeMode() int64 {
+	if x != nil {
+		return x.FeeMode
+	}
+	return 0
+}
+
+func (x *MerchantPayoutGrant) GetFeeFixedAmount() int64 {
+	if x != nil {
+		return x.FeeFixedAmount
 	}
 	return 0
 }
@@ -1237,10 +1253,12 @@ const file_merchant_proto_rawDesc = "" +
 	"\x14MerchantCollectGrant\x12$\n" +
 	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\x12/\n" +
 	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01B\x14\n" +
-	"\x12_merchant_rate_bps\"\x88\x01\n" +
+	"\x12_merchant_rate_bps\"\xcd\x01\n" +
 	"\x13MerchantPayoutGrant\x12*\n" +
 	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\x12/\n" +
-	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01B\x14\n" +
+	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01\x12\x19\n" +
+	"\bfee_mode\x18\x03 \x01(\x03R\afeeMode\x12(\n" +
+	"\x10fee_fixed_amount\x18\x04 \x01(\x03R\x0efeeFixedAmountB\x14\n" +
 	"\x12_merchant_rate_bps\"\x84\x05\n" +
 	"\fMerchantInfo\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +

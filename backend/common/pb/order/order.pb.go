@@ -35,9 +35,14 @@ type CreateOrderReq struct {
 	PayProductId    int64                  `protobuf:"varint,10,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
 	PayProductCode  string                 `protobuf:"bytes,11,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
 	// 下单时由网关/交易写入：商户 API 指定通道时为 1
-	ChannelLocked int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ChannelLocked  int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	FeeMode        int64 `protobuf:"varint,13,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	FeeRateBps     int64 `protobuf:"varint,14,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
+	FeeFixedAmount int64 `protobuf:"varint,15,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	FeeAmount      int64 `protobuf:"varint,16,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount      int64 `protobuf:"varint,17,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateOrderReq) Reset() {
@@ -150,6 +155,41 @@ func (x *CreateOrderReq) GetPayProductCode() string {
 func (x *CreateOrderReq) GetChannelLocked() int32 {
 	if x != nil {
 		return x.ChannelLocked
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetFeeMode() int64 {
+	if x != nil {
+		return x.FeeMode
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetFeeRateBps() int64 {
+	if x != nil {
+		return x.FeeRateBps
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetFeeFixedAmount() int64 {
+	if x != nil {
+		return x.FeeFixedAmount
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetFeeAmount() int64 {
+	if x != nil {
+		return x.FeeAmount
+	}
+	return 0
+}
+
+func (x *CreateOrderReq) GetNetAmount() int64 {
+	if x != nil {
+		return x.NetAmount
 	}
 	return 0
 }
@@ -440,6 +480,11 @@ type OrderInfo struct {
 	PayProductId    int64                  `protobuf:"varint,14,opt,name=pay_product_id,json=payProductId,proto3" json:"pay_product_id,omitempty"`
 	PayProductCode  string                 `protobuf:"bytes,15,opt,name=pay_product_code,json=payProductCode,proto3" json:"pay_product_code,omitempty"`
 	ChannelLocked   int32                  `protobuf:"varint,16,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	FeeMode         int64                  `protobuf:"varint,17,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	FeeRateBps      int64                  `protobuf:"varint,18,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
+	FeeFixedAmount  int64                  `protobuf:"varint,19,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	FeeAmount       int64                  `protobuf:"varint,20,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount       int64                  `protobuf:"varint,21,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -582,6 +627,41 @@ func (x *OrderInfo) GetPayProductCode() string {
 func (x *OrderInfo) GetChannelLocked() int32 {
 	if x != nil {
 		return x.ChannelLocked
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetFeeMode() int64 {
+	if x != nil {
+		return x.FeeMode
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetFeeRateBps() int64 {
+	if x != nil {
+		return x.FeeRateBps
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetFeeFixedAmount() int64 {
+	if x != nil {
+		return x.FeeFixedAmount
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetFeeAmount() int64 {
+	if x != nil {
+		return x.FeeAmount
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetNetAmount() int64 {
+	if x != nil {
+		return x.NetAmount
 	}
 	return 0
 }
@@ -1796,7 +1876,7 @@ var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
 	"\n" +
-	"\vorder.proto\x12\x05order\"\x9a\x03\n" +
+	"\vorder.proto\x12\x05order\"\xbf\x04\n" +
 	"\x0eCreateOrderReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12*\n" +
@@ -1814,7 +1894,15 @@ const file_order_proto_rawDesc = "" +
 	"\x0epay_product_id\x18\n" +
 	" \x01(\x03R\fpayProductId\x12(\n" +
 	"\x10pay_product_code\x18\v \x01(\tR\x0epayProductCode\x12%\n" +
-	"\x0echannel_locked\x18\f \x01(\x05R\rchannelLocked\"S\n" +
+	"\x0echannel_locked\x18\f \x01(\x05R\rchannelLocked\x12\x19\n" +
+	"\bfee_mode\x18\r \x01(\x03R\afeeMode\x12 \n" +
+	"\ffee_rate_bps\x18\x0e \x01(\x03R\n" +
+	"feeRateBps\x12(\n" +
+	"\x10fee_fixed_amount\x18\x0f \x01(\x03R\x0efeeFixedAmount\x12\x1d\n" +
+	"\n" +
+	"fee_amount\x18\x10 \x01(\x03R\tfeeAmount\x12\x1d\n" +
+	"\n" +
+	"net_amount\x18\x11 \x01(\x03R\tnetAmount\"S\n" +
 	"\x0fCreateOrderResp\x12&\n" +
 	"\x05order\x18\x01 \x01(\v2\x10.order.OrderInfoR\x05order\x12\x18\n" +
 	"\aexisted\x18\x02 \x01(\bR\aexisted\"u\n" +
@@ -1833,7 +1921,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\x9e\x04\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\xc3\x05\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -1858,7 +1946,15 @@ const file_order_proto_rawDesc = "" +
 	"paidAmount\x12$\n" +
 	"\x0epay_product_id\x18\x0e \x01(\x03R\fpayProductId\x12(\n" +
 	"\x10pay_product_code\x18\x0f \x01(\tR\x0epayProductCode\x12%\n" +
-	"\x0echannel_locked\x18\x10 \x01(\x05R\rchannelLocked\"x\n" +
+	"\x0echannel_locked\x18\x10 \x01(\x05R\rchannelLocked\x12\x19\n" +
+	"\bfee_mode\x18\x11 \x01(\x03R\afeeMode\x12 \n" +
+	"\ffee_rate_bps\x18\x12 \x01(\x03R\n" +
+	"feeRateBps\x12(\n" +
+	"\x10fee_fixed_amount\x18\x13 \x01(\x03R\x0efeeFixedAmount\x12\x1d\n" +
+	"\n" +
+	"fee_amount\x18\x14 \x01(\x03R\tfeeAmount\x12\x1d\n" +
+	"\n" +
+	"net_amount\x18\x15 \x01(\x03R\tnetAmount\"x\n" +
 	"\rListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +

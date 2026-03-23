@@ -35,6 +35,11 @@ message CreateOrderReq {
   string pay_product_code = 11;
   // 下单时由网关/交易写入：商户 API 指定通道时为 1
   int32 channel_locked = 12;
+  int64 fee_mode = 13;
+  int64 fee_rate_bps = 14;
+  int64 fee_fixed_amount = 15;
+  int64 fee_amount = 16;
+  int64 net_amount = 17;
 }
 
 message CreateOrderResp {
@@ -80,6 +85,11 @@ message OrderInfo {
   int64 pay_product_id = 14;
   string pay_product_code = 15;
   int32 channel_locked = 16;
+  int64 fee_mode = 17;
+  int64 fee_rate_bps = 18;
+  int64 fee_fixed_amount = 19;
+  int64 fee_amount = 20;
+  int64 net_amount = 21;
 }
 
 message ListOrdersReq {

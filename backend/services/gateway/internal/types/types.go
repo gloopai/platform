@@ -41,6 +41,11 @@ type OrderInfo struct {
 	PayProductName  string `json:"pay_product_name"`
 	ChannelLocked   int32  `json:"channel_locked"`
 	PaidAmount      int64  `json:"paid_amount"`
+	FeeMode         int64  `json:"fee_mode"`
+	FeeRateBps      int64  `json:"fee_rate_bps"`
+	FeeFixedAmount  int64  `json:"fee_fixed_amount"`
+	FeeAmount       int64  `json:"fee_amount"`
+	NetAmount       int64  `json:"net_amount"`
 	ReturnUrl       string `json:"return_url"`
 	NotifyUrl       string `json:"notify_url"`
 	UpstreamTradeNo string `json:"upstream_trade_no"`
@@ -295,6 +300,8 @@ type MerchantCollectGrant struct {
 type MerchantPayoutGrant struct {
 	PayoutProductId int64  `json:"payout_product_id"`
 	MerchantRateBps *int64 `json:"merchant_rate_bps,omitempty"`
+	FeeMode         int64  `json:"fee_mode"`
+	FeeFixedAmount  int64  `json:"fee_fixed_amount"`
 }
 
 type AdminMerchantInfo struct {
@@ -583,6 +590,11 @@ type AdminOrderRow struct {
 	PayProductId    int64  `json:"pay_product_id"`
 	PayProductCode  string `json:"pay_product_code"`
 	PaidAmount      int64  `json:"paid_amount"`
+	FeeMode         int64  `json:"fee_mode"`
+	FeeRateBps      int64  `json:"fee_rate_bps"`
+	FeeFixedAmount  int64  `json:"fee_fixed_amount"`
+	FeeAmount       int64  `json:"fee_amount"`
+	NetAmount       int64  `json:"net_amount"`
 	UpstreamTradeNo string `json:"upstream_trade_no"`
 	CreatedAt       int64  `json:"created_at"`
 }

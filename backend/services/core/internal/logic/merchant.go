@@ -111,7 +111,12 @@ func payoutGrantsFromProductIDs(ids []int64) []store.PayoutGrant {
 		if id <= 0 {
 			continue
 		}
-		out = append(out, store.PayoutGrant{PayoutProductID: id, RateBps: nil})
+		out = append(out, store.PayoutGrant{
+			PayoutProductID: id,
+			FeeMode:         1,
+			RateBps:         nil,
+			FixedFeeAmount:  0,
+		})
 	}
 	return out
 }
@@ -312,7 +317,15 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 	}
 	pbPG := make([]*merchantpb.MerchantPayoutGrant, 0, len(pg))
 	for _, g := range pg {
-		row := &merchantpb.MerchantPayoutGrant{PayoutProductId: g.PayoutProductID}
+		mode := g.FeeMode
+		if mode <= 0 {
+			mode = 1
+		}
+		row := &merchantpb.MerchantPayoutGrant{
+			PayoutProductId: g.PayoutProductID,
+			FeeMode:         mode,
+			FeeFixedAmount:  g.FixedFeeAmount,
+		}
 		if g.RateBps != nil {
 			v := *g.RateBps
 			row.MerchantRateBps = &v

@@ -93,10 +93,15 @@ func (l *ReplaceMerchantPayoutProductsLogic) ReplaceMerchantPayoutProducts(in *m
 			continue
 		}
 		pg := store.PayoutGrant{PayoutProductID: g.GetPayoutProductId()}
+		pg.FeeMode = g.GetFeeMode()
+		if pg.FeeMode <= 0 {
+			pg.FeeMode = 1
+		}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			pg.RateBps = &v
 		}
+		pg.FixedFeeAmount = g.GetFeeFixedAmount()
 		grants = append(grants, pg)
 	}
 	if err := l.svcCtx.MerchantPayoutProducts.Replace(l.ctx, mid, grants); err != nil {
@@ -127,6 +132,11 @@ func (l *ListMerchantPayoutProductIdsLogic) ListMerchantPayoutProductIds(in *mer
 			v := *g.RateBps
 			row.MerchantRateBps = &v
 		}
+		row.FeeMode = g.FeeMode
+		if row.FeeMode <= 0 {
+			row.FeeMode = 1
+		}
+		row.FeeFixedAmount = g.FixedFeeAmount
 		out = append(out, row)
 	}
 	return &merchantpb.ListMerchantPayoutProductIdsResp{Grants: out}, nil

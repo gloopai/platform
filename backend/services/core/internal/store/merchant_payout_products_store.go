@@ -11,7 +11,9 @@ import (
 // PayoutGrant 商户代付产品行。
 type PayoutGrant struct {
 	PayoutProductID int64
+	FeeMode         int64
 	RateBps         *int64
+	FixedFeeAmount  int64
 }
 
 type MerchantPayoutProductsStore struct {
@@ -50,19 +52,23 @@ func (s *MerchantPayoutProductsStore) Replace(ctx context.Context, merchantID st
 		return err
 	}
 	for i, g := range uniq {
+		feeMode := g.FeeMode
+		if feeMode < 1 || feeMode > 3 {
+			feeMode = 1
+		}
 		if g.RateBps == nil {
 			if _, err := tx.ExecContext(ctx, `
-INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, merchant_rate_bps)
-VALUES (?, ?, 1, ?, NULL)
-`, merchantID, g.PayoutProductID, i); err != nil {
+INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
+VALUES (?, ?, 1, ?, ?, NULL, ?)
+`, merchantID, g.PayoutProductID, i, feeMode, g.FixedFeeAmount); err != nil {
 				_ = tx.Rollback()
 				return err
 			}
 		} else {
 			if _, err := tx.ExecContext(ctx, `
-INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, merchant_rate_bps)
-VALUES (?, ?, 1, ?, ?)
-`, merchantID, g.PayoutProductID, i, *g.RateBps); err != nil {
+INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
+VALUES (?, ?, 1, ?, ?, ?, ?)
+`, merchantID, g.PayoutProductID, i, feeMode, *g.RateBps, g.FixedFeeAmount); err != nil {
 				_ = tx.Rollback()
 				return err
 			}
@@ -77,7 +83,7 @@ func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merc
 		return nil, nil
 	}
 	rows, err := s.db.QueryContext(ctx, `
-SELECT payout_product_id, merchant_rate_bps
+SELECT payout_product_id, fee_mode, merchant_rate_bps, fee_fixed_amount
 FROM merchant_payout_products
 WHERE merchant_id = ? AND enabled = 1
 ORDER BY sort_order ASC, payout_product_id ASC
@@ -91,8 +97,11 @@ ORDER BY sort_order ASC, payout_product_id ASC
 	for rows.Next() {
 		var g PayoutGrant
 		var rate sql.NullInt64
-		if err := rows.Scan(&g.PayoutProductID, &rate); err != nil {
+		if err := rows.Scan(&g.PayoutProductID, &g.FeeMode, &rate, &g.FixedFeeAmount); err != nil {
 			return nil, err
+		}
+		if g.FeeMode < 1 || g.FeeMode > 3 {
+			g.FeeMode = 1
 		}
 		if rate.Valid {
 			v := rate.Int64
