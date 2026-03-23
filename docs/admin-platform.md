@@ -39,7 +39,7 @@
 |------|------|------|
 | `/channels` | 通道管理 | **已对接**：`/v1/admin/channels` 列表/创建/更新 |
 | `/routing` | 路由策略 | **已对接**：说明当前「产品内加权、商户白名单、通道熔断」的实现方式；`GET /v1/admin/routing/summary` 汇总表数据；规则引擎类能力见页面内「后续规划」 |
-| `/channel-health` | 通道监控 | 成功率、延迟、熔断、告警；**占位** |
+| `/channel-health` | 通道监控 | **已对接（MVP）**：`GET /v1/admin/routing/summary` + `GET /v1/admin/channels` 只读汇总与通道启用/熔断列；无时序指标 |
 
 ### 2.4 交易与资金
 
@@ -132,6 +132,7 @@
 | `src/views/modules/routing/` | 路由策略说明页（`RouteStrategyPage.vue` + 概览统计与配置入口卡片） |
 | `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
 | `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
+| `src/views/modules/channel-health/` | 通道监控（`ChannelHealthPage.vue`，复用 `routing/RoutingStatGrid`） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -149,6 +150,7 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/channel-health` 通道监控 MVP（路由汇总 + 通道列表只读）。
 - **2026-03-23**：`/orders` 全站订单列表与 `GET /v1/admin/orders`；trade `AdminListOrders` RPC；菜单表补充代付产品路由说明。
 - **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`；`/stats` 与 `GET /v1/admin/stats/overview`。
 - **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
