@@ -46,7 +46,7 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/orders` | 全站订单 | **已对接（MVP）**：`GET /v1/admin/orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
-| `/refunds` | 退款与差错 | 退款审核、差错单、长短款；**占位** |
+| `/refunds` | 退款与差错 | **MVP 说明页**：指引至全站订单；退款/差错 API 未接入，列表占位 |
 | `/reconcile` | 对账中心 | 对账批次、差异处理；**占位** |
 | `/settlement` | 结算与提现 | 结算周期、提现审核、打款；**占位** |
 
@@ -63,7 +63,7 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/system` | 系统管理 | 管理员、角色、系统参数；**占位** |
-| `/ops` | 运维监控 | 服务健康、QPS、链路；**占位** |
+| `/ops` | 运维监控 | **已对接（MVP）**：`GET /health` 网关探活 JSON；无 QPS/链路 |
 
 ---
 
@@ -114,8 +114,9 @@
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
 - **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
 - **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
+- **探活（无需管理 Token）**：`GET /health`（JSON：`status`、`service`、`timestamp_ms`；供运维与「运维监控」页）
 
-其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明。
+其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明（`/refunds` 为独立说明页、非通用占位）。
 
 ---
 
@@ -133,6 +134,8 @@
 | `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
 | `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
 | `src/views/modules/channel-health/` | 通道监控（`ChannelHealthPage.vue`，复用 `routing/RoutingStatGrid`） |
+| `src/views/modules/refunds/` | 退款与差错（`RefundsPage.vue`，MVP 说明 + 占位） |
+| `src/views/modules/ops/` | 运维监控（`OpsPage.vue`，`GET /health`） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
@@ -150,6 +153,7 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/refunds` 退款与差错 MVP 说明页；`/ops` 运维监控对接 `GET /health`；网关 `GET /health`。
 - **2026-03-23**：`/channel-health` 通道监控 MVP（路由汇总 + 通道列表只读）。
 - **2026-03-23**：`/orders` 全站订单列表与 `GET /v1/admin/orders`；trade `AdminListOrders` RPC；菜单表补充代付产品路由说明。
 - **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`；`/stats` 与 `GET /v1/admin/stats/overview`。

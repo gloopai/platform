@@ -10,6 +10,8 @@ import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import OrdersPage from './views/modules/orders/OrdersPage.vue'
+import OpsPage from './views/modules/ops/OpsPage.vue'
+import RefundsPage from './views/modules/refunds/RefundsPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
 
 export const router = createRouter({
@@ -29,14 +31,14 @@ export const router = createRouter({
         { path: 'routing', component: RouteStrategyPage },
         { path: 'channel-health', component: ChannelHealthPage },
         { path: 'orders', component: OrdersPage },
-        { path: 'refunds', component: ModulePlaceholderPage },
+        { path: 'refunds', component: RefundsPage },
         { path: 'reconcile', component: ModulePlaceholderPage },
         { path: 'settlement', component: ModulePlaceholderPage },
         { path: 'risk', component: ModulePlaceholderPage },
         { path: 'audit', component: AuditPage },
         { path: 'notifications', component: ModulePlaceholderPage },
         { path: 'system', component: ModulePlaceholderPage },
-        { path: 'ops', component: ModulePlaceholderPage },
+        { path: 'ops', component: OpsPage },
       ],
     },
   ],

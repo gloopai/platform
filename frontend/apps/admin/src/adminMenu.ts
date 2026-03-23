@@ -114,11 +114,6 @@ export const adminPlaceholderMeta: Record<
     apiNote: string
   }
 > = {
-  '/refunds': {
-    summary: '处理退款单、差错争议与长款挂账。',
-    bullets: ['退款审核与批量', '差错登记与调账', '与通道对账差异联动'],
-    apiNote: '待接入：/v1/admin/refunds',
-  },
   '/reconcile': {
     summary: '按通道/商户/日期生成对账文件，标记差异并驱动结算。',
     bullets: ['对账批次与状态机', '差异类型：金额/笔数/状态', '自动调账或人工复核'],
@@ -143,11 +138,6 @@ export const adminPlaceholderMeta: Record<
     summary: '管理员账号、角色权限、菜单与系统参数。',
     bullets: ['RBAC、数据权限（商户维度）', '操作审计留痕', '参数：全局开关、密钥轮换策略'],
     apiNote: '待接入：/v1/admin/users、roles、settings',
-  },
-  '/ops': {
-    summary: '网关、RPC、队列、数据库与依赖服务的健康与容量。',
-    bullets: ['服务拓扑与 QPS', '错误率与慢查询', '日志检索与 Trace ID'],
-    apiNote: '待接入：可观测性平台对接',
   },
 }
 
