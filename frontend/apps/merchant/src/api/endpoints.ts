@@ -11,6 +11,7 @@ export const MERCHANT_API = {
   orderDetail: '/v1/merchant/order/detail',
   retryNotify: '/v1/merchant/order/retry_notify',
   fundLogs: '/v1/merchant/fund_logs',
+  transferCollectToPayout: '/v1/merchant/balance/transfer_collect_to_payout',
 } as const
 
 /** 开放网关（非 X-Merchant-Token） */

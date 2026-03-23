@@ -20,6 +20,8 @@ export type AdminMerchantInfo = {
   return_url: string
   ip_whitelist: string
   balance: number
+  collect_balance: number
+  payout_balance: number
   pay_product_ids?: number[]
   payout_product_ids?: number[]
   collect_grants?: MerchantCollectGrant[]

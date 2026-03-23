@@ -88,6 +88,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: merchanthandler.MerchantFundLogsHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPost,
+					Path:    "/v1/merchant/balance/transfer_collect_to_payout",
+					Handler: merchanthandler.MerchantTransferCollectToPayoutHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/order/detail",
 					Handler: merchanthandler.MerchantOrderDetailHandler(serverCtx),
@@ -184,6 +189,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/merchants/:merchant_id",
 					Handler: adminhandler.AdminUpdateMerchantHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/merchants/:merchant_id/transfer_collect_to_payout",
+					Handler: adminhandler.AdminTransferCollectToPayoutHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

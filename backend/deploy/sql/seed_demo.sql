@@ -3,14 +3,16 @@ DELETE FROM merchant_payout_products WHERE merchant_id IN ('m_rate_mix', 'm_zero
 DELETE FROM merchant_pay_products WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
 DELETE FROM merchants WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
 
-INSERT INTO merchants (merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, ip_whitelist, balance, notify_url)
+INSERT INTO merchants (merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, ip_whitelist, balance, collect_balance, payout_balance, notify_url)
 VALUES
-  ('m_demo', 'demo_secret', 1, 60, 80, '127.0.0.1', 0, '')
+  ('m_demo', 'demo_secret', 1, 60, 80, '127.0.0.1', 100000, 100000, 100000, '')
 ON DUPLICATE KEY UPDATE
   api_secret = VALUES(api_secret),
   status = VALUES(status),
   default_collect_rate_bps = VALUES(default_collect_rate_bps),
   default_payout_rate_bps = VALUES(default_payout_rate_bps),
+  collect_balance = VALUES(collect_balance),
+  payout_balance = VALUES(payout_balance),
   ip_whitelist = VALUES(ip_whitelist);
 
 INSERT INTO channels (

@@ -2,64 +2,101 @@
   <div class="space-y-8">
     <PageHeader title="控制台" description="今日经营概况与账户状态一目了然" />
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-300 opacity-25 blur-2xl transition group-hover:opacity-40" />
-        <div class="relative">
-          <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
-            今日流水
+    <div class="space-y-4">
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+          <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-400 opacity-15 blur-2xl transition group-hover:opacity-30" />
+          <div class="relative">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </span>
+                代收余额
+              </div>
+              <button
+                type="button"
+                class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-700 hover:border-slate-300"
+                @click="openTransferDialog"
+              >
+                划转
+              </button>
+            </div>
+            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ collectBalanceText }}</div>
+            <div class="mt-2 text-xs text-slate-500">可转入代付账户用于下发</div>
           </div>
-          <div class="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-slate-900 sm:text-3xl">{{ todayAmountText }}</div>
+        </div>
+
+        <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
+          <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-300 opacity-20 blur-2xl transition group-hover:opacity-35" />
+          <div class="relative">
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
+              <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </span>
+              代付余额
+            </div>
+            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ payoutBalanceText }}</div>
+            <div class="mt-2 text-xs text-slate-500">提交代付订单时优先扣减</div>
+          </div>
         </div>
       </div>
 
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-400 opacity-20 blur-2xl transition group-hover:opacity-40" />
-        <div class="relative">
-          <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </span>
-            今日订单
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+          <div class="border-b border-slate-100 bg-slate-50/80 px-5 py-3">
+            <div class="text-sm font-semibold text-slate-900">代收概览</div>
+            <div class="mt-0.5 text-xs text-slate-500">按今日代收数据汇总</div>
           </div>
-          <div class="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-slate-900 sm:text-3xl">{{ orderCountText }}</div>
+          <div class="grid gap-3 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">代收笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-slate-900">{{ orderCountText }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">成功笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-emerald-700">{{ collectPaidCountText }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">失败笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-rose-700">{{ collectFailedCountText }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">成功率 / 金额</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-slate-900">{{ successRateText }}</div>
+              <div class="mt-1 text-xs tabular-nums text-slate-500">{{ todayAmountText }}</div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-300 opacity-20 blur-2xl transition group-hover:opacity-40" />
-        <div class="relative">
-          <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </span>
-            支付成功率
+        <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+          <div class="border-b border-slate-100 bg-slate-50/80 px-5 py-3">
+            <div class="text-sm font-semibold text-slate-900">代付概览</div>
+            <div class="mt-0.5 text-xs text-slate-500">按最近 200 笔代付订单汇总</div>
           </div>
-          <div class="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-slate-900 sm:text-3xl">{{ successRateText }}</div>
-        </div>
-      </div>
-
-      <div class="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300/90 hover:shadow-md">
-        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-slate-400 opacity-15 blur-2xl transition group-hover:opacity-30" />
-        <div class="relative">
-          <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
-            </span>
-            待结算余额
+          <div class="grid gap-3 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">代付笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-slate-900">{{ payoutOverview.count }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">成功笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-emerald-700">{{ payoutOverview.successCount }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">失败笔数</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-rose-700">{{ payoutOverview.failedCount }}</div>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
+              <div class="text-xs text-slate-500">成功率 / 金额</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-slate-900">{{ payoutSuccessRateText }}</div>
+              <div class="mt-1 text-xs tabular-nums text-slate-500">{{ payoutAmountText }}</div>
+            </div>
           </div>
-          <div class="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-slate-900 sm:text-3xl">{{ balanceText }}</div>
         </div>
       </div>
     </div>
@@ -118,26 +155,105 @@
         </table>
       </div>
     </div>
+
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="transferDialogOpen" class="fixed inset-0 z-[1000] bg-slate-900/40 p-4">
+          <div class="flex h-full items-center justify-center">
+            <Transition
+              enter-active-class="transition duration-200 ease-out"
+              enter-from-class="opacity-0 translate-y-1 scale-[0.98]"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition duration-150 ease-in"
+              leave-from-class="opacity-100 translate-y-0 scale-100"
+              leave-to-class="opacity-0 translate-y-1 scale-[0.98]"
+            >
+              <div v-if="transferDialogOpen" class="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div class="border-b border-slate-200 px-5 py-4">
+                  <div class="text-base font-semibold text-slate-900">余额划转（代收 -> 代付）</div>
+                </div>
+                <div class="space-y-3 px-5 py-4">
+                  <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                    <div>当前代收：{{ collectBalanceText }}</div>
+                    <div class="mt-1">当前代付：{{ payoutBalanceText }}</div>
+                  </div>
+                  <label class="grid gap-1">
+                    <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
+                    <input v-model.number="transferAmount" type="number" min="1" step="1" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+                  </label>
+                  <p v-if="transferMsg" class="text-xs text-slate-600">{{ transferMsg }}</p>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+                    :disabled="transferLoading"
+                    @click="closeTransferDialog"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+                    :disabled="transferLoading || transferAmount <= 0"
+                    @click="submitTransfer"
+                  >
+                    {{ transferLoading ? '划转中…' : '确认划转' }}
+                  </button>
+                </div>
+              </div>
+            </Transition>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { transferCollectToPayout } from '@/api/finance'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import { useMerchantSummary } from '@/composables/useMerchantSummary'
+import { merchantDisplaySettings } from '@/lib/displaySettings'
 import { formatYuanLabel } from '@/utils/format'
 
-const { summary, byProduct, error, loading } = useMerchantSummary()
+const { summary, byProduct, payoutOverview, error, loading, load } = useMerchantSummary()
 
 const todayAmountText = computed(() => formatYuanLabel(summary.value?.today_amount ?? 0))
 
-const balanceText = computed(() => formatYuanLabel(summary.value?.balance ?? 0))
+const collectBalanceText = computed(() => formatYuanLabel(summary.value?.collect_balance ?? summary.value?.balance ?? 0))
+const payoutBalanceText = computed(() => formatYuanLabel(summary.value?.payout_balance ?? 0))
+const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
+const transferAmount = ref(0)
+const transferLoading = ref(false)
+const transferMsg = ref('')
+const transferDialogOpen = ref(false)
+const payoutSuccessRateText = computed(() => `${(payoutOverview.value.successRate * 100).toFixed(2)}%`)
+const payoutAmountText = computed(() => formatYuanLabel(payoutOverview.value.amount))
 
 const successRateText = computed(() => {
   const v = summary.value?.success_rate
   if (v === undefined || v === null) return '—'
   return `${(v * 100).toFixed(2)}%`
+})
+const collectPaidCountText = computed(() => {
+  let total = 0
+  for (const x of byProduct.value?.items || []) total += x.paid_count || 0
+  return String(total)
+})
+const collectFailedCountText = computed(() => {
+  let total = 0
+  for (const x of byProduct.value?.items || []) total += x.failed_count || 0
+  return String(total)
 })
 
 const orderCountText = computed(() => {
@@ -150,4 +266,34 @@ const tipText = computed(() => {
   if (!summary.value) return '连接数据后即可查看实时指标。请先在「开发配置」中确认商户参数，并确保网关服务已启动。'
   return '可在「开发配置」中联调下单与回调，在「交易管理」中查询订单与通知记录。'
 })
+
+async function submitTransfer() {
+  if (transferAmount.value <= 0) return
+  transferLoading.value = true
+  transferMsg.value = ''
+  try {
+    const amountCent = Math.floor(transferAmount.value) * 100
+    const r = await transferCollectToPayout(amountCent)
+    transferMsg.value = `划转成功：代收 ${formatYuanLabel(r.collect_balance)}，代付 ${formatYuanLabel(r.payout_balance)}`
+    transferAmount.value = 0
+    await load()
+    closeTransferDialog()
+  } catch {
+    transferMsg.value = '划转失败：请确认代收余额是否充足。'
+  } finally {
+    transferLoading.value = false
+  }
+}
+
+function openTransferDialog() {
+  transferDialogOpen.value = true
+  transferAmount.value = 0
+  transferMsg.value = ''
+}
+
+function closeTransferDialog() {
+  transferDialogOpen.value = false
+  transferAmount.value = 0
+  transferMsg.value = ''
+}
 </script>

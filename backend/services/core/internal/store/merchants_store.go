@@ -6,18 +6,20 @@ import (
 )
 
 type Merchant struct {
-	ID                     int64
-	MerchantId             string
-	ApiSecret              string
-	Status                 int64
-	DefaultCollectRateBps  int64
-	DefaultPayoutRateBps   int64
-	IpWhitelist            string
-	Balance                int64
-	FrozenBalance          int64
-	WithdrawnAmount        int64
-	NotifyUrl              string
-	ReturnUrl              string
+	ID                    int64
+	MerchantId            string
+	ApiSecret             string
+	Status                int64
+	DefaultCollectRateBps int64
+	DefaultPayoutRateBps  int64
+	IpWhitelist           string
+	Balance               int64
+	CollectBalance        int64
+	PayoutBalance         int64
+	FrozenBalance         int64
+	WithdrawnAmount       int64
+	NotifyUrl             string
+	ReturnUrl             string
 }
 
 type MerchantsStore struct {
@@ -32,7 +34,7 @@ func (s *MerchantsStore) GetByMerchantId(ctx context.Context, merchantId string)
 	var m Merchant
 	err := s.db.QueryRowContext(ctx, `
 SELECT id, merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       balance, COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
+       balance, COALESCE(collect_balance, balance), COALESCE(payout_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
        COALESCE(notify_url,''), COALESCE(return_url,'')
 FROM merchants
 WHERE merchant_id = ?
@@ -46,6 +48,8 @@ LIMIT 1
 		&m.DefaultPayoutRateBps,
 		&m.IpWhitelist,
 		&m.Balance,
+		&m.CollectBalance,
+		&m.PayoutBalance,
 		&m.FrozenBalance,
 		&m.WithdrawnAmount,
 		&m.NotifyUrl,
@@ -63,7 +67,7 @@ func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]Merchant, err
 	}
 	rows, err := s.db.QueryContext(ctx, `
 SELECT id, merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       balance, COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
+       balance, COALESCE(collect_balance, balance), COALESCE(payout_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
        COALESCE(notify_url,''), COALESCE(return_url,'')
 FROM merchants
 ORDER BY id DESC
@@ -86,6 +90,8 @@ LIMIT ?
 			&m.DefaultPayoutRateBps,
 			&m.IpWhitelist,
 			&m.Balance,
+			&m.CollectBalance,
+			&m.PayoutBalance,
 			&m.FrozenBalance,
 			&m.WithdrawnAmount,
 			&m.NotifyUrl,
@@ -103,9 +109,9 @@ LIMIT ?
 
 func (s *MerchantsStore) Create(ctx context.Context, m *Merchant) error {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO merchants (merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, ip_whitelist, balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, m.MerchantId, m.ApiSecret, m.Status, m.DefaultCollectRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.Balance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl)
+INSERT INTO merchants (merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, ip_whitelist, balance, collect_balance, payout_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, m.MerchantId, m.ApiSecret, m.Status, m.DefaultCollectRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.Balance, m.CollectBalance, m.PayoutBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl)
 	return err
 }
 

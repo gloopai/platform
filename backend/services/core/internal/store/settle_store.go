@@ -3,8 +3,11 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
+
+var ErrInsufficientBalance = errors.New("insufficient balance")
 
 type SettleStore struct {
 	db *sql.DB
@@ -23,8 +26,8 @@ func (s *SettleStore) Credit(ctx context.Context, merchantId, orderNo string, am
 		_ = tx.Rollback()
 	}()
 
-	var balanceBefore int64
-	if err := tx.QueryRowContext(ctx, `SELECT balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&balanceBefore); err != nil {
+	var collectBefore int64
+	if err := tx.QueryRowContext(ctx, `SELECT collect_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&collectBefore); err != nil {
 		return false, 0, err
 	}
 
@@ -39,26 +42,107 @@ LIMIT 1
 		if err := tx.Commit(); err != nil {
 			return false, 0, err
 		}
-		return false, balanceBefore, nil
+		return false, collectBefore, nil
 	}
 	if err != sql.ErrNoRows {
 		return false, 0, err
 	}
 
-	balanceAfter := balanceBefore + amount
-	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET balance = ?, updated_at = NOW() WHERE merchant_id = ?`, balanceAfter, merchantId); err != nil {
+	collectAfter := collectBefore + amount
+	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET collect_balance = ?, balance = ?, updated_at = NOW() WHERE merchant_id = ?`, collectAfter, collectAfter, merchantId); err != nil {
 		return false, 0, err
 	}
 	if _, err := tx.ExecContext(ctx, `
 INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
 VALUES (?, ?, 'ORDER_PAID', ?, ?, ?, ?, NOW())
-`, merchantId, orderNo, amount, balanceBefore, balanceAfter, reason); err != nil {
+`, merchantId, orderNo, amount, collectBefore, collectAfter, reason); err != nil {
 		return false, 0, err
 	}
 	if err := tx.Commit(); err != nil {
 		return false, 0, err
 	}
-	return true, balanceAfter, nil
+	return true, collectAfter, nil
+}
+
+func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo string, amount int64, reason string) (bool, int64, error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return false, 0, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var payoutBefore int64
+	if err := tx.QueryRowContext(ctx, `SELECT payout_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&payoutBefore); err != nil {
+		return false, 0, err
+	}
+	if payoutBefore < amount {
+		return false, payoutBefore, ErrInsufficientBalance
+	}
+
+	var exists int
+	err = tx.QueryRowContext(ctx, `
+SELECT 1 FROM fund_logs WHERE order_no = ? AND change_type = 'PAYOUT_ORDER_DEBIT' LIMIT 1
+`, orderNo).Scan(&exists)
+	if err == nil {
+		if err := tx.Commit(); err != nil {
+			return false, 0, err
+		}
+		return false, payoutBefore, nil
+	}
+	if err != sql.ErrNoRows {
+		return false, 0, err
+	}
+
+	payoutAfter := payoutBefore - amount
+	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET payout_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, payoutAfter, merchantId); err != nil {
+		return false, 0, err
+	}
+	if _, err := tx.ExecContext(ctx, `
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES (?, ?, 'PAYOUT_ORDER_DEBIT', ?, ?, ?, ?, NOW())
+`, merchantId, orderNo, -amount, payoutBefore, payoutAfter, reason); err != nil {
+		return false, 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return false, 0, err
+	}
+	return true, payoutAfter, nil
+}
+
+func (s *SettleStore) TransferCollectToPayout(ctx context.Context, merchantId string, amount int64, reason string) (bool, int64, int64, error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return false, 0, 0, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var collectBefore, payoutBefore int64
+	if err := tx.QueryRowContext(ctx, `SELECT collect_balance, payout_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&collectBefore, &payoutBefore); err != nil {
+		return false, 0, 0, err
+	}
+	if collectBefore < amount {
+		return false, collectBefore, payoutBefore, ErrInsufficientBalance
+	}
+	collectAfter := collectBefore - amount
+	payoutAfter := payoutBefore + amount
+	if _, err := tx.ExecContext(ctx, `
+UPDATE merchants
+SET collect_balance = ?, payout_balance = ?, balance = ?, updated_at = NOW()
+WHERE merchant_id = ?
+`, collectAfter, payoutAfter, collectAfter, merchantId); err != nil {
+		return false, 0, 0, err
+	}
+	transferNo := "TRANSFER-" + merchantId + "-" + time.Now().Format("20060102150405")
+	if _, err := tx.ExecContext(ctx, `
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES (?, ?, 'COLLECT_TO_PAYOUT', ?, ?, ?, ?, NOW())
+`, merchantId, transferNo, amount, collectBefore, collectAfter, reason); err != nil {
+		return false, 0, 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return false, 0, 0, err
+	}
+	return true, collectAfter, payoutAfter, nil
 }
 
 type FundLogRow struct {

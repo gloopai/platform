@@ -6,6 +6,7 @@ import (
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -72,11 +73,36 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		ReturnUrl:             m.GetReturnUrl(),
 		IpWhitelist:           m.GetIpWhitelist(),
 		Balance:               m.GetBalance(),
+		CollectBalance:        m.GetCollectBalance(),
+		PayoutBalance:         m.GetPayoutBalance(),
 		PayProductIds:         m.GetPayProductIds(),
 		PayoutProductIds:      m.GetPayoutProductIds(),
 		CollectGrants:         cg,
 		PayoutGrants:          pg,
 	}
+}
+
+func (m *AdminMerchants) AdminTransferCollectToPayout(req *types.AdminTransferCollectToPayoutReq) (*types.AdminTransferCollectToPayoutResp, error) {
+	merchantId := strings.TrimSpace(req.MerchantId)
+	if merchantId == "" {
+		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	}
+	if req.Amount <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
+	}
+	r, err := m.svcCtx.SettleRpc.TransferCollectToPayout(m.ctx, &settlepb.TransferCollectToPayoutReq{
+		MerchantId: merchantId,
+		Amount:     req.Amount,
+		Reason:     strings.TrimSpace(req.Reason),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.AdminTransferCollectToPayoutResp{
+		Ok:             r.GetChanged(),
+		CollectBalance: r.GetCollectBalance(),
+		PayoutBalance:  r.GetPayoutBalance(),
+	}, nil
 }
 
 func (m *AdminMerchants) AdminListMerchants() (*types.AdminListMerchantsResp, error) {

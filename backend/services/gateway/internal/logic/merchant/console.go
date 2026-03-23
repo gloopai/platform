@@ -51,13 +51,15 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		rate = float64(sum.GetSuccessCount()) / float64(sum.GetTotalCount())
 	}
 	return &types.MerchantSummaryResp{
-		TodayAmount: sum.GetTotalAmount(),
-		TodayCount:  sum.GetTotalCount(),
-		SuccessRate: rate,
-		Balance:     auth.GetBalance(),
-		MerchantId:  merchantId,
-		NotifyUrl:   auth.GetNotifyUrl(),
-		IpWhitelist: auth.GetIpWhitelist(),
+		TodayAmount:    sum.GetTotalAmount(),
+		TodayCount:     sum.GetTotalCount(),
+		SuccessRate:    rate,
+		Balance:        auth.GetBalance(),
+		CollectBalance: auth.GetCollectBalance(),
+		PayoutBalance:  auth.GetPayoutBalance(),
+		MerchantId:     merchantId,
+		NotifyUrl:      auth.GetNotifyUrl(),
+		IpWhitelist:    auth.GetIpWhitelist(),
 	}, nil
 }
 
@@ -226,6 +228,29 @@ func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*typ
 		})
 	}
 	return &types.MerchantFundLogsResp{Logs: out}, nil
+}
+
+func (c *MerchantConsole) MerchantTransferCollectToPayout(req *types.MerchantTransferCollectToPayoutReq) (*types.MerchantTransferCollectToPayoutResp, error) {
+	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
+	if merchantId == "" {
+		return nil, status.Error(codes.Unauthenticated, "merchant not authenticated")
+	}
+	if req.Amount <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
+	}
+	r, err := c.svcCtx.SettleRpc.TransferCollectToPayout(c.ctx, &settlepb.TransferCollectToPayoutReq{
+		MerchantId: merchantId,
+		Amount:     req.Amount,
+		Reason:     strings.TrimSpace(req.Reason),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.MerchantTransferCollectToPayoutResp{
+		Ok:             r.GetChanged(),
+		CollectBalance: r.GetCollectBalance(),
+		PayoutBalance:  r.GetPayoutBalance(),
+	}, nil
 }
 
 func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq) (*types.MerchantOrderDetailResp, error) {

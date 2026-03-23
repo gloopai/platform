@@ -23,3 +23,13 @@ func (s *SettleServer) Credit(ctx context.Context, in *settlepb.CreditReq) (*set
 	l := logic.NewCreditLogic(ctx, s.svcCtx)
 	return l.Credit(in)
 }
+
+func (s *SettleServer) DebitPayout(ctx context.Context, in *settlepb.DebitPayoutReq) (*settlepb.DebitPayoutResp, error) {
+	l := logic.NewDebitPayoutLogic(ctx, s.svcCtx)
+	return l.DebitPayout(in)
+}
+
+func (s *SettleServer) TransferCollectToPayout(ctx context.Context, in *settlepb.TransferCollectToPayoutReq) (*settlepb.TransferCollectToPayoutResp, error) {
+	l := logic.NewTransferCollectToPayoutLogic(ctx, s.svcCtx)
+	return l.TransferCollectToPayout(in)
+}

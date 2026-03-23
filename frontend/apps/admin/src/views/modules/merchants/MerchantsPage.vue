@@ -23,17 +23,18 @@
           <thead class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               <th class="whitespace-nowrap px-4 py-3">商户 ID</th>
-              <th class="whitespace-nowrap px-4 py-3">余额</th>
+              <th class="whitespace-nowrap px-4 py-3">代收余额</th>
+              <th class="whitespace-nowrap px-4 py-3">代付余额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="whitespace-nowrap px-4 py-3 text-right">操作</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="4" class="px-4 py-8 text-center text-slate-500">加载中...</td>
+              <td colspan="5" class="px-4 py-8 text-center text-slate-500">加载中...</td>
             </tr>
             <tr v-else-if="!filteredMerchants.length">
-              <td colspan="4" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
+              <td colspan="5" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
             </tr>
             <tr
               v-for="m in pagedMerchants"
@@ -42,7 +43,8 @@
               class="border-b border-slate-100 transition hover:bg-slate-50/80"
             >
               <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
-              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.balance) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.collect_balance ?? m.balance) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payout_balance ?? 0) }}</td>
               <td class="px-4 py-3">
                 <span
                   v-if="m.status === 1"
@@ -53,6 +55,13 @@
                 <span v-else class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">锁定</span>
               </td>
               <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  class="mr-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
+                  @click="quickTransfer(m)"
+                >
+                  划转
+                </button>
                 <button
                   type="button"
                   class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
@@ -187,6 +196,44 @@
         </div>
       </template>
     </AdminDrawer>
+
+    <div v-if="transferDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+      <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div class="border-b border-slate-200 px-5 py-4">
+          <div class="text-base font-semibold text-slate-900">余额划转（代收 -> 代付）</div>
+          <div class="mt-1 text-xs text-slate-500">商户：{{ transferTargetMerchant?.merchant_id || '-' }}</div>
+        </div>
+        <div class="space-y-3 px-5 py-4">
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <div>当前代收：{{ formatMoney(transferTargetMerchant?.collect_balance ?? transferTargetMerchant?.balance ?? 0) }}</div>
+            <div class="mt-1">当前代付：{{ formatMoney(transferTargetMerchant?.payout_balance ?? 0) }}</div>
+          </div>
+          <label class="grid gap-1">
+            <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
+            <input v-model.number="transferAmount" type="number" min="1" step="1" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          </label>
+          <p v-if="transferMsg" class="text-xs text-slate-600">{{ transferMsg }}</p>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+            :disabled="transferLoading"
+            @click="closeTransferDialog"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+            :disabled="transferLoading || transferAmount <= 0 || !transferTargetMerchant"
+            @click="submitTransfer"
+          >
+            {{ transferLoading ? '划转中...' : '确认划转' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -198,7 +245,7 @@ import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
-import { formatAdminMoney } from '../../../lib/displaySettings'
+import { adminDisplaySettings, formatAdminMoney } from '../../../lib/displaySettings'
 
 import MerchantFormCard from './MerchantFormCard.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
@@ -218,6 +265,11 @@ const bindingSaving = ref(false)
 const saved = ref(false)
 const formError = ref('')
 const bindError = ref('')
+const transferDialogOpen = ref(false)
+const transferTargetMerchantId = ref<string | null>(null)
+const transferAmount = ref(0)
+const transferLoading = ref(false)
+const transferMsg = ref('')
 
 const merchants = ref<AdminMerchantInfo[]>([])
 const payProducts = ref<PayProductRow[]>([])
@@ -242,6 +294,11 @@ const selectedMerchant = computed(() => {
   if (!id) return null
   return merchants.value.find((m) => m.merchant_id === id) ?? null
 })
+const transferTargetMerchant = computed(() => {
+  const id = transferTargetMerchantId.value
+  if (!id) return null
+  return merchants.value.find((m) => m.merchant_id === id) ?? null
+})
 
 const drawerTitle = computed(() =>
   isNew.value ? '新建商户' : `编辑商户 · ${form.value.merchant_id || ''}`,
@@ -251,6 +308,7 @@ const canSaveForm = computed(() => {
   if (isNew.value) return !!form.value.merchant_id?.trim()
   return true
 })
+const transferCurrencyCode = computed(() => adminDisplaySettings.value.currency_code || 'CNY')
 
 const filteredMerchants = computed(() => {
   const s = searchQuery.value.trim().toLowerCase()
@@ -608,6 +666,45 @@ function updatePayoutGrant(grant: MerchantPayoutGrant) {
 
 function closeDrawer() {
   drawerOpen.value = false
+}
+
+function quickTransfer(m: AdminMerchantInfo) {
+  transferTargetMerchantId.value = m.merchant_id
+  transferAmount.value = 0
+  transferMsg.value = ''
+  transferDialogOpen.value = true
+}
+
+function closeTransferDialog() {
+  transferDialogOpen.value = false
+  transferTargetMerchantId.value = null
+  transferAmount.value = 0
+  transferMsg.value = ''
+}
+
+async function submitTransfer() {
+  const m = transferTargetMerchant.value
+  if (!m || transferAmount.value <= 0) return
+  transferLoading.value = true
+  transferMsg.value = ''
+  try {
+    const amountCent = Math.floor(transferAmount.value) * 100
+    const resp = await adminPost<{ ok: boolean; collect_balance: number; payout_balance: number }>(
+      `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}/transfer_collect_to_payout`,
+      { amount: amountCent, reason: 'ADMIN_QUICK_TRANSFER' },
+    )
+    m.collect_balance = resp.collect_balance
+    m.payout_balance = resp.payout_balance
+    m.balance = resp.collect_balance
+    transferMsg.value = `划转成功：代收 ${formatMoney(resp.collect_balance)}，代付 ${formatMoney(resp.payout_balance)}`
+    transferAmount.value = 0
+    toast.success('划转成功')
+    closeTransferDialog()
+  } catch {
+    transferMsg.value = '划转失败：请确认代收余额充足。'
+  } finally {
+    transferLoading.value = false
+  }
 }
 
 watch(drawerOpen, (open, wasOpen) => {

@@ -59,6 +59,8 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		NotifyUrl:             in.GetNotifyUrl(),
 		ReturnUrl:             in.GetReturnUrl(),
 		Balance:               0,
+		CollectBalance:        0,
+		PayoutBalance:         0,
 	}
 	if err := l.svcCtx.Merchants.Create(l.ctx, rec); err != nil {
 		if strings.Contains(err.Error(), "Duplicate") {
@@ -251,7 +253,9 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		IpWhitelist:           m.IpWhitelist,
 		NotifyUrl:             m.NotifyUrl,
 		ReturnUrl:             m.ReturnUrl,
-		Balance:               m.Balance,
+		Balance:               m.CollectBalance,
+		CollectBalance:        m.CollectBalance,
+		PayoutBalance:         m.PayoutBalance,
 		DefaultCollectRateBps: m.DefaultCollectRateBps,
 		DefaultPayoutRateBps:  m.DefaultPayoutRateBps,
 	}, nil
@@ -339,7 +343,9 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		DefaultCollectRateBps: m.DefaultCollectRateBps,
 		DefaultPayoutRateBps:  m.DefaultPayoutRateBps,
 		IpWhitelist:           m.IpWhitelist,
-		Balance:               m.Balance,
+		Balance:               m.CollectBalance,
+		CollectBalance:        m.CollectBalance,
+		PayoutBalance:         m.PayoutBalance,
 		FrozenBalance:         m.FrozenBalance,
 		WithdrawnAmount:       m.WithdrawnAmount,
 		NotifyUrl:             m.NotifyUrl,

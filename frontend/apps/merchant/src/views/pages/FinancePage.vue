@@ -8,6 +8,11 @@
           <div class="text-sm font-semibold text-slate-900">结算与流水</div>
           <p class="mt-1 text-xs text-slate-500">展示余额变更记录（fund_logs）</p>
         </div>
+        <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+          代收余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.collect_balance ?? summary?.balance ?? 0) }}</span>
+          <span class="mx-2 text-slate-400">|</span>
+          代付余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.payout_balance ?? 0) }}</span>
+        </div>
       </div>
       <div class="mt-4 overflow-hidden rounded-xl border border-slate-100">
         <div class="overflow-x-auto">
@@ -57,8 +62,8 @@
             </svg>
           </span>
           <div>
-            <div class="text-sm font-semibold text-slate-900">提现申请</div>
-            <p class="mt-1 text-sm text-slate-600">发起余额提现至绑定银行卡（占位能力）</p>
+            <div class="text-sm font-semibold text-slate-900">提现申请（代收余额）</div>
+            <p class="mt-1 text-sm text-slate-600">提现仅使用代收余额，代付余额不可提现（MVP 规则）</p>
             <button
               type="button"
               class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
@@ -76,22 +81,23 @@
             </svg>
           </span>
           <div>
-            <div class="text-sm font-semibold text-slate-900">对账下载</div>
-            <p class="mt-1 text-sm text-slate-600">按日导出 CSV / Excel（占位能力）</p>
-            <div class="mt-4 flex flex-wrap gap-2">
+            <div class="text-sm font-semibold text-slate-900">代收划转到代付</div>
+            <p class="mt-1 text-sm text-slate-600">用于补足代付余额；提交代付订单前系统将校验代付余额</p>
+            <div class="mt-4 flex flex-wrap items-end gap-2">
+              <label class="grid gap-1.5">
+                <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
+                <input v-model.number="transferAmount" type="number" min="1" step="1" class="input-merchant w-40 tabular-nums" />
+              </label>
               <button
                 type="button"
-                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="transferLoading || transferAmount <= 0"
+                @click="submitTransfer"
               >
-                下载 CSV
-              </button>
-              <button
-                type="button"
-                class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
-              >
-                下载 Excel
+                {{ transferLoading ? '划转中…' : '确认划转' }}
               </button>
             </div>
+            <p v-if="transferMessage" class="mt-2 text-xs text-slate-600">{{ transferMessage }}</p>
           </div>
         </div>
       </div>
@@ -102,12 +108,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import MerchantPaginationBar from '@/components/ui/MerchantPaginationBar.vue'
 import { useClientPagination } from '@/composables/useClientPagination'
-import { fetchMerchantFundLogs } from '@/api/finance'
+import { fetchMerchantFundLogs, transferCollectToPayout } from '@/api/finance'
+import { fetchMerchantSummary } from '@/api/console'
+import { merchantDisplaySettings } from '@/lib/displaySettings'
 import type { MerchantFundLogItem } from '@/types/merchant.api'
 import { formatUnixSeconds, formatYuanLabel } from '@/utils/format'
 
@@ -115,6 +123,11 @@ const logs = ref<MerchantFundLogItem[]>([])
 const { page, pageSize, total, pageCount, slice: pagedLogs } = useClientPagination(logs, 20)
 const loading = ref(false)
 const error = ref('')
+const summary = ref<{ balance: number; collect_balance?: number; payout_balance?: number } | null>(null)
+const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
+const transferAmount = ref(0)
+const transferLoading = ref(false)
+const transferMessage = ref('')
 
 function formatAmount(v: number) {
   return formatYuanLabel(v)
@@ -129,8 +142,10 @@ async function reload() {
   error.value = ''
   try {
     page.value = 1
-    const res = await fetchMerchantFundLogs(200)
+    const [res, sum] = await Promise.all([fetchMerchantFundLogs(200), fetchMerchantSummary()])
     logs.value = res.logs || []
+    summary.value = sum
+    transferMessage.value = ''
   } catch {
     error.value = '加载失败：请确认已登录且网关已启动。'
   } finally {
@@ -138,7 +153,30 @@ async function reload() {
   }
 }
 
+async function submitTransfer() {
+  if (transferAmount.value <= 0) return
+  transferLoading.value = true
+  transferMessage.value = ''
+  try {
+    const amountCent = Math.floor(transferAmount.value) * 100
+    const resp = await transferCollectToPayout(amountCent)
+    transferMessage.value = `划转成功：代收余额 ${formatAmount(resp.collect_balance)}，代付余额 ${formatAmount(resp.payout_balance)}`
+    transferAmount.value = 0
+    await reload()
+  } catch {
+    transferMessage.value = '划转失败：请确认代收余额充足。'
+  } finally {
+    transferLoading.value = false
+  }
+}
+
 onMounted(() => {
   void reload()
 })
 </script>
+
+<style scoped>
+.input-merchant {
+  @apply rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-inner transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20;
+}
+</style>

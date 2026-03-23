@@ -13,6 +13,8 @@ export type MerchantSummary = {
   today_count: number
   success_rate: number
   balance: number
+  collect_balance: number
+  payout_balance: number
   merchant_id: string
 }
 
@@ -106,4 +108,10 @@ export type MerchantFundLogItem = {
 
 export type MerchantFundLogsResp = {
   logs: MerchantFundLogItem[]
+}
+
+export type MerchantTransferCollectToPayoutResp = {
+  ok: boolean
+  collect_balance: number
+  payout_balance: number
 }

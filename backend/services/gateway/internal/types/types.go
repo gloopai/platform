@@ -184,6 +184,8 @@ type MerchantSummaryResp struct {
 	TodayCount  int64   `json:"today_count"`
 	SuccessRate float64 `json:"success_rate"`
 	Balance     int64   `json:"balance"`
+	CollectBalance int64 `json:"collect_balance"`
+	PayoutBalance  int64 `json:"payout_balance"`
 	MerchantId  string  `json:"merchant_id"`
 	NotifyUrl   string  `json:"notify_url"`
 	IpWhitelist string  `json:"ip_whitelist"`
@@ -265,6 +267,17 @@ type MerchantFundLogsResp struct {
 	Logs []MerchantFundLogItem `json:"logs"`
 }
 
+type MerchantTransferCollectToPayoutReq struct {
+	Amount int64  `json:"amount"`
+	Reason string `json:"reason,optional"`
+}
+
+type MerchantTransferCollectToPayoutResp struct {
+	Ok             bool  `json:"ok"`
+	CollectBalance int64 `json:"collect_balance"`
+	PayoutBalance  int64 `json:"payout_balance"`
+}
+
 type MerchantOrderDetailReq struct {
 	OrderNo string `form:"order_no"`
 }
@@ -343,6 +356,8 @@ type AdminMerchantInfo struct {
 	ReturnUrl             string                 `json:"return_url"`
 	IpWhitelist           string                 `json:"ip_whitelist"`
 	Balance               int64                  `json:"balance"`
+	CollectBalance        int64                  `json:"collect_balance"`
+	PayoutBalance         int64                  `json:"payout_balance"`
 	PayProductIds         []int64                `json:"pay_product_ids"`
 	PayoutProductIds      []int64                `json:"payout_product_ids"`
 	CollectGrants         []MerchantCollectGrant `json:"collect_grants"`
@@ -382,6 +397,18 @@ type AdminUpdateMerchantReq struct {
 
 type AdminUpsertMerchantResp struct {
 	Merchant AdminMerchantInfo `json:"merchant"`
+}
+
+type AdminTransferCollectToPayoutReq struct {
+	MerchantId string `path:"merchant_id"`
+	Amount     int64  `json:"amount"`
+	Reason     string `json:"reason,optional"`
+}
+
+type AdminTransferCollectToPayoutResp struct {
+	Ok             bool  `json:"ok"`
+	CollectBalance int64 `json:"collect_balance"`
+	PayoutBalance  int64 `json:"payout_balance"`
 }
 
 // --- 支付产品（对外 code）与上游通道绑定 ---

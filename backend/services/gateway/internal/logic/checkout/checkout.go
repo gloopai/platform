@@ -184,6 +184,14 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 	if payoutCode == "" {
 		payoutCode = strings.TrimSpace(req.PayType)
 	}
+	if payoutCode == "" {
+		return nil, status.Error(codes.InvalidArgument, "payout_product_code required")
+	}
+	payoutProductID := req.PayProductId
+	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
+	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
+		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID = calcPayoutFeeSnapshot(info.GetMerchant(), payoutCode, req.Amount)
+	}
 	r, err := c.svcCtx.OrderRpc.CreatePayoutOrder(c.ctx, &orderclient.CreatePayoutOrderReq{
 		MerchantId:        merchantID,
 		MerchantOrderNo:   req.MerchantOrderNo,
@@ -191,18 +199,27 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		Currency:          req.Currency,
 		NotifyUrl:         req.NotifyUrl,
 		ChannelId:         req.ChannelId,
-		PayoutProductId:   req.PayProductId,
+		PayoutProductId:   payoutProductID,
 		PayoutProductCode: payoutCode,
-		FeeMode:           req.FeeMode,
-		FeeRateBps:        req.FeeRateBps,
-		FeeFixedAmount:    req.FeeFixedAmount,
-		FeeAmount:         req.FeeAmount,
-		NetAmount:         req.NetAmount,
+		FeeMode:           feeMode,
+		FeeRateBps:        feeRateBps,
+		FeeFixedAmount:    feeFixedAmount,
+		FeeAmount:         feeAmount,
+		NetAmount:         netAmount,
 	})
 	if err != nil {
 		return nil, err
 	}
 	o := r.GetOrder()
+	totalDebit := req.Amount + feeAmount
+	if _, derr := c.svcCtx.SettleRpc.DebitPayout(c.ctx, &settleclient.DebitPayoutReq{
+		MerchantId: merchantID,
+		OrderNo:    o.GetOrderNo(),
+		Amount:     totalDebit,
+		Reason:     "PAYOUT_ORDER_DEBIT",
+	}); derr != nil {
+		return nil, derr
+	}
 	return &types.CreateOrderResp{
 		OrderNo:        o.GetOrderNo(),
 		Status:         o.GetStatus(),
@@ -212,6 +229,59 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		CheckoutUrl:    "",
 		ChannelLocked:  0,
 	}, nil
+}
+
+func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductCode string, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID int64) {
+	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID = 1, 0, 0, 0, amount, 0
+	if m == nil || amount <= 0 {
+		return
+	}
+	feeRateBps = m.GetDefaultPayoutRateBps()
+	targetID := int64(0)
+	for _, g := range m.GetPayoutGrants() {
+		if g == nil {
+			continue
+		}
+		// 简化：根据商户授权列表命中的第一条 grant 计算（MVP）
+		targetID = g.GetPayoutProductId()
+		if targetID <= 0 {
+			continue
+		}
+		payoutProductID = targetID
+		mode := g.GetFeeMode()
+		if mode < 1 || mode > 3 {
+			mode = 1
+		}
+		feeMode = mode
+		if g.MerchantRateBps != nil {
+			feeRateBps = g.GetMerchantRateBps()
+		}
+		feeFixedAmount = g.GetFeeFixedAmount()
+		break
+	}
+	if feeRateBps < 0 {
+		feeRateBps = 0
+	}
+	if feeFixedAmount < 0 {
+		feeFixedAmount = 0
+	}
+	switch feeMode {
+	case 2:
+		feeAmount = feeFixedAmount
+	case 3:
+		feeAmount = feeFixedAmount + amount*feeRateBps/10000
+	default:
+		feeAmount = amount * feeRateBps / 10000
+	}
+	if feeAmount < 0 {
+		feeAmount = 0
+	}
+	netAmount = amount - feeAmount
+	if netAmount < 0 {
+		netAmount = 0
+	}
+	_ = payoutProductCode
+	return
 }
 
 func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrderResp, error) {
