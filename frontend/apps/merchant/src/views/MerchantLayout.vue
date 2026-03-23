@@ -79,19 +79,21 @@
             <div class="mt-0.5 font-mono tabular-nums text-slate-700">{{ serverTimeText }}</div>
           </div>
         </div>
-        <div class="px-2 pb-2 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">菜单</div>
-        <nav class="flex flex-col gap-0.5">
-          <RouterLink
-            v-for="item in merchantNavItems"
-            :key="item.to"
-            :to="item.to"
-            class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            active-class="nav-item-active"
-          >
-            <span class="text-slate-400 group-hover:text-slate-700" v-html="item.icon" />
-            <span class="truncate">{{ item.label }}</span>
-          </RouterLink>
-        </nav>
+        <div class="min-h-0 flex-1">
+          <div class="px-2 pb-2 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">菜单</div>
+          <nav class="merchant-menu-scroll flex max-h-full flex-col gap-0.5 overflow-y-auto pr-1">
+            <RouterLink
+              v-for="item in merchantNavItems"
+              :key="item.to"
+              :to="item.to"
+              class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              active-class="nav-item-active"
+            >
+              <span class="text-slate-400 group-hover:text-slate-700" v-html="item.icon" />
+              <span class="truncate">{{ item.label }}</span>
+            </RouterLink>
+          </nav>
+        </div>
         <div class="mt-auto flex flex-col gap-2 border-t border-slate-100 pt-3">
           <button
             type="button"
@@ -185,5 +187,16 @@ async function onMobileLogout() {
 }
 .nav-mb-active {
   @apply bg-slate-100 text-slate-900;
+}
+.merchant-menu-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+.merchant-menu-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.merchant-menu-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.45);
 }
 </style>
