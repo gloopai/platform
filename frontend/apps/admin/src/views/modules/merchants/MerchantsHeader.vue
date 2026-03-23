@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between gap-3">
       <div>
         <div class="text-sm font-semibold text-slate-900">商户管理</div>
-        <div class="mt-1 text-sm text-slate-600">左侧选择商户查看与编辑基础信息；支付产品在右侧单独绑定，与「支付产品」菜单中的定义一致。</div>
+        <div class="mt-1 text-sm text-slate-600">列表中点击「编辑」在抽屉中维护基本信息与代收/代付产品授权。</div>
       </div>
       <div class="flex items-center gap-2">
         <button

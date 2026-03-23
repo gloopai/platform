@@ -1,18 +1,97 @@
 <template>
   <div class="grid gap-4">
-    <PayProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="newProduct" @refresh="reloadAll" />
+    <PayProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="openNew" @refresh="reloadAll" />
 
-    <div class="grid grid-cols-12 gap-4">
-      <PayProductList
-        :products="products"
-        :loading="loadingProducts"
-        :selected-id="selectedProductId"
-        @select="selectProduct"
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          v-model.trim="searchQuery"
+          type="search"
+          autocomplete="off"
+          placeholder="搜索编码、名称、ID…"
+          class="w-full max-w-md rounded-lg border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400"
+        />
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          <span class="text-slate-500">匹配</span>
+          <span class="font-mono text-slate-900">{{ filteredProducts.length }}</span>
+          <span class="text-slate-500">条</span>
+        </label>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-3">ID</th>
+              <th class="whitespace-nowrap px-4 py-3">编码</th>
+              <th class="whitespace-nowrap px-4 py-3">名称</th>
+              <th class="whitespace-nowrap px-4 py-3">排序</th>
+              <th class="whitespace-nowrap px-4 py-3">状态</th>
+              <th class="whitespace-nowrap px-4 py-3 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="loadingProducts">
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">加载中...</td>
+            </tr>
+            <tr v-else-if="!filteredProducts.length">
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
+            </tr>
+            <tr
+              v-for="p in pagedProducts"
+              v-else
+              :key="p.id"
+              class="border-b border-slate-100 transition hover:bg-slate-50/80"
+            >
+              <td class="px-4 py-3 font-mono text-slate-800">#{{ p.id }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ p.code }}</td>
+              <td class="px-4 py-3 font-medium text-slate-900">{{ p.name }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-600">{{ p.sort_order }}</td>
+              <td class="px-4 py-3">
+                <span
+                  v-if="p.enabled"
+                  class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700"
+                >
+                  启用
+                </span>
+                <span v-else class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">停用</span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
+                  @click="openEdit(p.id)"
+                >
+                  编辑
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <AdminPaginationBar
+        v-if="!loadingProducts && filteredProducts.length"
+        :total="total"
+        :page="page"
+        :page-size="pageSize"
+        :page-count="pageCount"
+        @update:page="page = $event"
+        @update:page-size="pageSize = $event"
       />
+    </div>
 
-      <div class="col-span-12 space-y-4 md:col-span-8">
+    <AdminDrawer
+      v-model="drawerOpen"
+      :title="drawerTitle"
+      :subtitle="headerSubtitle"
+      max-width-class="max-w-3xl"
+    >
+      <div v-if="drawerOpen" class="space-y-4">
         <PayProductFormCard
           :model="form"
+          embedded
+          hide-footer-actions
           :saving="savingProduct"
           :saved="savedProduct"
           :error="productError"
@@ -24,6 +103,7 @@
 
         <PayProductBindingsCard
           v-if="form.id"
+          embedded
           :bindings="bindings"
           :channels="filteredChannels"
           :exclude-channel-ids="boundChannelIds"
@@ -37,18 +117,47 @@
           @add="addBinding"
         />
       </div>
-    </div>
+
+      <template #footer>
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            @click="resetProductForm"
+          >
+            重置
+          </button>
+          <button
+            type="button"
+            class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            :disabled="savingProduct || !adminTokenValue || !form.code || !form.name"
+            @click="saveProduct"
+          >
+            {{ savingProduct ? '保存中...' : '保存产品' }}
+          </button>
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            @click="closeDrawer"
+          >
+            关闭
+          </button>
+        </div>
+      </template>
+    </AdminDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import AdminDrawer from '../../../components/AdminDrawer.vue'
+import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
 import PayProductBindingsCard from './PayProductBindingsCard.vue'
 import PayProductFormCard from './PayProductFormCard.vue'
-import PayProductList from './PayProductList.vue'
 import PayProductsHeader from './PayProductsHeader.vue'
 import type { PayProduct, PayProductBinding, PayProductChannelOption } from './types'
 
@@ -71,6 +180,8 @@ const addingBinding = ref(false)
 const savedProduct = ref(false)
 const productError = ref('')
 const bindingError = ref('')
+const drawerOpen = ref(false)
+const searchQuery = ref('')
 
 const products = ref<PayProduct[]>([])
 const channels = ref<PayProductChannelOption[]>([])
@@ -87,12 +198,22 @@ const apiBindingRow = (bindingId: number) =>
     : `/v1/admin/pay_product_bindings/${bindingId}`
 
 const headerTitle = computed(() =>
-  props.payoutMode ? '代付产品与上游通道' : '支付产品与上游通道',
+  props.payoutMode ? '代付产品与上游通道' : '代收产品与上游通道',
 )
 const headerSubtitle = computed(() =>
   props.payoutMode
     ? '维护代付对外产品编码与绑定；仅 supports_payout 的通道可参与代付绑定。'
     : '维护对外展示编码（code）、排序与启用；为每个产品绑定多条上游通道及权重。绑定行可覆盖上游成本（万分比）。',
+)
+
+const drawerTitle = computed(() =>
+  selectedProductId.value == null
+    ? props.payoutMode
+      ? '新建代付产品'
+      : '新建代收产品'
+    : props.payoutMode
+      ? `编辑代付产品 · ${form.value.code || form.value.id}`
+      : `编辑代收产品 · ${form.value.code || form.value.id}`,
 )
 
 const filteredChannels = computed(() => {
@@ -121,6 +242,26 @@ const newBind = ref<{ channel_id: number; weight: number; enabled: boolean; cost
 })
 
 const boundChannelIds = computed(() => bindings.value.map((b) => b.channel_id))
+
+const filteredProducts = computed(() => {
+  const list = products.value
+  const s = searchQuery.value.trim().toLowerCase()
+  if (!s) return list
+  return list.filter((p) => {
+    const idStr = String(p.id)
+    return (
+      idStr.includes(s) ||
+      (p.code || '').toLowerCase().includes(s) ||
+      (p.name || '').toLowerCase().includes(s)
+    )
+  })
+})
+
+const { page, pageSize, total, pageCount, slice: pagedProducts } = useClientPagination(filteredProducts, 10)
+
+watch(searchQuery, () => {
+  page.value = 1
+})
 
 function setForm(v: PayProduct) {
   form.value = v
@@ -152,10 +293,6 @@ async function loadProducts() {
     products.value = data.products || []
     if (selectedProductId.value && products.value.some((p) => p.id === selectedProductId.value)) {
       applySelectedProduct()
-    } else if (products.value.length > 0) {
-      selectProduct(products.value[0].id)
-    } else {
-      newProduct()
     }
   } catch {
     productError.value = '加载产品列表失败'
@@ -196,6 +333,11 @@ function selectProduct(id: number) {
   void loadBindings(id)
 }
 
+function openEdit(id: number) {
+  selectProduct(id)
+  drawerOpen.value = true
+}
+
 function newProduct() {
   selectedProductId.value = null
   form.value = emptyForm()
@@ -203,6 +345,11 @@ function newProduct() {
   savedProduct.value = false
   productError.value = ''
   newBind.value = { channel_id: 0, weight: 100, enabled: true, cost_rate_bps: null }
+}
+
+function openNew() {
+  newProduct()
+  drawerOpen.value = true
 }
 
 function resetProductForm() {
@@ -316,6 +463,14 @@ async function reloadAll() {
   await loadChannels()
   await loadProducts()
 }
+
+function closeDrawer() {
+  drawerOpen.value = false
+}
+
+watch(drawerOpen, (open, wasOpen) => {
+  if (wasOpen === true && open === false) void reloadAll()
+})
 
 let unregister: (() => void) | null = null
 onMounted(() => {

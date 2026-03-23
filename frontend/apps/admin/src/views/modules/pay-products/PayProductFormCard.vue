@@ -1,5 +1,8 @@
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div
+    class="w-full bg-white p-6"
+    :class="embedded ? '' : 'rounded-2xl border border-slate-200 shadow-sm'"
+  >
     <div class="flex items-start justify-between gap-3">
       <div class="text-xs text-slate-500">产品配置：{{ model.id ? `#${model.id}` : '新建' }}</div>
       <div v-if="saved" class="text-xs font-semibold text-emerald-700">已保存</div>
@@ -43,7 +46,7 @@
     <div v-if="error" class="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
       {{ error }}
     </div>
-    <div class="mt-6 flex flex-wrap gap-3">
+    <div v-if="!hideFooterActions" class="mt-6 flex flex-wrap gap-3">
       <button
         type="button"
         class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
@@ -66,13 +69,18 @@
 <script setup lang="ts">
 import type { PayProduct } from './types'
 
-const props = defineProps<{
-  model: PayProduct
-  saving: boolean
-  saved: boolean
-  error: string
-  canSave: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    model: PayProduct
+    saving: boolean
+    saved: boolean
+    error: string
+    canSave: boolean
+    embedded?: boolean
+    hideFooterActions?: boolean
+  }>(),
+  { embedded: false, hideFooterActions: false },
+)
 
 const emit = defineEmits<{
   save: []

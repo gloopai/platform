@@ -1,107 +1,206 @@
 <template>
   <div class="grid gap-4">
-    <MerchantsHeader @new-merchant="newMerchant" @refresh="reload" />
+    <MerchantsHeader @new-merchant="openNew" @refresh="reload" />
 
-    <div class="grid grid-cols-12 gap-4">
-      <MerchantList
-        :merchants="merchants"
-        :loading="loading"
-        :selected-id="selectedMerchantId"
-        @select="selectMerchant"
-      />
-
-      <div class="col-span-12 md:col-span-8">
-        <MerchantFormCard
-          v-if="isNew"
-          v-model="form"
-          :is-new="true"
-          :saving="saving"
-          :saved="saved"
-          :error="formError"
-          :can-save="canSaveForm"
-          :status-for-lock="form.status"
-          @save="saveForm"
-          @reset="resetForm"
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          v-model.trim="searchQuery"
+          type="search"
+          autocomplete="off"
+          placeholder="搜索商户 ID…"
+          class="w-full max-w-md rounded-lg border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400"
         />
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          <span class="text-slate-500">匹配</span>
+          <span class="font-mono text-slate-900">{{ filteredMerchants.length }}</span>
+          <span class="text-slate-500">条</span>
+        </label>
+      </div>
 
-        <div
-          v-else-if="selectedMerchant"
-          class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
-        >
-          <div class="flex flex-wrap border-b border-slate-200 px-2 pt-3" role="tablist" aria-label="商户详情">
-            <button
-              v-for="tab in detailTabs"
-              :key="tab.key"
-              type="button"
-              role="tab"
-              :aria-selected="rightTab === tab.key"
-              class="relative -mb-px border-b-2 px-3 pb-3 text-sm font-semibold transition md:px-4"
-              :class="
-                rightTab === tab.key
-                  ? 'border-slate-900 text-slate-900'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              "
-              @click="rightTab = tab.key"
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="whitespace-nowrap px-4 py-3">商户 ID</th>
+              <th class="whitespace-nowrap px-4 py-3">余额</th>
+              <th class="whitespace-nowrap px-4 py-3">状态</th>
+              <th class="whitespace-nowrap px-4 py-3">默认代收(bps)</th>
+              <th class="whitespace-nowrap px-4 py-3">默认代付(bps)</th>
+              <th class="whitespace-nowrap px-4 py-3 text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="loading">
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">加载中...</td>
+            </tr>
+            <tr v-else-if="!filteredMerchants.length">
+              <td colspan="6" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
+            </tr>
+            <tr
+              v-for="m in pagedMerchants"
+              v-else
+              :key="m.merchant_id"
+              class="border-b border-slate-100 transition hover:bg-slate-50/80"
             >
-              {{ tab.label }}
-            </button>
-          </div>
+              <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.balance) }}</td>
+              <td class="px-4 py-3">
+                <span
+                  v-if="m.status === 1"
+                  class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700"
+                >
+                  启用
+                </span>
+                <span v-else class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">锁定</span>
+              </td>
+              <td class="px-4 py-3 tabular-nums text-slate-600">{{ m.default_collect_rate_bps }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-600">{{ m.default_payout_rate_bps }}</td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
+                  @click="openEdit(m.merchant_id)"
+                >
+                  编辑
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-          <div v-show="rightTab === 'basic'" role="tabpanel">
-            <MerchantFormCard
-              v-model="form"
-              :is-new="false"
-              embedded
-              :saving="saving"
-              :saved="saved"
-              :error="formError"
-              :can-save="canSaveForm"
-              :status-for-lock="selectedMerchant.status"
-              @save="saveForm"
-              @reset="resetForm"
-              @toggle-lock="toggleLock"
-              @reset-secret="resetSecret"
-            />
-          </div>
+      <AdminPaginationBar
+        v-if="!loading && filteredMerchants.length"
+        :total="total"
+        :page="page"
+        :page-size="pageSize"
+        :page-count="pageCount"
+        @update:page="page = $event"
+        @update:page-size="pageSize = $event"
+      />
+    </div>
 
-          <div v-show="rightTab === 'bindings_collect'" role="tabpanel">
-            <MerchantPayProductsCard
-              embedded
-              :product-ids="selectedMerchant.pay_product_ids || []"
-              :catalog="payProducts"
-              :loading="loadingProducts"
-              :saving="bindingSaving"
-              :bind-error="bindError"
-              @remove="removePayProduct"
-              @add="addPayProduct"
-            />
-          </div>
+    <AdminDrawer
+      v-model="drawerOpen"
+      :title="drawerTitle"
+      subtitle="保存后生效；代收/代付产品授权在下方分栏配置。"
+      max-width-class="max-w-3xl"
+    >
+      <div v-if="drawerOpen" class="space-y-4">
+        <div class="flex flex-wrap border-b border-slate-200" role="tablist">
+          <button
+            v-for="tab in detailTabs"
+            :key="tab.key"
+            type="button"
+            role="tab"
+            :aria-selected="rightTab === tab.key"
+            class="relative -mb-px border-b-2 px-3 pb-3 text-sm font-semibold transition md:px-4"
+            :class="
+              rightTab === tab.key
+                ? 'border-slate-900 text-slate-900'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            "
+            @click="rightTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
 
-          <div v-show="rightTab === 'bindings_payout'" role="tabpanel">
-            <MerchantPayoutProductsCard
-              embedded
-              :product-ids="selectedMerchant.payout_product_ids || []"
-              :catalog="payoutProducts"
-              :loading="loadingPayoutProducts"
-              :saving="bindingSaving"
-              :bind-error="bindError"
-              @remove="removePayoutProduct"
-              @add="addPayoutProduct"
-            />
-          </div>
+        <div v-show="rightTab === 'basic'" role="tabpanel">
+          <MerchantFormCard
+            v-model="form"
+            :is-new="isNew"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            :error="formError"
+            :can-save="canSaveForm"
+            :status-for-lock="form.status"
+            @save="saveForm"
+            @reset="resetForm"
+            @toggle-lock="toggleLock"
+            @reset-secret="resetSecret"
+          />
+        </div>
+
+        <div v-show="rightTab === 'bindings_collect'" role="tabpanel">
+          <MerchantPayProductsCard
+            v-if="!isNew && selectedMerchant"
+            embedded
+            :product-ids="selectedMerchant.pay_product_ids || []"
+            :catalog="payProducts"
+            :loading="loadingProducts"
+            :saving="bindingSaving"
+            :bind-error="bindError"
+            @remove="removePayProduct"
+            @add="addPayProduct"
+          />
+          <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
+            请先保存商户基本信息后再配置代收产品。
+          </p>
+        </div>
+
+        <div v-show="rightTab === 'bindings_payout'" role="tabpanel">
+          <MerchantPayoutProductsCard
+            v-if="!isNew && selectedMerchant"
+            embedded
+            :product-ids="selectedMerchant.payout_product_ids || []"
+            :catalog="payoutProducts"
+            :loading="loadingPayoutProducts"
+            :saving="bindingSaving"
+            :bind-error="bindError"
+            @remove="removePayoutProduct"
+            @add="addPayoutProduct"
+          />
+          <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
+            请先保存商户基本信息后再配置代付产品。
+          </p>
         </div>
       </div>
-    </div>
+
+      <template #footer>
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <template v-if="rightTab === 'basic'">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+              @click="resetForm"
+            >
+              重置
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              :disabled="saving || !canSaveForm"
+              @click="saveForm"
+            >
+              {{ saving ? '保存中...' : '保存配置' }}
+            </button>
+          </template>
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            @click="closeDrawer"
+          >
+            关闭
+          </button>
+        </div>
+      </template>
+    </AdminDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
+import AdminDrawer from '../../../components/AdminDrawer.vue'
+import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
 import MerchantFormCard from './MerchantFormCard.vue'
-import MerchantList from './MerchantList.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
 import MerchantPayoutProductsCard from './MerchantPayoutProductsCard.vue'
 import MerchantsHeader from './MerchantsHeader.vue'
@@ -124,6 +223,8 @@ const payProducts = ref<PayProductRow[]>([])
 const payoutProducts = ref<PayProductRow[]>([])
 const selectedMerchantId = ref<string | null>(null)
 const rightTab = ref<'basic' | 'bindings_collect' | 'bindings_payout'>('basic')
+const drawerOpen = ref(false)
+const searchQuery = ref('')
 
 const detailTabs = [
   { key: 'basic' as const, label: '基本信息' },
@@ -141,10 +242,31 @@ const selectedMerchant = computed(() => {
   return merchants.value.find((m) => m.merchant_id === id) ?? null
 })
 
+const drawerTitle = computed(() =>
+  isNew.value ? '新建商户' : `编辑商户 · ${form.value.merchant_id || ''}`,
+)
+
 const canSaveForm = computed(() => {
   if (isNew.value) return !!form.value.merchant_id?.trim()
   return true
 })
+
+const filteredMerchants = computed(() => {
+  const s = searchQuery.value.trim().toLowerCase()
+  const list = merchants.value
+  if (!s) return list
+  return list.filter((m) => (m.merchant_id || '').toLowerCase().includes(s))
+})
+
+const { page, pageSize, total, pageCount, slice: pagedMerchants } = useClientPagination(filteredMerchants, 10)
+
+watch(searchQuery, () => {
+  page.value = 1
+})
+
+function formatMoney(v: number) {
+  return `¥ ${(v / 100).toFixed(2)}`
+}
 
 function applySelectedToForm() {
   const m = selectedMerchant.value
@@ -159,20 +281,22 @@ function resetForm() {
   else form.value = emptyMerchantForm()
 }
 
-function selectMerchant(merchantId: string) {
+function openEdit(merchantId: string) {
   selectedMerchantId.value = merchantId
   rightTab.value = 'basic'
   applySelectedToForm()
   saved.value = false
   formError.value = ''
+  drawerOpen.value = true
 }
 
-function newMerchant() {
+function openNew() {
   selectedMerchantId.value = null
   rightTab.value = 'basic'
   form.value = emptyMerchantForm()
   saved.value = false
   formError.value = ''
+  drawerOpen.value = true
 }
 
 async function loadPayProducts() {
@@ -208,10 +332,6 @@ async function reload() {
     merchants.value = data.merchants || []
     if (selectedMerchantId.value && merchants.value.some((m) => m.merchant_id === selectedMerchantId.value)) {
       applySelectedToForm()
-    } else if (merchants.value.length > 0) {
-      selectMerchant(merchants.value[0].merchant_id)
-    } else {
-      newMerchant()
     }
   } catch {
     formError.value = '网络错误'
@@ -410,6 +530,14 @@ function addPayoutProduct(productId: number) {
   cur.push(productId)
   void persistPayoutProducts(cur)
 }
+
+function closeDrawer() {
+  drawerOpen.value = false
+}
+
+watch(drawerOpen, (open, wasOpen) => {
+  if (wasOpen === true && open === false) void reload()
+})
 
 let unregister: (() => void) | null = null
 onMounted(() => {

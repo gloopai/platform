@@ -87,7 +87,7 @@
       {{ error }}
     </div>
 
-    <div class="mt-6 flex flex-wrap items-center gap-3">
+    <div v-if="!hideFooterActions" class="mt-6 flex flex-wrap items-center gap-3">
       <button
         type="button"
         class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
@@ -124,8 +124,10 @@ const props = withDefaults(
     statusForLock: number
     /** 嵌入 Tab 面板时不画外框 */
     embedded?: boolean
+    /** 抽屉底部统一放保存/关闭时隐藏表单底部按钮 */
+    hideFooterActions?: boolean
   }>(),
-  { embedded: false },
+  { embedded: false, hideFooterActions: false },
 )
 
 defineEmits<{

@@ -1,5 +1,8 @@
 <template>
-  <div class="col-span-12 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:col-span-8">
+  <div
+    class="w-full bg-white p-6"
+    :class="embedded ? '' : 'col-span-12 rounded-2xl border border-slate-200 shadow-sm md:col-span-8'"
+  >
     <div class="flex items-start justify-between gap-3">
       <div class="text-xs text-slate-500">当前：{{ model.id ? `#${model.id}` : '新建' }}</div>
       <div v-if="saved" class="text-xs font-semibold text-emerald-700">已保存</div>
@@ -89,7 +92,7 @@
       {{ error }}
     </div>
 
-    <div class="mt-6 flex flex-wrap items-center gap-3">
+    <div v-if="!hideFooterActions" class="mt-6 flex flex-wrap items-center gap-3">
       <button
         type="button"
         class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
@@ -114,12 +117,18 @@ import type { AdminChannel } from './types'
 
 const model = defineModel<AdminChannel>({ required: true })
 
-defineProps<{
-  saving: boolean
-  saved: boolean
-  error: string
-  canSave: boolean
-}>()
+withDefaults(
+  defineProps<{
+    saving: boolean
+    saved: boolean
+    error: string
+    canSave: boolean
+    /** 抽屉内嵌套时不画外框 */
+    embedded?: boolean
+    hideFooterActions?: boolean
+  }>(),
+  { embedded: false, hideFooterActions: false },
+)
 
 defineEmits<{
   save: []

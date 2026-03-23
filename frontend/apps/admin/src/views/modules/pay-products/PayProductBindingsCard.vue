@@ -1,5 +1,8 @@
 <template>
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div
+    class="w-full bg-white p-6"
+    :class="embedded ? '' : 'rounded-2xl border border-slate-200 shadow-sm'"
+  >
     <div class="text-sm font-semibold text-slate-900">上游通道绑定</div>
     <p class="mt-1 text-xs text-slate-500">
       同产品下多条通道按权重加权随机；「上游成本」留空表示使用通道默认值。
@@ -133,15 +136,19 @@ import ChannelPicker from '../../../components/ChannelPicker.vue'
 
 import type { PayProductBinding, PayProductChannelOption } from './types'
 
-const props = defineProps<{
-  bindings: PayProductBinding[]
-  channels: PayProductChannelOption[]
-  excludeChannelIds: number[]
-  loading: boolean
-  error: string
-  adding: boolean
-  draft: { channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }
-}>()
+const props = withDefaults(
+  defineProps<{
+    bindings: PayProductBinding[]
+    channels: PayProductChannelOption[]
+    excludeChannelIds: number[]
+    loading: boolean
+    error: string
+    adding: boolean
+    draft: { channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }
+    embedded?: boolean
+  }>(),
+  { embedded: false },
+)
 
 const emit = defineEmits<{
   'update:draft': [v: { channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }]
