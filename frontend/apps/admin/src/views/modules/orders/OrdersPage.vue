@@ -129,7 +129,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   title: '全站订单',
   description: '跨商户检索平台订单（只读，MVP）；关键词匹配平台单号、商户单号或商户 ID（精确）。',
-  endpoint: '/v1/admin/orders',
+  endpoint: '/v1/admin/pay_orders',
 })
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined

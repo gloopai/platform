@@ -36,7 +36,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.InvalidArgument, "order_no required")
 	}
 
-	rec, err := l.svcCtx.CollectOrders.FindByOrderNo(l.ctx, orderNo)
+	rec, err := l.svcCtx.PayOrders.FindByOrderNo(l.ctx, orderNo)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "order not found")
@@ -75,7 +75,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.FailedPrecondition, "no available channel")
 	}
 
-	if err := l.svcCtx.CollectOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
+	if err := l.svcCtx.PayOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.FailedPrecondition, "order not pending or not found")
 		}
@@ -116,7 +116,7 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 	chID := rec.ChannelId
 	payPID := rec.PayProductId
 
-	if err := l.svcCtx.CollectOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
+	if err := l.svcCtx.PayOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.FailedPrecondition, "order not pending or not found")
 		}

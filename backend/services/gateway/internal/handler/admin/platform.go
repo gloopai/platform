@@ -34,7 +34,7 @@ func AdminStatsOverviewHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
-func AdminListOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func AdminListPayOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminOrdersReq
 		if err := httpx.Parse(r, &req); err != nil {
@@ -42,24 +42,7 @@ func AdminListOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		l := logic.NewAdminOrders(r.Context(), svcCtx)
-		resp, err := l.AdminListOrders(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
-	}
-}
-
-func AdminListCollectOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.AdminOrdersReq
-		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-			return
-		}
-		l := logic.NewAdminOrders(r.Context(), svcCtx)
-		resp, err := l.AdminListCollectOrders(&req)
+		resp, err := l.AdminListPayOrders(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

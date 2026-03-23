@@ -36,7 +36,7 @@
         加载
       </button>
       <router-link
-        to="/collect-orders"
+        to="/pay-orders"
         class="text-sm font-medium text-slate-700 underline decoration-slate-300 underline-offset-2 hover:text-slate-950"
       >
         全站订单明细

@@ -31,15 +31,13 @@ type (
 		GetOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
 		GetPayoutOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
 		MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error)
-		ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
-		ListCollectOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
+		ListPayOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
 		ListPayoutOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
 		TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
 		PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error)
 		AdminTodayOverview(ctx context.Context, in *order.AdminTodayOverviewReq, opts ...grpc.CallOption) (*order.AdminTodayOverviewResp, error)
 		ListMerchantNotifyLogs(ctx context.Context, in *order.ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*order.ListMerchantNotifyLogsResp, error)
-		AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
-		AdminListCollectOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
+		AdminListPayOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
 		AdminListPayoutOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
 		AdminDayOverview(ctx context.Context, in *order.AdminDayOverviewReq, opts ...grpc.CallOption) (*order.AdminDayOverviewResp, error)
 	}
@@ -77,12 +75,8 @@ func (m *defaultOrder) MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...gr
 	return m.client().MarkPaid(ctx, in, opts...)
 }
 
-func (m *defaultOrder) ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
-	return m.client().ListOrders(ctx, in, opts...)
-}
-
-func (m *defaultOrder) ListCollectOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
-	return m.client().ListCollectOrders(ctx, in, opts...)
+func (m *defaultOrder) ListPayOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
+	return m.client().ListPayOrders(ctx, in, opts...)
 }
 
 func (m *defaultOrder) ListPayoutOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
@@ -105,12 +99,8 @@ func (m *defaultOrder) ListMerchantNotifyLogs(ctx context.Context, in *order.Lis
 	return m.client().ListMerchantNotifyLogs(ctx, in, opts...)
 }
 
-func (m *defaultOrder) AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {
-	return m.client().AdminListOrders(ctx, in, opts...)
-}
-
-func (m *defaultOrder) AdminListCollectOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {
-	return m.client().AdminListCollectOrders(ctx, in, opts...)
+func (m *defaultOrder) AdminListPayOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {
+	return m.client().AdminListPayOrders(ctx, in, opts...)
 }
 
 func (m *defaultOrder) AdminListPayoutOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {

@@ -45,7 +45,7 @@
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/orders` | 全站订单 | **已对接（MVP）**：`GET /v1/admin/orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
+| `/pay-orders` | Pay订单 | **已对接（MVP）**：`GET /v1/admin/pay_orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
 | `/refunds` | 退款与差错 | **已对接（MVP）**：`GET /v1/admin/refunds` 候选订单只读列表（失败/关闭），支持商户与关键词筛选 |
 | `/reconcile` | 对账中心 | **已对接（MVP）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD&merchant_id=` 按自然日平台侧订单聚合（可选按商户过滤，与系统概览同源）；上游文件导入与差异批次为后续 |
 | `/settlement` | 结算与提现 | **已对接（MVP）**：`GET /v1/admin/settlement/logs?merchant_id=&limit=` 平台资金流水只读（可按商户筛选） |
@@ -106,8 +106,8 @@
   - `GET /v1/admin/pay_products/:id/bindings`、`POST /v1/admin/pay_products/:id/bindings`（同 `(product, channel)` 唯一则更新权重/启用）
   - `PUT /v1/admin/pay_product_bindings/:id`、`DELETE /v1/admin/pay_product_bindings/:id`
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
-- **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
-- **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
+- **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `pay_orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
+- **Pay订单（只读）**：`GET /v1/admin/pay_orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListPayOrders`）
 - **退款候选（只读）**：`GET /v1/admin/refunds?merchant_id=&keyword=&status=&limit=`（失败/关闭订单初筛，MVP）
 - **对账（平台账按日）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD&merchant_id=`（trade `Order.AdminDayOverview`，可选商户过滤；与 `stats/overview` 同口径聚合，可选历史自然日）
 - **探活（无需管理 Token）**：`GET /health`（JSON：`status`、`service`、`timestamp_ms`；供运维与「运维监控」页）
@@ -130,7 +130,7 @@
 | `src/views/modules/channels/` | 通道管理（`ChannelsPage.vue` + `ChannelList` / `ChannelFormCard` 等） |
 | `src/views/modules/routing/` | 路由策略说明页（`RouteStrategyPage.vue` + 概览统计与配置入口卡片） |
 | `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
-| `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
+| `src/views/modules/orders/` | Pay订单（`OrdersPage.vue` + `types.ts`） |
 | `src/views/modules/channel-health/` | 通道监控（`ChannelHealthPage.vue`，复用 `routing/RoutingStatGrid`） |
 | `src/views/modules/refunds/` | 退款与差错（`RefundsPage.vue`，候选订单表 + 筛选） |
 | `src/views/modules/reconcile/` | 对账中心（`ReconcilePage.vue`，按日平台账（可选商户过滤）+ 复用 `stats` 拆解表） |
@@ -145,7 +145,7 @@
 ## 6. 迭代建议（Roadmap）
 
 1. **数据与报表**：总览大盘对接 `/v1/admin/dashboard` 或直连统计服务。
-2. **订单全站**：`orders` 与 trade 服务查询接口，支持导出与权限。
+2. **订单全站**：`pay_orders` 与 trade 服务查询接口，支持导出与权限。
 3. **路由与通道**：路由规则存储与执行引擎；通道健康时序指标。
 4. **对账与结算**：对账任务表、文件存储、结算单状态机。
 5. **RBAC 与审计**：管理员表、角色、菜单与操作日志表。
@@ -161,7 +161,7 @@
 - **2026-03-23**：侧栏收敛，去掉「风控与合规」占位菜单；`/reconcile` 对账中心对接 `GET /v1/admin/reconcile/day`（trade `AdminDayOverview`）；`/settlement` 说明页；`order.proto` 增加 `AdminDayOverview`。
 - **2026-03-23**：`/refunds` 退款与差错 MVP 说明页；`/ops` 运维监控对接 `GET /health`；网关 `GET /health`。
 - **2026-03-23**：`/channel-health` 通道监控 MVP（路由汇总 + 通道列表只读）。
-- **2026-03-23**：`/orders` 全站订单列表与 `GET /v1/admin/orders`；trade `AdminListOrders` RPC；菜单表补充代付产品路由说明。
+- **2026-03-23**：`/pay-orders` Pay订单列表与 `GET /v1/admin/pay_orders`；trade `AdminListPayOrders` RPC；菜单表补充代付产品路由说明。
 - **2026-03-23**：`/routing` 路由策略页与 `GET /v1/admin/routing/summary`；`/stats` 与 `GET /v1/admin/stats/overview`。
 - **2026-03-22**：`/merchant-products` 对接支付产品与通道绑定 API；页面 `PayProductsPage.vue`。
 - 文档与前端菜单随 `adminMenu.ts` 同步维护；变更时请更新本节或提交说明。

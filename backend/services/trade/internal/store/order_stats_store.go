@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// OrderStatsStore 管理台统计：读库聚合 orders（与 trade 共用库表）。
+// OrderStatsStore 管理台统计：读库聚合 pay_orders（与 trade 共用库表）。
 type OrderStatsStore struct {
 	db *sql.DB
 }
@@ -77,7 +77,7 @@ SELECT
   COALESCE(SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END), 0)
-FROM orders
+FROM pay_orders
 WHERE `+where+`
 `, whereArgs...).Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
 	if err != nil {
@@ -92,7 +92,7 @@ SELECT
   COALESCE(SUM(CASE WHEN o.status = 1 THEN COALESCE(o.paid_amount, o.amount) ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 2 THEN 1 ELSE 0 END), 0)
-FROM orders o
+FROM pay_orders o
 LEFT JOIN pay_products pp ON pp.code = o.pay_product_code
 WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`
@@ -124,7 +124,7 @@ SELECT
   COALESCE(SUM(CASE WHEN o.status = 1 THEN COALESCE(o.paid_amount, o.amount) ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 2 THEN 1 ELSE 0 END), 0)
-FROM orders o
+FROM pay_orders o
 LEFT JOIN channels c ON c.id = o.channel_id
 WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`

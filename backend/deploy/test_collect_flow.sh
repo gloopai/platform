@@ -20,8 +20,8 @@ ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 DEFAULT_TEST_CASES_JSON='[
   {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"mock","amount":1234,"expected_fee_rate_bps":60},
-  {"name":"product-rate-wechat","merchant_id":"m_rate_mix","merchant_secret":"demo_secret_mix","pay_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
-  {"name":"zero-rate-alipay","merchant_id":"m_zero_fee","merchant_secret":"demo_secret_zero","pay_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
+  {"name":"product-rate-wechat","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
+  {"name":"zero-rate-alipay","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
 ]'
 TEST_CASES_JSON="${TEST_CASES_JSON:-$DEFAULT_TEST_CASES_JSON}"
 
@@ -388,7 +388,7 @@ PY
 
   echo "[4/6] 管理台接口校验订单视图..."
   local admin_orders_resp
-  admin_orders_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/orders?merchant_id=${merchant_id}&keyword=${order_no}&limit=20" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
+  admin_orders_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/pay_orders?merchant_id=${merchant_id}&keyword=${order_no}&limit=20" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
   verify_admin_order "${admin_orders_resp}" "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${expect_fee_rate_bps}"
 
   echo "[5/6] 管理台接口校验资金流水..."

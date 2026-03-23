@@ -42,7 +42,7 @@ func (a *AdminRefunds) AdminListRefundCandidates(req *types.AdminRefundsReq) (*t
 	var rows []*orderpb.OrderInfo
 	appendByStatus := func(status int32) error {
 		s := status
-		r, err := a.svcCtx.OrderRpc.AdminListOrders(a.ctx, &orderpb.AdminListOrdersReq{
+		r, err := a.svcCtx.OrderRpc.AdminListPayOrders(a.ctx, &orderpb.AdminListOrdersReq{
 			MerchantId: strings.TrimSpace(req.MerchantId),
 			Keyword:    strings.TrimSpace(req.Keyword),
 			Status:     &s,

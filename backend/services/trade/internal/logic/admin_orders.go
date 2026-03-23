@@ -11,21 +11,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type AdminListOrdersLogic struct {
+type AdminListPayOrdersLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewAdminListOrdersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AdminListOrdersLogic {
-	return &AdminListOrdersLogic{
+func NewAdminListPayOrdersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AdminListPayOrdersLogic {
+	return &AdminListPayOrdersLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *AdminListOrdersLogic) AdminListOrders(in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
+func (l *AdminListPayOrdersLogic) AdminListPayOrders(in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
 	limit := in.GetLimit()
 	st := int32(-1)
 	if in.Status != nil {
@@ -35,7 +35,7 @@ func (l *AdminListOrdersLogic) AdminListOrders(in *orderpb.AdminListOrdersReq) (
 		}
 	}
 
-	records, err := l.svcCtx.CollectOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
+	records, err := l.svcCtx.PayOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "admin list orders failed")
 	}

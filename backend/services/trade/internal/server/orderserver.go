@@ -10,8 +10,6 @@ import (
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/logic"
 	"github.com/gloopai/pay/trade/internal/svc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type OrderServer struct {
@@ -36,11 +34,13 @@ func (s *OrderServer) GetOrder(ctx context.Context, in *orderpb.GetOrderReq) (*o
 }
 
 func (s *OrderServer) CreatePayoutOrder(ctx context.Context, in *orderpb.CreatePayoutOrderReq) (*orderpb.CreateOrderResp, error) {
-	return nil, status.Error(codes.Unimplemented, "CreatePayoutOrder not implemented")
+	l := logic.NewPayoutOrderLogic(ctx, s.svcCtx)
+	return l.CreatePayoutOrder(in)
 }
 
 func (s *OrderServer) GetPayoutOrder(ctx context.Context, in *orderpb.GetOrderReq) (*orderpb.GetOrderResp, error) {
-	return nil, status.Error(codes.Unimplemented, "GetPayoutOrder not implemented")
+	l := logic.NewPayoutOrderLogic(ctx, s.svcCtx)
+	return l.GetPayoutOrder(in)
 }
 
 func (s *OrderServer) MarkPaid(ctx context.Context, in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp, error) {

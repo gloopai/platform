@@ -17,14 +17,9 @@ func (s *OrderServer) ListMerchantNotifyLogs(ctx context.Context, in *orderpb.Li
 	return l.ListMerchantNotifyLogs(in)
 }
 
-func (s *OrderServer) AdminListOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
-	l := logic.NewAdminListOrdersLogic(ctx, s.svcCtx)
-	return l.AdminListOrders(in)
-}
-
-func (s *OrderServer) ListCollectOrders(ctx context.Context, in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
-	l := logic.NewListOrdersLogic(ctx, s.svcCtx)
-	return l.ListOrders(in)
+func (s *OrderServer) ListPayOrders(ctx context.Context, in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
+	l := logic.NewListPayOrdersLogic(ctx, s.svcCtx)
+	return l.ListPayOrders(in)
 }
 
 func (s *OrderServer) ListPayoutOrders(ctx context.Context, in *orderpb.ListOrdersReq) (*orderpb.ListOrdersResp, error) {
@@ -32,9 +27,9 @@ func (s *OrderServer) ListPayoutOrders(ctx context.Context, in *orderpb.ListOrde
 	return l.ListPayoutOrders(in)
 }
 
-func (s *OrderServer) AdminListCollectOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
-	l := logic.NewAdminListOrdersLogic(ctx, s.svcCtx)
-	return l.AdminListOrders(in)
+func (s *OrderServer) AdminListPayOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
+	l := logic.NewAdminListPayOrdersLogic(ctx, s.svcCtx)
+	return l.AdminListPayOrders(in)
 }
 
 func (s *OrderServer) AdminListPayoutOrders(ctx context.Context, in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {

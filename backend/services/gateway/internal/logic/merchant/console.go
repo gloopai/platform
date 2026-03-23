@@ -73,11 +73,7 @@ func (c *MerchantConsole) MerchantDisplaySettings(req *types.MerchantDisplaySett
 	}, nil
 }
 
-func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
-	return c.merchantOrders(req, false)
-}
-
-func (c *MerchantConsole) MerchantCollectOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
+func (c *MerchantConsole) MerchantPayOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
 	return c.merchantOrders(req, false)
 }
 
@@ -108,7 +104,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 	if payout {
 		r, err = c.svcCtx.OrderRpc.ListPayoutOrders(c.ctx, pbReq)
 	} else {
-		r, err = c.svcCtx.OrderRpc.ListCollectOrders(c.ctx, pbReq)
+		r, err = c.svcCtx.OrderRpc.ListPayOrders(c.ctx, pbReq)
 	}
 	if err != nil {
 		return nil, err

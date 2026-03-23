@@ -51,7 +51,7 @@
 使用请求头 `X-Merchant-Token`（由 `lib/http.ts` 注入）：
 
 - `GET /v1/merchant/summary`
-- `GET /v1/merchant/orders`
+- `GET /v1/merchant/pay_orders`
 - `GET /v1/merchant/order/detail`
 - `POST /v1/merchant/order/retry_notify`
 - `GET /v1/merchant/fund_logs`

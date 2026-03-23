@@ -9,7 +9,7 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="text-xs font-semibold text-slate-700">全站订单查询</div>
         <p class="mt-2 text-sm text-slate-600">按订单号、商户、状态、时间跨商户检索与导出。</p>
-        <p class="mt-3 font-mono text-[10px] text-amber-800">待接入：/v1/admin/orders</p>
+        <p class="mt-3 font-mono text-[10px] text-amber-800">待接入：/v1/admin/pay_orders</p>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="text-xs font-semibold text-slate-700">人工补单 / 重发通知</div>

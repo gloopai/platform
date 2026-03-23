@@ -12,7 +12,7 @@ export async function fetchMerchantOrders(
   params: MerchantOrderListQuery,
   mode: 'collect' | 'payout' = 'collect',
 ): Promise<MerchantOrdersListResp> {
-  const endpoint = mode === 'payout' ? MERCHANT_API.payoutOrders : MERCHANT_API.collectOrders
+  const endpoint = mode === 'payout' ? MERCHANT_API.payoutOrders : MERCHANT_API.payOrders
   return merchantConsoleGet<MerchantOrdersListResp>(endpoint, params)
 }
 

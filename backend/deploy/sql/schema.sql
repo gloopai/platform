@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS merchant_payout_products (
   CONSTRAINT fk_mppo_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS collect_orders (
+CREATE TABLE IF NOT EXISTS pay_orders (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_no VARCHAR(64) NOT NULL,
   merchant_id VARCHAR(64) NOT NULL,
@@ -158,8 +158,8 @@ CREATE TABLE IF NOT EXISTS collect_orders (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_collect_order_no (order_no),
-  UNIQUE KEY uk_collect_merchant_order (merchant_id, merchant_order_no),
+  UNIQUE KEY uk_pay_order_no (order_no),
+  UNIQUE KEY uk_pay_merchant_order (merchant_id, merchant_order_no),
   KEY idx_merchant_created (merchant_id, created_at),
   KEY idx_status_updated (status, updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

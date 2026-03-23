@@ -2226,23 +2226,20 @@ const file_order_proto_rawDesc = "" +
 	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12A\n" +
 	"\x0eby_pay_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\fbyPayProduct\x12:\n" +
 	"\n" +
-	"by_channel\x18\x04 \x03(\v2\x1b.order.AdminStatsChannelRowR\tbyChannel2\xf0\b\n" +
+	"by_channel\x18\x04 \x03(\v2\x1b.order.AdminStatsChannelRowR\tbyChannel2\xe3\a\n" +
 	"\x05Order\x12<\n" +
 	"\vCreateOrder\x12\x15.order.CreateOrderReq\x1a\x16.order.CreateOrderResp\x123\n" +
 	"\bGetOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x123\n" +
-	"\bMarkPaid\x12\x12.order.MarkPaidReq\x1a\x13.order.MarkPaidResp\x129\n" +
-	"\n" +
-	"ListOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12H\n" +
+	"\bMarkPaid\x12\x12.order.MarkPaidReq\x1a\x13.order.MarkPaidResp\x12H\n" +
 	"\x11CreatePayoutOrder\x12\x1b.order.CreatePayoutOrderReq\x1a\x16.order.CreateOrderResp\x129\n" +
-	"\x0eGetPayoutOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x12@\n" +
-	"\x11ListCollectOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12?\n" +
+	"\x0eGetPayoutOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x12<\n" +
+	"\rListPayOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12?\n" +
 	"\x10ListPayoutOrders\x12\x14.order.ListOrdersReq\x1a\x15.order.ListOrdersResp\x12?\n" +
 	"\fTodaySummary\x12\x16.order.TodaySummaryReq\x1a\x17.order.TodaySummaryResp\x12Q\n" +
 	"\x12PrepareTerminalPay\x12\x1c.order.PrepareTerminalPayReq\x1a\x1d.order.PrepareTerminalPayResp\x12Q\n" +
 	"\x12AdminTodayOverview\x12\x1c.order.AdminTodayOverviewReq\x1a\x1d.order.AdminTodayOverviewResp\x12]\n" +
-	"\x16ListMerchantNotifyLogs\x12 .order.ListMerchantNotifyLogsReq\x1a!.order.ListMerchantNotifyLogsResp\x12H\n" +
-	"\x0fAdminListOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersResp\x12O\n" +
-	"\x16AdminListCollectOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersResp\x12N\n" +
+	"\x16ListMerchantNotifyLogs\x12 .order.ListMerchantNotifyLogsReq\x1a!.order.ListMerchantNotifyLogsResp\x12K\n" +
+	"\x12AdminListPayOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersResp\x12N\n" +
 	"\x15AdminListPayoutOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersResp\x12K\n" +
 	"\x10AdminDayOverview\x12\x1a.order.AdminDayOverviewReq\x1a\x1b.order.AdminDayOverviewRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
 
@@ -2302,37 +2299,33 @@ var file_order_proto_depIdxs = []int32{
 	1,  // 11: order.Order.CreateOrder:input_type -> order.CreateOrderReq
 	3,  // 12: order.Order.GetOrder:input_type -> order.GetOrderReq
 	5,  // 13: order.Order.MarkPaid:input_type -> order.MarkPaidReq
-	8,  // 14: order.Order.ListOrders:input_type -> order.ListOrdersReq
-	0,  // 15: order.Order.CreatePayoutOrder:input_type -> order.CreatePayoutOrderReq
-	3,  // 16: order.Order.GetPayoutOrder:input_type -> order.GetOrderReq
-	8,  // 17: order.Order.ListCollectOrders:input_type -> order.ListOrdersReq
-	8,  // 18: order.Order.ListPayoutOrders:input_type -> order.ListOrdersReq
-	10, // 19: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
-	12, // 20: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
-	14, // 21: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
-	19, // 22: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
-	22, // 23: order.Order.AdminListOrders:input_type -> order.AdminListOrdersReq
-	22, // 24: order.Order.AdminListCollectOrders:input_type -> order.AdminListOrdersReq
-	22, // 25: order.Order.AdminListPayoutOrders:input_type -> order.AdminListOrdersReq
-	24, // 26: order.Order.AdminDayOverview:input_type -> order.AdminDayOverviewReq
-	2,  // 27: order.Order.CreateOrder:output_type -> order.CreateOrderResp
-	4,  // 28: order.Order.GetOrder:output_type -> order.GetOrderResp
-	6,  // 29: order.Order.MarkPaid:output_type -> order.MarkPaidResp
-	9,  // 30: order.Order.ListOrders:output_type -> order.ListOrdersResp
-	2,  // 31: order.Order.CreatePayoutOrder:output_type -> order.CreateOrderResp
-	4,  // 32: order.Order.GetPayoutOrder:output_type -> order.GetOrderResp
-	9,  // 33: order.Order.ListCollectOrders:output_type -> order.ListOrdersResp
-	9,  // 34: order.Order.ListPayoutOrders:output_type -> order.ListOrdersResp
-	11, // 35: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
-	13, // 36: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
-	18, // 37: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
-	21, // 38: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
-	23, // 39: order.Order.AdminListOrders:output_type -> order.AdminListOrdersResp
-	23, // 40: order.Order.AdminListCollectOrders:output_type -> order.AdminListOrdersResp
-	23, // 41: order.Order.AdminListPayoutOrders:output_type -> order.AdminListOrdersResp
-	25, // 42: order.Order.AdminDayOverview:output_type -> order.AdminDayOverviewResp
-	27, // [27:43] is the sub-list for method output_type
-	11, // [11:27] is the sub-list for method input_type
+	0,  // 14: order.Order.CreatePayoutOrder:input_type -> order.CreatePayoutOrderReq
+	3,  // 15: order.Order.GetPayoutOrder:input_type -> order.GetOrderReq
+	8,  // 16: order.Order.ListPayOrders:input_type -> order.ListOrdersReq
+	8,  // 17: order.Order.ListPayoutOrders:input_type -> order.ListOrdersReq
+	10, // 18: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
+	12, // 19: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
+	14, // 20: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
+	19, // 21: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
+	22, // 22: order.Order.AdminListPayOrders:input_type -> order.AdminListOrdersReq
+	22, // 23: order.Order.AdminListPayoutOrders:input_type -> order.AdminListOrdersReq
+	24, // 24: order.Order.AdminDayOverview:input_type -> order.AdminDayOverviewReq
+	2,  // 25: order.Order.CreateOrder:output_type -> order.CreateOrderResp
+	4,  // 26: order.Order.GetOrder:output_type -> order.GetOrderResp
+	6,  // 27: order.Order.MarkPaid:output_type -> order.MarkPaidResp
+	2,  // 28: order.Order.CreatePayoutOrder:output_type -> order.CreateOrderResp
+	4,  // 29: order.Order.GetPayoutOrder:output_type -> order.GetOrderResp
+	9,  // 30: order.Order.ListPayOrders:output_type -> order.ListOrdersResp
+	9,  // 31: order.Order.ListPayoutOrders:output_type -> order.ListOrdersResp
+	11, // 32: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
+	13, // 33: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
+	18, // 34: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
+	21, // 35: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
+	23, // 36: order.Order.AdminListPayOrders:output_type -> order.AdminListOrdersResp
+	23, // 37: order.Order.AdminListPayoutOrders:output_type -> order.AdminListOrdersResp
+	25, // 38: order.Order.AdminDayOverview:output_type -> order.AdminDayOverviewResp
+	25, // [25:39] is the sub-list for method output_type
+	11, // [11:25] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name

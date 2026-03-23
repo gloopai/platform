@@ -93,25 +93,7 @@ func MerchantProductStatsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
-func MerchantOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.MerchantOrdersReq
-		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-			return
-		}
-
-		l := logic.NewMerchantConsole(r.Context(), svcCtx)
-		resp, err := l.MerchantOrders(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
-	}
-}
-
-func MerchantCollectOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func MerchantPayOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.MerchantOrdersReq
 		if err := httpx.Parse(r, &req); err != nil {
@@ -119,7 +101,7 @@ func MerchantCollectOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		l := logic.NewMerchantConsole(r.Context(), svcCtx)
-		resp, err := l.MerchantCollectOrders(&req)
+		resp, err := l.MerchantPayOrders(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

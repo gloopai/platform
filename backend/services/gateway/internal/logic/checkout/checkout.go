@@ -184,21 +184,20 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 	if payoutCode == "" {
 		payoutCode = strings.TrimSpace(req.PayType)
 	}
-	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
-		MerchantId:      merchantID,
-		MerchantOrderNo: req.MerchantOrderNo,
-		Amount:          req.Amount,
-		Currency:        req.Currency,
-		NotifyUrl:       req.NotifyUrl,
-		PayType:         payoutCode,
-		ChannelId:       req.ChannelId,
-		PayProductId:    req.PayProductId,
-		PayProductCode:  payoutCode,
-		FeeMode:         req.FeeMode,
-		FeeRateBps:      req.FeeRateBps,
-		FeeFixedAmount:  req.FeeFixedAmount,
-		FeeAmount:       req.FeeAmount,
-		NetAmount:       req.NetAmount,
+	r, err := c.svcCtx.OrderRpc.CreatePayoutOrder(c.ctx, &orderclient.CreatePayoutOrderReq{
+		MerchantId:        merchantID,
+		MerchantOrderNo:   req.MerchantOrderNo,
+		Amount:            req.Amount,
+		Currency:          req.Currency,
+		NotifyUrl:         req.NotifyUrl,
+		ChannelId:         req.ChannelId,
+		PayoutProductId:   req.PayProductId,
+		PayoutProductCode: payoutCode,
+		FeeMode:           req.FeeMode,
+		FeeRateBps:        req.FeeRateBps,
+		FeeFixedAmount:    req.FeeFixedAmount,
+		FeeAmount:         req.FeeAmount,
+		NetAmount:         req.NetAmount,
 	})
 	if err != nil {
 		return nil, err
@@ -216,7 +215,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 }
 
 func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrderResp, error) {
-	r, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
+	r, err := c.svcCtx.OrderRpc.GetPayoutOrder(c.ctx, &orderclient.GetOrderReq{
 		MerchantId:      req.MerchantId,
 		OrderNo:         req.OrderNo,
 		MerchantOrderNo: req.MerchantOrderNo,

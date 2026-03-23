@@ -1,8 +1,11 @@
+-- 清理历史演示商户，统一只保留 m_demo 测试数据
+DELETE FROM merchant_payout_products WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
+DELETE FROM merchant_pay_products WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
+DELETE FROM merchants WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
+
 INSERT INTO merchants (merchant_id, api_secret, status, default_collect_rate_bps, default_payout_rate_bps, ip_whitelist, balance, notify_url)
 VALUES
-  ('m_demo', 'demo_secret', 1, 60, 80, '127.0.0.1', 0, ''),
-  ('m_rate_mix', 'demo_secret_mix', 1, 90, 120, '127.0.0.1', 0, ''),
-  ('m_zero_fee', 'demo_secret_zero', 1, 0, 0, '127.0.0.1', 0, '')
+  ('m_demo', 'demo_secret', 1, 60, 80, '127.0.0.1', 0, '')
 ON DUPLICATE KEY UPDATE
   api_secret = VALUES(api_secret),
   status = VALUES(status),
@@ -65,15 +68,13 @@ ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 INSERT INTO merchant_pay_products (merchant_id, pay_product_id, enabled, sort_order, merchant_rate_bps)
 SELECT m.merchant_id, pp.id, 1, pp.sort_order,
   CASE
-    WHEN m.merchant_id = 'm_demo' THEN NULL
-    WHEN m.merchant_id = 'm_rate_mix' AND pp.code = 'mock' THEN 30
-    WHEN m.merchant_id = 'm_rate_mix' AND pp.code = 'wechat' THEN 120
-    WHEN m.merchant_id = 'm_rate_mix' AND pp.code = 'alipay' THEN NULL
-    WHEN m.merchant_id = 'm_zero_fee' THEN 0
+    WHEN m.merchant_id = 'm_demo' AND pp.code = 'mock' THEN NULL
+    WHEN m.merchant_id = 'm_demo' AND pp.code = 'wechat' THEN 120
+    WHEN m.merchant_id = 'm_demo' AND pp.code = 'alipay' THEN 0
     ELSE NULL
   END
 FROM pay_products pp
-JOIN merchants m ON m.merchant_id IN ('m_demo', 'm_rate_mix', 'm_zero_fee')
+JOIN merchants m ON m.merchant_id IN ('m_demo')
 WHERE pp.code IN ('mock', 'wechat', 'alipay')
 ON DUPLICATE KEY UPDATE
   enabled = VALUES(enabled),
@@ -83,25 +84,19 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
 SELECT m.merchant_id, pp.id, 1, pp.sort_order,
   CASE
-    WHEN m.merchant_id = 'm_demo' THEN 1
-    WHEN m.merchant_id = 'm_rate_mix' THEN 2
-    WHEN m.merchant_id = 'm_zero_fee' THEN 3
+    WHEN m.merchant_id = 'm_demo' THEN 3
     ELSE 1
   END AS fee_mode,
   CASE
-    WHEN m.merchant_id = 'm_demo' THEN 80
-    WHEN m.merchant_id = 'm_rate_mix' THEN 0
-    WHEN m.merchant_id = 'm_zero_fee' THEN 40
+    WHEN m.merchant_id = 'm_demo' THEN 40
     ELSE 0
   END AS merchant_rate_bps,
   CASE
-    WHEN m.merchant_id = 'm_demo' THEN 0
-    WHEN m.merchant_id = 'm_rate_mix' THEN 150
-    WHEN m.merchant_id = 'm_zero_fee' THEN 60
+    WHEN m.merchant_id = 'm_demo' THEN 60
     ELSE 0
   END AS fee_fixed_amount
 FROM payout_products pp
-JOIN merchants m ON m.merchant_id IN ('m_demo', 'm_rate_mix', 'm_zero_fee')
+JOIN merchants m ON m.merchant_id IN ('m_demo')
 WHERE pp.code = 'bank_card'
 ON DUPLICATE KEY UPDATE
   enabled = VALUES(enabled),
@@ -120,7 +115,7 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('currency_symbol', '¥')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 
-INSERT INTO collect_orders (
+INSERT INTO pay_orders (
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
   pay_product_id, pay_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,
   return_url, notify_url, upstream_trade_no
@@ -139,7 +134,7 @@ INSERT INTO payout_orders (
   notify_url, upstream_trade_no
 )
 SELECT
-  'P-DEMO-001', 'm_rate_mix', 'MO-P-DEMO-001', 2000, 'CNY', 1, c.id, pp.id, pp.code, 2000, 2, 0, 150, 150, 1850,
+  'P-DEMO-001', 'm_demo', 'MO-P-DEMO-001', 2000, 'CNY', 1, c.id, pp.id, pp.code, 2000, 3, 40, 60, 68, 1932,
   '', 'UP-P-DEMO-001'
 FROM channels c
 JOIN payout_products pp ON pp.code = 'bank_card'

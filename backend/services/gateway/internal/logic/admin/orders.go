@@ -28,11 +28,7 @@ func NewAdminOrders(ctx context.Context, svcCtx *svc.ServiceContext) *AdminOrder
 	}
 }
 
-func (a *AdminOrders) AdminListOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
-	return a.adminListOrders(req, false)
-}
-
-func (a *AdminOrders) AdminListCollectOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
+func (a *AdminOrders) AdminListPayOrders(req *types.AdminOrdersReq) (*types.AdminOrdersResp, error) {
 	return a.adminListOrders(req, false)
 }
 
@@ -62,7 +58,7 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 	if payout {
 		r, err = a.svcCtx.OrderRpc.AdminListPayoutOrders(a.ctx, pbreq)
 	} else {
-		r, err = a.svcCtx.OrderRpc.AdminListCollectOrders(a.ctx, pbreq)
+		r, err = a.svcCtx.OrderRpc.AdminListPayOrders(a.ctx, pbreq)
 	}
 	if err != nil {
 		return nil, err
