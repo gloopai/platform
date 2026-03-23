@@ -34,6 +34,7 @@ type (
 		AdminTodayOverview(ctx context.Context, in *order.AdminTodayOverviewReq, opts ...grpc.CallOption) (*order.AdminTodayOverviewResp, error)
 		ListMerchantNotifyLogs(ctx context.Context, in *order.ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*order.ListMerchantNotifyLogsResp, error)
 		AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error)
+		AdminDayOverview(ctx context.Context, in *order.AdminDayOverviewReq, opts ...grpc.CallOption) (*order.AdminDayOverviewResp, error)
 	}
 
 	defaultOrder struct {
@@ -83,4 +84,8 @@ func (m *defaultOrder) ListMerchantNotifyLogs(ctx context.Context, in *order.Lis
 
 func (m *defaultOrder) AdminListOrders(ctx context.Context, in *order.AdminListOrdersReq, opts ...grpc.CallOption) (*order.AdminListOrdersResp, error) {
 	return m.client().AdminListOrders(ctx, in, opts...)
+}
+
+func (m *defaultOrder) AdminDayOverview(ctx context.Context, in *order.AdminDayOverviewReq, opts ...grpc.CallOption) (*order.AdminDayOverviewResp, error) {
+	return m.client().AdminDayOverview(ctx, in, opts...)
 }

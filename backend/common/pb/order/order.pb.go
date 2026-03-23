@@ -1670,6 +1670,119 @@ func (x *AdminListOrdersResp) GetOrders() []*OrderInfo {
 	return nil
 }
 
+type AdminDayOverviewReq struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 自然日 YYYY-MM-DD（服务器本地时区）
+	Date          string `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminDayOverviewReq) Reset() {
+	*x = AdminDayOverviewReq{}
+	mi := &file_order_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminDayOverviewReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminDayOverviewReq) ProtoMessage() {}
+
+func (x *AdminDayOverviewReq) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminDayOverviewReq.ProtoReflect.Descriptor instead.
+func (*AdminDayOverviewReq) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *AdminDayOverviewReq) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+type AdminDayOverviewResp struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Date          string                  `protobuf:"bytes,1,opt,name=date,proto3" json:"date,omitempty"`
+	Totals        *AdminStatsTotals       `protobuf:"bytes,2,opt,name=totals,proto3" json:"totals,omitempty"`
+	ByPayProduct  []*AdminStatsProductRow `protobuf:"bytes,3,rep,name=by_pay_product,json=byPayProduct,proto3" json:"by_pay_product,omitempty"`
+	ByChannel     []*AdminStatsChannelRow `protobuf:"bytes,4,rep,name=by_channel,json=byChannel,proto3" json:"by_channel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminDayOverviewResp) Reset() {
+	*x = AdminDayOverviewResp{}
+	mi := &file_order_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminDayOverviewResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminDayOverviewResp) ProtoMessage() {}
+
+func (x *AdminDayOverviewResp) ProtoReflect() protoreflect.Message {
+	mi := &file_order_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminDayOverviewResp.ProtoReflect.Descriptor instead.
+func (*AdminDayOverviewResp) Descriptor() ([]byte, []int) {
+	return file_order_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *AdminDayOverviewResp) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+func (x *AdminDayOverviewResp) GetTotals() *AdminStatsTotals {
+	if x != nil {
+		return x.Totals
+	}
+	return nil
+}
+
+func (x *AdminDayOverviewResp) GetByPayProduct() []*AdminStatsProductRow {
+	if x != nil {
+		return x.ByPayProduct
+	}
+	return nil
+}
+
+func (x *AdminDayOverviewResp) GetByChannel() []*AdminStatsChannelRow {
+	if x != nil {
+		return x.ByChannel
+	}
+	return nil
+}
+
 var File_order_proto protoreflect.FileDescriptor
 
 const file_order_proto_rawDesc = "" +
@@ -1837,7 +1950,15 @@ const file_order_proto_rawDesc = "" +
 	"\x05limit\x18\x04 \x01(\x03R\x05limitB\t\n" +
 	"\a_status\"?\n" +
 	"\x13AdminListOrdersResp\x12(\n" +
-	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders2\xfa\x04\n" +
+	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\")\n" +
+	"\x13AdminDayOverviewReq\x12\x12\n" +
+	"\x04date\x18\x01 \x01(\tR\x04date\"\xda\x01\n" +
+	"\x14AdminDayOverviewResp\x12\x12\n" +
+	"\x04date\x18\x01 \x01(\tR\x04date\x12/\n" +
+	"\x06totals\x18\x02 \x01(\v2\x17.order.AdminStatsTotalsR\x06totals\x12A\n" +
+	"\x0eby_pay_product\x18\x03 \x03(\v2\x1b.order.AdminStatsProductRowR\fbyPayProduct\x12:\n" +
+	"\n" +
+	"by_channel\x18\x04 \x03(\v2\x1b.order.AdminStatsChannelRowR\tbyChannel2\xc7\x05\n" +
 	"\x05Order\x12<\n" +
 	"\vCreateOrder\x12\x15.order.CreateOrderReq\x1a\x16.order.CreateOrderResp\x123\n" +
 	"\bGetOrder\x12\x12.order.GetOrderReq\x1a\x13.order.GetOrderResp\x123\n" +
@@ -1848,7 +1969,8 @@ const file_order_proto_rawDesc = "" +
 	"\x12PrepareTerminalPay\x12\x1c.order.PrepareTerminalPayReq\x1a\x1d.order.PrepareTerminalPayResp\x12Q\n" +
 	"\x12AdminTodayOverview\x12\x1c.order.AdminTodayOverviewReq\x1a\x1d.order.AdminTodayOverviewResp\x12]\n" +
 	"\x16ListMerchantNotifyLogs\x12 .order.ListMerchantNotifyLogsReq\x1a!.order.ListMerchantNotifyLogsResp\x12H\n" +
-	"\x0fAdminListOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
+	"\x0fAdminListOrders\x12\x19.order.AdminListOrdersReq\x1a\x1a.order.AdminListOrdersResp\x12K\n" +
+	"\x10AdminDayOverview\x12\x1a.order.AdminDayOverviewReq\x1a\x1b.order.AdminDayOverviewRespB.Z,github.com/gloopai/pay/common/pb/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once
@@ -1862,7 +1984,7 @@ func file_order_proto_rawDescGZIP() []byte {
 	return file_order_proto_rawDescData
 }
 
-var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_order_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_order_proto_goTypes = []any{
 	(*CreateOrderReq)(nil),             // 0: order.CreateOrderReq
 	(*CreateOrderResp)(nil),            // 1: order.CreateOrderResp
@@ -1887,6 +2009,8 @@ var file_order_proto_goTypes = []any{
 	(*ListMerchantNotifyLogsResp)(nil), // 20: order.ListMerchantNotifyLogsResp
 	(*AdminListOrdersReq)(nil),         // 21: order.AdminListOrdersReq
 	(*AdminListOrdersResp)(nil),        // 22: order.AdminListOrdersResp
+	(*AdminDayOverviewReq)(nil),        // 23: order.AdminDayOverviewReq
+	(*AdminDayOverviewResp)(nil),       // 24: order.AdminDayOverviewResp
 }
 var file_order_proto_depIdxs = []int32{
 	6,  // 0: order.CreateOrderResp.order:type_name -> order.OrderInfo
@@ -1897,29 +2021,34 @@ var file_order_proto_depIdxs = []int32{
 	16, // 5: order.AdminTodayOverviewResp.by_channel:type_name -> order.AdminStatsChannelRow
 	19, // 6: order.ListMerchantNotifyLogsResp.logs:type_name -> order.MerchantNotifyLogItem
 	6,  // 7: order.AdminListOrdersResp.orders:type_name -> order.OrderInfo
-	0,  // 8: order.Order.CreateOrder:input_type -> order.CreateOrderReq
-	2,  // 9: order.Order.GetOrder:input_type -> order.GetOrderReq
-	4,  // 10: order.Order.MarkPaid:input_type -> order.MarkPaidReq
-	7,  // 11: order.Order.ListOrders:input_type -> order.ListOrdersReq
-	9,  // 12: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
-	11, // 13: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
-	13, // 14: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
-	18, // 15: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
-	21, // 16: order.Order.AdminListOrders:input_type -> order.AdminListOrdersReq
-	1,  // 17: order.Order.CreateOrder:output_type -> order.CreateOrderResp
-	3,  // 18: order.Order.GetOrder:output_type -> order.GetOrderResp
-	5,  // 19: order.Order.MarkPaid:output_type -> order.MarkPaidResp
-	8,  // 20: order.Order.ListOrders:output_type -> order.ListOrdersResp
-	10, // 21: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
-	12, // 22: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
-	17, // 23: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
-	20, // 24: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
-	22, // 25: order.Order.AdminListOrders:output_type -> order.AdminListOrdersResp
-	17, // [17:26] is the sub-list for method output_type
-	8,  // [8:17] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 8: order.AdminDayOverviewResp.totals:type_name -> order.AdminStatsTotals
+	15, // 9: order.AdminDayOverviewResp.by_pay_product:type_name -> order.AdminStatsProductRow
+	16, // 10: order.AdminDayOverviewResp.by_channel:type_name -> order.AdminStatsChannelRow
+	0,  // 11: order.Order.CreateOrder:input_type -> order.CreateOrderReq
+	2,  // 12: order.Order.GetOrder:input_type -> order.GetOrderReq
+	4,  // 13: order.Order.MarkPaid:input_type -> order.MarkPaidReq
+	7,  // 14: order.Order.ListOrders:input_type -> order.ListOrdersReq
+	9,  // 15: order.Order.TodaySummary:input_type -> order.TodaySummaryReq
+	11, // 16: order.Order.PrepareTerminalPay:input_type -> order.PrepareTerminalPayReq
+	13, // 17: order.Order.AdminTodayOverview:input_type -> order.AdminTodayOverviewReq
+	18, // 18: order.Order.ListMerchantNotifyLogs:input_type -> order.ListMerchantNotifyLogsReq
+	21, // 19: order.Order.AdminListOrders:input_type -> order.AdminListOrdersReq
+	23, // 20: order.Order.AdminDayOverview:input_type -> order.AdminDayOverviewReq
+	1,  // 21: order.Order.CreateOrder:output_type -> order.CreateOrderResp
+	3,  // 22: order.Order.GetOrder:output_type -> order.GetOrderResp
+	5,  // 23: order.Order.MarkPaid:output_type -> order.MarkPaidResp
+	8,  // 24: order.Order.ListOrders:output_type -> order.ListOrdersResp
+	10, // 25: order.Order.TodaySummary:output_type -> order.TodaySummaryResp
+	12, // 26: order.Order.PrepareTerminalPay:output_type -> order.PrepareTerminalPayResp
+	17, // 27: order.Order.AdminTodayOverview:output_type -> order.AdminTodayOverviewResp
+	20, // 28: order.Order.ListMerchantNotifyLogs:output_type -> order.ListMerchantNotifyLogsResp
+	22, // 29: order.Order.AdminListOrders:output_type -> order.AdminListOrdersResp
+	24, // 30: order.Order.AdminDayOverview:output_type -> order.AdminDayOverviewResp
+	21, // [21:31] is the sub-list for method output_type
+	11, // [11:21] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_order_proto_init() }
@@ -1934,7 +2063,7 @@ func file_order_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_order_proto_rawDesc), len(file_order_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   23,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

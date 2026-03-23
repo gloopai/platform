@@ -47,18 +47,12 @@
 |------|------|------|
 | `/orders` | 全站订单 | **已对接（MVP）**：`GET /v1/admin/orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
 | `/refunds` | 退款与差错 | **MVP 说明页**：指引至全站订单；退款/差错 API 未接入，列表占位 |
-| `/reconcile` | 对账中心 | 对账批次、差异处理；**占位** |
-| `/settlement` | 结算与提现 | 结算周期、提现审核、打款；**占位** |
+| `/reconcile` | 对账中心 | **已对接（MVP）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD` 按自然日平台侧订单聚合（与系统概览同源）；上游文件导入与差异批次为后续 |
+| `/settlement` | 结算与提现 | **MVP 说明页**：结算/提现 API 未接入；链至订单与对账 |
 
-### 2.5 风控与合规
+> **说明**：侧栏暂不挂「风控与合规」等占位菜单，优先跑通收单—订单—对账主路径；风控、审计、公告等能力见 §3.4 规划。
 
-| 路径 | 页面 | 说明 |
-|------|------|------|
-| `/risk` | 风控规则 | 限额、黑名单、评分策略；**占位** |
-| `/audit` | 运营与审计 | 运营动作、审计日志、RBAC 规划；**前端说明页** |
-| `/notifications` | 公告与通知 | 对商户公告、维护窗口；**占位** |
-
-### 2.6 系统与运维
+### 2.5 系统与运维
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
@@ -114,9 +108,10 @@
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
 - **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
 - **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
+- **对账（平台账按日）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD`（trade `Order.AdminDayOverview`，与 `stats/overview` 同口径聚合，可选历史自然日）
 - **探活（无需管理 Token）**：`GET /health`（JSON：`status`、`service`、`timestamp_ms`；供运维与「运维监控」页）
 
-其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明（`/refunds` 为独立说明页、非通用占位）。
+其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明（`/refunds`、`/settlement` 另有独立说明页）。
 
 ---
 
@@ -135,6 +130,8 @@
 | `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
 | `src/views/modules/channel-health/` | 通道监控（`ChannelHealthPage.vue`，复用 `routing/RoutingStatGrid`） |
 | `src/views/modules/refunds/` | 退款与差错（`RefundsPage.vue`，MVP 说明 + 占位） |
+| `src/views/modules/reconcile/` | 对账中心（`ReconcilePage.vue`，按日平台账 + 复用 `stats` 拆解表） |
+| `src/views/modules/settlement/` | 结算与提现（`SettlementPage.vue`，MVP 说明） |
 | `src/views/modules/ops/` | 运维监控（`OpsPage.vue`，`GET /health`） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
@@ -153,6 +150,7 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：侧栏收敛，去掉「风控与合规」占位菜单；`/reconcile` 对账中心对接 `GET /v1/admin/reconcile/day`（trade `AdminDayOverview`）；`/settlement` 说明页；`order.proto` 增加 `AdminDayOverview`。
 - **2026-03-23**：`/refunds` 退款与差错 MVP 说明页；`/ops` 运维监控对接 `GET /health`；网关 `GET /health`。
 - **2026-03-23**：`/channel-health` 通道监控 MVP（路由汇总 + 通道列表只读）。
 - **2026-03-23**：`/orders` 全站订单列表与 `GET /v1/admin/orders`；trade `AdminListOrders` RPC；菜单表补充代付产品路由说明。

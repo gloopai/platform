@@ -78,3 +78,56 @@ func (s *AdminStats) AdminStatsOverview() (*types.AdminStatsOverviewResp, error)
 		FusedChannels:   r.GetFusedChannels(),
 	}, nil
 }
+
+func (s *AdminStats) AdminDayOverview(req *types.AdminDayOverviewReq) (*types.AdminDayOverviewResp, error) {
+	r, err := s.svcCtx.OrderRpc.AdminDayOverview(s.ctx, &orderpb.AdminDayOverviewReq{Date: req.Date})
+	if err != nil {
+		return nil, err
+	}
+	t := r.GetTotals()
+	totals := types.AdminStatsTotals{
+		OrderCount:             t.GetOrderCount(),
+		PaidAmount:             t.GetPaidAmount(),
+		PaidCount:              t.GetPaidCount(),
+		FailedCount:            t.GetFailedCount(),
+		PendingCount:           t.GetPendingCount(),
+		ClosedCount:            t.GetClosedCount(),
+		ConversionRatePct:      t.GetConversionRatePct(),
+		TerminalSuccessRatePct: t.GetTerminalSuccessRatePct(),
+	}
+
+	outProd := make([]types.AdminStatsProductRow, 0, len(r.GetByPayProduct()))
+	for _, p := range r.GetByPayProduct() {
+		outProd = append(outProd, types.AdminStatsProductRow{
+			ProductCode:            p.GetProductCode(),
+			ProductName:            p.GetProductName(),
+			OrderCount:             p.GetOrderCount(),
+			PaidAmount:             p.GetPaidAmount(),
+			PaidCount:              p.GetPaidCount(),
+			FailedCount:            p.GetFailedCount(),
+			ConversionRatePct:      p.GetConversionRatePct(),
+			TerminalSuccessRatePct: p.GetTerminalSuccessRatePct(),
+		})
+	}
+
+	outCh := make([]types.AdminStatsChannelRow, 0, len(r.GetByChannel()))
+	for _, c := range r.GetByChannel() {
+		outCh = append(outCh, types.AdminStatsChannelRow{
+			ChannelId:              c.GetChannelId(),
+			ChannelName:            c.GetChannelName(),
+			OrderCount:             c.GetOrderCount(),
+			PaidAmount:             c.GetPaidAmount(),
+			PaidCount:              c.GetPaidCount(),
+			FailedCount:            c.GetFailedCount(),
+			ConversionRatePct:      c.GetConversionRatePct(),
+			TerminalSuccessRatePct: c.GetTerminalSuccessRatePct(),
+		})
+	}
+
+	return &types.AdminDayOverviewResp{
+		Date:         r.GetDate(),
+		Totals:       totals,
+		ByPayProduct: outProd,
+		ByChannel:    outCh,
+	}, nil
+}

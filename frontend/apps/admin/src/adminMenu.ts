@@ -64,17 +64,6 @@ export const adminMenu: AdminMenuEntry[] = [
   },
   {
     kind: 'group',
-    key: 'risk',
-    label: '风控与合规',
-    icon: 'shield',
-    children: [
-      { to: '/risk', label: '风控规则' },
-      { to: '/audit', label: '运营与审计' },
-      { to: '/notifications', label: '公告与通知' },
-    ],
-  },
-  {
-    kind: 'group',
     key: 'system',
     label: '系统与运维',
     icon: 'cog',
@@ -98,9 +87,6 @@ export const adminPathTitle: Record<string, string> = {
   '/refunds': '退款与差错',
   '/reconcile': '对账中心',
   '/settlement': '结算与提现',
-  '/risk': '风控规则',
-  '/audit': '运营与审计',
-  '/notifications': '公告与通知',
   '/system': '系统管理',
   '/ops': '运维监控',
 }
@@ -114,25 +100,10 @@ export const adminPlaceholderMeta: Record<
     apiNote: string
   }
 > = {
-  '/reconcile': {
-    summary: '按通道/商户/日期生成对账文件，标记差异并驱动结算。',
-    bullets: ['对账批次与状态机', '差异类型：金额/笔数/状态', '自动调账或人工复核'],
-    apiNote: '待接入：对账任务与文件存储',
-  },
   '/settlement': {
     summary: '商户结算周期、提现审核、打款与手续费清算。',
     bullets: ['结算单生成与确认', '提现风控与打款通道', 'T+N、D+1 等策略'],
     apiNote: '待接入：/v1/admin/settlement',
-  },
-  '/risk': {
-    summary: '交易前中后风控：限额、黑名单、设备指纹、反洗钱报送等。',
-    bullets: ['规则引擎与名单库', '实时评分与阻断', '监管报表导出'],
-    apiNote: '待接入：风控引擎与名单服务',
-  },
-  '/notifications': {
-    summary: '向商户推送系统公告、维护窗口与政策变更。',
-    bullets: ['公告编辑与定向推送', '站内信与 Webhook 摘要', '已读状态'],
-    apiNote: '待接入：通知中心',
   },
   '/system': {
     summary: '管理员账号、角色权限、菜单与系统参数。',

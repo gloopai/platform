@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginPage from './views/LoginPage.vue'
 import AdminLayout from './views/AdminLayout.vue'
-import AuditPage from './views/pages/AuditPage.vue'
 import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.vue'
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
@@ -12,6 +11,8 @@ import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import OrdersPage from './views/modules/orders/OrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import RefundsPage from './views/modules/refunds/RefundsPage.vue'
+import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
+import SettlementPage from './views/modules/settlement/SettlementPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
 
 export const router = createRouter({
@@ -32,11 +33,8 @@ export const router = createRouter({
         { path: 'channel-health', component: ChannelHealthPage },
         { path: 'orders', component: OrdersPage },
         { path: 'refunds', component: RefundsPage },
-        { path: 'reconcile', component: ModulePlaceholderPage },
-        { path: 'settlement', component: ModulePlaceholderPage },
-        { path: 'risk', component: ModulePlaceholderPage },
-        { path: 'audit', component: AuditPage },
-        { path: 'notifications', component: ModulePlaceholderPage },
+        { path: 'reconcile', component: ReconcilePage },
+        { path: 'settlement', component: SettlementPage },
         { path: 'system', component: ModulePlaceholderPage },
         { path: 'ops', component: OpsPage },
       ],

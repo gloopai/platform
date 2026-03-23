@@ -560,3 +560,16 @@ type AdminOrderRow struct {
 type AdminOrdersResp struct {
 	Orders []AdminOrderRow `json:"orders"`
 }
+
+// --- 对账：按日平台账快照（与系统概览同源聚合，可选历史日） ---
+
+type AdminDayOverviewReq struct {
+	Date string `form:"date"`
+}
+
+type AdminDayOverviewResp struct {
+	Date         string                 `json:"date"`
+	Totals       AdminStatsTotals       `json:"totals"`
+	ByPayProduct []AdminStatsProductRow `json:"by_pay_product"`
+	ByChannel    []AdminStatsChannelRow `json:"by_channel"`
+}
