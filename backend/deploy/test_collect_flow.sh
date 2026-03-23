@@ -15,6 +15,7 @@ PAY_TYPE="${PAY_TYPE:-mock}"
 AMOUNT="${AMOUNT:-1234}"
 
 CHANNEL_SIGN_SECRET="${CHANNEL_SIGN_SECRET:-channel_secret}"
+CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret,channel_secret_b}"
 ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 
@@ -70,6 +71,99 @@ print(cur if cur is not None else "")
 PY
 }
 
+notify_request() {
+  local order_no="$1"
+  local paid_amount="$2"
+  local upstream_trade_no="$3"
+  local channel_id="$4"
+  local sign_secret="$5"
+  local body
+  local params_json
+  local sign
+
+  params_json="$(python3 - <<PY
+import json
+print(json.dumps({
+  "order_no": "${order_no}",
+  "paid_amount": int("${paid_amount}"),
+  "upstream_trade_no": "${upstream_trade_no}",
+  "channel_id": int("${channel_id}")
+}))
+PY
+)"
+  sign="$(md5_sign "${sign_secret}" "${params_json}")"
+  body="$(python3 - "${params_json}" "${sign}" <<'PY'
+import json, sys
+p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
+print(json.dumps(p))
+PY
+)"
+  curl -sS -X POST "${GATEWAY_BASE_URL}/v1/callback/notify" \
+    -H "Content-Type: application/json" \
+    -d "${body}"
+}
+
+assert_notify() {
+  local name="$1"
+  local resp="$2"
+  local expected_ok="$3"
+  local expected_code="$4"
+  local actual_ok
+  local actual_code
+
+  actual_ok="$(json_get "${resp}" "ok" || true)"
+  actual_code="$(json_get "${resp}" "reason_code" || true)"
+
+  if [[ "${actual_ok}" != "${expected_ok}" ]]; then
+    echo "${name} expected ok=${expected_ok}, got ok=${actual_ok}: ${resp}"
+    exit 1
+  fi
+  if [[ "${expected_code}" != "" && "${actual_code}" != "${expected_code}" ]]; then
+    echo "${name} expected reason_code=${expected_code}, got ${actual_code}: ${resp}"
+    exit 1
+  fi
+  echo "  ${name} ok=${actual_ok} reason_code=${actual_code}"
+}
+
+notify_with_candidates() {
+  local order_no="$1"
+  local paid_amount="$2"
+  local upstream_trade_no="$3"
+  local channel_id="$4"
+  local candidates_csv="$5"
+  local old_ifs
+  local secret
+  local resp
+  local ok
+  local code
+
+  old_ifs="$IFS"
+  IFS=','
+  for secret in ${candidates_csv}; do
+    secret="$(echo "${secret}" | tr -d ' ')"
+    if [[ -z "${secret}" ]]; then
+      continue
+    fi
+    resp="$(notify_request "${order_no}" "${paid_amount}" "${upstream_trade_no}" "${channel_id}" "${secret}")"
+    ok="$(json_get "${resp}" "ok" || true)"
+    code="$(json_get "${resp}" "reason_code" || true)"
+    if [[ "${ok}" == "True" || "${ok}" == "true" ]]; then
+      IFS="$old_ifs"
+      echo "${resp}"
+      return 0
+    fi
+    if [[ "${code}" != "INVALID_SIGN" ]]; then
+      IFS="$old_ifs"
+      echo "${resp}"
+      return 0
+    fi
+  done
+  IFS="$old_ifs"
+  # 全部候选都签名失败，返回最后一次响应
+  echo "${resp}"
+  return 0
+}
+
 echo "[1/5] 创建订单..."
 MERCHANT_ORDER_NO="MO-E2E-$(date +%s)"
 CREATE_PARAMS_JSON="$(python3 - <<PY
@@ -110,33 +204,8 @@ echo "  order_no=${ORDER_NO} channel_id=${CHANNEL_ID}"
 
 echo "[2/5] 模拟上游回调..."
 UPSTREAM_TRADE_NO="UP-E2E-$(date +%s)"
-NOTIFY_PARAMS_JSON="$(python3 - <<PY
-import json
-print(json.dumps({
-  "order_no": "${ORDER_NO}",
-  "paid_amount": int("${AMOUNT}"),
-  "upstream_trade_no": "${UPSTREAM_TRADE_NO}",
-  "channel_id": int("${CHANNEL_ID}")
-}))
-PY
-)"
-NOTIFY_SIGN="$(md5_sign "${CHANNEL_SIGN_SECRET}" "${NOTIFY_PARAMS_JSON}")"
-NOTIFY_BODY="$(python3 - "${NOTIFY_PARAMS_JSON}" "${NOTIFY_SIGN}" <<'PY'
-import json, sys
-p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
-print(json.dumps(p))
-PY
-)"
-
-NOTIFY_RESP="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/callback/notify" \
-  -H "Content-Type: application/json" \
-  -d "${NOTIFY_BODY}")"
-NOTIFY_OK="$(json_get "${NOTIFY_RESP}" "ok" || true)"
-if [[ "${NOTIFY_OK}" != "True" && "${NOTIFY_OK}" != "true" ]]; then
-  echo "notify failed: ${NOTIFY_RESP}"
-  exit 1
-fi
-echo "  notify ok"
+NOTIFY_RESP="$(notify_with_candidates "${ORDER_NO}" "${AMOUNT}" "${UPSTREAM_TRADE_NO}" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
+assert_notify "notify_paid_first" "${NOTIFY_RESP}" "True" ""
 
 echo "[3/5] 查单校验..."
 QUERY_PARAMS_JSON="$(python3 - <<PY
@@ -232,6 +301,24 @@ print("admin settlement logs ok")
 PY
 echo "  admin settlement logs ok"
 
+echo "[6/6] 回调状态矩阵..."
+REPLAY_OK_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "${UPSTREAM_TRADE_NO}" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
+assert_notify "notify_idempotent_replay" "${REPLAY_OK_RESP}" "True" "IDEMPOTENT_REPLAY_ACCEPTED"
+
+REPLAY_MISMATCH_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "UP-E2E-MISMATCH-$(date +%s)" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
+assert_notify "notify_replay_mismatch" "${REPLAY_MISMATCH_RESP}" "False" "REPLAY_PAYLOAD_MISMATCH"
+
+INVALID_SIGN_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "UP-E2E-BAD-SIGN-$(date +%s)" "${CHANNEL_ID}" "wrong_secret")"
+assert_notify "notify_invalid_sign" "${INVALID_SIGN_RESP}" "False" "INVALID_SIGN"
+
+NOT_FOUND_RESP="$(notify_request "P-NOT-FOUND-$(date +%s)" "${AMOUNT}" "UP-E2E-NOTFOUND-$(date +%s)" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
+assert_notify "notify_order_not_found" "${NOT_FOUND_RESP}" "False" "ORDER_NOT_FOUND"
+
+INVALID_PARAMS_RESP="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/callback/notify" \
+  -H "Content-Type: application/json" \
+  -d '{"order_no":"","paid_amount":0,"upstream_trade_no":"","channel_id":0,"sign":"x"}')"
+assert_notify "notify_invalid_params" "${INVALID_PARAMS_RESP}" "False" "INVALID_NOTIFY_PARAMS"
+
 echo
-echo "PASS: 收款主链路验证成功"
+echo "PASS: 收款主链路与回调状态矩阵验证成功"
 echo "order_no=${ORDER_NO}"
