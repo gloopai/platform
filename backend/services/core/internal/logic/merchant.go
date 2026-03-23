@@ -50,17 +50,16 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	}
 
 	rec := &store.Merchant{
-		MerchantId:            merchantId,
-		ApiSecret:             secret,
-		Status:                statusVal,
-		DefaultCollectRateBps: in.GetDefaultCollectRateBps(),
-		DefaultPayoutRateBps:  in.GetDefaultPayoutRateBps(),
-		IpWhitelist:           in.GetIpWhitelist(),
-		NotifyUrl:             in.GetNotifyUrl(),
-		ReturnUrl:             in.GetReturnUrl(),
-		Balance:               0,
-		CollectBalance:        0,
-		PayoutBalance:         0,
+		MerchantId:           merchantId,
+		ApiSecret:            secret,
+		Status:               statusVal,
+		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
+		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
+		IpWhitelist:          in.GetIpWhitelist(),
+		NotifyUrl:            in.GetNotifyUrl(),
+		ReturnUrl:            in.GetReturnUrl(),
+		PayinBalance:         0,
+		PayoutBalance:        0,
 	}
 	if err := l.svcCtx.Merchants.Create(l.ctx, rec); err != nil {
 		if strings.Contains(err.Error(), "Duplicate") {
@@ -70,7 +69,7 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	}
 
 	if len(in.GetPayProductIds()) > 0 {
-		grants := collectGrantsFromProductIDs(in.GetPayProductIds())
+		grants := payinGrantsFromProductIDs(in.GetPayProductIds())
 		if err := l.svcCtx.MerchantPayProducts.Replace(l.ctx, merchantId, grants); err != nil {
 			return nil, status.Error(codes.Internal, "save merchant pay products failed")
 		}
@@ -91,18 +90,18 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	}
 	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	cg, _ := l.svcCtx.MerchantPayProducts.ListCollectGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
-	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids, pids, cg, pg)}, nil
+	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids, pids, payinGrants, pg)}, nil
 }
 
-func collectGrantsFromProductIDs(ids []int64) []store.CollectGrant {
-	var out []store.CollectGrant
+func payinGrantsFromProductIDs(ids []int64) []store.PayinGrant {
+	var out []store.PayinGrant
 	for _, id := range ids {
 		if id <= 0 {
 			continue
 		}
-		out = append(out, store.CollectGrant{PayProductID: id, RateBps: nil})
+		out = append(out, store.PayinGrant{PayinProductID: id, RateBps: nil})
 	}
 	return out
 }
@@ -162,14 +161,14 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	}
 
 	rec := &store.Merchant{
-		MerchantId:            merchantId,
-		ApiSecret:             secret,
-		Status:                statusVal,
-		DefaultCollectRateBps: in.GetDefaultCollectRateBps(),
-		DefaultPayoutRateBps:  in.GetDefaultPayoutRateBps(),
-		IpWhitelist:           in.GetIpWhitelist(),
-		NotifyUrl:             in.GetNotifyUrl(),
-		ReturnUrl:             in.GetReturnUrl(),
+		MerchantId:           merchantId,
+		ApiSecret:            secret,
+		Status:               statusVal,
+		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
+		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
+		IpWhitelist:          in.GetIpWhitelist(),
+		NotifyUrl:            in.GetNotifyUrl(),
+		ReturnUrl:            in.GetReturnUrl(),
 	}
 	if err := l.svcCtx.Merchants.UpdateByMerchantId(l.ctx, merchantId, rec); err != nil {
 		return nil, err
@@ -181,9 +180,9 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	}
 	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	cg, _ := l.svcCtx.MerchantPayProducts.ListCollectGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
-	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated, ids, pids, cg, pg)}, nil
+	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated, ids, pids, payinGrants, pg)}, nil
 }
 
 type GetMerchantLogic struct {
@@ -214,10 +213,10 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 	}
 	ids, _ := l.svcCtx.MerchantPayProducts.ListProductIDs(l.ctx, merchantId)
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
-	cg, _ := l.svcCtx.MerchantPayProducts.ListCollectGrants(l.ctx, merchantId)
+	payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
 	return &merchantpb.GetMerchantResp{
-		Merchant: toMerchantInfo(m, ids, pids, cg, pg),
+		Merchant: toMerchantInfo(m, ids, pids, payinGrants, pg),
 	}, nil
 }
 
@@ -248,16 +247,15 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		return nil, err
 	}
 	return &merchantpb.GetAuthInfoResp{
-		ApiSecret:             m.ApiSecret,
-		Status:                m.Status,
-		IpWhitelist:           m.IpWhitelist,
-		NotifyUrl:             m.NotifyUrl,
-		ReturnUrl:             m.ReturnUrl,
-		Balance:               m.CollectBalance,
-		CollectBalance:        m.CollectBalance,
-		PayoutBalance:         m.PayoutBalance,
-		DefaultCollectRateBps: m.DefaultCollectRateBps,
-		DefaultPayoutRateBps:  m.DefaultPayoutRateBps,
+		ApiSecret:            m.ApiSecret,
+		Status:               m.Status,
+		IpWhitelist:          m.IpWhitelist,
+		NotifyUrl:            m.NotifyUrl,
+		ReturnUrl:            m.ReturnUrl,
+		PayinBalance:         m.PayinBalance,
+		PayoutBalance:        m.PayoutBalance,
+		DefaultPayinRateBps:  m.DefaultPayinRateBps,
+		DefaultPayoutRateBps: m.DefaultPayoutRateBps,
 	}, nil
 }
 
@@ -291,9 +289,9 @@ func (l *ListMerchantsLogic) ListMerchants(in *merchantpb.ListMerchantsReq) (*me
 		if err != nil {
 			return nil, status.Error(codes.Internal, "load merchant payout products failed")
 		}
-		cg, _ := l.svcCtx.MerchantPayProducts.ListCollectGrants(l.ctx, m.MerchantId)
+		payinGrants, _ := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, m.MerchantId)
 		pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, m.MerchantId)
-		out = append(out, toMerchantInfo(&m, ids, pids, cg, pg))
+		out = append(out, toMerchantInfo(&m, ids, pids, payinGrants, pg))
 	}
 	return &merchantpb.ListMerchantsResp{Merchants: out}, nil
 }
@@ -306,13 +304,13 @@ func newSecret() (string, error) {
 	return hex.EncodeToString(b[:]), nil
 }
 
-func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, cg []store.CollectGrant, pg []store.PayoutGrant) *merchantpb.MerchantInfo {
+func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, payinGrants []store.PayinGrant, pg []store.PayoutGrant) *merchantpb.MerchantInfo {
 	if m == nil {
 		return nil
 	}
-	pbCG := make([]*merchantpb.MerchantCollectGrant, 0, len(cg))
-	for _, g := range cg {
-		row := &merchantpb.MerchantCollectGrant{PayProductId: g.PayProductID}
+	pbCG := make([]*merchantpb.MerchantPayinGrant, 0, len(payinGrants))
+	for _, g := range payinGrants {
+		row := &merchantpb.MerchantPayinGrant{PayProductId: g.PayinProductID}
 		if g.RateBps != nil {
 			v := *g.RateBps
 			row.MerchantRateBps = &v
@@ -337,22 +335,21 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		pbPG = append(pbPG, row)
 	}
 	return &merchantpb.MerchantInfo{
-		MerchantId:            m.MerchantId,
-		ApiSecret:             m.ApiSecret,
-		Status:                m.Status,
-		DefaultCollectRateBps: m.DefaultCollectRateBps,
-		DefaultPayoutRateBps:  m.DefaultPayoutRateBps,
-		IpWhitelist:           m.IpWhitelist,
-		Balance:               m.CollectBalance,
-		CollectBalance:        m.CollectBalance,
-		PayoutBalance:         m.PayoutBalance,
-		FrozenBalance:         m.FrozenBalance,
-		WithdrawnAmount:       m.WithdrawnAmount,
-		NotifyUrl:             m.NotifyUrl,
-		ReturnUrl:             m.ReturnUrl,
-		PayProductIds:         payProductIds,
-		PayoutProductIds:      payoutProductIds,
-		CollectGrants:         pbCG,
-		PayoutGrants:          pbPG,
+		MerchantId:           m.MerchantId,
+		ApiSecret:            m.ApiSecret,
+		Status:               m.Status,
+		DefaultPayinRateBps:  m.DefaultPayinRateBps,
+		DefaultPayoutRateBps: m.DefaultPayoutRateBps,
+		IpWhitelist:          m.IpWhitelist,
+		PayinBalance:         m.PayinBalance,
+		PayoutBalance:        m.PayoutBalance,
+		FrozenBalance:        m.FrozenBalance,
+		WithdrawnAmount:      m.WithdrawnAmount,
+		NotifyUrl:            m.NotifyUrl,
+		ReturnUrl:            m.ReturnUrl,
+		PayProductIds:        payProductIds,
+		PayoutProductIds:     payoutProductIds,
+		PayinGrants:          pbCG,
+		PayoutGrants:         pbPG,
 	}
 }

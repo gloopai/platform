@@ -29,9 +29,9 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 		MaxAmount:              c.MaxAmount,
 		Enabled:                c.Enabled,
 		FuseEnabled:            c.FuseEnabled,
-		SupportsCollect:        c.SupportsCollect,
+		SupportsPayin:          c.SupportsPayin,
 		SupportsPayout:         c.SupportsPayout,
-		UpstreamCollectRateBps: c.UpstreamCollectRateBps,
+		UpstreamPayinRateBps:   c.UpstreamPayinRateBps,
 		UpstreamPayoutRateBps:  c.UpstreamPayoutRateBps,
 		UpstreamPayoutFeeMode:  c.UpstreamPayoutFeeMode,
 		UpstreamPayoutFixedFee: c.UpstreamPayoutFixedFee,
@@ -59,9 +59,9 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 		MaxAmount:              req.GetMaxAmount(),
 		Enabled:                req.GetEnabled(),
 		FuseEnabled:            req.GetFuseEnabled(),
-		SupportsCollect:        req.GetSupportsCollect(),
+		SupportsPayin:          req.GetSupportsPayin(),
 		SupportsPayout:         req.GetSupportsPayout(),
-		UpstreamCollectRateBps: req.GetUpstreamCollectRateBps(),
+		UpstreamPayinRateBps:   req.GetUpstreamPayinRateBps(),
 		UpstreamPayoutRateBps:  req.GetUpstreamPayoutRateBps(),
 		UpstreamPayoutFeeMode:  feeMode,
 		UpstreamPayoutFixedFee: fixedFee,
@@ -160,16 +160,16 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 		return nil, err
 	}
 	return &channelpb.GetRoutingSummaryResp{
-		AlgorithmKey:                  "weighted_random_within_product",
-		AlgorithmLabel:                "支付产品内加权随机（同产品多上游按权重分流）",
-		EnabledPayProducts:            rs.EnabledPayProducts,
-		EnabledPayoutProducts:         rs.EnabledPayoutProducts,
-		EnabledChannels:               rs.EnabledChannels,
-		ActiveBindings:                rs.ActiveBindings,
-		ActivePayoutBindings:          rs.ActivePayoutBindings,
-		MerchantsWithCollectWhitelist: rs.MerchantsWithCollectWhitelist,
-		MerchantsWithPayoutWhitelist:  rs.MerchantsWithPayoutWhitelist,
-		FusedChannels:                 rs.FusedChannels,
+		AlgorithmKey:                 "weighted_random_within_product",
+		AlgorithmLabel:               "支付产品内加权随机（同产品多上游按权重分流）",
+		EnabledPayProducts:           rs.EnabledPayProducts,
+		EnabledPayoutProducts:        rs.EnabledPayoutProducts,
+		EnabledChannels:              rs.EnabledChannels,
+		ActiveBindings:               rs.ActiveBindings,
+		ActivePayoutBindings:         rs.ActivePayoutBindings,
+		MerchantsWithPayinWhitelist:  rs.MerchantsWithPayinWhitelist,
+		MerchantsWithPayoutWhitelist: rs.MerchantsWithPayoutWhitelist,
+		FusedChannels:                rs.FusedChannels,
 	}, nil
 }
 
@@ -324,12 +324,12 @@ func (s *ChannelServer) AdminUpsertPayProductBinding(ctx context.Context, req *c
 	if !ok {
 		return nil, status.Error(codes.NotFound, "channel not found")
 	}
-	sup, err := s.svcCtx.PayProducts.AdminChannelSupportsCollect(ctx, req.GetChannelId())
+	sup, err := s.svcCtx.PayProducts.AdminChannelSupportsPayin(ctx, req.GetChannelId())
 	if err != nil {
 		return nil, err
 	}
 	if !sup {
-		return nil, status.Error(codes.FailedPrecondition, "channel does not support collect")
+		return nil, status.Error(codes.FailedPrecondition, "channel does not support payin")
 	}
 	bid, err := s.svcCtx.PayProducts.AdminUpsertBinding(ctx, req.GetPayProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {

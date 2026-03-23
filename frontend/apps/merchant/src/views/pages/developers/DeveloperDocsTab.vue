@@ -22,23 +22,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { marked } from 'marked'
-import createCollectOrderDoc from '@/devdocs/create-collect-order.md?raw'
+import createPayinOrderDoc from '@/devdocs/create-payin-order.md?raw'
 import createPayoutOrderDoc from '@/devdocs/create-payout-order.md?raw'
-import queryCollectOrderDoc from '@/devdocs/query-collect-order.md?raw'
+import queryPayinOrderDoc from '@/devdocs/query-payin-order.md?raw'
 import queryPayoutOrderDoc from '@/devdocs/query-payout-order.md?raw'
 import errorCodesDoc from '@/devdocs/error-codes.md?raw'
 import signingDoc from '@/devdocs/signing.md?raw'
 
 const docs = [
-  { key: 'create-collect', label: '创建代收', path: 'src/devdocs/create-collect-order.md', content: createCollectOrderDoc },
+  { key: 'create-payin', label: '创建代收', path: 'src/devdocs/create-payin-order.md', content: createPayinOrderDoc },
   { key: 'create-payout', label: '创建代付', path: 'src/devdocs/create-payout-order.md', content: createPayoutOrderDoc },
-  { key: 'query-collect', label: '查询代收状态', path: 'src/devdocs/query-collect-order.md', content: queryCollectOrderDoc },
+  { key: 'query-payin', label: '查询代收状态', path: 'src/devdocs/query-payin-order.md', content: queryPayinOrderDoc },
   { key: 'query-payout', label: '查询代付状态', path: 'src/devdocs/query-payout-order.md', content: queryPayoutOrderDoc },
   { key: 'error-codes', label: '错误码', path: 'src/devdocs/error-codes.md', content: errorCodesDoc },
   { key: 'signing', label: '接口签名', path: 'src/devdocs/signing.md', content: signingDoc },
 ] as const
 
-const activeKey = ref<(typeof docs)[number]['key']>('create-collect')
+const activeKey = ref<(typeof docs)[number]['key']>('create-payin')
 const activeDoc = computed(() => docs.find((x) => x.key === activeKey.value) || docs[0])
 const activeHtml = computed(() => marked.parse(activeDoc.value.content, { breaks: true }) as string)
 </script>

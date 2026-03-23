@@ -1,7 +1,7 @@
 -- 停机窗口执行：订单主表拆分为代收/代付
 START TRANSACTION;
 
-CREATE TABLE IF NOT EXISTS pay_orders LIKE orders;
+CREATE TABLE IF NOT EXISTS payin_orders LIKE orders;
 CREATE TABLE IF NOT EXISTS payout_orders (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   order_no VARCHAR(64) NOT NULL,
@@ -30,14 +30,14 @@ CREATE TABLE IF NOT EXISTS payout_orders (
   KEY idx_status_updated (status, updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO pay_orders (
+INSERT INTO payin_orders (
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
-  pay_product_id, pay_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps,
+  payin_product_id, payin_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps,
   fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
 )
 SELECT
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
-  pay_product_id, pay_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps,
+  payin_product_id, payin_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps,
   fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
 FROM orders
 ON DUPLICATE KEY UPDATE

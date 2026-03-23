@@ -30,7 +30,7 @@ const cells = computed(() => {
     { label: '上游通道（启用）', value: s ? s.enabled_channels : dash },
     { label: '代收绑定（启用）', value: s ? s.active_bindings : dash },
     { label: '代付绑定（启用）', value: s ? s.active_payout_bindings : dash },
-    { label: '代收白名单商户', value: s ? s.merchants_with_collect_whitelist : dash },
+    { label: '代收白名单商户', value: s ? s.merchants_with_payin_whitelist : dash },
     { label: '代付白名单商户', value: s ? s.merchants_with_payout_whitelist : dash },
     { label: '熔断中的通道', value: s ? s.fused_channels : dash },
   ]

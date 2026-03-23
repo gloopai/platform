@@ -9,7 +9,7 @@
           <p class="mt-1 text-xs text-slate-500">展示余额变更记录（fund_logs）</p>
         </div>
         <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-          代收余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.collect_balance ?? summary?.balance ?? 0) }}</span>
+          代收余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.payin_balance ?? 0) }}</span>
           <span class="mx-2 text-slate-400">|</span>
           代付余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.payout_balance ?? 0) }}</span>
         </div>
@@ -113,7 +113,7 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import MerchantPaginationBar from '@/components/ui/MerchantPaginationBar.vue'
 import { useClientPagination } from '@/composables/useClientPagination'
-import { fetchMerchantFundLogs, transferCollectToPayout } from '@/api/finance'
+import { fetchMerchantFundLogs, transferPayinToPayout } from '@/api/finance'
 import { fetchMerchantSummary } from '@/api/console'
 import { merchantDisplaySettings } from '@/lib/displaySettings'
 import type { MerchantFundLogItem } from '@/types/merchant.api'
@@ -123,7 +123,7 @@ const logs = ref<MerchantFundLogItem[]>([])
 const { page, pageSize, total, pageCount, slice: pagedLogs } = useClientPagination(logs, 20)
 const loading = ref(false)
 const error = ref('')
-const summary = ref<{ balance: number; collect_balance?: number; payout_balance?: number } | null>(null)
+const summary = ref<{ payin_balance?: number; payout_balance?: number } | null>(null)
 const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
 const transferAmount = ref(0)
 const transferLoading = ref(false)
@@ -159,8 +159,8 @@ async function submitTransfer() {
   transferMessage.value = ''
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
-    const resp = await transferCollectToPayout(amountCent)
-    transferMessage.value = `划转成功：代收余额 ${formatAmount(resp.collect_balance)}，代付余额 ${formatAmount(resp.payout_balance)}`
+    const resp = await transferPayinToPayout(amountCent)
+    transferMessage.value = `划转成功：代收余额 ${formatAmount(resp.payin_balance)}，代付余额 ${formatAmount(resp.payout_balance)}`
     transferAmount.value = 0
     await reload()
   } catch {

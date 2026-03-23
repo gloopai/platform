@@ -309,7 +309,7 @@ print(json.dumps(p))
 PY
 )"
   local create_resp
-  create_resp="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/pay/order" -H "Content-Type: application/json" -d "${create_body}")"
+  create_resp="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payin/order" -H "Content-Type: application/json" -d "${create_body}")"
   local order_no
   local channel_id
   order_no="$(json_get "${create_resp}" "order_no")"
@@ -351,7 +351,7 @@ print(urllib.parse.urlencode(p))
 PY
 )"
   local query_resp
-  query_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/pay/query?${query_url}")"
+  query_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/payin/query?${query_url}")"
   local query_status
   local query_paid_amount
   local query_fee_rate_bps
@@ -388,7 +388,7 @@ PY
 
   echo "[4/6] 管理台接口校验订单视图..."
   local admin_orders_resp
-  admin_orders_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/pay_orders?merchant_id=${merchant_id}&keyword=${order_no}&limit=20" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
+  admin_orders_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/payin_orders?merchant_id=${merchant_id}&keyword=${order_no}&limit=20" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
   verify_admin_order "${admin_orders_resp}" "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${expect_fee_rate_bps}"
 
   echo "[5/6] 管理台接口校验资金流水..."

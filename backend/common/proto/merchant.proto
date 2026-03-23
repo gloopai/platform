@@ -15,7 +15,7 @@ service Merchant {
   rpc ListMerchantPayoutProductIds(ListMerchantPayoutProductIdsReq) returns (ListMerchantPayoutProductIdsResp);
 }
 
-message MerchantCollectGrant {
+message MerchantPayinGrant {
   int64 pay_product_id = 1;
   optional int64 merchant_rate_bps = 2;
 }
@@ -31,19 +31,19 @@ message MerchantInfo {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 default_collect_rate_bps = 4;
+  int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
   string ip_whitelist = 6;
   int64 balance = 7;
   int64 frozen_balance = 8;
   int64 withdrawn_amount = 9;
-  int64 collect_balance = 16;
+  int64 payin_balance = 16;
   int64 payout_balance = 17;
   string notify_url = 10;
   string return_url = 11;
   repeated int64 pay_product_ids = 12;
   repeated int64 payout_product_ids = 13;
-  repeated MerchantCollectGrant collect_grants = 14;
+  repeated MerchantPayinGrant payin_grants = 14;
   repeated MerchantPayoutGrant payout_grants = 15;
 }
 
@@ -66,9 +66,9 @@ message GetAuthInfoResp {
   string notify_url = 4;
   string return_url = 5;
   int64 balance = 6;
-  int64 default_collect_rate_bps = 7;
+  int64 default_payin_rate_bps = 7;
   int64 default_payout_rate_bps = 8;
-  int64 collect_balance = 9;
+  int64 payin_balance = 9;
   int64 payout_balance = 10;
 }
 
@@ -84,7 +84,7 @@ message CreateMerchantReq {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 default_collect_rate_bps = 4;
+  int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
   string notify_url = 6;
   string return_url = 7;
@@ -97,7 +97,7 @@ message UpdateMerchantReq {
   string merchant_id = 1;
   string api_secret = 2;
   int64 status = 3;
-  int64 default_collect_rate_bps = 4;
+  int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
   string notify_url = 6;
   string return_url = 7;
@@ -110,7 +110,7 @@ message UpsertMerchantResp {
 
 message ReplaceMerchantPayProductsReq {
   string merchant_id = 1;
-  repeated MerchantCollectGrant grants = 2;
+  repeated MerchantPayinGrant grants = 2;
 }
 
 message ReplaceMerchantPayProductsResp {
@@ -131,7 +131,7 @@ message ListMerchantPayProductIdsReq {
 }
 
 message ListMerchantPayProductIdsResp {
-  repeated MerchantCollectGrant grants = 1;
+  repeated MerchantPayinGrant grants = 1;
 }
 
 message ListMerchantPayoutProductIdsReq {

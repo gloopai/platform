@@ -27,12 +27,12 @@ func (l *ReplaceMerchantPayProductsLogic) ReplaceMerchantPayProducts(in *merchan
 	if mid == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	var grants []store.CollectGrant
+	var grants []store.PayinGrant
 	for _, g := range in.GetGrants() {
 		if g == nil || g.GetPayProductId() <= 0 {
 			continue
 		}
-		cg := store.CollectGrant{PayProductID: g.GetPayProductId()}
+		cg := store.PayinGrant{PayinProductID: g.GetPayProductId()}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			cg.RateBps = &v
@@ -56,13 +56,13 @@ func NewListMerchantPayProductIdsLogic(ctx context.Context, svcCtx *svc.ServiceC
 }
 
 func (l *ListMerchantPayProductIdsLogic) ListMerchantPayProductIds(in *merchantpb.ListMerchantPayProductIdsReq) (*merchantpb.ListMerchantPayProductIdsResp, error) {
-	grants, err := l.svcCtx.MerchantPayProducts.ListCollectGrants(l.ctx, in.GetMerchantId())
+	grants, err := l.svcCtx.MerchantPayProducts.ListPayinGrants(l.ctx, in.GetMerchantId())
 	if err != nil {
 		return nil, err
 	}
-	out := make([]*merchantpb.MerchantCollectGrant, 0, len(grants))
+	out := make([]*merchantpb.MerchantPayinGrant, 0, len(grants))
 	for _, g := range grants {
-		row := &merchantpb.MerchantCollectGrant{PayProductId: g.PayProductID}
+		row := &merchantpb.MerchantPayinGrant{PayProductId: g.PayinProductID}
 		if g.RateBps != nil {
 			v := *g.RateBps
 			row.MerchantRateBps = &v

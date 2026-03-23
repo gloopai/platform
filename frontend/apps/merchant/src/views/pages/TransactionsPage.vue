@@ -89,7 +89,7 @@
                   v-if="payProductShowCodeLine(o)"
                   class="mt-0.5 font-mono text-xs text-slate-500"
                 >
-                  {{ o.pay_product_code }}
+                  {{ o.payin_product_code }}
                 </div>
               </td>
               <td class="px-4 py-3 align-top text-slate-700">{{ o.upstream_trade_no || '—' }}</td>
@@ -184,7 +184,7 @@
                           v-if="detail?.order && payProductShowCodeLine(detail.order)"
                           class="mt-0.5 font-mono text-xs text-slate-600"
                         >
-                          {{ detail.order.pay_product_code }}
+                          {{ detail.order.payin_product_code }}
                         </div>
                       </div>
                       <div class="col-span-12">
@@ -256,11 +256,11 @@ import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLa
 const props = withDefaults(defineProps<{
   title?: string
   description?: string
-  mode?: 'collect' | 'payout'
+  mode?: 'payin' | 'payout'
 }>(), {
   title: '交易管理',
   description: '查询订单、查看回调记录并重发通知',
-  mode: 'collect',
+  mode: 'payin',
 })
 
 const keyword = ref('')
@@ -286,16 +286,16 @@ function formatTime(ts: number) {
 
 function payProductPrimary(o: MerchantOrderItem | MerchantOrderDetail | null | undefined) {
   if (!o) return '—'
-  const name = o.pay_product_name?.trim()
-  const code = o.pay_product_code?.trim()
+  const name = o.payin_product_name?.trim()
+  const code = o.payin_product_code?.trim()
   if (name) return name
   if (code) return code
   return '—'
 }
 
 function payProductShowCodeLine(o: MerchantOrderItem | MerchantOrderDetail) {
-  const name = o.pay_product_name?.trim()
-  const code = o.pay_product_code?.trim()
+  const name = o.payin_product_name?.trim()
+  const code = o.payin_product_code?.trim()
   return !!(name && code && name !== code)
 }
 

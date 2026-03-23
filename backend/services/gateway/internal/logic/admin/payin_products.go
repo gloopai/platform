@@ -12,22 +12,22 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// AdminPayProducts 管理后台支付产品定义及其与通道的绑定关系。
-type AdminPayProducts struct {
+// AdminPayinProducts 管理后台支付产品定义及其与通道的绑定关系。
+type AdminPayinProducts struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewAdminPayProducts(ctx context.Context, svcCtx *svc.ServiceContext) *AdminPayProducts {
-	return &AdminPayProducts{
+func NewAdminPayinProducts(ctx context.Context, svcCtx *svc.ServiceContext) *AdminPayinProducts {
+	return &AdminPayinProducts{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (p *AdminPayProducts) AdminListPayProducts() (*types.AdminListPayProductsResp, error) {
+func (p *AdminPayinProducts) AdminListPayProducts() (*types.AdminListPayProductsResp, error) {
 	r, err := p.svcCtx.ChannelRpc.AdminListPayProducts(p.ctx, &channelpb.AdminListPayProductsReq{})
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (p *AdminPayProducts) AdminListPayProducts() (*types.AdminListPayProductsRe
 	return &types.AdminListPayProductsResp{Products: out}, nil
 }
 
-func (p *AdminPayProducts) AdminCreatePayProduct(req *types.AdminCreatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
+func (p *AdminPayinProducts) AdminCreatePayProduct(req *types.AdminCreatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
 	code := strings.TrimSpace(req.Code)
 	name := strings.TrimSpace(req.Name)
 	if code == "" {
@@ -68,7 +68,7 @@ func (p *AdminPayProducts) AdminCreatePayProduct(req *types.AdminCreatePayProduc
 	}, nil
 }
 
-func (p *AdminPayProducts) AdminUpdatePayProduct(req *types.AdminUpdatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
+func (p *AdminPayinProducts) AdminUpdatePayProduct(req *types.AdminUpdatePayProductReq) (*types.AdminUpsertPayProductResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -91,7 +91,7 @@ func (p *AdminPayProducts) AdminUpdatePayProduct(req *types.AdminUpdatePayProduc
 	}, nil
 }
 
-func (p *AdminPayProducts) AdminListPayProductBindings(req *types.AdminListPayProductBindingsReq) (*types.AdminListPayProductBindingsResp, error) {
+func (p *AdminPayinProducts) AdminListPayProductBindings(req *types.AdminListPayProductBindingsReq) (*types.AdminListPayProductBindingsResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -115,7 +115,7 @@ func (p *AdminPayProducts) AdminListPayProductBindings(req *types.AdminListPayPr
 	return &types.AdminListPayProductBindingsResp{Bindings: out}, nil
 }
 
-func (p *AdminPayProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPayProductBindingReq) (*types.AdminUpsertPayProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPayProductBindingReq) (*types.AdminUpsertPayProductBindingResp, error) {
 	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayProductBinding(p.ctx, &channelpb.AdminUpsertPayProductBindingReq{
 		PayProductId: req.PayProductId,
 		ChannelId:    req.ChannelId,
@@ -133,7 +133,7 @@ func (p *AdminPayProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPa
 	return &types.AdminUpsertPayProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePayProductBindingReq) (*types.AdminUpdatePayProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePayProductBindingReq) (*types.AdminUpdatePayProductBindingResp, error) {
 	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayProductBinding(p.ctx, &channelpb.AdminUpdatePayProductBindingReq{
 		Id: req.Id, Weight: req.Weight, Enabled: req.Enabled,
 	})
@@ -148,7 +148,7 @@ func (p *AdminPayProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePa
 	return &types.AdminUpdatePayProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayProducts) AdminDeletePayProductBinding(req *types.AdminDeletePayProductBindingReq) (*types.AdminDeletePayProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminDeletePayProductBinding(req *types.AdminDeletePayProductBindingReq) (*types.AdminDeletePayProductBindingResp, error) {
 	_, err := p.svcCtx.ChannelRpc.AdminDeletePayProductBinding(p.ctx, &channelpb.AdminDeletePayProductBindingReq{Id: req.Id})
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (p *AdminPayProducts) AdminDeletePayProductBinding(req *types.AdminDeletePa
 	return &types.AdminDeletePayProductBindingResp{Ok: true}, nil
 }
 
-func (p *AdminPayProducts) AdminListPayoutProducts() (*types.AdminListPayoutProductsResp, error) {
+func (p *AdminPayinProducts) AdminListPayoutProducts() (*types.AdminListPayoutProductsResp, error) {
 	r, err := p.svcCtx.ChannelRpc.AdminListPayoutProducts(p.ctx, &channelpb.AdminListPayoutProductsReq{})
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (p *AdminPayProducts) AdminListPayoutProducts() (*types.AdminListPayoutProd
 	return &types.AdminListPayoutProductsResp{Products: out}, nil
 }
 
-func (p *AdminPayProducts) AdminCreatePayoutProduct(req *types.AdminCreatePayoutProductReq) (*types.AdminUpsertPayoutProductResp, error) {
+func (p *AdminPayinProducts) AdminCreatePayoutProduct(req *types.AdminCreatePayoutProductReq) (*types.AdminUpsertPayoutProductResp, error) {
 	code := strings.TrimSpace(req.Code)
 	name := strings.TrimSpace(req.Name)
 	if code == "" || name == "" {
@@ -190,7 +190,7 @@ func (p *AdminPayProducts) AdminCreatePayoutProduct(req *types.AdminCreatePayout
 	}, nil
 }
 
-func (p *AdminPayProducts) AdminUpdatePayoutProduct(req *types.AdminUpdatePayoutProductReq) (*types.AdminUpsertPayoutProductResp, error) {
+func (p *AdminPayinProducts) AdminUpdatePayoutProduct(req *types.AdminUpdatePayoutProductReq) (*types.AdminUpsertPayoutProductResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -213,7 +213,7 @@ func (p *AdminPayProducts) AdminUpdatePayoutProduct(req *types.AdminUpdatePayout
 	}, nil
 }
 
-func (p *AdminPayProducts) AdminListPayoutProductBindings(req *types.AdminListPayoutProductBindingsReq) (*types.AdminListPayoutProductBindingsResp, error) {
+func (p *AdminPayinProducts) AdminListPayoutProductBindings(req *types.AdminListPayoutProductBindingsReq) (*types.AdminListPayoutProductBindingsResp, error) {
 	if req.Id <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
@@ -233,7 +233,7 @@ func (p *AdminPayProducts) AdminListPayoutProductBindings(req *types.AdminListPa
 	return &types.AdminListPayoutProductBindingsResp{Bindings: out}, nil
 }
 
-func (p *AdminPayProducts) AdminUpsertPayoutProductBinding(req *types.AdminUpsertPayoutProductBindingReq) (*types.AdminUpsertPayoutProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminUpsertPayoutProductBinding(req *types.AdminUpsertPayoutProductBindingReq) (*types.AdminUpsertPayoutProductBindingResp, error) {
 	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayoutProductBinding(p.ctx, &channelpb.AdminUpsertPayoutProductBindingReq{
 		PayoutProductId: req.PayoutProductId,
 		ChannelId:       req.ChannelId,
@@ -251,7 +251,7 @@ func (p *AdminPayProducts) AdminUpsertPayoutProductBinding(req *types.AdminUpser
 	return &types.AdminUpsertPayoutProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayProducts) AdminUpdatePayoutProductBinding(req *types.AdminUpdatePayoutProductBindingReq) (*types.AdminUpdatePayoutProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminUpdatePayoutProductBinding(req *types.AdminUpdatePayoutProductBindingReq) (*types.AdminUpdatePayoutProductBindingResp, error) {
 	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayoutProductBinding(p.ctx, &channelpb.AdminUpdatePayoutProductBindingReq{
 		Id: req.Id, Weight: req.Weight, Enabled: req.Enabled,
 	})
@@ -266,11 +266,10 @@ func (p *AdminPayProducts) AdminUpdatePayoutProductBinding(req *types.AdminUpdat
 	return &types.AdminUpdatePayoutProductBindingResp{Binding: bi}, nil
 }
 
-func (p *AdminPayProducts) AdminDeletePayoutProductBinding(req *types.AdminDeletePayoutProductBindingReq) (*types.AdminDeletePayoutProductBindingResp, error) {
+func (p *AdminPayinProducts) AdminDeletePayoutProductBinding(req *types.AdminDeletePayoutProductBindingReq) (*types.AdminDeletePayoutProductBindingResp, error) {
 	_, err := p.svcCtx.ChannelRpc.AdminDeletePayoutProductBinding(p.ctx, &channelpb.AdminDeletePayoutProductBindingReq{Id: req.Id})
 	if err != nil {
 		return nil, err
 	}
 	return &types.AdminDeletePayoutProductBindingResp{Ok: true}, nil
 }
-

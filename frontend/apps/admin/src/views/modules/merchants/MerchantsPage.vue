@@ -43,7 +43,7 @@
               class="border-b border-slate-100 transition hover:bg-slate-50/80"
             >
               <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
-              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.collect_balance ?? m.balance) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payin_balance) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payout_balance ?? 0) }}</td>
               <td class="px-4 py-3">
                 <span
@@ -130,18 +130,18 @@
           />
         </div>
 
-        <div v-show="rightTab === 'bindings_collect'" role="tabpanel">
+        <div v-show="rightTab === 'bindings_payin'" role="tabpanel">
           <MerchantPayProductsCard
             v-if="!isNew && selectedMerchant"
             embedded
-            :grants="selectedMerchant.collect_grants || []"
+            :grants="selectedMerchant.payin_grants || []"
             :catalog="payProducts"
             :loading="loadingProducts"
             :saving="bindingSaving"
             :bind-error="bindError"
-            @remove="removePayProduct"
-            @add="addPayProduct"
-            @update="updateCollectGrant"
+            @remove="removePayinProduct"
+            @add="addPayinProduct"
+            @update="updatePayinGrant"
           />
           <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
             请先保存商户基本信息后再配置代收产品。
@@ -205,7 +205,7 @@
         </div>
         <div class="space-y-3 px-5 py-4">
           <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            <div>当前代收：{{ formatMoney(transferTargetMerchant?.collect_balance ?? transferTargetMerchant?.balance ?? 0) }}</div>
+            <div>当前代收：{{ formatMoney(transferTargetMerchant?.payin_balance ?? 0) }}</div>
             <div class="mt-1">当前代付：{{ formatMoney(transferTargetMerchant?.payout_balance ?? 0) }}</div>
           </div>
           <label class="grid gap-1">
@@ -251,7 +251,7 @@ import MerchantFormCard from './MerchantFormCard.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
 import MerchantPayoutProductsCard from './MerchantPayoutProductsCard.vue'
 import MerchantsHeader from './MerchantsHeader.vue'
-import type { AdminMerchantInfo, MerchantCollectGrant, MerchantForm, MerchantPayoutGrant, PayProductRow } from './types'
+import type { AdminMerchantInfo, MerchantForm, MerchantPayinGrant, MerchantPayoutGrant, PayProductRow } from './types'
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
@@ -275,13 +275,13 @@ const merchants = ref<AdminMerchantInfo[]>([])
 const payProducts = ref<PayProductRow[]>([])
 const payoutProducts = ref<PayProductRow[]>([])
 const selectedMerchantId = ref<string | null>(null)
-const rightTab = ref<'basic' | 'bindings_collect' | 'bindings_payout'>('basic')
+const rightTab = ref<'basic' | 'bindings_payin' | 'bindings_payout'>('basic')
 const drawerOpen = ref(false)
 const searchQuery = ref('')
 
 const detailTabs = [
   { key: 'basic' as const, label: '基本信息' },
-  { key: 'bindings_collect' as const, label: '代收产品' },
+  { key: 'bindings_payin' as const, label: '代收产品' },
   { key: 'bindings_payout' as const, label: '代付产品' },
 ]
 
@@ -345,16 +345,16 @@ function normalizedPayoutGrants(m: AdminMerchantInfo): MerchantPayoutGrant[] {
   }))
 }
 
-function normalizedCollectGrants(m: AdminMerchantInfo): MerchantCollectGrant[] {
-  const grants = m.collect_grants || []
+function normalizedPayinGrants(m: AdminMerchantInfo): MerchantPayinGrant[] {
+  const grants = m.payin_grants || []
   if (grants.length > 0) {
     return grants.map((g) => ({
-      pay_product_id: g.pay_product_id,
+      payin_product_id: g.payin_product_id,
       merchant_rate_bps: g.merchant_rate_bps ?? 0,
     }))
   }
-  return (m.pay_product_ids || []).map((id) => ({
-    pay_product_id: id,
+  return (m.payin_product_ids || []).map((id) => ({
+    payin_product_id: id,
     merchant_rate_bps: 0,
   }))
 }
@@ -393,7 +393,7 @@ function openNew() {
 async function loadPayProducts() {
   loadingProducts.value = true
   try {
-    const res = await adminGet<{ products: PayProductRow[] }>('/v1/admin/pay_products')
+    const res = await adminGet<{ products: PayProductRow[] }>('/v1/admin/payin_products')
     payProducts.value = res.products || []
   } catch {
     payProducts.value = []
@@ -441,12 +441,12 @@ async function saveForm() {
       const resp = await adminPost<{ merchant: AdminMerchantInfo }>('/v1/admin/merchants', {
         merchant_id: form.value.merchant_id.trim(),
         api_secret: form.value.api_secret,
-        default_collect_rate_bps: 0,
+        default_payin_rate_bps: 0,
         default_payout_rate_bps: 0,
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
-        pay_product_ids: [],
+        payin_product_ids: [],
         payout_product_ids: [],
       })
       const row = resp.merchant
@@ -459,12 +459,12 @@ async function saveForm() {
       const mid = selectedMerchant.value!.merchant_id
       const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(mid)}`, {
         status: form.value.status,
-        default_collect_rate_bps: selectedMerchant.value!.default_collect_rate_bps,
+        default_payin_rate_bps: selectedMerchant.value!.default_payin_rate_bps,
         default_payout_rate_bps: selectedMerchant.value!.default_payout_rate_bps,
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
-        collect_grants: normalizedCollectGrants(selectedMerchant.value!),
+        payin_grants: normalizedPayinGrants(selectedMerchant.value!),
         payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
       })
       const row = resp.merchant
@@ -489,12 +489,12 @@ async function toggleLock() {
     const target = m.status === 1 ? 0 : 1
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
       status: target,
-      default_collect_rate_bps: m.default_collect_rate_bps,
+      default_payin_rate_bps: m.default_payin_rate_bps,
       default_payout_rate_bps: m.default_payout_rate_bps,
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      collect_grants: normalizedCollectGrants(m),
+      payin_grants: normalizedPayinGrants(m),
       payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
@@ -518,12 +518,12 @@ async function resetSecret() {
       {
         reset_secret: true,
         status: m.status,
-        default_collect_rate_bps: m.default_collect_rate_bps,
+        default_payin_rate_bps: m.default_payin_rate_bps,
         default_payout_rate_bps: m.default_payout_rate_bps,
         notify_url: m.notify_url,
         return_url: m.return_url,
         ip_whitelist: m.ip_whitelist,
-        collect_grants: normalizedCollectGrants(m),
+        payin_grants: normalizedPayinGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
     )
@@ -538,7 +538,7 @@ async function resetSecret() {
   }
 }
 
-async function persistPayProducts(newGrants: MerchantCollectGrant[]) {
+async function persistPayinProducts(newGrants: MerchantPayinGrant[]) {
   const m = selectedMerchant.value
   if (!m) return
   bindingSaving.value = true
@@ -546,12 +546,12 @@ async function persistPayProducts(newGrants: MerchantCollectGrant[]) {
   try {
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
       status: m.status,
-      default_collect_rate_bps: m.default_collect_rate_bps,
+      default_payin_rate_bps: m.default_payin_rate_bps,
       default_payout_rate_bps: m.default_payout_rate_bps,
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      collect_grants: newGrants,
+      payin_grants: newGrants,
       payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
@@ -574,12 +574,12 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
   try {
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
       status: m.status,
-      default_collect_rate_bps: m.default_collect_rate_bps,
+      default_payin_rate_bps: m.default_payin_rate_bps,
       default_payout_rate_bps: m.default_payout_rate_bps,
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      collect_grants: normalizedCollectGrants(m),
+      payin_grants: normalizedPayinGrants(m),
       payout_grants: newGrants,
     })
     const row = resp.merchant
@@ -594,37 +594,37 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
   }
 }
 
-function removePayProduct(productId: number) {
+function removePayinProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m) return
-  const cur = normalizedCollectGrants(m)
-  const next = cur.filter((x) => x.pay_product_id !== productId)
-  void persistPayProducts(next)
+  const cur = normalizedPayinGrants(m)
+  const next = cur.filter((x) => x.payin_product_id !== productId)
+  void persistPayinProducts(next)
 }
 
-function addPayProduct(productId: number) {
+function addPayinProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m || productId <= 0) return
-  const cur = normalizedCollectGrants(m)
-  if (cur.some((x) => x.pay_product_id === productId)) return
+  const cur = normalizedPayinGrants(m)
+  if (cur.some((x) => x.payin_product_id === productId)) return
   cur.push({
-    pay_product_id: productId,
+    payin_product_id: productId,
     merchant_rate_bps: 0,
   })
-  void persistPayProducts(cur)
+  void persistPayinProducts(cur)
 }
 
-function updateCollectGrant(grant: MerchantCollectGrant) {
+function updatePayinGrant(grant: MerchantPayinGrant) {
   const m = selectedMerchant.value
   if (!m) return
-  const cur = normalizedCollectGrants(m)
-  const idx = cur.findIndex((x) => x.pay_product_id === grant.pay_product_id)
+  const cur = normalizedPayinGrants(m)
+  const idx = cur.findIndex((x) => x.payin_product_id === grant.payin_product_id)
   if (idx < 0) return
   cur[idx] = {
-    pay_product_id: grant.pay_product_id,
+    payin_product_id: grant.payin_product_id,
     merchant_rate_bps: grant.merchant_rate_bps ?? 0,
   }
-  void persistPayProducts(cur)
+  void persistPayinProducts(cur)
 }
 
 function removePayoutProduct(productId: number) {
@@ -689,14 +689,13 @@ async function submitTransfer() {
   transferMsg.value = ''
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
-    const resp = await adminPost<{ ok: boolean; collect_balance: number; payout_balance: number }>(
-      `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}/transfer_collect_to_payout`,
+    const resp = await adminPost<{ ok: boolean; payin_balance: number; payout_balance: number }>(
+      `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}/transfer_payin_to_payout`,
       { amount: amountCent, reason: 'ADMIN_QUICK_TRANSFER' },
     )
-    m.collect_balance = resp.collect_balance
+    m.payin_balance = resp.payin_balance
     m.payout_balance = resp.payout_balance
-    m.balance = resp.collect_balance
-    transferMsg.value = `划转成功：代收 ${formatMoney(resp.collect_balance)}，代付 ${formatMoney(resp.payout_balance)}`
+    transferMsg.value = `划转成功：代收 ${formatMoney(resp.payin_balance)}，代付 ${formatMoney(resp.payout_balance)}`
     transferAmount.value = 0
     toast.success('划转成功')
     closeTransferDialog()

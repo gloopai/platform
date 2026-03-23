@@ -1,5 +1,5 @@
-export type MerchantCollectGrant = {
-  pay_product_id: number
+export type MerchantPayinGrant = {
+  payin_product_id: number
   merchant_rate_bps?: number | null
 }
 
@@ -14,17 +14,16 @@ export type AdminMerchantInfo = {
   merchant_id: string
   api_secret: string
   status: number
-  default_collect_rate_bps: number
+  default_payin_rate_bps: number
   default_payout_rate_bps: number
   notify_url: string
   return_url: string
   ip_whitelist: string
-  balance: number
-  collect_balance: number
+  payin_balance: number
   payout_balance: number
-  pay_product_ids?: number[]
+  payin_product_ids?: number[]
   payout_product_ids?: number[]
-  collect_grants?: MerchantCollectGrant[]
+  payin_grants?: MerchantPayinGrant[]
   payout_grants?: MerchantPayoutGrant[]
 }
 

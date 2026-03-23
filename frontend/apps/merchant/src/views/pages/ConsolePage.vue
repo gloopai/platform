@@ -24,7 +24,7 @@
                 划转
               </button>
             </div>
-            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ collectBalanceText }}</div>
+            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ payinBalanceText }}</div>
             <div class="mt-2 text-xs text-slate-500">可转入代付账户用于下发</div>
           </div>
         </div>
@@ -59,11 +59,11 @@
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div class="text-xs text-slate-500">成功笔数</div>
-              <div class="mt-1 text-lg font-semibold tabular-nums text-emerald-700">{{ collectPaidCountText }}</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-emerald-700">{{ payinPaidCountText }}</div>
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div class="text-xs text-slate-500">失败笔数</div>
-              <div class="mt-1 text-lg font-semibold tabular-nums text-rose-700">{{ collectFailedCountText }}</div>
+              <div class="mt-1 text-lg font-semibold tabular-nums text-rose-700">{{ payinFailedCountText }}</div>
             </div>
             <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div class="text-xs text-slate-500">成功率 / 金额</div>
@@ -140,10 +140,10 @@
             <tr v-else-if="(byProduct?.items?.length || 0) === 0">
               <td class="px-4 py-8 text-center text-slate-500" colspan="6">暂无今日支付产品数据</td>
             </tr>
-            <tr v-for="x in byProduct?.items || []" v-else :key="x.pay_product_code" class="hover:bg-slate-50/80">
+            <tr v-for="x in byProduct?.items || []" v-else :key="x.payin_product_code" class="hover:bg-slate-50/80">
               <td class="px-4 py-3">
-                <div class="font-medium text-slate-900">{{ x.pay_product_name || x.pay_product_code }}</div>
-                <div class="mt-0.5 font-mono text-xs text-slate-500">{{ x.pay_product_code || '—' }}</div>
+                <div class="font-medium text-slate-900">{{ x.payin_product_name || x.payin_product_code }}</div>
+                <div class="mt-0.5 font-mono text-xs text-slate-500">{{ x.payin_product_code || '—' }}</div>
               </td>
               <td class="px-4 py-3 tabular-nums text-slate-800">{{ x.order_count }}</td>
               <td class="px-4 py-3 tabular-nums text-emerald-700">{{ x.paid_count }}</td>
@@ -181,7 +181,7 @@
                 </div>
                 <div class="space-y-3 px-5 py-4">
                   <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-                    <div>当前代收：{{ collectBalanceText }}</div>
+                    <div>当前代收：{{ payinBalanceText }}</div>
                     <div class="mt-1">当前代付：{{ payoutBalanceText }}</div>
                   </div>
                   <label class="grid gap-1">
@@ -219,7 +219,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { transferCollectToPayout } from '@/api/finance'
+import { transferPayinToPayout } from '@/api/finance'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import { useMerchantSummary } from '@/composables/useMerchantSummary'
@@ -230,7 +230,7 @@ const { summary, byProduct, payoutOverview, error, loading, load } = useMerchant
 
 const todayAmountText = computed(() => formatYuanLabel(summary.value?.today_amount ?? 0))
 
-const collectBalanceText = computed(() => formatYuanLabel(summary.value?.collect_balance ?? summary.value?.balance ?? 0))
+const payinBalanceText = computed(() => formatYuanLabel(summary.value?.payin_balance ?? 0))
 const payoutBalanceText = computed(() => formatYuanLabel(summary.value?.payout_balance ?? 0))
 const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
 const transferAmount = ref(0)
@@ -245,12 +245,12 @@ const successRateText = computed(() => {
   if (v === undefined || v === null) return '—'
   return `${(v * 100).toFixed(2)}%`
 })
-const collectPaidCountText = computed(() => {
+const payinPaidCountText = computed(() => {
   let total = 0
   for (const x of byProduct.value?.items || []) total += x.paid_count || 0
   return String(total)
 })
-const collectFailedCountText = computed(() => {
+const payinFailedCountText = computed(() => {
   let total = 0
   for (const x of byProduct.value?.items || []) total += x.failed_count || 0
   return String(total)
@@ -273,8 +273,8 @@ async function submitTransfer() {
   transferMsg.value = ''
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
-    const r = await transferCollectToPayout(amountCent)
-    transferMsg.value = `划转成功：代收 ${formatYuanLabel(r.collect_balance)}，代付 ${formatYuanLabel(r.payout_balance)}`
+    const r = await transferPayinToPayout(amountCent)
+    transferMsg.value = `划转成功：代收 ${formatYuanLabel(r.payin_balance)}，代付 ${formatYuanLabel(r.payout_balance)}`
     transferAmount.value = 0
     await load()
     closeTransferDialog()

@@ -56,7 +56,7 @@
           <div class="grid grid-cols-12 gap-3">
             <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 md:col-span-6">
               <div class="text-sm text-slate-700">支持代收</div>
-              <input v-model="model.supports_collect" type="checkbox" class="h-4 w-4" />
+              <input v-model="model.supports_payin" type="checkbox" class="h-4 w-4" />
             </label>
             <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 md:col-span-6">
               <div class="text-sm text-slate-700">支持代付</div>
@@ -70,7 +70,7 @@
           <label class="grid gap-1">
             <span class="text-xs font-medium text-slate-600">上游代收费率（万分比）</span>
             <input
-              v-model.number="model.upstream_collect_rate_bps"
+              v-model.number="model.upstream_payin_rate_bps"
               type="number"
               min="0"
               class="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm"

@@ -95,9 +95,9 @@
                 <span class="text-slate-500">状态</span>
                 <span class="font-semibold" :class="statusClass">{{ statusText }}</span>
               </div>
-              <div v-if="payProductCodeOnOrder" class="flex items-center justify-between gap-2">
+              <div v-if="payinProductCodeOnOrder" class="flex items-center justify-between gap-2">
                 <span class="text-slate-500">下单支付产品</span>
-                <span class="font-mono text-xs font-medium text-slate-800">{{ payProductCodeOnOrder }}</span>
+                <span class="font-mono text-xs font-medium text-slate-800">{{ payinProductCodeOnOrder }}</span>
               </div>
             </div>
           </div>
@@ -259,7 +259,7 @@ type OrderInfo = {
   currency: string
   status: number
   return_url: string
-  pay_product_code?: string
+  payin_product_code?: string
   /** 1 = 商户下单已指定通道，不可改支付方式 */
   channel_locked?: number
 }
@@ -268,12 +268,12 @@ type PayProductItem = { code: string; name: string }
 
 type TerminalOrderPayload = {
   order: OrderInfo
-  pay_products?: PayProductItem[]
+  payin_products?: PayProductItem[]
 }
 
 type MethodRow = { key: string; name: string; desc: string }
 
-/** 与网关 pay_products / 产品编码一致；展示名以服务端为准 */
+/** 与网关 payin_products / 产品编码一致；展示名以服务端为准 */
 const DESC_BY_CODE: Record<string, string> = {
   mock: '联调占位，平台路由至上游',
   wechat: '微信内优先使用',
@@ -300,7 +300,7 @@ const amount = ref<number>(0)
 const currency = ref<string>('CNY')
 const status = ref<number>(0)
 const returnUrl = ref<string>('')
-const payProductCodeOnOrder = ref('')
+const payinProductCodeOnOrder = ref('')
 const channelLocked = ref(false)
 
 const error = ref('')
@@ -443,9 +443,9 @@ async function load() {
   returnUrl.value = data.order.return_url || ''
   merchantIdDisplay.value = data.order.merchant_id || ''
   merchantOrderNoDisplay.value = data.order.merchant_order_no || ''
-  payProductCodeOnOrder.value = data.order.pay_product_code || ''
+  payinProductCodeOnOrder.value = data.order.payin_product_code || ''
   channelLocked.value = Number(data.order.channel_locked) === 1
-  serverPayProducts.value = data.pay_products && data.pay_products.length > 0 ? data.pay_products : null
+  serverPayProducts.value = data.payin_products && data.payin_products.length > 0 ? data.payin_products : null
 }
 
 async function refresh() {
@@ -487,7 +487,7 @@ async function payNow() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         order_no: orderNo.value,
-        pay_product_code: selectedMethod.value,
+        payin_product_code: selectedMethod.value,
       }),
     })
     if (!res.ok) {

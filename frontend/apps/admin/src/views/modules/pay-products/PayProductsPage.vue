@@ -189,15 +189,15 @@ const products = ref<PayProduct[]>([])
 const channels = ref<PayProductChannelOption[]>([])
 const selectedProductId = ref<number | null>(null)
 
-const apiProducts = computed(() => (props.payoutMode ? '/v1/admin/payout_products' : '/v1/admin/pay_products'))
+const apiProducts = computed(() => (props.payoutMode ? '/v1/admin/payout_products' : '/v1/admin/payin_products'))
 const apiBindings = (productId: number) =>
   props.payoutMode
     ? `/v1/admin/payout_products/${productId}/bindings`
-    : `/v1/admin/pay_products/${productId}/bindings`
+    : `/v1/admin/payin_products/${productId}/bindings`
 const apiBindingRow = (bindingId: number) =>
   props.payoutMode
     ? `/v1/admin/payout_product_bindings/${bindingId}`
-    : `/v1/admin/pay_product_bindings/${bindingId}`
+    : `/v1/admin/payin_product_bindings/${bindingId}`
 
 const headerTitle = computed(() =>
   props.payoutMode ? '代付产品与上游通道' : '代收产品与上游通道',
@@ -222,7 +222,7 @@ const filteredChannels = computed(() => {
   if (props.payoutMode) {
     return channels.value.filter((c) => c.supports_payout !== false)
   }
-  return channels.value.filter((c) => c.supports_collect !== false)
+  return channels.value.filter((c) => c.supports_payin !== false)
 })
 
 const emptyForm = (): PayProduct => ({
@@ -305,7 +305,7 @@ async function loadBindings(productId: number) {
     const data = await adminGet<{ bindings: PayProductBinding[] }>(apiBindings(productId))
     const raw = data.bindings || []
     bindings.value = props.payoutMode
-      ? raw.map((b) => ({ ...b, pay_product_id: b.payout_product_id }))
+      ? raw.map((b) => ({ ...b, payin_product_id: b.payout_product_id }))
       : raw
   } catch {
     bindings.value = []

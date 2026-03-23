@@ -6,7 +6,7 @@
         <h2 class="text-sm font-semibold text-slate-900">创建代收联调</h2>
       </div>
       <p class="mt-2 text-sm text-slate-600">
-        调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">/v1/pay/order</code> 创建订单并跳转收银台。
+        调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">/v1/payin/order</code> 创建订单并跳转收银台。
       </p>
 
       <div class="mt-6 grid grid-cols-12 gap-4">
@@ -19,7 +19,7 @@
         </label>
         <label v-if="payTypePreset === '__custom__'" class="col-span-12 grid gap-1.5 md:col-span-6">
           <span class="text-xs font-medium text-slate-600">自定义 pay_type</span>
-          <input v-model.trim="payTypeCustom" class="input-merchant font-mono text-xs" placeholder="与后端 pay_products.code 一致" />
+          <input v-model.trim="payTypeCustom" class="input-merchant font-mono text-xs" placeholder="与后端 payin_products.code 一致" />
         </label>
         <label class="col-span-12 grid gap-1.5 md:col-span-6">
           <span class="text-xs font-medium text-slate-600">merchant_order_no</span>
@@ -64,7 +64,7 @@
         <label class="col-span-12 grid gap-1.5 md:col-span-4">
           <span class="text-xs font-medium text-slate-600">查询类型</span>
           <select v-model="queryMode" class="input-merchant">
-            <option value="collect">代收（/v1/pay/query）</option>
+            <option value="payin">代收（/v1/payin/query）</option>
             <option value="payout">代付（/v1/payout/query）</option>
           </select>
         </label>
@@ -204,7 +204,7 @@ const loading = ref(false)
 const error = ref('')
 const result = ref<CreateOrderResp | null>(null)
 
-const queryMode = ref<'collect' | 'payout'>('collect')
+const queryMode = ref<'payin' | 'payout'>('payin')
 const queryOrderNo = ref('')
 const queryLoading = ref(false)
 const queryError = ref('')
@@ -262,11 +262,11 @@ async function createOrder() {
       merchant_order_no: merchantOrderNo.value,
       amount: String(amount.value),
       currency: 'CNY',
-      pay_type: resolvedPayType.value,
+      payin_type: resolvedPayType.value,
       notify_url: props.notifyUrl,
     }
     const sign = md5Sign(params, props.apiSecret)
-    const resp = await fetch(OPEN_API.payOrder, {
+    const resp = await fetch(OPEN_API.payinOrder, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...params, sign }),
@@ -300,7 +300,7 @@ async function queryOpenOrder() {
       timestamp: String(Math.floor(Date.now() / 1000)),
     }
     const sign = md5Sign(params, props.apiSecret)
-    const endpoint = queryMode.value === 'payout' ? OPEN_API.queryPayoutOrder : OPEN_API.queryOrder
+    const endpoint = queryMode.value === 'payout' ? OPEN_API.queryPayoutOrder : OPEN_API.queryPayinOrder
     const resp = await fetch(`${endpoint}?${new URLSearchParams({ ...params, sign }).toString()}`)
     const text = await resp.text()
     if (!resp.ok) {
@@ -378,7 +378,7 @@ function syncSignJsonFromForm() {
       merchant_order_no: merchantOrderNo.value,
       amount: String(amount.value),
       currency: 'CNY',
-      pay_type: resolvedPayType.value,
+      payin_type: resolvedPayType.value,
     },
     null,
     2,

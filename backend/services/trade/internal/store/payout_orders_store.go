@@ -16,7 +16,7 @@ func NewPayoutOrdersStore(db *sql.DB) *PayoutOrdersStore {
 
 func (s *PayoutOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS pay_product_id, COALESCE(payout_product_code,'') AS pay_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM payout_orders
 WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
@@ -26,7 +26,7 @@ LIMIT 1
 
 func (s *PayoutOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS pay_product_id, COALESCE(payout_product_code,'') AS pay_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM payout_orders
 WHERE order_no = ?
 LIMIT 1
@@ -48,7 +48,7 @@ func (s *PayoutOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyw
 	}
 	keyword = strings.TrimSpace(keyword)
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS pay_product_id, COALESCE(payout_product_code,'') AS pay_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM payout_orders
 WHERE merchant_id = ?`
 	args := []any{merchantId}
@@ -89,7 +89,7 @@ func (s *PayoutOrdersStore) AdminList(ctx context.Context, merchantId, keyword s
 	keyword = strings.TrimSpace(keyword)
 	merchantId = strings.TrimSpace(merchantId)
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS pay_product_id, COALESCE(payout_product_code,'') AS pay_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM payout_orders
 WHERE 1=1`
 	args := []any{}

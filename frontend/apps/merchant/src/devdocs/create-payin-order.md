@@ -1,6 +1,6 @@
 # 创建代收订单
 
-接口：`POST /v1/pay/order`
+接口：`POST /v1/payin/order`
 
 ## 请求参数（JSON）
 
@@ -8,7 +8,7 @@
 - `merchant_order_no`：商户订单号（必填，建议唯一）
 - `amount`：订单金额，单位分（必填，>0）
 - `currency`：币种（可选，默认 `CNY`）
-- `pay_type`：支付产品编码（必填，例如 `mock`、`wechat`）
+- `payin_type`：支付产品编码（必填，例如 `mock`、`wechat`）
 - `notify_url`：异步通知地址（可选）
 - `sign`：签名（必填）
 
@@ -33,4 +33,3 @@
   "message": "human readable message"
 }
 ```
-

@@ -12,7 +12,7 @@ import (
 
 func AdminListPayoutProductsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminListPayoutProducts()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -29,7 +29,7 @@ func AdminCreatePayoutProductHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminCreatePayoutProduct(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -46,7 +46,7 @@ func AdminUpdatePayoutProductHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayoutProduct(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -63,7 +63,7 @@ func AdminListPayoutProductBindingsHandler(svcCtx *svc.ServiceContext) http.Hand
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminListPayoutProductBindings(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -80,7 +80,7 @@ func AdminUpsertPayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpsertPayoutProductBinding(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -97,7 +97,7 @@ func AdminUpdatePayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayoutProductBinding(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
@@ -114,7 +114,7 @@ func AdminDeletePayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
-		l := logic.NewAdminPayProducts(r.Context(), svcCtx)
+		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminDeletePayoutProductBinding(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)

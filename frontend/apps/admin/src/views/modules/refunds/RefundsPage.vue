@@ -4,7 +4,7 @@
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">退款与差错</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">
         <strong>MVP</strong>：先提供<strong>退款/差错候选订单</strong>只读列表（支付失败、已关闭），用于运营初筛；正式退款流、审核流与调账流程后续接入。需要核对全量订单请使用
-        <router-link to="/pay-orders" class="font-medium text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-slate-950">
+        <router-link to="/payin-orders" class="font-medium text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-slate-950">
           全站订单
         </router-link>
         。
@@ -86,7 +86,7 @@
               <td class="px-4 py-3 font-medium text-slate-900">{{ x.merchant_id }}</td>
               <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ x.merchant_order_no }}</td>
               <td class="px-4 py-3 font-semibold text-slate-900">{{ formatAmount(x.amount) }}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ x.pay_product_code || '—' }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ x.payin_product_code || '—' }}</td>
               <td class="px-4 py-3 font-mono text-xs text-slate-700">#{{ x.channel_id }}</td>
             </tr>
           </tbody>
@@ -129,7 +129,7 @@ type RefundItem = {
   status: number
   status_label: string
   channel_id: number
-  pay_product_code: string
+  payin_product_code: string
   upstream_trade_no: string
   created_at: number
 }

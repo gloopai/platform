@@ -4,14 +4,14 @@ syntax = "v1"
 	middleware: MerchantSignMiddleware
 )
 service gateway-api {
-	@handler CreateOrderHandler
-	post /v1/pay/order (CreateOrderReq) returns (CreateOrderResp)
+	@handler CreatePayinOrderHandler
+	post /v1/payin/order (CreatePayinOrderReq) returns (CreatePayinOrderResp)
 
 	@handler CreatePayoutOrderHandler
 	post /v1/payout/order (CreatePayoutOrderReq) returns (CreateOrderResp)
 
-	@handler QueryOrderHandler
-	get /v1/pay/query (QueryOrderReq) returns (QueryOrderResp)
+	@handler QueryPayinOrderHandler
+	get /v1/payin/query (QueryOrderReq) returns (QueryOrderResp)
 
 	@handler QueryPayoutOrderHandler
 	get /v1/payout/query (QueryOrderReq) returns (QueryOrderResp)
@@ -30,7 +30,7 @@ service gateway-api {
 	get /v1/terminal/order (TerminalOrderReq) returns (TerminalOrderResp)
 }
 
-type CreateOrderReq {
+type CreatePayinOrderReq {
 	MerchantId      string `json:"merchant_id"`
 	MerchantOrderNo string `json:"merchant_order_no"`
 	Amount          int64  `json:"amount"`
@@ -38,7 +38,7 @@ type CreateOrderReq {
 	Subject         string `json:"subject,optional"`
 	ReturnUrl       string `json:"return_url,optional"`
 	NotifyUrl       string `json:"notify_url,optional"`
-	PayType         string `json:"pay_type,optional"`
+	PayinType       string `json:"payin_type,optional"`
 	ChannelId       int64  `json:"channel_id,optional"`
 	Timestamp       int64  `json:"timestamp,optional"`
 	Nonce           string `json:"nonce,optional"`
@@ -51,9 +51,9 @@ type CreatePayoutOrderReq {
 	Amount            int64  `json:"amount"`
 	Currency          string `json:"currency,optional"`
 	NotifyUrl         string `json:"notify_url,optional"`
-	PayType           string `json:"pay_type,optional"`
+	PayinType         string `json:"payin_type,optional"`
 	ChannelId         int64  `json:"channel_id,optional"`
-	PayProductId      int64  `json:"pay_product_id,optional"`
+	PayinProductId    int64  `json:"payin_product_id,optional"`
 	PayoutProductCode string `json:"payout_product_code,optional"`
 	FeeMode           int64  `json:"fee_mode,optional"`
 	FeeRateBps        int64  `json:"fee_rate_bps,optional"`
@@ -65,7 +65,7 @@ type CreatePayoutOrderReq {
 	Sign              string `json:"sign"`
 }
 
-type CreateOrderResp {
+type CreatePayinOrderResp {
 	OrderNo     string `json:"order_no"`
 	Status      int32  `json:"status"`
 	ChannelId   int64  `json:"channel_id"`
@@ -94,8 +94,7 @@ type MerchantBalanceQueryReq {
 
 type MerchantBalanceQueryResp {
 	MerchantId     string `json:"merchant_id"`
-	Balance        int64  `json:"balance"`
-	CollectBalance int64  `json:"collect_balance"`
+	PayinBalance   int64  `json:"payin_balance"`
 	PayoutBalance  int64  `json:"payout_balance"`
 }
 

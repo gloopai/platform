@@ -8,61 +8,61 @@ import (
 	"strings"
 )
 
-// CollectGrant 商户代收产品行（含可选覆盖费率）。
-type CollectGrant struct {
-	PayProductID int64
-	RateBps      *int64
+// PayinGrant 商户代收产品行（含可选覆盖费率）。
+type PayinGrant struct {
+	PayinProductID int64
+	RateBps        *int64
 }
 
-type MerchantPayProductsStore struct {
+type MerchantPayinProductsStore struct {
 	db *sql.DB
 }
 
-func NewMerchantPayProductsStore(db *sql.DB) *MerchantPayProductsStore {
-	return &MerchantPayProductsStore{db: db}
+func NewMerchantPayinProductsStore(db *sql.DB) *MerchantPayinProductsStore {
+	return &MerchantPayinProductsStore{db: db}
 }
 
-func (s *MerchantPayProductsStore) Replace(ctx context.Context, merchantID string, grants []CollectGrant) error {
+func (s *MerchantPayinProductsStore) Replace(ctx context.Context, merchantID string, grants []PayinGrant) error {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return errors.New("merchant_id required")
 	}
 	seen := make(map[int64]struct{})
-	var uniq []CollectGrant
+	var uniq []PayinGrant
 	for _, g := range grants {
-		if g.PayProductID <= 0 {
+		if g.PayinProductID <= 0 {
 			continue
 		}
-		if _, ok := seen[g.PayProductID]; ok {
+		if _, ok := seen[g.PayinProductID]; ok {
 			continue
 		}
-		seen[g.PayProductID] = struct{}{}
+		seen[g.PayinProductID] = struct{}{}
 		uniq = append(uniq, g)
 	}
-	sort.Slice(uniq, func(i, j int) bool { return uniq[i].PayProductID < uniq[j].PayProductID })
+	sort.Slice(uniq, func(i, j int) bool { return uniq[i].PayinProductID < uniq[j].PayinProductID })
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, `DELETE FROM merchant_pay_products WHERE merchant_id = ?`, merchantID); err != nil {
+	if _, err := tx.ExecContext(ctx, `DELETE FROM merchant_payin_products WHERE merchant_id = ?`, merchantID); err != nil {
 		_ = tx.Rollback()
 		return err
 	}
 	for i, g := range uniq {
 		if g.RateBps == nil {
 			if _, err := tx.ExecContext(ctx, `
-INSERT INTO merchant_pay_products (merchant_id, pay_product_id, enabled, sort_order, merchant_rate_bps)
+INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
 VALUES (?, ?, 1, ?, NULL)
-`, merchantID, g.PayProductID, i); err != nil {
+`, merchantID, g.PayinProductID, i); err != nil {
 				_ = tx.Rollback()
 				return err
 			}
 		} else {
 			if _, err := tx.ExecContext(ctx, `
-INSERT INTO merchant_pay_products (merchant_id, pay_product_id, enabled, sort_order, merchant_rate_bps)
+INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
 VALUES (?, ?, 1, ?, ?)
-`, merchantID, g.PayProductID, i, *g.RateBps); err != nil {
+`, merchantID, g.PayinProductID, i, *g.RateBps); err != nil {
 				_ = tx.Rollback()
 				return err
 			}
@@ -71,40 +71,40 @@ VALUES (?, ?, 1, ?, ?)
 	return tx.Commit()
 }
 
-func (s *MerchantPayProductsStore) ListProductIDs(ctx context.Context, merchantID string) ([]int64, error) {
-	grants, err := s.ListCollectGrants(ctx, merchantID)
+func (s *MerchantPayinProductsStore) ListProductIDs(ctx context.Context, merchantID string) ([]int64, error) {
+	grants, err := s.ListPayinGrants(ctx, merchantID)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]int64, 0, len(grants))
 	for _, g := range grants {
-		out = append(out, g.PayProductID)
+		out = append(out, g.PayinProductID)
 	}
 	return out, nil
 }
 
-// ListCollectGrants 含费率覆盖（NULL 在 DB 中表示用商户默认代收费率）。
-func (s *MerchantPayProductsStore) ListCollectGrants(ctx context.Context, merchantID string) ([]CollectGrant, error) {
+// ListPayinGrants 含费率覆盖（NULL 在 DB 中表示用商户默认代收费率）。
+func (s *MerchantPayinProductsStore) ListPayinGrants(ctx context.Context, merchantID string) ([]PayinGrant, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return nil, nil
 	}
 	rows, err := s.db.QueryContext(ctx, `
-SELECT pay_product_id, merchant_rate_bps
-FROM merchant_pay_products
+SELECT payin_product_id, merchant_rate_bps
+FROM merchant_payin_products
 WHERE merchant_id = ? AND enabled = 1
-ORDER BY sort_order ASC, pay_product_id ASC
+ORDER BY sort_order ASC, payin_product_id ASC
 `, merchantID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var out []CollectGrant
+	var out []PayinGrant
 	for rows.Next() {
-		var g CollectGrant
+		var g PayinGrant
 		var rate sql.NullInt64
-		if err := rows.Scan(&g.PayProductID, &rate); err != nil {
+		if err := rows.Scan(&g.PayinProductID, &rate); err != nil {
 			return nil, err
 		}
 		if rate.Valid {

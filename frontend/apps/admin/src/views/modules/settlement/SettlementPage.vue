@@ -4,7 +4,7 @@
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">结算与提现</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">
         <strong>MVP</strong>：先提供平台侧<strong>资金流水视图</strong>（按商户可筛选），用于核对入账；结算单、提现审核、打款流程后续迭代。当前可配合
-        <router-link to="/pay-orders" class="font-medium text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-slate-950">
+        <router-link to="/payin-orders" class="font-medium text-slate-800 underline decoration-slate-300 underline-offset-2 hover:text-slate-950">
           全站订单
         </router-link>
         与

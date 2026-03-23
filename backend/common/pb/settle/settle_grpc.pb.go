@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Settle_Credit_FullMethodName                  = "/settle.Settle/Credit"
-	Settle_DebitPayout_FullMethodName             = "/settle.Settle/DebitPayout"
-	Settle_TransferCollectToPayout_FullMethodName = "/settle.Settle/TransferCollectToPayout"
-	Settle_ListFundLogs_FullMethodName            = "/settle.Settle/ListFundLogs"
+	Settle_Credit_FullMethodName                = "/settle.Settle/Credit"
+	Settle_DebitPayout_FullMethodName           = "/settle.Settle/DebitPayout"
+	Settle_TransferPayinToPayout_FullMethodName = "/settle.Settle/TransferPayinToPayout"
+	Settle_ListFundLogs_FullMethodName          = "/settle.Settle/ListFundLogs"
 )
 
 // SettleClient is the client API for Settle service.
@@ -31,7 +31,7 @@ const (
 type SettleClient interface {
 	Credit(ctx context.Context, in *CreditReq, opts ...grpc.CallOption) (*CreditResp, error)
 	DebitPayout(ctx context.Context, in *DebitPayoutReq, opts ...grpc.CallOption) (*DebitPayoutResp, error)
-	TransferCollectToPayout(ctx context.Context, in *TransferCollectToPayoutReq, opts ...grpc.CallOption) (*TransferCollectToPayoutResp, error)
+	TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error)
 	ListFundLogs(ctx context.Context, in *ListFundLogsReq, opts ...grpc.CallOption) (*ListFundLogsResp, error)
 }
 
@@ -63,10 +63,10 @@ func (c *settleClient) DebitPayout(ctx context.Context, in *DebitPayoutReq, opts
 	return out, nil
 }
 
-func (c *settleClient) TransferCollectToPayout(ctx context.Context, in *TransferCollectToPayoutReq, opts ...grpc.CallOption) (*TransferCollectToPayoutResp, error) {
+func (c *settleClient) TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TransferCollectToPayoutResp)
-	err := c.cc.Invoke(ctx, Settle_TransferCollectToPayout_FullMethodName, in, out, cOpts...)
+	out := new(TransferPayinToPayoutResp)
+	err := c.cc.Invoke(ctx, Settle_TransferPayinToPayout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func (c *settleClient) ListFundLogs(ctx context.Context, in *ListFundLogsReq, op
 type SettleServer interface {
 	Credit(context.Context, *CreditReq) (*CreditResp, error)
 	DebitPayout(context.Context, *DebitPayoutReq) (*DebitPayoutResp, error)
-	TransferCollectToPayout(context.Context, *TransferCollectToPayoutReq) (*TransferCollectToPayoutResp, error)
+	TransferPayinToPayout(context.Context, *TransferPayinToPayoutReq) (*TransferPayinToPayoutResp, error)
 	ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error)
 	mustEmbedUnimplementedSettleServer()
 }
@@ -107,8 +107,8 @@ func (UnimplementedSettleServer) Credit(context.Context, *CreditReq) (*CreditRes
 func (UnimplementedSettleServer) DebitPayout(context.Context, *DebitPayoutReq) (*DebitPayoutResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DebitPayout not implemented")
 }
-func (UnimplementedSettleServer) TransferCollectToPayout(context.Context, *TransferCollectToPayoutReq) (*TransferCollectToPayoutResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TransferCollectToPayout not implemented")
+func (UnimplementedSettleServer) TransferPayinToPayout(context.Context, *TransferPayinToPayoutReq) (*TransferPayinToPayoutResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferPayinToPayout not implemented")
 }
 func (UnimplementedSettleServer) ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFundLogs not implemented")
@@ -170,20 +170,20 @@ func _Settle_DebitPayout_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Settle_TransferCollectToPayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TransferCollectToPayoutReq)
+func _Settle_TransferPayinToPayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransferPayinToPayoutReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SettleServer).TransferCollectToPayout(ctx, in)
+		return srv.(SettleServer).TransferPayinToPayout(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Settle_TransferCollectToPayout_FullMethodName,
+		FullMethod: Settle_TransferPayinToPayout_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SettleServer).TransferCollectToPayout(ctx, req.(*TransferCollectToPayoutReq))
+		return srv.(SettleServer).TransferPayinToPayout(ctx, req.(*TransferPayinToPayoutReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -222,8 +222,8 @@ var Settle_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Settle_DebitPayout_Handler,
 		},
 		{
-			MethodName: "TransferCollectToPayout",
-			Handler:    _Settle_TransferCollectToPayout_Handler,
+			MethodName: "TransferPayinToPayout",
+			Handler:    _Settle_TransferPayinToPayout_Handler,
 		},
 		{
 			MethodName: "ListFundLogs",

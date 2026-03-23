@@ -93,7 +93,7 @@
                   {{ statusLabel(o.status) }}
                 </span>
               </td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ o.pay_product_code || '—' }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ o.payin_product_code || '—' }}</td>
               <td class="px-4 py-3 font-mono text-xs text-slate-600">#{{ o.channel_id }}</td>
               <td class="px-4 py-3 text-xs text-slate-600">{{ o.upstream_trade_no || '—' }}</td>
               <td class="px-4 py-3 text-slate-600">{{ formatTime(o.created_at) }}</td>
@@ -129,7 +129,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   title: '全站订单',
   description: '跨商户检索平台订单（只读，MVP）；关键词匹配平台单号、商户单号或商户 ID（精确）。',
-  endpoint: '/v1/admin/pay_orders',
+  endpoint: '/v1/admin/payin_orders',
 })
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined

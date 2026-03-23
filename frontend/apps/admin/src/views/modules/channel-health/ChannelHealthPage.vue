@@ -54,8 +54,8 @@
                 <td class="px-4 py-3 font-medium text-slate-900">{{ c.name }}</td>
                 <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.pay_type || '—' }}</td>
                 <td class="px-4 py-3">
-                  <span :class="c.supports_collect ? 'text-emerald-700' : 'text-slate-400'">
-                    {{ c.supports_collect ? '是' : '否' }}
+                  <span :class="c.supports_payin ? 'text-emerald-700' : 'text-slate-400'">
+                    {{ c.supports_payin ? '是' : '否' }}
                   </span>
                 </td>
                 <td class="px-4 py-3">

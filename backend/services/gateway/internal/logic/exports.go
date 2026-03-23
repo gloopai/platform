@@ -33,8 +33,8 @@ func NewAdminMerchants(ctx context.Context, svcCtx *svc.ServiceContext) *adminlo
 	return adminlogic.NewAdminMerchants(ctx, svcCtx)
 }
 
-func NewAdminPayProducts(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminPayProducts {
-	return adminlogic.NewAdminPayProducts(ctx, svcCtx)
+func NewAdminPayinProducts(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminPayinProducts {
+	return adminlogic.NewAdminPayinProducts(ctx, svcCtx)
 }
 
 func NewAdminRouting(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRouting {

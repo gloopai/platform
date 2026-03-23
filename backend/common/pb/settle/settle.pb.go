@@ -261,7 +261,7 @@ func (x *DebitPayoutResp) GetPayoutBalance() int64 {
 	return 0
 }
 
-type TransferCollectToPayoutReq struct {
+type TransferPayinToPayoutReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
@@ -270,20 +270,20 @@ type TransferCollectToPayoutReq struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TransferCollectToPayoutReq) Reset() {
-	*x = TransferCollectToPayoutReq{}
+func (x *TransferPayinToPayoutReq) Reset() {
+	*x = TransferPayinToPayoutReq{}
 	mi := &file_settle_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TransferCollectToPayoutReq) String() string {
+func (x *TransferPayinToPayoutReq) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TransferCollectToPayoutReq) ProtoMessage() {}
+func (*TransferPayinToPayoutReq) ProtoMessage() {}
 
-func (x *TransferCollectToPayoutReq) ProtoReflect() protoreflect.Message {
+func (x *TransferPayinToPayoutReq) ProtoReflect() protoreflect.Message {
 	mi := &file_settle_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -295,55 +295,55 @@ func (x *TransferCollectToPayoutReq) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TransferCollectToPayoutReq.ProtoReflect.Descriptor instead.
-func (*TransferCollectToPayoutReq) Descriptor() ([]byte, []int) {
+// Deprecated: Use TransferPayinToPayoutReq.ProtoReflect.Descriptor instead.
+func (*TransferPayinToPayoutReq) Descriptor() ([]byte, []int) {
 	return file_settle_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *TransferCollectToPayoutReq) GetMerchantId() string {
+func (x *TransferPayinToPayoutReq) GetMerchantId() string {
 	if x != nil {
 		return x.MerchantId
 	}
 	return ""
 }
 
-func (x *TransferCollectToPayoutReq) GetAmount() int64 {
+func (x *TransferPayinToPayoutReq) GetAmount() int64 {
 	if x != nil {
 		return x.Amount
 	}
 	return 0
 }
 
-func (x *TransferCollectToPayoutReq) GetReason() string {
+func (x *TransferPayinToPayoutReq) GetReason() string {
 	if x != nil {
 		return x.Reason
 	}
 	return ""
 }
 
-type TransferCollectToPayoutResp struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Changed        bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
-	CollectBalance int64                  `protobuf:"varint,2,opt,name=collect_balance,json=collectBalance,proto3" json:"collect_balance,omitempty"`
-	PayoutBalance  int64                  `protobuf:"varint,3,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+type TransferPayinToPayoutResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Changed       bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
+	PayinBalance  int64                  `protobuf:"varint,2,opt,name=payin_balance,json=payinBalance,proto3" json:"payin_balance,omitempty"`
+	PayoutBalance int64                  `protobuf:"varint,3,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TransferCollectToPayoutResp) Reset() {
-	*x = TransferCollectToPayoutResp{}
+func (x *TransferPayinToPayoutResp) Reset() {
+	*x = TransferPayinToPayoutResp{}
 	mi := &file_settle_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TransferCollectToPayoutResp) String() string {
+func (x *TransferPayinToPayoutResp) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TransferCollectToPayoutResp) ProtoMessage() {}
+func (*TransferPayinToPayoutResp) ProtoMessage() {}
 
-func (x *TransferCollectToPayoutResp) ProtoReflect() protoreflect.Message {
+func (x *TransferPayinToPayoutResp) ProtoReflect() protoreflect.Message {
 	mi := &file_settle_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -355,26 +355,26 @@ func (x *TransferCollectToPayoutResp) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TransferCollectToPayoutResp.ProtoReflect.Descriptor instead.
-func (*TransferCollectToPayoutResp) Descriptor() ([]byte, []int) {
+// Deprecated: Use TransferPayinToPayoutResp.ProtoReflect.Descriptor instead.
+func (*TransferPayinToPayoutResp) Descriptor() ([]byte, []int) {
 	return file_settle_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *TransferCollectToPayoutResp) GetChanged() bool {
+func (x *TransferPayinToPayoutResp) GetChanged() bool {
 	if x != nil {
 		return x.Changed
 	}
 	return false
 }
 
-func (x *TransferCollectToPayoutResp) GetCollectBalance() int64 {
+func (x *TransferPayinToPayoutResp) GetPayinBalance() int64 {
 	if x != nil {
-		return x.CollectBalance
+		return x.PayinBalance
 	}
 	return 0
 }
 
-func (x *TransferCollectToPayoutResp) GetPayoutBalance() int64 {
+func (x *TransferPayinToPayoutResp) GetPayoutBalance() int64 {
 	if x != nil {
 		return x.PayoutBalance
 	}
@@ -608,15 +608,15 @@ const file_settle_proto_rawDesc = "" +
 	"\x06reason\x18\x04 \x01(\tR\x06reason\"R\n" +
 	"\x0fDebitPayoutResp\x12\x18\n" +
 	"\achanged\x18\x01 \x01(\bR\achanged\x12%\n" +
-	"\x0epayout_balance\x18\x02 \x01(\x03R\rpayoutBalance\"m\n" +
-	"\x1aTransferCollectToPayoutReq\x12\x1f\n" +
+	"\x0epayout_balance\x18\x02 \x01(\x03R\rpayoutBalance\"k\n" +
+	"\x18TransferPayinToPayoutReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x16\n" +
 	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x87\x01\n" +
-	"\x1bTransferCollectToPayoutResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\x12'\n" +
-	"\x0fcollect_balance\x18\x02 \x01(\x03R\x0ecollectBalance\x12%\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x81\x01\n" +
+	"\x19TransferPayinToPayoutResp\x12\x18\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\x12#\n" +
+	"\rpayin_balance\x18\x02 \x01(\x03R\fpayinBalance\x12%\n" +
 	"\x0epayout_balance\x18\x03 \x01(\x03R\rpayoutBalance\"H\n" +
 	"\x0fListFundLogsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
@@ -636,11 +636,11 @@ const file_settle_proto_rawDesc = "" +
 	"\vmerchant_id\x18\t \x01(\tR\n" +
 	"merchantId\";\n" +
 	"\x10ListFundLogsResp\x12'\n" +
-	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs2\xa0\x02\n" +
+	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs2\x9a\x02\n" +
 	"\x06Settle\x12/\n" +
 	"\x06Credit\x12\x11.settle.CreditReq\x1a\x12.settle.CreditResp\x12>\n" +
-	"\vDebitPayout\x12\x16.settle.DebitPayoutReq\x1a\x17.settle.DebitPayoutResp\x12b\n" +
-	"\x17TransferCollectToPayout\x12\".settle.TransferCollectToPayoutReq\x1a#.settle.TransferCollectToPayoutResp\x12A\n" +
+	"\vDebitPayout\x12\x16.settle.DebitPayoutReq\x1a\x17.settle.DebitPayoutResp\x12\\\n" +
+	"\x15TransferPayinToPayout\x12 .settle.TransferPayinToPayoutReq\x1a!.settle.TransferPayinToPayoutResp\x12A\n" +
 	"\fListFundLogs\x12\x17.settle.ListFundLogsReq\x1a\x18.settle.ListFundLogsRespB0Z.github.com/gloopai/pay/common/pb/settle;settleb\x06proto3"
 
 var (
@@ -657,25 +657,25 @@ func file_settle_proto_rawDescGZIP() []byte {
 
 var file_settle_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_settle_proto_goTypes = []any{
-	(*CreditReq)(nil),                   // 0: settle.CreditReq
-	(*CreditResp)(nil),                  // 1: settle.CreditResp
-	(*DebitPayoutReq)(nil),              // 2: settle.DebitPayoutReq
-	(*DebitPayoutResp)(nil),             // 3: settle.DebitPayoutResp
-	(*TransferCollectToPayoutReq)(nil),  // 4: settle.TransferCollectToPayoutReq
-	(*TransferCollectToPayoutResp)(nil), // 5: settle.TransferCollectToPayoutResp
-	(*ListFundLogsReq)(nil),             // 6: settle.ListFundLogsReq
-	(*FundLogItem)(nil),                 // 7: settle.FundLogItem
-	(*ListFundLogsResp)(nil),            // 8: settle.ListFundLogsResp
+	(*CreditReq)(nil),                 // 0: settle.CreditReq
+	(*CreditResp)(nil),                // 1: settle.CreditResp
+	(*DebitPayoutReq)(nil),            // 2: settle.DebitPayoutReq
+	(*DebitPayoutResp)(nil),           // 3: settle.DebitPayoutResp
+	(*TransferPayinToPayoutReq)(nil),  // 4: settle.TransferPayinToPayoutReq
+	(*TransferPayinToPayoutResp)(nil), // 5: settle.TransferPayinToPayoutResp
+	(*ListFundLogsReq)(nil),           // 6: settle.ListFundLogsReq
+	(*FundLogItem)(nil),               // 7: settle.FundLogItem
+	(*ListFundLogsResp)(nil),          // 8: settle.ListFundLogsResp
 }
 var file_settle_proto_depIdxs = []int32{
 	7, // 0: settle.ListFundLogsResp.logs:type_name -> settle.FundLogItem
 	0, // 1: settle.Settle.Credit:input_type -> settle.CreditReq
 	2, // 2: settle.Settle.DebitPayout:input_type -> settle.DebitPayoutReq
-	4, // 3: settle.Settle.TransferCollectToPayout:input_type -> settle.TransferCollectToPayoutReq
+	4, // 3: settle.Settle.TransferPayinToPayout:input_type -> settle.TransferPayinToPayoutReq
 	6, // 4: settle.Settle.ListFundLogs:input_type -> settle.ListFundLogsReq
 	1, // 5: settle.Settle.Credit:output_type -> settle.CreditResp
 	3, // 6: settle.Settle.DebitPayout:output_type -> settle.DebitPayoutResp
-	5, // 7: settle.Settle.TransferCollectToPayout:output_type -> settle.TransferCollectToPayoutResp
+	5, // 7: settle.Settle.TransferPayinToPayout:output_type -> settle.TransferPayinToPayoutResp
 	8, // 8: settle.Settle.ListFundLogs:output_type -> settle.ListFundLogsResp
 	5, // [5:9] is the sub-list for method output_type
 	1, // [1:5] is the sub-list for method input_type

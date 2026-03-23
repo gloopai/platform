@@ -7,19 +7,19 @@ export const MERCHANT_API = {
   summary: '/v1/merchant/summary',
   config: '/v1/merchant/config',
   statsByProduct: '/v1/merchant/stats/by_product',
-  payOrders: '/v1/merchant/pay_orders',
+  payinOrders: '/v1/merchant/payin_orders',
   payoutOrders: '/v1/merchant/payout_orders',
   orderDetail: '/v1/merchant/order/detail',
   retryNotify: '/v1/merchant/order/retry_notify',
   fundLogs: '/v1/merchant/fund_logs',
-  transferCollectToPayout: '/v1/merchant/balance/transfer_collect_to_payout',
+  transferPayinToPayout: '/v1/merchant/balance/transfer_payin_to_payout',
 } as const
 
 /** 开放网关（非 X-Merchant-Token） */
 export const OPEN_API = {
-  payOrder: '/v1/pay/order',
+  payinOrder: '/v1/payin/order',
   payoutOrder: '/v1/payout/order',
-  queryOrder: '/v1/pay/query',
+  queryPayinOrder: '/v1/payin/query',
   queryPayoutOrder: '/v1/payout/query',
   callbackNotify: '/v1/callback/notify',
 } as const

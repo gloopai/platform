@@ -10,9 +10,9 @@ export type AdminChannel = {
   weight: number
   min_amount: number
   max_amount: number
-  supports_collect: boolean
+  supports_payin: boolean
   supports_payout: boolean
-  upstream_collect_rate_bps: number
+  upstream_payin_rate_bps: number
   upstream_payout_rate_bps: number
   upstream_payout_fee_mode: number
   upstream_payout_fixed_fee: number
@@ -32,9 +32,9 @@ export function emptyChannelForm(): AdminChannel {
     weight: 100,
     min_amount: 0,
     max_amount: 0,
-    supports_collect: true,
+    supports_payin: true,
     supports_payout: false,
-    upstream_collect_rate_bps: 0,
+    upstream_payin_rate_bps: 0,
     upstream_payout_rate_bps: 0,
     upstream_payout_fee_mode: 1,
     upstream_payout_fixed_fee: 0,

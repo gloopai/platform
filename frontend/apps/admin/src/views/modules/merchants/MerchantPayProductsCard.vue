@@ -88,11 +88,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import type { MerchantCollectGrant, PayProductRow } from './types'
+import type { MerchantPayinGrant, PayProductRow } from './types'
 
 const props = withDefaults(
   defineProps<{
-    grants: MerchantCollectGrant[]
+    grants: MerchantPayinGrant[]
     catalog: PayProductRow[]
     loading: boolean
     saving: boolean
@@ -105,7 +105,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   remove: [productId: number]
   add: [productId: number]
-  update: [grant: MerchantCollectGrant]
+  update: [grant: MerchantPayinGrant]
 }>()
 
 const localPick = ref(0)
@@ -122,7 +122,7 @@ const boundRows = computed(() => {
   const cat = props.catalog
   return grants
     .map((g) => {
-      const id = g.pay_product_id
+      const id = g.payin_product_id
       const p = cat.find((x) => x.id === id)
       return p
         ? { id: p.id, code: p.code, name: p.name, merchant_rate_bps: g.merchant_rate_bps ?? 0 }
@@ -131,7 +131,7 @@ const boundRows = computed(() => {
     .sort((a, b) => a.code.localeCompare(b.code))
 })
 
-const boundSet = computed(() => new Set((props.grants || []).map((g) => g.pay_product_id)))
+const boundSet = computed(() => new Set((props.grants || []).map((g) => g.payin_product_id)))
 
 const availableToAdd = computed(() =>
   props.catalog.filter((p) => !boundSet.value.has(p.id)),
@@ -145,7 +145,7 @@ function emitAdd() {
 
 function emitUpdate(row: { id: number; merchant_rate_bps: number }) {
   emit('update', {
-    pay_product_id: row.id,
+    payin_product_id: row.id,
     merchant_rate_bps: row.merchant_rate_bps ?? 0,
   })
 }

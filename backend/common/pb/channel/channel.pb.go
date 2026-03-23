@@ -263,9 +263,9 @@ type ChannelRow struct {
 	MaxAmount              int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
 	Enabled                bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
-	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
+	SupportsPayin          bool                   `protobuf:"varint,13,opt,name=supports_payin,json=supportsPayin,proto3" json:"supports_payin,omitempty"`
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
-	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
+	UpstreamPayinRateBps   int64                  `protobuf:"varint,15,opt,name=upstream_payin_rate_bps,json=upstreamPayinRateBps,proto3" json:"upstream_payin_rate_bps,omitempty"`
 	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
 	UpstreamPayoutFeeMode  int64                  `protobuf:"varint,17,opt,name=upstream_payout_fee_mode,json=upstreamPayoutFeeMode,proto3" json:"upstream_payout_fee_mode,omitempty"`    // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
 	UpstreamPayoutFixedFee int64                  `protobuf:"varint,18,opt,name=upstream_payout_fixed_fee,json=upstreamPayoutFixedFee,proto3" json:"upstream_payout_fixed_fee,omitempty"` // 分
@@ -387,9 +387,9 @@ func (x *ChannelRow) GetFuseEnabled() bool {
 	return false
 }
 
-func (x *ChannelRow) GetSupportsCollect() bool {
+func (x *ChannelRow) GetSupportsPayin() bool {
 	if x != nil {
-		return x.SupportsCollect
+		return x.SupportsPayin
 	}
 	return false
 }
@@ -401,9 +401,9 @@ func (x *ChannelRow) GetSupportsPayout() bool {
 	return false
 }
 
-func (x *ChannelRow) GetUpstreamCollectRateBps() int64 {
+func (x *ChannelRow) GetUpstreamPayinRateBps() int64 {
 	if x != nil {
-		return x.UpstreamCollectRateBps
+		return x.UpstreamPayinRateBps
 	}
 	return 0
 }
@@ -487,9 +487,9 @@ type UpsertChannelReq struct {
 	MaxAmount              int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
 	Enabled                bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
-	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
+	SupportsPayin          bool                   `protobuf:"varint,13,opt,name=supports_payin,json=supportsPayin,proto3" json:"supports_payin,omitempty"`
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
-	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
+	UpstreamPayinRateBps   int64                  `protobuf:"varint,15,opt,name=upstream_payin_rate_bps,json=upstreamPayinRateBps,proto3" json:"upstream_payin_rate_bps,omitempty"`
 	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
 	UpstreamPayoutFeeMode  int64                  `protobuf:"varint,17,opt,name=upstream_payout_fee_mode,json=upstreamPayoutFeeMode,proto3" json:"upstream_payout_fee_mode,omitempty"`
 	UpstreamPayoutFixedFee int64                  `protobuf:"varint,18,opt,name=upstream_payout_fixed_fee,json=upstreamPayoutFixedFee,proto3" json:"upstream_payout_fixed_fee,omitempty"`
@@ -611,9 +611,9 @@ func (x *UpsertChannelReq) GetFuseEnabled() bool {
 	return false
 }
 
-func (x *UpsertChannelReq) GetSupportsCollect() bool {
+func (x *UpsertChannelReq) GetSupportsPayin() bool {
 	if x != nil {
-		return x.SupportsCollect
+		return x.SupportsPayin
 	}
 	return false
 }
@@ -625,9 +625,9 @@ func (x *UpsertChannelReq) GetSupportsPayout() bool {
 	return false
 }
 
-func (x *UpsertChannelReq) GetUpstreamCollectRateBps() int64 {
+func (x *UpsertChannelReq) GetUpstreamPayinRateBps() int64 {
 	if x != nil {
-		return x.UpstreamCollectRateBps
+		return x.UpstreamPayinRateBps
 	}
 	return 0
 }
@@ -734,19 +734,19 @@ func (*GetRoutingSummaryReq) Descriptor() ([]byte, []int) {
 }
 
 type GetRoutingSummaryResp struct {
-	state                         protoimpl.MessageState `protogen:"open.v1"`
-	AlgorithmKey                  string                 `protobuf:"bytes,1,opt,name=algorithm_key,json=algorithmKey,proto3" json:"algorithm_key,omitempty"`
-	AlgorithmLabel                string                 `protobuf:"bytes,2,opt,name=algorithm_label,json=algorithmLabel,proto3" json:"algorithm_label,omitempty"`
-	EnabledPayProducts            int64                  `protobuf:"varint,3,opt,name=enabled_pay_products,json=enabledPayProducts,proto3" json:"enabled_pay_products,omitempty"`
-	EnabledPayoutProducts         int64                  `protobuf:"varint,4,opt,name=enabled_payout_products,json=enabledPayoutProducts,proto3" json:"enabled_payout_products,omitempty"`
-	EnabledChannels               int64                  `protobuf:"varint,5,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
-	ActiveBindings                int64                  `protobuf:"varint,6,opt,name=active_bindings,json=activeBindings,proto3" json:"active_bindings,omitempty"`
-	ActivePayoutBindings          int64                  `protobuf:"varint,7,opt,name=active_payout_bindings,json=activePayoutBindings,proto3" json:"active_payout_bindings,omitempty"`
-	MerchantsWithCollectWhitelist int64                  `protobuf:"varint,8,opt,name=merchants_with_collect_whitelist,json=merchantsWithCollectWhitelist,proto3" json:"merchants_with_collect_whitelist,omitempty"`
-	MerchantsWithPayoutWhitelist  int64                  `protobuf:"varint,9,opt,name=merchants_with_payout_whitelist,json=merchantsWithPayoutWhitelist,proto3" json:"merchants_with_payout_whitelist,omitempty"`
-	FusedChannels                 int64                  `protobuf:"varint,10,opt,name=fused_channels,json=fusedChannels,proto3" json:"fused_channels,omitempty"`
-	unknownFields                 protoimpl.UnknownFields
-	sizeCache                     protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"open.v1"`
+	AlgorithmKey                 string                 `protobuf:"bytes,1,opt,name=algorithm_key,json=algorithmKey,proto3" json:"algorithm_key,omitempty"`
+	AlgorithmLabel               string                 `protobuf:"bytes,2,opt,name=algorithm_label,json=algorithmLabel,proto3" json:"algorithm_label,omitempty"`
+	EnabledPayProducts           int64                  `protobuf:"varint,3,opt,name=enabled_pay_products,json=enabledPayProducts,proto3" json:"enabled_pay_products,omitempty"`
+	EnabledPayoutProducts        int64                  `protobuf:"varint,4,opt,name=enabled_payout_products,json=enabledPayoutProducts,proto3" json:"enabled_payout_products,omitempty"`
+	EnabledChannels              int64                  `protobuf:"varint,5,opt,name=enabled_channels,json=enabledChannels,proto3" json:"enabled_channels,omitempty"`
+	ActiveBindings               int64                  `protobuf:"varint,6,opt,name=active_bindings,json=activeBindings,proto3" json:"active_bindings,omitempty"`
+	ActivePayoutBindings         int64                  `protobuf:"varint,7,opt,name=active_payout_bindings,json=activePayoutBindings,proto3" json:"active_payout_bindings,omitempty"`
+	MerchantsWithPayinWhitelist  int64                  `protobuf:"varint,8,opt,name=merchants_with_payin_whitelist,json=merchantsWithPayinWhitelist,proto3" json:"merchants_with_payin_whitelist,omitempty"`
+	MerchantsWithPayoutWhitelist int64                  `protobuf:"varint,9,opt,name=merchants_with_payout_whitelist,json=merchantsWithPayoutWhitelist,proto3" json:"merchants_with_payout_whitelist,omitempty"`
+	FusedChannels                int64                  `protobuf:"varint,10,opt,name=fused_channels,json=fusedChannels,proto3" json:"fused_channels,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *GetRoutingSummaryResp) Reset() {
@@ -828,9 +828,9 @@ func (x *GetRoutingSummaryResp) GetActivePayoutBindings() int64 {
 	return 0
 }
 
-func (x *GetRoutingSummaryResp) GetMerchantsWithCollectWhitelist() int64 {
+func (x *GetRoutingSummaryResp) GetMerchantsWithPayinWhitelist() int64 {
 	if x != nil {
-		return x.MerchantsWithCollectWhitelist
+		return x.MerchantsWithPayinWhitelist
 	}
 	return 0
 }
@@ -2951,7 +2951,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x11GetSignSecretResp\x12\x1f\n" +
 	"\vsign_secret\x18\x01 \x01(\tR\n" +
 	"signSecret\"\x11\n" +
-	"\x0fListChannelsReq\"\xb6\x05\n" +
+	"\x0fListChannelsReq\"\xae\x05\n" +
 	"\n" +
 	"ChannelRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
@@ -2970,15 +2970,15 @@ const file_channel_proto_rawDesc = "" +
 	"max_amount\x18\n" +
 	" \x01(\x03R\tmaxAmount\x12\x18\n" +
 	"\aenabled\x18\v \x01(\bR\aenabled\x12!\n" +
-	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
-	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
-	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
-	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
+	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12%\n" +
+	"\x0esupports_payin\x18\r \x01(\bR\rsupportsPayin\x12'\n" +
+	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x125\n" +
+	"\x17upstream_payin_rate_bps\x18\x0f \x01(\x03R\x14upstreamPayinRateBps\x127\n" +
 	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\x127\n" +
 	"\x18upstream_payout_fee_mode\x18\x11 \x01(\x03R\x15upstreamPayoutFeeMode\x129\n" +
 	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"C\n" +
 	"\x10ListChannelsResp\x12/\n" +
-	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xbc\x05\n" +
+	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xb4\x05\n" +
 	"\x10UpsertChannelReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
@@ -2996,16 +2996,16 @@ const file_channel_proto_rawDesc = "" +
 	"max_amount\x18\n" +
 	" \x01(\x03R\tmaxAmount\x12\x18\n" +
 	"\aenabled\x18\v \x01(\bR\aenabled\x12!\n" +
-	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
-	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
-	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
-	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
+	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12%\n" +
+	"\x0esupports_payin\x18\r \x01(\bR\rsupportsPayin\x12'\n" +
+	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x125\n" +
+	"\x17upstream_payin_rate_bps\x18\x0f \x01(\x03R\x14upstreamPayinRateBps\x127\n" +
 	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\x127\n" +
 	"\x18upstream_payout_fee_mode\x18\x11 \x01(\x03R\x15upstreamPayoutFeeMode\x129\n" +
 	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"B\n" +
 	"\x11UpsertChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\x16\n" +
-	"\x14GetRoutingSummaryReq\"\x90\x04\n" +
+	"\x14GetRoutingSummaryReq\"\x8c\x04\n" +
 	"\x15GetRoutingSummaryResp\x12#\n" +
 	"\ralgorithm_key\x18\x01 \x01(\tR\falgorithmKey\x12'\n" +
 	"\x0falgorithm_label\x18\x02 \x01(\tR\x0ealgorithmLabel\x120\n" +
@@ -3013,8 +3013,8 @@ const file_channel_proto_rawDesc = "" +
 	"\x17enabled_payout_products\x18\x04 \x01(\x03R\x15enabledPayoutProducts\x12)\n" +
 	"\x10enabled_channels\x18\x05 \x01(\x03R\x0fenabledChannels\x12'\n" +
 	"\x0factive_bindings\x18\x06 \x01(\x03R\x0eactiveBindings\x124\n" +
-	"\x16active_payout_bindings\x18\a \x01(\x03R\x14activePayoutBindings\x12G\n" +
-	" merchants_with_collect_whitelist\x18\b \x01(\x03R\x1dmerchantsWithCollectWhitelist\x12E\n" +
+	"\x16active_payout_bindings\x18\a \x01(\x03R\x14activePayoutBindings\x12C\n" +
+	"\x1emerchants_with_payin_whitelist\x18\b \x01(\x03R\x1bmerchantsWithPayinWhitelist\x12E\n" +
 	"\x1fmerchants_with_payout_whitelist\x18\t \x01(\x03R\x1cmerchantsWithPayoutWhitelist\x12%\n" +
 	"\x0efused_channels\x18\n" +
 	" \x01(\x03R\rfusedChannels\"U\n" +

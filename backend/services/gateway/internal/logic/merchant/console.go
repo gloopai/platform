@@ -51,16 +51,15 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		rate = float64(sum.GetSuccessCount()) / float64(sum.GetTotalCount())
 	}
 	return &types.MerchantSummaryResp{
-		TodayAmount:    sum.GetTotalAmount(),
-		TodayCount:     sum.GetTotalCount(),
-		SuccessRate:    rate,
-		Balance:        auth.GetBalance(),
-		CollectBalance: auth.GetCollectBalance(),
-		PayoutBalance:  auth.GetPayoutBalance(),
-		MerchantId:     merchantId,
-		ApiSecret:      auth.GetApiSecret(),
-		NotifyUrl:      auth.GetNotifyUrl(),
-		IpWhitelist:    auth.GetIpWhitelist(),
+		TodayAmount:   sum.GetTotalAmount(),
+		TodayCount:    sum.GetTotalCount(),
+		SuccessRate:   rate,
+		PayinBalance:  auth.GetPayinBalance(),
+		PayoutBalance: auth.GetPayoutBalance(),
+		MerchantId:    merchantId,
+		ApiSecret:     auth.GetApiSecret(),
+		NotifyUrl:     auth.GetNotifyUrl(),
+		IpWhitelist:   auth.GetIpWhitelist(),
 	}, nil
 }
 
@@ -78,14 +77,14 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}
 	updated, err := c.svcCtx.MerchantRpc.UpdateMerchant(c.ctx, &merchantclient.UpdateMerchantReq{
-		MerchantId:            merchantId,
-		ApiSecret:             m.GetApiSecret(),
-		Status:                m.GetStatus(),
-		DefaultCollectRateBps: m.GetDefaultCollectRateBps(),
-		DefaultPayoutRateBps:  m.GetDefaultPayoutRateBps(),
-		NotifyUrl:             strings.TrimSpace(req.NotifyUrl),
-		ReturnUrl:             m.GetReturnUrl(),
-		IpWhitelist:           strings.TrimSpace(req.IpWhitelist),
+		MerchantId:           merchantId,
+		ApiSecret:            m.GetApiSecret(),
+		Status:               m.GetStatus(),
+		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
+		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
+		NotifyUrl:            strings.TrimSpace(req.NotifyUrl),
+		ReturnUrl:            m.GetReturnUrl(),
+		IpWhitelist:          strings.TrimSpace(req.IpWhitelist),
 	})
 	if err != nil {
 		return nil, err
@@ -156,22 +155,22 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 	for _, o := range items {
 		code := o.GetPayProductCode()
 		out = append(out, types.MerchantOrderItem{
-			OrderNo:         o.GetOrderNo(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PayProductCode:  code,
-			PayProductName:  lookupPayProductName(nameByCode, code),
-			PaidAmount:      o.GetPaidAmount(),
-			FeeMode:         o.GetFeeMode(),
-			FeeRateBps:      o.GetFeeRateBps(),
-			FeeFixedAmount:  o.GetFeeFixedAmount(),
-			FeeAmount:       o.GetFeeAmount(),
-			NetAmount:       o.GetNetAmount(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
-			CreatedAt:       o.GetCreatedAt(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayinProductCode: code,
+			PayProductName:   lookupPayProductName(nameByCode, code),
+			PaidAmount:       o.GetPaidAmount(),
+			FeeMode:          o.GetFeeMode(),
+			FeeRateBps:       o.GetFeeRateBps(),
+			FeeFixedAmount:   o.GetFeeFixedAmount(),
+			FeeAmount:        o.GetFeeAmount(),
+			NetAmount:        o.GetNetAmount(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			CreatedAt:        o.GetCreatedAt(),
 		})
 	}
 	return &types.MerchantOrdersResp{Orders: out}, nil
@@ -200,13 +199,13 @@ func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsRe
 			name = code
 		}
 		items = append(items, types.MerchantProductStatsItem{
-			PayProductCode: code,
-			PayProductName: name,
-			OrderCount:     x.GetOrderCount(),
-			PaidAmount:     x.GetPaidAmount(),
-			PaidCount:      x.GetPaidCount(),
-			FailedCount:    x.GetFailedCount(),
-			SuccessRatePct: x.GetTerminalSuccessRatePct(),
+			PayinProductCode: code,
+			PayProductName:   name,
+			OrderCount:       x.GetOrderCount(),
+			PaidAmount:       x.GetPaidAmount(),
+			PaidCount:        x.GetPaidCount(),
+			FailedCount:      x.GetFailedCount(),
+			SuccessRatePct:   x.GetTerminalSuccessRatePct(),
 		})
 	}
 	sort.SliceStable(items, func(i, j int) bool {
@@ -269,7 +268,7 @@ func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*typ
 	return &types.MerchantFundLogsResp{Logs: out}, nil
 }
 
-func (c *MerchantConsole) MerchantTransferCollectToPayout(req *types.MerchantTransferCollectToPayoutReq) (*types.MerchantTransferCollectToPayoutResp, error) {
+func (c *MerchantConsole) MerchantTransferPayinToPayout(req *types.MerchantTransferPayinToPayoutReq) (*types.MerchantTransferPayinToPayoutResp, error) {
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
 	if merchantId == "" {
 		return nil, status.Error(codes.Unauthenticated, "merchant not authenticated")
@@ -277,7 +276,7 @@ func (c *MerchantConsole) MerchantTransferCollectToPayout(req *types.MerchantTra
 	if req.Amount <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
-	r, err := c.svcCtx.SettleRpc.TransferCollectToPayout(c.ctx, &settlepb.TransferCollectToPayoutReq{
+	r, err := c.svcCtx.SettleRpc.TransferPayinToPayout(c.ctx, &settlepb.TransferPayinToPayoutReq{
 		MerchantId: merchantId,
 		Amount:     req.Amount,
 		Reason:     strings.TrimSpace(req.Reason),
@@ -285,10 +284,10 @@ func (c *MerchantConsole) MerchantTransferCollectToPayout(req *types.MerchantTra
 	if err != nil {
 		return nil, err
 	}
-	return &types.MerchantTransferCollectToPayoutResp{
-		Ok:             r.GetChanged(),
-		CollectBalance: r.GetCollectBalance(),
-		PayoutBalance:  r.GetPayoutBalance(),
+	return &types.MerchantTransferPayinToPayoutResp{
+		Ok:            r.GetChanged(),
+		PayinBalance:  r.GetPayinBalance(),
+		PayoutBalance: r.GetPayoutBalance(),
 	}, nil
 }
 
@@ -333,26 +332,26 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 
 	return &types.MerchantOrderDetailResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PayProductId:    o.GetPayProductId(),
-			PayProductCode:  o.GetPayProductCode(),
-			PayProductName:  payProductName,
-			ChannelLocked:   o.GetChannelLocked(),
-			PaidAmount:      o.GetPaidAmount(),
-			FeeMode:         o.GetFeeMode(),
-			FeeRateBps:      o.GetFeeRateBps(),
-			FeeFixedAmount:  o.GetFeeFixedAmount(),
-			FeeAmount:       o.GetFeeAmount(),
-			NetAmount:       o.GetNetAmount(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayinProductCode: o.GetPayProductCode(),
+			PayProductName:   payProductName,
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
+			FeeMode:          o.GetFeeMode(),
+			FeeRateBps:       o.GetFeeRateBps(),
+			FeeFixedAmount:   o.GetFeeFixedAmount(),
+			FeeAmount:        o.GetFeeAmount(),
+			NetAmount:        o.GetNetAmount(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 		Logs: outLogs,
 	}, nil

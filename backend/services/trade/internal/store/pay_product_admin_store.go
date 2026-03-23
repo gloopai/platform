@@ -27,10 +27,10 @@ type PayProductBindingAdmin struct {
 }
 
 // AdminListAllPayProducts 全部支付产品（含停用）。
-func (s *PayProductsStore) AdminListAllPayProducts(ctx context.Context) ([]PayProductAdmin, error) {
+func (s *PayinProductsStore) AdminListAllPayProducts(ctx context.Context) ([]PayProductAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT id, code, name, sort_order, enabled
-FROM pay_products
+FROM payin_products
 ORDER BY sort_order ASC, id ASC
 `)
 	if err != nil {
@@ -51,11 +51,11 @@ ORDER BY sort_order ASC, id ASC
 }
 
 // AdminGetPayProduct 按 ID。
-func (s *PayProductsStore) AdminGetPayProduct(ctx context.Context, id int64) (*PayProductAdmin, error) {
+func (s *PayinProductsStore) AdminGetPayProduct(ctx context.Context, id int64) (*PayProductAdmin, error) {
 	var p PayProductAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
-SELECT id, code, name, sort_order, enabled FROM pay_products WHERE id = ? LIMIT 1
+SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
 `, id).Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en)
 	if err != nil {
 		return nil, err
@@ -65,13 +65,13 @@ SELECT id, code, name, sort_order, enabled FROM pay_products WHERE id = ? LIMIT 
 }
 
 // AdminCreatePayProduct 新建；code 唯一。
-func (s *PayProductsStore) AdminCreatePayProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
+func (s *PayinProductsStore) AdminCreatePayProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-INSERT INTO pay_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
+INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 `, code, name, sortOrder, en)
 	if err != nil {
 		return 0, err
@@ -84,13 +84,13 @@ INSERT INTO pay_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 }
 
 // AdminUpdatePayProduct 更新。
-func (s *PayProductsStore) AdminUpdatePayProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
+func (s *PayinProductsStore) AdminUpdatePayProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-UPDATE pay_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated_at = NOW() WHERE id = ?
+UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated_at = NOW() WHERE id = ?
 `, code, name, sortOrder, en, id)
 	if err != nil {
 		return err
@@ -106,12 +106,12 @@ UPDATE pay_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated
 }
 
 // AdminListBindings 某产品下的通道绑定。
-func (s *PayProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayProductBindingAdmin, error) {
+func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayProductBindingAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
-SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
-FROM pay_product_channels ppc
+SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
+FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
-WHERE ppc.pay_product_id = ?
+WHERE ppc.payin_product_id = ?
 ORDER BY ppc.id ASC
 `, payProductID)
 	if err != nil {
@@ -132,7 +132,7 @@ ORDER BY ppc.id ASC
 }
 
 // AdminUpsertBinding 插入或更新 (product_id, channel_id) 唯一键。
-func (s *PayProductsStore) AdminUpsertBinding(ctx context.Context, payProductID, channelID int64, weight int64, enabled bool) (int64, error) {
+func (s *PayinProductsStore) AdminUpsertBinding(ctx context.Context, payProductID, channelID int64, weight int64, enabled bool) (int64, error) {
 	if weight <= 0 {
 		return 0, errors.New("weight must be positive")
 	}
@@ -141,7 +141,7 @@ func (s *PayProductsStore) AdminUpsertBinding(ctx context.Context, payProductID,
 		en = 1
 	}
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO pay_product_channels (pay_product_id, channel_id, weight, enabled)
+INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enabled)
 VALUES (?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), updated_at = NOW()
 `, payProductID, channelID, weight, en)
@@ -150,7 +150,7 @@ ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), upda
 	}
 	var bid int64
 	err = s.db.QueryRowContext(ctx, `
-SELECT id FROM pay_product_channels WHERE pay_product_id = ? AND channel_id = ? LIMIT 1
+SELECT id FROM payin_product_channels WHERE payin_product_id = ? AND channel_id = ? LIMIT 1
 `, payProductID, channelID).Scan(&bid)
 	if err != nil {
 		return 0, fmt.Errorf("load binding id: %w", err)
@@ -159,7 +159,7 @@ SELECT id FROM pay_product_channels WHERE pay_product_id = ? AND channel_id = ? 
 }
 
 // AdminUpdateBinding 按绑定行 ID 更新权重与启用。
-func (s *PayProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int64, weight int64, enabled bool) error {
+func (s *PayinProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int64, weight int64, enabled bool) error {
 	if weight <= 0 {
 		return errors.New("weight must be positive")
 	}
@@ -168,7 +168,7 @@ func (s *PayProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int
 		en = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-UPDATE pay_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHERE id = ?
+UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHERE id = ?
 `, weight, en, bindingID)
 	if err != nil {
 		return err
@@ -184,12 +184,12 @@ UPDATE pay_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHER
 }
 
 // AdminGetBindingByID 单条绑定（含通道名）。
-func (s *PayProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayProductBindingAdmin, error) {
+func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayProductBindingAdmin, error) {
 	var b PayProductBindingAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
-SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
-FROM pay_product_channels ppc
+SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
+FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
 `, bindingID).Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
@@ -201,8 +201,8 @@ WHERE ppc.id = ? LIMIT 1
 }
 
 // AdminDeleteBinding 删除一条绑定。
-func (s *PayProductsStore) AdminDeleteBinding(ctx context.Context, bindingID int64) error {
-	res, err := s.db.ExecContext(ctx, `DELETE FROM pay_product_channels WHERE id = ?`, bindingID)
+func (s *PayinProductsStore) AdminDeleteBinding(ctx context.Context, bindingID int64) error {
+	res, err := s.db.ExecContext(ctx, `DELETE FROM payin_product_channels WHERE id = ?`, bindingID)
 	if err != nil {
 		return err
 	}
@@ -216,10 +216,10 @@ func (s *PayProductsStore) AdminDeleteBinding(ctx context.Context, bindingID int
 	return nil
 }
 
-// AdminChannelSupportsCollect 通道是否存在且支持代收。
-func (s *PayProductsStore) AdminChannelSupportsCollect(ctx context.Context, channelID int64) (bool, error) {
+// AdminChannelSupportsPayin 通道是否存在且支持代收。
+func (s *PayinProductsStore) AdminChannelSupportsPayin(ctx context.Context, channelID int64) (bool, error) {
 	var sc int
-	err := s.db.QueryRowContext(ctx, `SELECT supports_collect FROM channels WHERE id = ? LIMIT 1`, channelID).Scan(&sc)
+	err := s.db.QueryRowContext(ctx, `SELECT supports_payin FROM channels WHERE id = ? LIMIT 1`, channelID).Scan(&sc)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	}
@@ -230,7 +230,7 @@ func (s *PayProductsStore) AdminChannelSupportsCollect(ctx context.Context, chan
 }
 
 // AdminChannelExists 通道是否存在。
-func (s *PayProductsStore) AdminChannelExists(ctx context.Context, channelID int64) (bool, error) {
+func (s *PayinProductsStore) AdminChannelExists(ctx context.Context, channelID int64) (bool, error) {
 	var n int
 	err := s.db.QueryRowContext(ctx, `SELECT 1 FROM channels WHERE id = ? LIMIT 1`, channelID).Scan(&n)
 	if errors.Is(err, sql.ErrNoRows) {

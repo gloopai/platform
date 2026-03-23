@@ -56,7 +56,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		code = strings.TrimSpace(rec.PayProductCode)
 	}
 	if code == "" {
-		return nil, status.Error(codes.InvalidArgument, "pay_product_code required")
+		return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 	}
 
 	ok, err := l.svcCtx.MerchantPayProducts.MerchantHasPayProductCode(l.ctx, rec.MerchantId, code)
@@ -107,10 +107,10 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 		code = strings.TrimSpace(rec.PayProductCode)
 	}
 	if code == "" {
-		return nil, status.Error(codes.InvalidArgument, "pay_product_code required")
+		return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 	}
 	if want := strings.TrimSpace(rec.PayProductCode); want != "" && code != want {
-		return nil, status.Error(codes.FailedPrecondition, "pay_product_code mismatch for locked order")
+		return nil, status.Error(codes.FailedPrecondition, "payin_product_code mismatch for locked order")
 	}
 
 	chID := rec.ChannelId

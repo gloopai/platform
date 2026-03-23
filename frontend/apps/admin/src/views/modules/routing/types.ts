@@ -6,7 +6,7 @@ export type RoutingSummary = {
   enabled_channels: number
   active_bindings: number
   active_payout_bindings: number
-  merchants_with_collect_whitelist: number
+  merchants_with_payin_whitelist: number
   merchants_with_payout_whitelist: number
   fused_channels: number
 }

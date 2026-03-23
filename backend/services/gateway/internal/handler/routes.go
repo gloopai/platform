@@ -31,7 +31,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    "/v1/pay/order",
+					Path:    "/v1/payin/order",
 					Handler: checkouthandler.CreateOrderHandler(serverCtx),
 				},
 				{
@@ -41,7 +41,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/v1/pay/query",
+					Path:    "/v1/payin/query",
 					Handler: checkouthandler.QueryOrderHandler(serverCtx),
 				},
 				{
@@ -84,7 +84,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/v1/merchant/pay_orders",
+					Path:    "/v1/merchant/payin_orders",
 					Handler: merchanthandler.MerchantPayOrdersHandler(serverCtx),
 				},
 				{
@@ -99,8 +99,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/v1/merchant/balance/transfer_collect_to_payout",
-					Handler: merchanthandler.MerchantTransferCollectToPayoutHandler(serverCtx),
+					Path:    "/v1/merchant/balance/transfer_payin_to_payout",
+					Handler: merchanthandler.MerchantTransferPayinToPayoutHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
@@ -202,42 +202,42 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/v1/admin/merchants/:merchant_id/transfer_collect_to_payout",
-					Handler: adminhandler.AdminTransferCollectToPayoutHandler(serverCtx),
+					Path:    "/v1/admin/merchants/:merchant_id/transfer_payin_to_payout",
+					Handler: adminhandler.AdminTransferPayinToPayoutHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/v1/admin/pay_products",
+					Path:    "/v1/admin/payin_products",
 					Handler: adminhandler.AdminListPayProductsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/v1/admin/pay_products",
+					Path:    "/v1/admin/payin_products",
 					Handler: adminhandler.AdminCreatePayProductHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
-					Path:    "/v1/admin/pay_products/:id",
+					Path:    "/v1/admin/payin_products/:id",
 					Handler: adminhandler.AdminUpdatePayProductHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/v1/admin/pay_products/:id/bindings",
+					Path:    "/v1/admin/payin_products/:id/bindings",
 					Handler: adminhandler.AdminListPayProductBindingsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/v1/admin/pay_products/:id/bindings",
+					Path:    "/v1/admin/payin_products/:id/bindings",
 					Handler: adminhandler.AdminUpsertPayProductBindingHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPut,
-					Path:    "/v1/admin/pay_product_bindings/:id",
+					Path:    "/v1/admin/payin_product_bindings/:id",
 					Handler: adminhandler.AdminUpdatePayProductBindingHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodDelete,
-					Path:    "/v1/admin/pay_product_bindings/:id",
+					Path:    "/v1/admin/payin_product_bindings/:id",
 					Handler: adminhandler.AdminDeletePayProductBindingHandler(serverCtx),
 				},
 				{
@@ -287,7 +287,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/v1/admin/pay_orders",
+					Path:    "/v1/admin/payin_orders",
 					Handler: adminhandler.AdminListPayOrdersHandler(serverCtx),
 				},
 				{

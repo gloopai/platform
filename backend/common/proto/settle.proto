@@ -6,7 +6,7 @@ option go_package = "github.com/gloopai/pay/common/pb/settle;settle";
 service Settle {
   rpc Credit(CreditReq) returns(CreditResp);
   rpc DebitPayout(DebitPayoutReq) returns(DebitPayoutResp);
-  rpc TransferCollectToPayout(TransferCollectToPayoutReq) returns(TransferCollectToPayoutResp);
+  rpc TransferPayinToPayout(TransferPayinToPayoutReq) returns(TransferPayinToPayoutResp);
   rpc ListFundLogs(ListFundLogsReq) returns(ListFundLogsResp);
 }
 
@@ -34,15 +34,15 @@ message DebitPayoutResp {
   int64 payout_balance = 2;
 }
 
-message TransferCollectToPayoutReq {
+message TransferPayinToPayoutReq {
   string merchant_id = 1;
   int64 amount = 2;
   string reason = 3;
 }
 
-message TransferCollectToPayoutResp {
+message TransferPayinToPayoutResp {
   bool changed = 1;
-  int64 collect_balance = 2;
+  int64 payin_balance = 2;
   int64 payout_balance = 3;
 }
 

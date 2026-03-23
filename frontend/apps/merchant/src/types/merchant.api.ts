@@ -12,8 +12,7 @@ export type MerchantSummary = {
   today_amount: number
   today_count: number
   success_rate: number
-  balance: number
-  collect_balance: number
+  payin_balance: number
   payout_balance: number
   merchant_id: string
   api_secret: string
@@ -34,8 +33,8 @@ export type MerchantUpdateConfigResp = {
 }
 
 export type MerchantProductStatsItem = {
-  pay_product_code: string
-  pay_product_name: string
+  payin_product_code: string
+  payin_product_name: string
   order_count: number
   paid_amount: number
   paid_count: number
@@ -57,9 +56,9 @@ export type MerchantOrderItem = {
   status: number
   channel_id: number
   /** 支付产品编码（微信/支付宝/mock 等），与开放平台 pay_type 一致 */
-  pay_product_code: string
-  /** 管理台配置的展示名；缺省时前端仅用 `pay_product_code` */
-  pay_product_name?: string
+  payin_product_code: string
+  /** 管理台配置的展示名；缺省时前端仅用 `payin_product_code` */
+  payin_product_name?: string
   paid_amount: number
   fee_mode: number
   fee_rate_bps: number
@@ -92,9 +91,9 @@ export type MerchantOrderDetail = {
   currency: string
   status: number
   channel_id: number
-  pay_product_id: number
-  pay_product_code: string
-  pay_product_name?: string
+  payin_product_id: number
+  payin_product_code: string
+  payin_product_name?: string
   fee_mode: number
   fee_rate_bps: number
   fee_fixed_amount: number
@@ -125,8 +124,8 @@ export type MerchantFundLogsResp = {
   logs: MerchantFundLogItem[]
 }
 
-export type MerchantTransferCollectToPayoutResp = {
+export type MerchantTransferPayinToPayoutResp = {
   ok: boolean
-  collect_balance: number
+  payin_balance: number
   payout_balance: number
 }

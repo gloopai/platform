@@ -50,9 +50,9 @@
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2 py-0.5 text-xs font-semibold"
-                  :class="c.supports_collect ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'"
+                  :class="c.supports_payin ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'"
                 >
-                  {{ c.supports_collect ? '是' : '否' }}
+                  {{ c.supports_payin ? '是' : '否' }}
                 </span>
               </td>
               <td class="px-4 py-3">

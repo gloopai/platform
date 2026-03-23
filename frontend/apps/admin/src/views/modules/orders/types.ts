@@ -6,8 +6,8 @@ export type AdminOrderRow = {
   currency: string
   status: number
   channel_id: number
-  pay_product_id: number
-  pay_product_code: string
+  payin_product_id: number
+  payin_product_code: string
   paid_amount: number
   fee_mode: number
   fee_rate_bps: number

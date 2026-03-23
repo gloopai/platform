@@ -14,13 +14,13 @@ type (
 	CreditResp                  = settle.CreditResp
 	DebitPayoutReq              = settle.DebitPayoutReq
 	DebitPayoutResp             = settle.DebitPayoutResp
-	TransferCollectToPayoutReq  = settle.TransferCollectToPayoutReq
-	TransferCollectToPayoutResp = settle.TransferCollectToPayoutResp
+	TransferPayinToPayoutReq  = settle.TransferPayinToPayoutReq
+	TransferPayinToPayoutResp = settle.TransferPayinToPayoutResp
 
 	Settle interface {
 		Credit(ctx context.Context, in *CreditReq, opts ...grpc.CallOption) (*CreditResp, error)
 		DebitPayout(ctx context.Context, in *DebitPayoutReq, opts ...grpc.CallOption) (*DebitPayoutResp, error)
-		TransferCollectToPayout(ctx context.Context, in *TransferCollectToPayoutReq, opts ...grpc.CallOption) (*TransferCollectToPayoutResp, error)
+		TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error)
 		ListFundLogs(ctx context.Context, in *settle.ListFundLogsReq, opts ...grpc.CallOption) (*settle.ListFundLogsResp, error)
 	}
 
@@ -45,8 +45,8 @@ func (m *defaultSettle) DebitPayout(ctx context.Context, in *DebitPayoutReq, opt
 	return m.client().DebitPayout(ctx, in, opts...)
 }
 
-func (m *defaultSettle) TransferCollectToPayout(ctx context.Context, in *TransferCollectToPayoutReq, opts ...grpc.CallOption) (*TransferCollectToPayoutResp, error) {
-	return m.client().TransferCollectToPayout(ctx, in, opts...)
+func (m *defaultSettle) TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error) {
+	return m.client().TransferPayinToPayout(ctx, in, opts...)
 }
 
 func (m *defaultSettle) ListFundLogs(ctx context.Context, in *settle.ListFundLogsReq, opts ...grpc.CallOption) (*settle.ListFundLogsResp, error) {

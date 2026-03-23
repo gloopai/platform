@@ -8,7 +8,7 @@ export type PayProduct = {
 
 export type PayProductBinding = {
   id: number
-  pay_product_id?: number
+  payin_product_id?: number
   payout_product_id?: number
   channel_id: number
   channel_name: string
@@ -20,6 +20,6 @@ export type PayProductChannelOption = {
   id: number
   name: string
   pay_type: string
-  supports_collect?: boolean
+  supports_payin?: boolean
   supports_payout?: boolean
 }

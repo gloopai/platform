@@ -27,9 +27,9 @@ func NewChannelsStore(db *sql.DB) *ChannelsStore {
 	return &ChannelsStore{db: db}
 }
 
-// Route 按支付产品编码选一条上游通道：优先 pay_products + pay_product_channels；否则回退到 channels.pay_type 旧逻辑。仅 supports_collect=1 的通道参与代收路由。
-func (s *ChannelsStore) Route(ctx context.Context, payProductCode string, amount int64) (channelID, payProductID int64, err error) {
-	code := strings.TrimSpace(payProductCode)
+// Route 按支付产品编码选一条上游通道：优先 payin_products + payin_product_channels；否则回退到 channels.pay_type 旧逻辑。仅 supports_payin=1 的通道参与代收路由。
+func (s *ChannelsStore) Route(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
+	code := strings.TrimSpace(payinProductCode)
 	if code == "" {
 		return 0, 0, errors.New("pay_type (product code) required")
 	}
@@ -45,19 +45,19 @@ func (s *ChannelsStore) Route(ctx context.Context, payProductCode string, amount
 	return ch, 0, nil
 }
 
-func (s *ChannelsStore) routeByPayProduct(ctx context.Context, payProductCode string, amount int64) (channelID, payProductID int64, err error) {
+func (s *ChannelsStore) routeByPayProduct(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
 	rows, err := s.db.QueryContext(ctx, `
 SELECT c.id, ppc.weight, pp.id
-FROM pay_products pp
-INNER JOIN pay_product_channels ppc ON pp.id = ppc.pay_product_id AND ppc.enabled = 1
+FROM payin_products pp
+INNER JOIN payin_product_channels ppc ON pp.id = ppc.payin_product_id AND ppc.enabled = 1
 INNER JOIN channels c ON c.id = ppc.channel_id
 WHERE pp.code = ? AND pp.enabled = 1
   AND c.enabled = 1 AND c.fuse_enabled = 0
-  AND c.supports_collect = 1
+  AND c.supports_payin = 1
   AND ppc.weight > 0
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
-`, payProductCode, amount, amount)
+`, payinProductCode, amount, amount)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -98,7 +98,7 @@ SELECT id, weight
 FROM channels
 WHERE enabled = 1
   AND fuse_enabled = 0
-  AND supports_collect = 1
+  AND supports_payin = 1
   AND (pay_type = ? OR pay_type = '' OR pay_type IS NULL)
   AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)
@@ -171,9 +171,9 @@ type Channel struct {
 	Weight                 int64
 	MinAmount              int64
 	MaxAmount              int64
-	SupportsCollect        bool
+	SupportsPayin          bool
 	SupportsPayout         bool
-	UpstreamCollectRateBps int64
+	UpstreamPayinRateBps   int64
 	UpstreamPayoutRateBps  int64
 	UpstreamPayoutFeeMode  int64
 	UpstreamPayoutFixedFee int64
@@ -188,7 +188,7 @@ func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*Channel, e
 SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
-       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
+       supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
        enabled, fuse_enabled
 FROM channels
 WHERE id = ?
@@ -206,7 +206,7 @@ LIMIT 1
 		&c.MaxAmount,
 		&sc,
 		&sp,
-		&c.UpstreamCollectRateBps,
+		&c.UpstreamPayinRateBps,
 		&c.UpstreamPayoutRateBps,
 		&c.UpstreamPayoutFeeMode,
 		&c.UpstreamPayoutFixedFee,
@@ -216,7 +216,7 @@ LIMIT 1
 	if err != nil {
 		return nil, err
 	}
-	c.SupportsCollect = sc == 1
+	c.SupportsPayin = sc == 1
 	c.SupportsPayout = sp == 1
 	return &c, nil
 }
@@ -226,7 +226,7 @@ func (s *ChannelsStore) AdminList(ctx context.Context) ([]Channel, error) {
 SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
-       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
+       supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
        enabled, fuse_enabled
 FROM channels
 ORDER BY id DESC
@@ -253,7 +253,7 @@ ORDER BY id DESC
 			&c.MaxAmount,
 			&sc,
 			&sp,
-			&c.UpstreamCollectRateBps,
+			&c.UpstreamPayinRateBps,
 			&c.UpstreamPayoutRateBps,
 			&c.UpstreamPayoutFeeMode,
 			&c.UpstreamPayoutFixedFee,
@@ -262,7 +262,7 @@ ORDER BY id DESC
 		); err != nil {
 			return nil, err
 		}
-		c.SupportsCollect = sc == 1
+		c.SupportsPayin = sc == 1
 		c.SupportsPayout = sp == 1
 		out = append(out, c)
 	}
@@ -274,7 +274,7 @@ ORDER BY id DESC
 
 func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, error) {
 	sc, sp := 0, 0
-	if c.SupportsCollect {
+	if c.SupportsPayin {
 		sc = 1
 	}
 	if c.SupportsPayout {
@@ -282,11 +282,11 @@ func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, err
 	}
 	res, err := s.db.ExecContext(ctx, `
 INSERT INTO channels (name, pay_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
-  supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
+  supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
   enabled, fuse_enabled, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.Weight, c.MinAmount, c.MaxAmount,
-		sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee, c.Enabled, c.FuseEnabled)
+		sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee, c.Enabled, c.FuseEnabled)
 	if err != nil {
 		return 0, err
 	}
@@ -299,7 +299,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 
 func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) error {
 	sc, sp := 0, 0
-	if c.SupportsCollect {
+	if c.SupportsPayin {
 		sc = 1
 	}
 	if c.SupportsPayout {
@@ -309,11 +309,11 @@ func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) e
 UPDATE channels
 SET name = ?, pay_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?,
     weight = ?, min_amount = ?, max_amount = ?,
-    supports_collect = ?, supports_payout = ?, upstream_collect_rate_bps = ?, upstream_payout_rate_bps = ?, upstream_payout_fee_mode = ?, upstream_payout_fixed_fee = ?,
+    supports_payin = ?, supports_payout = ?, upstream_payin_rate_bps = ?, upstream_payout_rate_bps = ?, upstream_payout_fee_mode = ?, upstream_payout_fixed_fee = ?,
     enabled = ?, fuse_enabled = ?, updated_at = NOW()
 WHERE id = ?
 `, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret,
-		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee,
+		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee,
 		c.Enabled, c.FuseEnabled, id)
 	return err
 }

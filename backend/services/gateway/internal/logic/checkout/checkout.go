@@ -44,11 +44,11 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 	channelID := req.ChannelId
 
 	var (
-		route          *channelclient.RouteResp
-		payProductCode string
-		channelLocked  int32
-		cid            int64
-		ppid           int64
+		route            *channelclient.RouteResp
+		payinProductCode string
+		channelLocked    int32
+		cid              int64
+		ppid             int64
 	)
 
 	switch {
@@ -62,7 +62,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		channelLocked = 1
 		cid = channelID
 		ppid = rl.GetPayProductId()
-		payProductCode = rl.GetPayProductCode()
+		payinProductCode = rl.GetPayProductCode()
 
 	case payType != "":
 		has, err := c.svcCtx.ChannelRpc.MerchantHasPayProductCode(c.ctx, &channelpb.MerchantHasPayProductCodeReq{
@@ -83,18 +83,18 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		}
 		cid = route.GetChannelId()
 		ppid = route.GetPayProductId()
-		payProductCode = payType
+		payinProductCode = payType
 		channelLocked = 0
 
 	default:
 		cid, ppid = 0, 0
-		payProductCode = ""
+		payinProductCode = ""
 		channelLocked = 0
 	}
 
 	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
 	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
-		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = calcCollectFeeSnapshot(info.GetMerchant(), ppid, req.Amount)
+		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = calcPayinFeeSnapshot(info.GetMerchant(), ppid, req.Amount)
 	}
 
 	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
@@ -108,7 +108,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		PayType:         payType,
 		ChannelId:       cid,
 		PayProductId:    ppid,
-		PayProductCode:  payProductCode,
+		PayProductCode:  payinProductCode,
 		ChannelLocked:   channelLocked,
 		FeeMode:         feeMode,
 		FeeRateBps:      feeRateBps,
@@ -129,13 +129,13 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 	checkoutURL := base + "/?order_no=" + orderInfo.GetOrderNo()
 
 	return &types.CreateOrderResp{
-		OrderNo:        orderInfo.GetOrderNo(),
-		Status:         orderInfo.GetStatus(),
-		ChannelId:      orderInfo.GetChannelId(),
-		PayProductId:   orderInfo.GetPayProductId(),
-		PayProductCode: orderInfo.GetPayProductCode(),
-		CheckoutUrl:    checkoutURL,
-		ChannelLocked:  orderInfo.GetChannelLocked(),
+		OrderNo:          orderInfo.GetOrderNo(),
+		Status:           orderInfo.GetStatus(),
+		ChannelId:        orderInfo.GetChannelId(),
+		PayProductId:     orderInfo.GetPayProductId(),
+		PayinProductCode: orderInfo.GetPayProductCode(),
+		CheckoutUrl:      checkoutURL,
+		ChannelLocked:    orderInfo.GetChannelLocked(),
 	}, nil
 }
 
@@ -152,25 +152,25 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 
 	return &types.QueryOrderResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PayProductId:    o.GetPayProductId(),
-			PayProductCode:  o.GetPayProductCode(),
-			ChannelLocked:   o.GetChannelLocked(),
-			PaidAmount:      o.GetPaidAmount(),
-			FeeMode:         o.GetFeeMode(),
-			FeeRateBps:      o.GetFeeRateBps(),
-			FeeFixedAmount:  o.GetFeeFixedAmount(),
-			FeeAmount:       o.GetFeeAmount(),
-			NetAmount:       o.GetNetAmount(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayinProductCode: o.GetPayProductCode(),
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
+			FeeMode:          o.GetFeeMode(),
+			FeeRateBps:       o.GetFeeRateBps(),
+			FeeFixedAmount:   o.GetFeeFixedAmount(),
+			FeeAmount:        o.GetFeeAmount(),
+			NetAmount:        o.GetNetAmount(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 	}, nil
 }
@@ -227,13 +227,13 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		}
 	}
 	return &types.CreateOrderResp{
-		OrderNo:        o.GetOrderNo(),
-		Status:         o.GetStatus(),
-		ChannelId:      o.GetChannelId(),
-		PayProductId:   o.GetPayProductId(),
-		PayProductCode: o.GetPayProductCode(),
-		CheckoutUrl:    "",
-		ChannelLocked:  0,
+		OrderNo:          o.GetOrderNo(),
+		Status:           o.GetStatus(),
+		ChannelId:        o.GetChannelId(),
+		PayProductId:     o.GetPayProductId(),
+		PayinProductCode: o.GetPayProductCode(),
+		CheckoutUrl:      "",
+		ChannelLocked:    0,
 	}, nil
 }
 
@@ -302,23 +302,23 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 	o := r.GetOrder()
 	return &types.QueryOrderResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PayProductId:    o.GetPayProductId(),
-			PayProductCode:  o.GetPayProductCode(),
-			PaidAmount:      o.GetPaidAmount(),
-			FeeMode:         o.GetFeeMode(),
-			FeeRateBps:      o.GetFeeRateBps(),
-			FeeFixedAmount:  o.GetFeeFixedAmount(),
-			FeeAmount:       o.GetFeeAmount(),
-			NetAmount:       o.GetNetAmount(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayinProductCode: o.GetPayProductCode(),
+			PaidAmount:       o.GetPaidAmount(),
+			FeeMode:          o.GetFeeMode(),
+			FeeRateBps:       o.GetFeeRateBps(),
+			FeeFixedAmount:   o.GetFeeFixedAmount(),
+			FeeAmount:        o.GetFeeAmount(),
+			NetAmount:        o.GetNetAmount(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 	}, nil
 }
@@ -333,10 +333,9 @@ func (c *Checkout) QueryMerchantBalance(req *types.MerchantBalanceQueryReq) (*ty
 		return nil, err
 	}
 	return &types.MerchantBalanceQueryResp{
-		MerchantId:     merchantID,
-		Balance:        auth.GetBalance(),
-		CollectBalance: auth.GetCollectBalance(),
-		PayoutBalance:  auth.GetPayoutBalance(),
+		MerchantId:    merchantID,
+		PayinBalance:  auth.GetPayinBalance(),
+		PayoutBalance: auth.GetPayoutBalance(),
 	}, nil
 }
 
@@ -377,25 +376,25 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 
 	return &types.TerminalOrderResp{
 		Order: types.OrderInfo{
-			OrderNo:         o.GetOrderNo(),
-			MerchantId:      o.GetMerchantId(),
-			MerchantOrderNo: o.GetMerchantOrderNo(),
-			Amount:          o.GetAmount(),
-			Currency:        o.GetCurrency(),
-			Status:          o.GetStatus(),
-			ChannelId:       o.GetChannelId(),
-			PayProductId:    o.GetPayProductId(),
-			PayProductCode:  o.GetPayProductCode(),
-			ChannelLocked:   o.GetChannelLocked(),
-			PaidAmount:      o.GetPaidAmount(),
-			FeeMode:         o.GetFeeMode(),
-			FeeRateBps:      o.GetFeeRateBps(),
-			FeeFixedAmount:  o.GetFeeFixedAmount(),
-			FeeAmount:       o.GetFeeAmount(),
-			NetAmount:       o.GetNetAmount(),
-			ReturnUrl:       o.GetReturnUrl(),
-			NotifyUrl:       o.GetNotifyUrl(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			OrderNo:          o.GetOrderNo(),
+			MerchantId:       o.GetMerchantId(),
+			MerchantOrderNo:  o.GetMerchantOrderNo(),
+			Amount:           o.GetAmount(),
+			Currency:         o.GetCurrency(),
+			Status:           o.GetStatus(),
+			ChannelId:        o.GetChannelId(),
+			PayProductId:     o.GetPayProductId(),
+			PayinProductCode: o.GetPayProductCode(),
+			ChannelLocked:    o.GetChannelLocked(),
+			PaidAmount:       o.GetPaidAmount(),
+			FeeMode:          o.GetFeeMode(),
+			FeeRateBps:       o.GetFeeRateBps(),
+			FeeFixedAmount:   o.GetFeeFixedAmount(),
+			FeeAmount:        o.GetFeeAmount(),
+			NetAmount:        o.GetNetAmount(),
+			ReturnUrl:        o.GetReturnUrl(),
+			NotifyUrl:        o.GetNotifyUrl(),
+			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
 		},
 		PayProducts: items,
 	}, nil
@@ -412,7 +411,7 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 		return nil, err
 	}
 	o := gr.GetOrder()
-	code := strings.TrimSpace(req.PayProductCode)
+	code := strings.TrimSpace(req.PayinProductCode)
 
 	if o.GetChannelLocked() == 0 {
 		if code == "" {
@@ -437,12 +436,12 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 		return nil, err
 	}
 	return &types.TerminalPayResp{
-		ChannelId:      r.GetChannelId(),
-		PayProductId:   r.GetPayProductId(),
-		PayProductCode: r.GetPayProductCode(),
-		PayUrl:         r.GetPayUrl(),
-		QrPayload:      r.GetQrPayload(),
-		PayMode:        r.GetPayMode(),
+		ChannelId:        r.GetChannelId(),
+		PayProductId:     r.GetPayProductId(),
+		PayinProductCode: r.GetPayProductCode(),
+		PayUrl:           r.GetPayUrl(),
+		QrPayload:        r.GetQrPayload(),
+		PayMode:          r.GetPayMode(),
 	}, nil
 }
 
@@ -587,7 +586,7 @@ func md5Sign(params map[string]string, secret string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func calcCollectFeeSnapshot(m *merchantpb.MerchantInfo, payProductID, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {
+func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {
 	feeMode = 1
 	feeRateBps = 0
 	feeFixedAmount = 0
@@ -596,9 +595,9 @@ func calcCollectFeeSnapshot(m *merchantpb.MerchantInfo, payProductID, amount int
 	if m == nil || amount <= 0 {
 		return
 	}
-	feeRateBps = m.GetDefaultCollectRateBps()
-	for _, g := range m.GetCollectGrants() {
-		if g == nil || g.GetPayProductId() != payProductID {
+	feeRateBps = m.GetDefaultPayinRateBps()
+	for _, g := range m.GetPayinGrants() {
+		if g == nil || g.GetPayProductId() != payinProductID {
 			continue
 		}
 		if g.MerchantRateBps != nil {

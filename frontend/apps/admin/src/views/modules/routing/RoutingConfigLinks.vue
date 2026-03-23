@@ -1,7 +1,7 @@
 <template>
   <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <RouterLink
-      to="/merchant-products"
+      to="/merchant-payin-products"
       class="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
     >
       <div class="text-sm font-semibold text-slate-900">代收产品</div>

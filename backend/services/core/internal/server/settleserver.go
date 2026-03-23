@@ -29,7 +29,7 @@ func (s *SettleServer) DebitPayout(ctx context.Context, in *settlepb.DebitPayout
 	return l.DebitPayout(in)
 }
 
-func (s *SettleServer) TransferCollectToPayout(ctx context.Context, in *settlepb.TransferCollectToPayoutReq) (*settlepb.TransferCollectToPayoutResp, error) {
-	l := logic.NewTransferCollectToPayoutLogic(ctx, s.svcCtx)
-	return l.TransferCollectToPayout(in)
+func (s *SettleServer) TransferPayinToPayout(ctx context.Context, in *settlepb.TransferPayinToPayoutReq) (*settlepb.TransferPayinToPayoutResp, error) {
+	l := logic.NewTransferPayinToPayoutLogic(ctx, s.svcCtx)
+	return l.TransferPayinToPayout(in)
 }

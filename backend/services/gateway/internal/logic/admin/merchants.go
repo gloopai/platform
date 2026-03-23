@@ -34,12 +34,12 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 	if m == nil {
 		return types.AdminMerchantInfo{}
 	}
-	cg := make([]types.MerchantCollectGrant, 0, len(m.GetCollectGrants()))
-	for _, g := range m.GetCollectGrants() {
+	cg := make([]types.MerchantPayinGrant, 0, len(m.GetPayinGrants()))
+	for _, g := range m.GetPayinGrants() {
 		if g == nil {
 			continue
 		}
-		row := types.MerchantCollectGrant{PayProductId: g.GetPayProductId()}
+		row := types.MerchantPayinGrant{PayProductId: g.GetPayProductId()}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			row.MerchantRateBps = &v
@@ -64,25 +64,24 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		pg = append(pg, row)
 	}
 	return types.AdminMerchantInfo{
-		MerchantId:            m.GetMerchantId(),
-		ApiSecret:             m.GetApiSecret(),
-		Status:                m.GetStatus(),
-		DefaultCollectRateBps: m.GetDefaultCollectRateBps(),
-		DefaultPayoutRateBps:  m.GetDefaultPayoutRateBps(),
-		NotifyUrl:             m.GetNotifyUrl(),
-		ReturnUrl:             m.GetReturnUrl(),
-		IpWhitelist:           m.GetIpWhitelist(),
-		Balance:               m.GetBalance(),
-		CollectBalance:        m.GetCollectBalance(),
-		PayoutBalance:         m.GetPayoutBalance(),
-		PayProductIds:         m.GetPayProductIds(),
-		PayoutProductIds:      m.GetPayoutProductIds(),
-		CollectGrants:         cg,
-		PayoutGrants:          pg,
+		MerchantId:           m.GetMerchantId(),
+		ApiSecret:            m.GetApiSecret(),
+		Status:               m.GetStatus(),
+		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
+		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
+		NotifyUrl:            m.GetNotifyUrl(),
+		ReturnUrl:            m.GetReturnUrl(),
+		IpWhitelist:          m.GetIpWhitelist(),
+		PayinBalance:         m.GetPayinBalance(),
+		PayoutBalance:        m.GetPayoutBalance(),
+		PayProductIds:        m.GetPayProductIds(),
+		PayoutProductIds:     m.GetPayoutProductIds(),
+		PayinGrants:          cg,
+		PayoutGrants:         pg,
 	}
 }
 
-func (m *AdminMerchants) AdminTransferCollectToPayout(req *types.AdminTransferCollectToPayoutReq) (*types.AdminTransferCollectToPayoutResp, error) {
+func (m *AdminMerchants) AdminTransferPayinToPayout(req *types.AdminTransferPayinToPayoutReq) (*types.AdminTransferPayinToPayoutResp, error) {
 	merchantId := strings.TrimSpace(req.MerchantId)
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
@@ -90,7 +89,7 @@ func (m *AdminMerchants) AdminTransferCollectToPayout(req *types.AdminTransferCo
 	if req.Amount <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
-	r, err := m.svcCtx.SettleRpc.TransferCollectToPayout(m.ctx, &settlepb.TransferCollectToPayoutReq{
+	r, err := m.svcCtx.SettleRpc.TransferPayinToPayout(m.ctx, &settlepb.TransferPayinToPayoutReq{
 		MerchantId: merchantId,
 		Amount:     req.Amount,
 		Reason:     strings.TrimSpace(req.Reason),
@@ -98,10 +97,10 @@ func (m *AdminMerchants) AdminTransferCollectToPayout(req *types.AdminTransferCo
 	if err != nil {
 		return nil, err
 	}
-	return &types.AdminTransferCollectToPayoutResp{
-		Ok:             r.GetChanged(),
-		CollectBalance: r.GetCollectBalance(),
-		PayoutBalance:  r.GetPayoutBalance(),
+	return &types.AdminTransferPayinToPayoutResp{
+		Ok:            r.GetChanged(),
+		PayinBalance:  r.GetPayinBalance(),
+		PayoutBalance: r.GetPayoutBalance(),
 	}, nil
 }
 
@@ -125,16 +124,16 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 
 	secret := strings.TrimSpace(req.ApiSecret)
 	r, err := m.svcCtx.MerchantRpc.CreateMerchant(m.ctx, &merchantclient.CreateMerchantReq{
-		MerchantId:            merchantId,
-		ApiSecret:             secret,
-		Status:                1,
-		DefaultCollectRateBps: req.DefaultCollectRateBps,
-		DefaultPayoutRateBps:  req.DefaultPayoutRateBps,
-		NotifyUrl:             req.NotifyUrl,
-		ReturnUrl:             req.ReturnUrl,
-		IpWhitelist:           req.IpWhitelist,
-		PayProductIds:         req.PayProductIds,
-		PayoutProductIds:      req.PayoutProductIds,
+		MerchantId:           merchantId,
+		ApiSecret:            secret,
+		Status:               1,
+		DefaultPayinRateBps:  req.DefaultPayinRateBps,
+		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
+		NotifyUrl:            req.NotifyUrl,
+		ReturnUrl:            req.ReturnUrl,
+		IpWhitelist:          req.IpWhitelist,
+		PayProductIds:        req.PayProductIds,
+		PayoutProductIds:     req.PayoutProductIds,
 	})
 	if err != nil {
 		return nil, err
@@ -160,24 +159,24 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		secret = tok
 	}
 	r, err := m.svcCtx.MerchantRpc.UpdateMerchant(m.ctx, &merchantclient.UpdateMerchantReq{
-		MerchantId:            merchantId,
-		ApiSecret:             secret,
-		Status:                req.Status,
-		DefaultCollectRateBps: req.DefaultCollectRateBps,
-		DefaultPayoutRateBps:  req.DefaultPayoutRateBps,
-		NotifyUrl:             req.NotifyUrl,
-		ReturnUrl:             req.ReturnUrl,
-		IpWhitelist:           req.IpWhitelist,
+		MerchantId:           merchantId,
+		ApiSecret:            secret,
+		Status:               req.Status,
+		DefaultPayinRateBps:  req.DefaultPayinRateBps,
+		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
+		NotifyUrl:            req.NotifyUrl,
+		ReturnUrl:            req.ReturnUrl,
+		IpWhitelist:          req.IpWhitelist,
 	})
 	if err != nil {
 		return nil, err
 	}
 	updated := r.GetMerchant()
 
-	if req.CollectGrants != nil {
-		pbGrants := make([]*merchantpb.MerchantCollectGrant, 0, len(req.CollectGrants))
-		for _, g := range req.CollectGrants {
-			row := &merchantpb.MerchantCollectGrant{PayProductId: g.PayProductId}
+	if req.PayinGrants != nil {
+		pbGrants := make([]*merchantpb.MerchantPayinGrant, 0, len(req.PayinGrants))
+		for _, g := range req.PayinGrants {
+			row := &merchantpb.MerchantPayinGrant{PayProductId: g.PayProductId}
 			if g.MerchantRateBps != nil {
 				v := *g.MerchantRateBps
 				row.MerchantRateBps = &v
@@ -191,12 +190,12 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 			return nil, status.Error(codes.Internal, "save merchant pay products failed")
 		}
 	} else if req.PayProductIds != nil {
-		var pbGrants []*merchantpb.MerchantCollectGrant
+		var pbGrants []*merchantpb.MerchantPayinGrant
 		for _, id := range req.PayProductIds {
 			if id <= 0 {
 				continue
 			}
-			pbGrants = append(pbGrants, &merchantpb.MerchantCollectGrant{PayProductId: id})
+			pbGrants = append(pbGrants, &merchantpb.MerchantPayinGrant{PayProductId: id})
 		}
 		if _, err := m.svcCtx.MerchantRpc.ReplaceMerchantPayProducts(m.ctx, &merchantpb.ReplaceMerchantPayProductsReq{
 			MerchantId: merchantId,
@@ -269,18 +268,18 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 	}
 	mi.PayProductIds = payIds
 	mi.PayoutProductIds = payoutIds
-	mi.CollectGrants = nil
+	mi.PayinGrants = nil
 	mi.PayoutGrants = nil
 	for _, g := range gr.GetGrants() {
 		if g == nil {
 			continue
 		}
-		row := types.MerchantCollectGrant{PayProductId: g.GetPayProductId()}
+		row := types.MerchantPayinGrant{PayProductId: g.GetPayProductId()}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			row.MerchantRateBps = &v
 		}
-		mi.CollectGrants = append(mi.CollectGrants, row)
+		mi.PayinGrants = append(mi.PayinGrants, row)
 	}
 	for _, g := range pr.GetGrants() {
 		if g == nil {

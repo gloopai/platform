@@ -35,7 +35,7 @@ export const adminMenu: AdminMenuEntry[] = [
     icon: 'briefcase',
     children: [
       { to: '/merchants', label: '商户管理' },
-      { to: '/merchant-products', label: '代收产品' },
+      { to: '/merchant-payin-products', label: '代收产品' },
       { to: '/merchant-payout-products', label: '代付产品' },
     ],
   },
@@ -56,7 +56,7 @@ export const adminMenu: AdminMenuEntry[] = [
     label: '交易与资金',
     icon: 'credit',
     children: [
-      { to: '/pay-orders', label: '代收订单' },
+      { to: '/payin-orders', label: '代收订单' },
       { to: '/payout-orders', label: '代付订单' },
       { to: '/refunds', label: '退款与差错' },
       { to: '/reconcile', label: '对账中心' },
@@ -79,12 +79,12 @@ export const adminMenu: AdminMenuEntry[] = [
 export const adminPathTitle: Record<string, string> = {
   '/stats': '系统概览',
   '/merchants': '商户管理',
-  '/merchant-products': '代收产品',
+  '/merchant-payin-products': '代收产品',
   '/merchant-payout-products': '代付产品与通道',
   '/channels': '通道管理',
   '/routing': '路由策略',
   '/channel-health': '通道监控',
-  '/pay-orders': '代收订单',
+  '/payin-orders': '代收订单',
   '/payout-orders': '代付订单',
   '/refunds': '退款与差错',
   '/reconcile': '对账中心',

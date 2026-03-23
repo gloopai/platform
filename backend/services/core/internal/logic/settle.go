@@ -44,34 +44,34 @@ func (l *DebitPayoutLogic) DebitPayout(in *settlepb.DebitPayoutReq) (*settlepb.D
 	return &settlepb.DebitPayoutResp{Changed: changed, PayoutBalance: payoutBalance}, nil
 }
 
-type TransferCollectToPayoutLogic struct {
+type TransferPayinToPayoutLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewTransferCollectToPayoutLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TransferCollectToPayoutLogic {
-	return &TransferCollectToPayoutLogic{ctx: ctx, svcCtx: svcCtx, Logger: logx.WithContext(ctx)}
+func NewTransferPayinToPayoutLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TransferPayinToPayoutLogic {
+	return &TransferPayinToPayoutLogic{ctx: ctx, svcCtx: svcCtx, Logger: logx.WithContext(ctx)}
 }
 
-func (l *TransferCollectToPayoutLogic) TransferCollectToPayout(in *settlepb.TransferCollectToPayoutReq) (*settlepb.TransferCollectToPayoutResp, error) {
+func (l *TransferPayinToPayoutLogic) TransferPayinToPayout(in *settlepb.TransferPayinToPayoutReq) (*settlepb.TransferPayinToPayoutResp, error) {
 	if in.GetMerchantId() == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 	if in.GetAmount() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
-	changed, collectBalance, payoutBalance, err := l.svcCtx.Settle.TransferCollectToPayout(l.ctx, in.GetMerchantId(), in.GetAmount(), in.GetReason())
+	changed, payinBalance, payoutBalance, err := l.svcCtx.Settle.TransferPayinToPayout(l.ctx, in.GetMerchantId(), in.GetAmount(), in.GetReason())
 	if err != nil {
 		if err == store.ErrInsufficientBalance {
-			return nil, status.Error(codes.FailedPrecondition, "insufficient collect balance")
+			return nil, status.Error(codes.FailedPrecondition, "insufficient payin balance")
 		}
-		return nil, status.Error(codes.Internal, "transfer collect to payout failed")
+		return nil, status.Error(codes.Internal, "transfer payin to payout failed")
 	}
-	return &settlepb.TransferCollectToPayoutResp{
-		Changed:        changed,
-		CollectBalance: collectBalance,
-		PayoutBalance:  payoutBalance,
+	return &settlepb.TransferPayinToPayoutResp{
+		Changed:       changed,
+		PayinBalance:  payinBalance,
+		PayoutBalance: payoutBalance,
 	}, nil
 }
 
