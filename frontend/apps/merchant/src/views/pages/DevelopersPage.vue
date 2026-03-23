@@ -175,6 +175,28 @@
         </button>
       </div>
 
+      <details class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <summary class="cursor-pointer select-none font-medium text-slate-800">reason_code 快速说明</summary>
+        <div class="mt-3 overflow-x-auto">
+          <table class="min-w-[680px] text-left text-xs">
+            <thead class="text-slate-500">
+              <tr>
+                <th class="px-2 py-1.5 font-semibold">reason_code</th>
+                <th class="px-2 py-1.5 font-semibold">含义</th>
+                <th class="px-2 py-1.5 font-semibold">处理建议</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-700">
+              <tr v-for="x in notifyReasonRows" :key="x.code">
+                <td class="px-2 py-1.5 font-mono">{{ x.code }}</td>
+                <td class="px-2 py-1.5">{{ x.meaning }}</td>
+                <td class="px-2 py-1.5">{{ x.action }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
       <div v-if="mockOk" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900">回调成功</div>
       <div v-if="mockError" class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
         {{ mockError }}
@@ -257,6 +279,20 @@ const mockChannelSecret = ref('channel_secret')
 const mockLoading = ref(false)
 const mockError = ref('')
 const mockOk = ref(false)
+
+const notifyReasonRows = [
+  { code: 'INVALID_NOTIFY_PARAMS', meaning: '回调参数缺失/非法', action: '检查 order_no/channel_id/paid_amount/upstream_trade_no' },
+  { code: 'CHANNEL_NOT_FOUND', meaning: '通道不存在或签名密钥不可查', action: '校验 channel_id 与通道配置' },
+  { code: 'INVALID_SIGN', meaning: '回调签名错误', action: '校验签名算法与 channel_sign_secret' },
+  { code: 'ORDER_NOT_FOUND', meaning: '平台订单不存在', action: '校验 order_no 是否平台单号' },
+  { code: 'ORDER_NOT_PENDING', meaning: '订单非待支付状态', action: '仅待支付订单可置成功' },
+  { code: 'REPLAY_PAYLOAD_MISMATCH', meaning: '已支付但重放快照不一致', action: '确保重复通知参数与首笔一致' },
+  { code: 'MARK_PAID_FAILED', meaning: '落支付状态失败', action: '检查网关/trade 日志' },
+  { code: 'MARK_PAID_RACE', meaning: '并发竞争，读取最终态失败', action: '短暂重试并查询订单最终状态' },
+  { code: 'MARK_PAID_RACE_MISMATCH', meaning: '并发竞争且快照不一致', action: '以平台最终订单快照为准排查' },
+  { code: 'IDEMPOTENT_REPLAY_ACCEPTED', meaning: '已支付同快照重放被接受', action: '可视为成功，无需补偿' },
+  { code: 'IDEMPOTENT_RACE_ACCEPTED', meaning: '并发竞争后同快照被接受', action: '可视为成功，无需补偿' },
+] as const
 
 function regenOrderNo() {
   merchantOrderNo.value = `MO-${Date.now()}`

@@ -4,6 +4,39 @@
 
 > `POST /v1/callback/notify` 为兼容上游习惯，成功与失败都返回 `{"ok": true|false}`；不走本文的 `code` 错误体。
 
+## 回调接口返回（`/v1/callback/notify`）
+
+该接口固定返回 HTTP 200，响应体：
+
+```json
+{
+  "ok": false,
+  "reason_code": "INVALID_SIGN",
+  "reason": "invalid sign"
+}
+```
+
+- `ok=true`：回调被接受（含幂等重放接受场景）。
+- `ok=false`：回调未被接受。
+- `reason_code`：机器可读，建议商户优先按此分支处理。
+- `reason`：可读文本，便于排障，不保证长期稳定。
+
+### `reason_code` 对照（MVP）
+
+| `reason_code` | 含义 | 建议处理 |
+|---------------|------|----------|
+| `INVALID_NOTIFY_PARAMS` | 回调参数缺失/非法 | 检查 `order_no`/`paid_amount`/`channel_id`/`upstream_trade_no` |
+| `CHANNEL_NOT_FOUND` | 通道不存在或签名密钥不可查 | 校验 `channel_id` 与通道配置 |
+| `INVALID_SIGN` | 回调签名错误 | 校验签名算法与 `channel_sign_secret` |
+| `ORDER_NOT_FOUND` | 平台订单不存在 | 校验 `order_no` 是否平台单号 |
+| `ORDER_NOT_PENDING` | 订单不在待支付状态 | 仅待支付订单可置成功 |
+| `REPLAY_PAYLOAD_MISMATCH` | 已支付但重放快照不一致 | 保证重复通知参数与首笔一致 |
+| `MARK_PAID_FAILED` | 落支付状态失败 | 查看网关/trade 日志 |
+| `MARK_PAID_RACE` | 并发竞争，读取最终态失败 | 短暂重试后查询订单最终态 |
+| `MARK_PAID_RACE_MISMATCH` | 并发竞争且最终快照不一致 | 以平台最终订单快照为准排查上游重复回调 |
+| `IDEMPOTENT_REPLAY_ACCEPTED` | 已支付且回放快照一致（成功） | 可视为成功，无需补偿 |
+| `IDEMPOTENT_RACE_ACCEPTED` | 并发竞争后确认同快照（成功） | 可视为成功，无需补偿 |
+
 **成功**：仍为各接口原有 JSON 结构。
 
 **失败**：HTTP 状态码 + `Content-Type: application/json`，正文为：
