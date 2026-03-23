@@ -76,6 +76,7 @@
 - 创建订单请求体中的 **`pay_type` 表示支付产品编码**（与 `pay_products.code`、收银台可选列表一致），**不是**内部上游实例 ID；商户开放 API **不要求**传 `channel_id` 参与选路（路由在平台侧完成）。
 - 演示用可选值集中在 **`src/config/payProducts.ts`**（`DEMO_PAY_PRODUCT_OPTIONS`），应与演示库 `seed_demo.sql` 中的产品行保持同步；需要其他编码时使用联调页「自定义编码」。
 - 模拟回调区块中的 **`channel_id`** 仅用于**扮演上游**通知平台，与「商户下单不传 channel」不矛盾。
+- 回调接口返回 `{ ok, reason_code?, reason? }`：`ok=false` 时优先看 `reason_code`（如 `INVALID_SIGN`、`REPLAY_PAYLOAD_MISMATCH`）快速排障。
 
 ### 4.2 错误响应（开放 API）
 

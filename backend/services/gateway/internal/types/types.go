@@ -96,7 +96,9 @@ type UpstreamNotifyReq struct {
 }
 
 type UpstreamNotifyResp struct {
-	Ok bool `json:"ok"`
+	Ok         bool   `json:"ok"`
+	ReasonCode string `json:"reason_code,omitempty"`
+	Reason     string `json:"reason,omitempty"`
 }
 
 type AdminChannelInfo struct {

@@ -385,9 +385,13 @@ async function mockNotify() {
       mockError.value = `回调失败(${resp.status})`
       return
     }
-    const data = (await resp.json()) as { ok: boolean }
+    const data = (await resp.json()) as { ok: boolean; reason_code?: string; reason?: string }
     if (!data.ok) {
-      mockError.value = '回调返回 ok=false'
+      if (data.reason_code || data.reason) {
+        mockError.value = `回调返回 ok=false: ${data.reason_code || 'UNKNOWN'}${data.reason ? ` (${data.reason})` : ''}`
+      } else {
+        mockError.value = '回调返回 ok=false'
+      }
       return
     }
     mockOk.value = true
