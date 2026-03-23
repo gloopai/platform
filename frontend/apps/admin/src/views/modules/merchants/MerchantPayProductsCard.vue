@@ -17,7 +17,7 @@
             <th class="py-2 pr-3">产品</th>
             <th class="py-2 pr-3">编码</th>
             <th class="py-2 pr-3">费率(bps)</th>
-            <th class="py-2">操作</th>
+            <th class="sticky right-0 z-20 bg-white py-2">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
                 @change="emitUpdate(row)"
               />
             </td>
-            <td class="py-2">
+            <td class="sticky right-0 z-10 bg-white py-2">
               <button
                 type="button"
                 class="text-xs font-semibold text-rose-700 underline disabled:opacity-40"

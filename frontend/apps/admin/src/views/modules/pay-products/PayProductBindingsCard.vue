@@ -16,7 +16,7 @@
             <th class="py-2 pr-3">通道</th>
             <th class="py-2 pr-3">权重</th>
             <th class="py-2 pr-3">启用</th>
-            <th class="py-2">操作</th>
+            <th class="sticky right-0 z-20 bg-white py-2">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +41,7 @@
                 @change="setEnabled(b.id, ($event.target as HTMLInputElement).checked)"
               />
             </td>
-            <td class="py-2">
+            <td class="sticky right-0 z-10 bg-white py-2">
               <button
                 type="button"
                 class="mr-2 text-xs font-semibold text-slate-700 underline"

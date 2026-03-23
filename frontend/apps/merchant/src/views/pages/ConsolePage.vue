@@ -165,7 +165,7 @@
         leave-from-class="opacity-100"
         leave-to-class="opacity-0"
       >
-        <div v-if="transferDialogOpen" class="fixed inset-0 z-[1000] bg-slate-900/40 p-4">
+        <div v-if="transferDialogOpen" class="fixed inset-0 z-[1000] bg-slate-900/50 p-4 backdrop-blur-sm">
           <div class="flex h-full items-center justify-center">
             <Transition
               enter-active-class="transition duration-200 ease-out"

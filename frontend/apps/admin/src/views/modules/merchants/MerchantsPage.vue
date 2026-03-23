@@ -26,7 +26,7 @@
               <th class="whitespace-nowrap px-4 py-3">代收余额</th>
               <th class="whitespace-nowrap px-4 py-3">代付余额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
-              <th class="whitespace-nowrap px-4 py-3 text-right">操作</th>
+              <th class="sticky right-0 z-20 whitespace-nowrap bg-slate-50 px-4 py-3 text-right">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -54,7 +54,7 @@
                 </span>
                 <span v-else class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">锁定</span>
               </td>
-              <td class="px-4 py-3 text-right">
+              <td class="sticky right-0 z-10 bg-white px-4 py-3 text-right">
                 <button
                   type="button"
                   class="mr-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"

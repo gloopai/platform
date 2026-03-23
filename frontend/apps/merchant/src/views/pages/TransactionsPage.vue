@@ -49,7 +49,7 @@
               <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">上游单号</th>
               <th class="whitespace-nowrap px-4 py-3">创建时间</th>
-              <th class="whitespace-nowrap px-4 py-3">操作</th>
+              <th class="sticky right-0 z-20 whitespace-nowrap bg-slate-50/90 px-4 py-3">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -69,7 +69,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-for="o in pagedOrders" :key="o.order_no" class="transition hover:bg-slate-50/80">
+            <tr v-for="o in pagedOrders" :key="o.order_no" class="group transition hover:bg-slate-50/80">
               <td class="px-4 py-3 align-top">
                 <div class="font-medium text-slate-900">{{ o.order_no }}</div>
                 <div class="mt-0.5 font-mono text-xs text-slate-500">{{ o.merchant_order_no }}</div>
@@ -94,7 +94,7 @@
               </td>
               <td class="px-4 py-3 align-top text-slate-700">{{ o.upstream_trade_no || '—' }}</td>
               <td class="px-4 py-3 align-top text-slate-600">{{ formatTime(o.created_at) }}</td>
-              <td class="px-4 py-3 align-top">
+              <td class="sticky right-0 z-10 bg-white px-4 py-3 align-top group-hover:bg-slate-50/80">
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -128,95 +128,117 @@
 
     <ErrorCallout v-if="error" :message="error" />
 
-    <div v-if="detailOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
-      <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl">
-        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <div>
-            <div class="text-sm font-semibold text-slate-900">订单详情</div>
-            <div class="mt-0.5 font-mono text-xs text-slate-500">{{ detail?.order.order_no }}</div>
-          </div>
-          <button
-            type="button"
-            class="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            @click="detailOpen = false"
-          >
-            关闭
-          </button>
-        </div>
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="detailOpen" class="fixed inset-0 z-[1000] bg-slate-900/50 p-4 backdrop-blur-sm">
+          <div class="flex h-full items-center justify-center">
+            <Transition
+              enter-active-class="transition duration-200 ease-out"
+              enter-from-class="opacity-0 translate-y-1 scale-[0.98]"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition duration-150 ease-in"
+              leave-from-class="opacity-100 translate-y-0 scale-100"
+              leave-to-class="opacity-0 translate-y-1 scale-[0.98]"
+            >
+              <div v-if="detailOpen" class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl">
+                <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                  <div>
+                    <div class="text-sm font-semibold text-slate-900">订单详情</div>
+                    <div class="mt-0.5 font-mono text-xs text-slate-500">{{ detail?.order.order_no }}</div>
+                  </div>
+                  <button
+                    type="button"
+                    class="rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                    @click="detailOpen = false"
+                  >
+                    关闭
+                  </button>
+                </div>
 
-        <div class="max-h-[calc(90vh-5rem)] overflow-y-auto px-5 py-4">
-          <div class="grid gap-4">
-            <div class="grid grid-cols-12 gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm">
-              <div class="col-span-12 md:col-span-6">
-                <div class="text-xs font-medium text-slate-500">商户单号</div>
-                <div class="mt-1 font-medium text-slate-900">{{ detail?.order.merchant_order_no }}</div>
-              </div>
-              <div class="col-span-12 md:col-span-3">
-                <div class="text-xs font-medium text-slate-500">金额</div>
-                <div class="mt-1 font-medium text-slate-900">{{ formatAmount(detail?.order.amount || 0, detail?.order.currency || 'CNY') }}</div>
-              </div>
-              <div class="col-span-12 md:col-span-3">
-                <div class="text-xs font-medium text-slate-500">状态</div>
-                <div class="mt-1 font-medium text-slate-900">{{ statusLabel(detail?.order.status || 0) }}</div>
-              </div>
-              <div class="col-span-12 md:col-span-6">
-                <div class="text-xs font-medium text-slate-500">支付产品</div>
-                <div class="mt-1 text-sm font-medium text-slate-900">{{ payProductPrimary(detail?.order) }}</div>
-                <div
-                  v-if="detail?.order && payProductShowCodeLine(detail.order)"
-                  class="mt-0.5 font-mono text-xs text-slate-600"
-                >
-                  {{ detail.order.pay_product_code }}
+                <div class="max-h-[calc(90vh-5rem)] overflow-y-auto px-5 py-4">
+                  <div class="grid gap-4">
+                    <div class="grid grid-cols-12 gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm">
+                      <div class="col-span-12 md:col-span-6">
+                        <div class="text-xs font-medium text-slate-500">商户单号</div>
+                        <div class="mt-1 font-medium text-slate-900">{{ detail?.order.merchant_order_no }}</div>
+                      </div>
+                      <div class="col-span-12 md:col-span-3">
+                        <div class="text-xs font-medium text-slate-500">金额</div>
+                        <div class="mt-1 font-medium text-slate-900">{{ formatAmount(detail?.order.amount || 0, detail?.order.currency || 'CNY') }}</div>
+                      </div>
+                      <div class="col-span-12 md:col-span-3">
+                        <div class="text-xs font-medium text-slate-500">状态</div>
+                        <div class="mt-1 font-medium text-slate-900">{{ statusLabel(detail?.order.status || 0) }}</div>
+                      </div>
+                      <div class="col-span-12 md:col-span-6">
+                        <div class="text-xs font-medium text-slate-500">支付产品</div>
+                        <div class="mt-1 text-sm font-medium text-slate-900">{{ payProductPrimary(detail?.order) }}</div>
+                        <div
+                          v-if="detail?.order && payProductShowCodeLine(detail.order)"
+                          class="mt-0.5 font-mono text-xs text-slate-600"
+                        >
+                          {{ detail.order.pay_product_code }}
+                        </div>
+                      </div>
+                      <div class="col-span-12">
+                        <div class="text-xs font-medium text-slate-500">Notify URL</div>
+                        <div class="mt-1 break-all font-mono text-xs text-slate-800">{{ detail?.order.notify_url || '—' }}</div>
+                      </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-2xl border border-slate-200">
+                      <div class="border-b border-slate-100 bg-slate-50/80 px-4 py-3 text-sm font-semibold text-slate-900">回调记录</div>
+                      <div class="max-h-80 overflow-auto">
+                        <table class="w-full text-left text-sm">
+                          <thead class="sticky top-0 bg-white text-xs font-semibold text-slate-500">
+                            <tr class="border-b border-slate-100">
+                              <th class="px-4 py-2">时间</th>
+                              <th class="px-4 py-2">URL</th>
+                              <th class="px-4 py-2">状态</th>
+                              <th class="px-4 py-2">响应/错误</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-slate-100">
+                            <tr v-if="detailLoading">
+                              <td class="px-4 py-4 text-slate-500" colspan="4">加载中…</td>
+                            </tr>
+                            <tr v-else-if="(detail?.logs?.length || 0) === 0">
+                              <td class="px-4 py-4 text-slate-500" colspan="4">暂无记录</td>
+                            </tr>
+                            <tr v-for="l in detail?.logs || []" :key="l.id">
+                              <td class="px-4 py-2 align-top text-slate-700">{{ formatTime(l.created_at) }}</td>
+                              <td class="px-4 py-2 align-top text-slate-700">
+                                <div class="max-w-xs break-all text-xs">{{ l.notify_url }}</div>
+                                <div class="mt-1 text-xs text-slate-400">attempt={{ l.attempt }}</div>
+                              </td>
+                              <td class="px-4 py-2 align-top text-slate-700">{{ l.http_status || '—' }}</td>
+                              <td class="px-4 py-2 align-top text-slate-700">
+                                <div class="max-w-sm break-all font-mono text-xs">{{ l.response_body || l.error_msg || '—' }}</div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div v-if="detailError" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                      {{ detailError }}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="col-span-12">
-                <div class="text-xs font-medium text-slate-500">Notify URL</div>
-                <div class="mt-1 break-all font-mono text-xs text-slate-800">{{ detail?.order.notify_url || '—' }}</div>
-              </div>
-            </div>
-
-            <div class="overflow-hidden rounded-2xl border border-slate-200">
-              <div class="border-b border-slate-100 bg-slate-50/80 px-4 py-3 text-sm font-semibold text-slate-900">回调记录</div>
-              <div class="max-h-80 overflow-auto">
-                <table class="w-full text-left text-sm">
-                  <thead class="sticky top-0 bg-white text-xs font-semibold text-slate-500">
-                    <tr class="border-b border-slate-100">
-                      <th class="px-4 py-2">时间</th>
-                      <th class="px-4 py-2">URL</th>
-                      <th class="px-4 py-2">状态</th>
-                      <th class="px-4 py-2">响应/错误</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-100">
-                    <tr v-if="detailLoading">
-                      <td class="px-4 py-4 text-slate-500" colspan="4">加载中…</td>
-                    </tr>
-                    <tr v-else-if="(detail?.logs?.length || 0) === 0">
-                      <td class="px-4 py-4 text-slate-500" colspan="4">暂无记录</td>
-                    </tr>
-                    <tr v-for="l in detail?.logs || []" :key="l.id">
-                      <td class="px-4 py-2 align-top text-slate-700">{{ formatTime(l.created_at) }}</td>
-                      <td class="px-4 py-2 align-top text-slate-700">
-                        <div class="max-w-xs break-all text-xs">{{ l.notify_url }}</div>
-                        <div class="mt-1 text-xs text-slate-400">attempt={{ l.attempt }}</div>
-                      </td>
-                      <td class="px-4 py-2 align-top text-slate-700">{{ l.http_status || '—' }}</td>
-                      <td class="px-4 py-2 align-top text-slate-700">
-                        <div class="max-w-sm break-all font-mono text-xs">{{ l.response_body || l.error_msg || '—' }}</div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div v-if="detailError" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-              {{ detailError }}
-            </div>
+            </Transition>
           </div>
         </div>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
