@@ -46,6 +46,8 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 		SupportsPayout:         ch.GetSupportsPayout(),
 		UpstreamCollectRateBps: ch.GetUpstreamCollectRateBps(),
 		UpstreamPayoutRateBps:  ch.GetUpstreamPayoutRateBps(),
+		UpstreamPayoutFeeMode:  ch.GetUpstreamPayoutFeeMode(),
+		UpstreamPayoutFixedFee: ch.GetUpstreamPayoutFixedFee(),
 		Enabled:                ch.GetEnabled(),
 		FuseEnabled:            ch.GetFuseEnabled(),
 	}
@@ -91,6 +93,8 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 		SupportsPayout:         req.SupportsPayout,
 		UpstreamCollectRateBps: req.UpstreamCollectRateBps,
 		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
+		UpstreamPayoutFeeMode:  req.UpstreamPayoutFeeMode,
+		UpstreamPayoutFixedFee: req.UpstreamPayoutFixedFee,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})
@@ -132,6 +136,8 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 		SupportsPayout:         req.SupportsPayout,
 		UpstreamCollectRateBps: req.UpstreamCollectRateBps,
 		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
+		UpstreamPayoutFeeMode:  req.UpstreamPayoutFeeMode,
+		UpstreamPayoutFixedFee: req.UpstreamPayoutFixedFee,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})

@@ -14,6 +14,8 @@ export type AdminChannel = {
   supports_payout: boolean
   upstream_collect_rate_bps: number
   upstream_payout_rate_bps: number
+  upstream_payout_fee_mode: number
+  upstream_payout_fixed_fee: number
   enabled: boolean
   fuse_enabled: boolean
 }
@@ -34,6 +36,8 @@ export function emptyChannelForm(): AdminChannel {
     supports_payout: false,
     upstream_collect_rate_bps: 0,
     upstream_payout_rate_bps: 0,
+    upstream_payout_fee_mode: 1,
+    upstream_payout_fixed_fee: 0,
     enabled: true,
     fuse_enabled: false,
   }

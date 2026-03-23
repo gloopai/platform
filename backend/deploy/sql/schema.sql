@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS channels (
   supports_payout TINYINT NOT NULL DEFAULT 0,
   upstream_collect_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收：平台相对上游费率（万分比）',
   upstream_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：平台相对上游费率（万分比）',
+  upstream_payout_fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '代付上游费率模式：1=比例 2=固定 3=固定+比例',
+  upstream_payout_fixed_fee BIGINT NOT NULL DEFAULT 0 COMMENT '代付上游固定手续费（分）',
   enabled TINYINT NOT NULL DEFAULT 1,
   fuse_enabled TINYINT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

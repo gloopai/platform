@@ -72,6 +72,8 @@ message ChannelRow {
   bool supports_payout = 14;
   int64 upstream_collect_rate_bps = 15;
   int64 upstream_payout_rate_bps = 16;
+  int64 upstream_payout_fee_mode = 17; // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
+  int64 upstream_payout_fixed_fee = 18; // 分
 }
 
 message ListChannelsResp {
@@ -95,6 +97,8 @@ message UpsertChannelReq {
   bool supports_payout = 14;
   int64 upstream_collect_rate_bps = 15;
   int64 upstream_payout_rate_bps = 16;
+  int64 upstream_payout_fee_mode = 17;
+  int64 upstream_payout_fixed_fee = 18;
 }
 
 message UpsertChannelResp {

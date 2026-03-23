@@ -121,6 +121,8 @@ type AdminChannelInfo struct {
 	SupportsPayout         bool   `json:"supports_payout"`
 	UpstreamCollectRateBps int64  `json:"upstream_collect_rate_bps"`
 	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps"`
+	UpstreamPayoutFeeMode  int64  `json:"upstream_payout_fee_mode"`
+	UpstreamPayoutFixedFee int64  `json:"upstream_payout_fixed_fee"`
 	Enabled                bool   `json:"enabled"`
 	FuseEnabled            bool   `json:"fuse_enabled"`
 }
@@ -144,6 +146,8 @@ type AdminUpsertChannelReq struct {
 	SupportsPayout         bool   `json:"supports_payout,optional"`
 	UpstreamCollectRateBps int64  `json:"upstream_collect_rate_bps,optional"`
 	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps,optional"`
+	UpstreamPayoutFeeMode  int64  `json:"upstream_payout_fee_mode,optional"`
+	UpstreamPayoutFixedFee int64  `json:"upstream_payout_fixed_fee,optional"`
 	Enabled                bool   `json:"enabled,optional"`
 	FuseEnabled            bool   `json:"fuse_enabled,optional"`
 }

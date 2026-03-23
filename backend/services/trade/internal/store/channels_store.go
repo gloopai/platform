@@ -171,10 +171,12 @@ type Channel struct {
 	Weight                 int64
 	MinAmount              int64
 	MaxAmount              int64
-	SupportsCollect       bool
-	SupportsPayout        bool
+	SupportsCollect        bool
+	SupportsPayout         bool
 	UpstreamCollectRateBps int64
 	UpstreamPayoutRateBps  int64
+	UpstreamPayoutFeeMode  int64
+	UpstreamPayoutFixedFee int64
 	Enabled                bool
 	FuseEnabled            bool
 }
@@ -186,7 +188,7 @@ func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*Channel, e
 SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
-       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps,
+       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
        enabled, fuse_enabled
 FROM channels
 WHERE id = ?
@@ -206,6 +208,8 @@ LIMIT 1
 		&sp,
 		&c.UpstreamCollectRateBps,
 		&c.UpstreamPayoutRateBps,
+		&c.UpstreamPayoutFeeMode,
+		&c.UpstreamPayoutFixedFee,
 		&c.Enabled,
 		&c.FuseEnabled,
 	)
@@ -222,7 +226,7 @@ func (s *ChannelsStore) AdminList(ctx context.Context) ([]Channel, error) {
 SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
-       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps,
+       supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
        enabled, fuse_enabled
 FROM channels
 ORDER BY id DESC
@@ -251,6 +255,8 @@ ORDER BY id DESC
 			&sp,
 			&c.UpstreamCollectRateBps,
 			&c.UpstreamPayoutRateBps,
+			&c.UpstreamPayoutFeeMode,
+			&c.UpstreamPayoutFixedFee,
 			&c.Enabled,
 			&c.FuseEnabled,
 		); err != nil {
@@ -276,11 +282,11 @@ func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, err
 	}
 	res, err := s.db.ExecContext(ctx, `
 INSERT INTO channels (name, pay_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
-  supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps,
+  supports_collect, supports_payout, upstream_collect_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
   enabled, fuse_enabled, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.Weight, c.MinAmount, c.MaxAmount,
-		sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps, c.Enabled, c.FuseEnabled)
+		sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee, c.Enabled, c.FuseEnabled)
 	if err != nil {
 		return 0, err
 	}
@@ -303,11 +309,11 @@ func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) e
 UPDATE channels
 SET name = ?, pay_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?,
     weight = ?, min_amount = ?, max_amount = ?,
-    supports_collect = ?, supports_payout = ?, upstream_collect_rate_bps = ?, upstream_payout_rate_bps = ?,
+    supports_collect = ?, supports_payout = ?, upstream_collect_rate_bps = ?, upstream_payout_rate_bps = ?, upstream_payout_fee_mode = ?, upstream_payout_fixed_fee = ?,
     enabled = ?, fuse_enabled = ?, updated_at = NOW()
 WHERE id = ?
 `, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret,
-		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps,
+		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamCollectRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee,
 		c.Enabled, c.FuseEnabled, id)
 	return err
 }

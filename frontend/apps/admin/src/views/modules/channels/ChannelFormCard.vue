@@ -77,6 +77,23 @@
             class="rounded-md border border-slate-200 px-3 py-2 text-sm"
           />
         </label>
+        <label class="col-span-12 grid gap-1 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">上游代付费率模式</span>
+          <select v-model.number="model.upstream_payout_fee_mode" class="rounded-md border border-slate-200 px-3 py-2 text-sm">
+            <option :value="1">比例</option>
+            <option :value="2">固定金额</option>
+            <option :value="3">固定+比例</option>
+          </select>
+        </label>
+        <label class="col-span-12 grid gap-1 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">上游代付固定手续费（分）</span>
+          <input
+            v-model.number="model.upstream_payout_fixed_fee"
+            type="number"
+            min="0"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
+          />
+        </label>
         <label class="col-span-12 flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 md:col-span-6">
           <div class="text-sm text-slate-700">启用通道</div>
           <input v-model="model.enabled" type="checkbox" class="h-4 w-4" />

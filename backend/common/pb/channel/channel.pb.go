@@ -267,6 +267,8 @@ type ChannelRow struct {
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
 	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
 	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
+	UpstreamPayoutFeeMode  int64                  `protobuf:"varint,17,opt,name=upstream_payout_fee_mode,json=upstreamPayoutFeeMode,proto3" json:"upstream_payout_fee_mode,omitempty"`    // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
+	UpstreamPayoutFixedFee int64                  `protobuf:"varint,18,opt,name=upstream_payout_fixed_fee,json=upstreamPayoutFixedFee,proto3" json:"upstream_payout_fixed_fee,omitempty"` // 分
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -413,6 +415,20 @@ func (x *ChannelRow) GetUpstreamPayoutRateBps() int64 {
 	return 0
 }
 
+func (x *ChannelRow) GetUpstreamPayoutFeeMode() int64 {
+	if x != nil {
+		return x.UpstreamPayoutFeeMode
+	}
+	return 0
+}
+
+func (x *ChannelRow) GetUpstreamPayoutFixedFee() int64 {
+	if x != nil {
+		return x.UpstreamPayoutFixedFee
+	}
+	return 0
+}
+
 type ListChannelsResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Channels      []*ChannelRow          `protobuf:"bytes,1,rep,name=channels,proto3" json:"channels,omitempty"`
@@ -475,6 +491,8 @@ type UpsertChannelReq struct {
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
 	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
 	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
+	UpstreamPayoutFeeMode  int64                  `protobuf:"varint,17,opt,name=upstream_payout_fee_mode,json=upstreamPayoutFeeMode,proto3" json:"upstream_payout_fee_mode,omitempty"`
+	UpstreamPayoutFixedFee int64                  `protobuf:"varint,18,opt,name=upstream_payout_fixed_fee,json=upstreamPayoutFixedFee,proto3" json:"upstream_payout_fixed_fee,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -617,6 +635,20 @@ func (x *UpsertChannelReq) GetUpstreamCollectRateBps() int64 {
 func (x *UpsertChannelReq) GetUpstreamPayoutRateBps() int64 {
 	if x != nil {
 		return x.UpstreamPayoutRateBps
+	}
+	return 0
+}
+
+func (x *UpsertChannelReq) GetUpstreamPayoutFeeMode() int64 {
+	if x != nil {
+		return x.UpstreamPayoutFeeMode
+	}
+	return 0
+}
+
+func (x *UpsertChannelReq) GetUpstreamPayoutFixedFee() int64 {
+	if x != nil {
+		return x.UpstreamPayoutFixedFee
 	}
 	return 0
 }
@@ -2919,7 +2951,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x11GetSignSecretResp\x12\x1f\n" +
 	"\vsign_secret\x18\x01 \x01(\tR\n" +
 	"signSecret\"\x11\n" +
-	"\x0fListChannelsReq\"\xc2\x04\n" +
+	"\x0fListChannelsReq\"\xb6\x05\n" +
 	"\n" +
 	"ChannelRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
@@ -2942,9 +2974,11 @@ const file_channel_proto_rawDesc = "" +
 	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
 	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
 	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
-	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\"C\n" +
+	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\x127\n" +
+	"\x18upstream_payout_fee_mode\x18\x11 \x01(\x03R\x15upstreamPayoutFeeMode\x129\n" +
+	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"C\n" +
 	"\x10ListChannelsResp\x12/\n" +
-	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xc8\x04\n" +
+	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xbc\x05\n" +
 	"\x10UpsertChannelReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
@@ -2966,7 +3000,9 @@ const file_channel_proto_rawDesc = "" +
 	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
 	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
 	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
-	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\"B\n" +
+	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\x127\n" +
+	"\x18upstream_payout_fee_mode\x18\x11 \x01(\x03R\x15upstreamPayoutFeeMode\x129\n" +
+	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"B\n" +
 	"\x11UpsertChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\x16\n" +
 	"\x14GetRoutingSummaryReq\"\x90\x04\n" +

@@ -33,10 +33,20 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 		SupportsPayout:         c.SupportsPayout,
 		UpstreamCollectRateBps: c.UpstreamCollectRateBps,
 		UpstreamPayoutRateBps:  c.UpstreamPayoutRateBps,
+		UpstreamPayoutFeeMode:  c.UpstreamPayoutFeeMode,
+		UpstreamPayoutFixedFee: c.UpstreamPayoutFixedFee,
 	}
 }
 
 func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
+	feeMode := req.GetUpstreamPayoutFeeMode()
+	if feeMode < 1 || feeMode > 3 {
+		feeMode = 1
+	}
+	fixedFee := req.GetUpstreamPayoutFixedFee()
+	if fixedFee < 0 {
+		fixedFee = 0
+	}
 	return &store.Channel{
 		Name:                   req.GetName(),
 		PayType:                req.GetPayType(),
@@ -53,6 +63,8 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 		SupportsPayout:         req.GetSupportsPayout(),
 		UpstreamCollectRateBps: req.GetUpstreamCollectRateBps(),
 		UpstreamPayoutRateBps:  req.GetUpstreamPayoutRateBps(),
+		UpstreamPayoutFeeMode:  feeMode,
+		UpstreamPayoutFixedFee: fixedFee,
 	}
 }
 
@@ -148,16 +160,16 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 		return nil, err
 	}
 	return &channelpb.GetRoutingSummaryResp{
-		AlgorithmKey:                   "weighted_random_within_product",
-		AlgorithmLabel:                 "支付产品内加权随机（同产品多上游按权重分流）",
-		EnabledPayProducts:             rs.EnabledPayProducts,
-		EnabledPayoutProducts:          rs.EnabledPayoutProducts,
-		EnabledChannels:                rs.EnabledChannels,
-		ActiveBindings:                 rs.ActiveBindings,
-		ActivePayoutBindings:             rs.ActivePayoutBindings,
-		MerchantsWithCollectWhitelist:  rs.MerchantsWithCollectWhitelist,
-		MerchantsWithPayoutWhitelist:   rs.MerchantsWithPayoutWhitelist,
-		FusedChannels:                  rs.FusedChannels,
+		AlgorithmKey:                  "weighted_random_within_product",
+		AlgorithmLabel:                "支付产品内加权随机（同产品多上游按权重分流）",
+		EnabledPayProducts:            rs.EnabledPayProducts,
+		EnabledPayoutProducts:         rs.EnabledPayoutProducts,
+		EnabledChannels:               rs.EnabledChannels,
+		ActiveBindings:                rs.ActiveBindings,
+		ActivePayoutBindings:          rs.ActivePayoutBindings,
+		MerchantsWithCollectWhitelist: rs.MerchantsWithCollectWhitelist,
+		MerchantsWithPayoutWhitelist:  rs.MerchantsWithPayoutWhitelist,
+		FusedChannels:                 rs.FusedChannels,
 	}, nil
 }
 
