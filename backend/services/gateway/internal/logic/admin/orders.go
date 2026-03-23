@@ -55,7 +55,15 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 		pbreq.Status = &s
 	}
 
-	r, err := a.svcCtx.OrderRpc.AdminListOrders(a.ctx, pbreq)
+	var (
+		r   *orderpb.AdminListOrdersResp
+		err error
+	)
+	if payout {
+		r, err = a.svcCtx.OrderRpc.AdminListPayoutOrders(a.ctx, pbreq)
+	} else {
+		r, err = a.svcCtx.OrderRpc.AdminListCollectOrders(a.ctx, pbreq)
+	}
 	if err != nil {
 		return nil, err
 	}

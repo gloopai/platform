@@ -23,11 +23,17 @@ const (
 	Order_GetOrder_FullMethodName               = "/order.Order/GetOrder"
 	Order_MarkPaid_FullMethodName               = "/order.Order/MarkPaid"
 	Order_ListOrders_FullMethodName             = "/order.Order/ListOrders"
+	Order_CreatePayoutOrder_FullMethodName      = "/order.Order/CreatePayoutOrder"
+	Order_GetPayoutOrder_FullMethodName         = "/order.Order/GetPayoutOrder"
+	Order_ListCollectOrders_FullMethodName      = "/order.Order/ListCollectOrders"
+	Order_ListPayoutOrders_FullMethodName       = "/order.Order/ListPayoutOrders"
 	Order_TodaySummary_FullMethodName           = "/order.Order/TodaySummary"
 	Order_PrepareTerminalPay_FullMethodName     = "/order.Order/PrepareTerminalPay"
 	Order_AdminTodayOverview_FullMethodName     = "/order.Order/AdminTodayOverview"
 	Order_ListMerchantNotifyLogs_FullMethodName = "/order.Order/ListMerchantNotifyLogs"
 	Order_AdminListOrders_FullMethodName        = "/order.Order/AdminListOrders"
+	Order_AdminListCollectOrders_FullMethodName = "/order.Order/AdminListCollectOrders"
+	Order_AdminListPayoutOrders_FullMethodName  = "/order.Order/AdminListPayoutOrders"
 	Order_AdminDayOverview_FullMethodName       = "/order.Order/AdminDayOverview"
 )
 
@@ -39,6 +45,10 @@ type OrderClient interface {
 	GetOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
 	MarkPaid(ctx context.Context, in *MarkPaidReq, opts ...grpc.CallOption) (*MarkPaidResp, error)
 	ListOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
+	CreatePayoutOrder(ctx context.Context, in *CreatePayoutOrderReq, opts ...grpc.CallOption) (*CreateOrderResp, error)
+	GetPayoutOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error)
+	ListCollectOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
+	ListPayoutOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error)
 	TodaySummary(ctx context.Context, in *TodaySummaryReq, opts ...grpc.CallOption) (*TodaySummaryResp, error)
 	// 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
 	PrepareTerminalPay(ctx context.Context, in *PrepareTerminalPayReq, opts ...grpc.CallOption) (*PrepareTerminalPayResp, error)
@@ -48,6 +58,8 @@ type OrderClient interface {
 	ListMerchantNotifyLogs(ctx context.Context, in *ListMerchantNotifyLogsReq, opts ...grpc.CallOption) (*ListMerchantNotifyLogsResp, error)
 	// 管理台：跨商户订单列表（merchant_id 为空则不限商户）
 	AdminListOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error)
+	AdminListCollectOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error)
+	AdminListPayoutOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error)
 	// 管理台：按自然日聚合订单（对账「平台账」快照；与上游文件比对为后续）
 	AdminDayOverview(ctx context.Context, in *AdminDayOverviewReq, opts ...grpc.CallOption) (*AdminDayOverviewResp, error)
 }
@@ -94,6 +106,46 @@ func (c *orderClient) ListOrders(ctx context.Context, in *ListOrdersReq, opts ..
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListOrdersResp)
 	err := c.cc.Invoke(ctx, Order_ListOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) CreatePayoutOrder(ctx context.Context, in *CreatePayoutOrderReq, opts ...grpc.CallOption) (*CreateOrderResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOrderResp)
+	err := c.cc.Invoke(ctx, Order_CreatePayoutOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) GetPayoutOrder(ctx context.Context, in *GetOrderReq, opts ...grpc.CallOption) (*GetOrderResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrderResp)
+	err := c.cc.Invoke(ctx, Order_GetPayoutOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) ListCollectOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_ListCollectOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) ListPayoutOrders(ctx context.Context, in *ListOrdersReq, opts ...grpc.CallOption) (*ListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_ListPayoutOrders_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,6 +202,26 @@ func (c *orderClient) AdminListOrders(ctx context.Context, in *AdminListOrdersRe
 	return out, nil
 }
 
+func (c *orderClient) AdminListCollectOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_AdminListCollectOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderClient) AdminListPayoutOrders(ctx context.Context, in *AdminListOrdersReq, opts ...grpc.CallOption) (*AdminListOrdersResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminListOrdersResp)
+	err := c.cc.Invoke(ctx, Order_AdminListPayoutOrders_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *orderClient) AdminDayOverview(ctx context.Context, in *AdminDayOverviewReq, opts ...grpc.CallOption) (*AdminDayOverviewResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AdminDayOverviewResp)
@@ -168,6 +240,10 @@ type OrderServer interface {
 	GetOrder(context.Context, *GetOrderReq) (*GetOrderResp, error)
 	MarkPaid(context.Context, *MarkPaidReq) (*MarkPaidResp, error)
 	ListOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error)
+	CreatePayoutOrder(context.Context, *CreatePayoutOrderReq) (*CreateOrderResp, error)
+	GetPayoutOrder(context.Context, *GetOrderReq) (*GetOrderResp, error)
+	ListCollectOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error)
+	ListPayoutOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error)
 	TodaySummary(context.Context, *TodaySummaryReq) (*TodaySummaryResp, error)
 	// 收银台：用户选定支付产品后落库路由并返回可展示/跳转的支付载体（E2）
 	PrepareTerminalPay(context.Context, *PrepareTerminalPayReq) (*PrepareTerminalPayResp, error)
@@ -177,6 +253,8 @@ type OrderServer interface {
 	ListMerchantNotifyLogs(context.Context, *ListMerchantNotifyLogsReq) (*ListMerchantNotifyLogsResp, error)
 	// 管理台：跨商户订单列表（merchant_id 为空则不限商户）
 	AdminListOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error)
+	AdminListCollectOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error)
+	AdminListPayoutOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error)
 	// 管理台：按自然日聚合订单（对账「平台账」快照；与上游文件比对为后续）
 	AdminDayOverview(context.Context, *AdminDayOverviewReq) (*AdminDayOverviewResp, error)
 	mustEmbedUnimplementedOrderServer()
@@ -201,6 +279,18 @@ func (UnimplementedOrderServer) MarkPaid(context.Context, *MarkPaidReq) (*MarkPa
 func (UnimplementedOrderServer) ListOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListOrders not implemented")
 }
+func (UnimplementedOrderServer) CreatePayoutOrder(context.Context, *CreatePayoutOrderReq) (*CreateOrderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePayoutOrder not implemented")
+}
+func (UnimplementedOrderServer) GetPayoutOrder(context.Context, *GetOrderReq) (*GetOrderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPayoutOrder not implemented")
+}
+func (UnimplementedOrderServer) ListCollectOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCollectOrders not implemented")
+}
+func (UnimplementedOrderServer) ListPayoutOrders(context.Context, *ListOrdersReq) (*ListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPayoutOrders not implemented")
+}
 func (UnimplementedOrderServer) TodaySummary(context.Context, *TodaySummaryReq) (*TodaySummaryResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TodaySummary not implemented")
 }
@@ -215,6 +305,12 @@ func (UnimplementedOrderServer) ListMerchantNotifyLogs(context.Context, *ListMer
 }
 func (UnimplementedOrderServer) AdminListOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminListOrders not implemented")
+}
+func (UnimplementedOrderServer) AdminListCollectOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListCollectOrders not implemented")
+}
+func (UnimplementedOrderServer) AdminListPayoutOrders(context.Context, *AdminListOrdersReq) (*AdminListOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminListPayoutOrders not implemented")
 }
 func (UnimplementedOrderServer) AdminDayOverview(context.Context, *AdminDayOverviewReq) (*AdminDayOverviewResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDayOverview not implemented")
@@ -312,6 +408,78 @@ func _Order_ListOrders_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_CreatePayoutOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePayoutOrderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).CreatePayoutOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_CreatePayoutOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).CreatePayoutOrder(ctx, req.(*CreatePayoutOrderReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_GetPayoutOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).GetPayoutOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_GetPayoutOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).GetPayoutOrder(ctx, req.(*GetOrderReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_ListCollectOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).ListCollectOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_ListCollectOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).ListCollectOrders(ctx, req.(*ListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_ListPayoutOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).ListPayoutOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_ListPayoutOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).ListPayoutOrders(ctx, req.(*ListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Order_TodaySummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TodaySummaryReq)
 	if err := dec(in); err != nil {
@@ -402,6 +570,42 @@ func _Order_AdminListOrders_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Order_AdminListCollectOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).AdminListCollectOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_AdminListCollectOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).AdminListCollectOrders(ctx, req.(*AdminListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Order_AdminListPayoutOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminListOrdersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServer).AdminListPayoutOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Order_AdminListPayoutOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServer).AdminListPayoutOrders(ctx, req.(*AdminListOrdersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Order_AdminDayOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminDayOverviewReq)
 	if err := dec(in); err != nil {
@@ -444,6 +648,22 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Order_ListOrders_Handler,
 		},
 		{
+			MethodName: "CreatePayoutOrder",
+			Handler:    _Order_CreatePayoutOrder_Handler,
+		},
+		{
+			MethodName: "GetPayoutOrder",
+			Handler:    _Order_GetPayoutOrder_Handler,
+		},
+		{
+			MethodName: "ListCollectOrders",
+			Handler:    _Order_ListCollectOrders_Handler,
+		},
+		{
+			MethodName: "ListPayoutOrders",
+			Handler:    _Order_ListPayoutOrders_Handler,
+		},
+		{
 			MethodName: "TodaySummary",
 			Handler:    _Order_TodaySummary_Handler,
 		},
@@ -462,6 +682,14 @@ var Order_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminListOrders",
 			Handler:    _Order_AdminListOrders_Handler,
+		},
+		{
+			MethodName: "AdminListCollectOrders",
+			Handler:    _Order_AdminListCollectOrders_Handler,
+		},
+		{
+			MethodName: "AdminListPayoutOrders",
+			Handler:    _Order_AdminListPayoutOrders_Handler,
 		},
 		{
 			MethodName: "AdminDayOverview",

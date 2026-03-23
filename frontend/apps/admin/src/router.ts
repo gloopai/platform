@@ -5,7 +5,8 @@ import AdminLayout from './views/AdminLayout.vue'
 import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.vue'
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
-import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
+import CollectPayProductsPage from './views/modules/pay-products/CollectPayProductsPage.vue'
+import PayoutPayProductsPage from './views/modules/pay-products/PayoutPayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
 import CollectOrdersPage from './views/modules/orders/CollectOrdersPage.vue'
 import PayoutOrdersPage from './views/modules/orders/PayoutOrdersPage.vue'
@@ -28,8 +29,8 @@ export const router = createRouter({
         { path: 'stats', component: StatsPage },
         { path: 'merchants', component: MerchantsPage },
         { path: 'channels', component: ChannelsPage },
-        { path: 'merchant-products', component: PayProductsPage, props: { payoutMode: false } },
-        { path: 'merchant-payout-products', component: PayProductsPage, props: { payoutMode: true } },
+        { path: 'merchant-products', component: CollectPayProductsPage },
+        { path: 'merchant-payout-products', component: PayoutPayProductsPage },
         { path: 'routing', component: RouteStrategyPage },
         { path: 'channel-health', component: ChannelHealthPage },
         { path: 'collect-orders', component: CollectOrdersPage },

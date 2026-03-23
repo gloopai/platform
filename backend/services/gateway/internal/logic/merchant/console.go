@@ -95,13 +95,21 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 		orderStatus = int32(v)
 	}
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
-	_ = payout
-	r, err := c.svcCtx.OrderRpc.ListOrders(c.ctx, &orderclient.ListOrdersReq{
+	pbReq := &orderclient.ListOrdersReq{
 		MerchantId: merchantId,
 		Keyword:    req.OrderNo,
 		Status:     orderStatus,
 		Limit:      req.Limit,
-	})
+	}
+	var (
+		r   *orderclient.ListOrdersResp
+		err error
+	)
+	if payout {
+		r, err = c.svcCtx.OrderRpc.ListPayoutOrders(c.ctx, pbReq)
+	} else {
+		r, err = c.svcCtx.OrderRpc.ListCollectOrders(c.ctx, pbReq)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +128,11 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 			PayProductCode:  code,
 			PayProductName:  lookupPayProductName(nameByCode, code),
 			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
 			CreatedAt:       o.GetCreatedAt(),
 		})
@@ -272,6 +285,11 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 			PayProductName:  payProductName,
 			ChannelLocked:   o.GetChannelLocked(),
 			PaidAmount:      o.GetPaidAmount(),
+			FeeMode:         o.GetFeeMode(),
+			FeeRateBps:      o.GetFeeRateBps(),
+			FeeFixedAmount:  o.GetFeeFixedAmount(),
+			FeeAmount:       o.GetFeeAmount(),
+			NetAmount:       o.GetNetAmount(),
 			ReturnUrl:       o.GetReturnUrl(),
 			NotifyUrl:       o.GetNotifyUrl(),
 			UpstreamTradeNo: o.GetUpstreamTradeNo(),
