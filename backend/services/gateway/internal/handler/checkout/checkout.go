@@ -83,6 +83,23 @@ func QueryPayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func QueryMerchantBalanceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.MerchantBalanceQueryReq
+		if err := httpx.Parse(r, &req); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		resp, err := l.QueryMerchantBalance(&req)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.UpstreamNotifyReq

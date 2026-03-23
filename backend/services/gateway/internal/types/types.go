@@ -89,6 +89,20 @@ type QueryOrderResp struct {
 	Order OrderInfo `json:"order"`
 }
 
+type MerchantBalanceQueryReq struct {
+	MerchantId string `form:"merchant_id"`
+	Timestamp  int64  `form:"timestamp,optional"`
+	Nonce      string `form:"nonce,optional"`
+	Sign       string `form:"sign"`
+}
+
+type MerchantBalanceQueryResp struct {
+	MerchantId     string `json:"merchant_id"`
+	Balance        int64  `json:"balance"`
+	CollectBalance int64  `json:"collect_balance"`
+	PayoutBalance  int64  `json:"payout_balance"`
+}
+
 type TerminalOrderReq struct {
 	OrderNo string `form:"order_no"`
 }
@@ -670,6 +684,18 @@ type AdminOrderRow struct {
 
 type AdminOrdersResp struct {
 	Orders []AdminOrderRow `json:"orders"`
+}
+
+type AdminMockPayoutSuccessReq struct {
+	OrderNo         string `path:"order_no"`
+	UpstreamTradeNo string `json:"upstream_trade_no,optional"`
+}
+
+type AdminMockPayoutSuccessResp struct {
+	Ok       bool   `json:"ok"`
+	OrderNo  string `json:"order_no"`
+	Changed  bool   `json:"changed"`
+	NewStatus int32 `json:"new_status"`
 }
 
 type AdminRefundsReq struct {

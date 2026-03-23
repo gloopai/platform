@@ -323,6 +323,23 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 	}, nil
 }
 
+func (c *Checkout) QueryMerchantBalance(req *types.MerchantBalanceQueryReq) (*types.MerchantBalanceQueryResp, error) {
+	merchantID := strings.TrimSpace(req.MerchantId)
+	if merchantID == "" {
+		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	}
+	auth, err := c.svcCtx.MerchantRpc.GetAuthInfo(c.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantID})
+	if err != nil {
+		return nil, err
+	}
+	return &types.MerchantBalanceQueryResp{
+		MerchantId:     merchantID,
+		Balance:        auth.GetBalance(),
+		CollectBalance: auth.GetCollectBalance(),
+		PayoutBalance:  auth.GetPayoutBalance(),
+	}, nil
+}
+
 func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.TerminalOrderResp, err error) {
 	r, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
 		OrderNo: req.OrderNo,

@@ -2,8 +2,10 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/gateway/internal/svc"
@@ -87,4 +89,30 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 		})
 	}
 	return &types.AdminOrdersResp{Orders: out}, nil
+}
+
+func (a *AdminOrders) AdminMockPayoutSuccess(req *types.AdminMockPayoutSuccessReq) (*types.AdminMockPayoutSuccessResp, error) {
+	orderNo := strings.TrimSpace(req.OrderNo)
+	if orderNo == "" {
+		return nil, status.Error(codes.InvalidArgument, "order_no required")
+	}
+	upstreamTradeNo := strings.TrimSpace(req.UpstreamTradeNo)
+	if upstreamTradeNo == "" {
+		upstreamTradeNo = fmt.Sprintf("UP-MOCK-%d", time.Now().UnixNano())
+	}
+	changed, err := a.svcCtx.PayoutOrders.MarkSuccess(a.ctx, orderNo, upstreamTradeNo)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "mock payout success failed")
+	}
+	newStatus := int32(1)
+	if !changed {
+		// 如果未更新，可能已是成功或非待处理，返回 changed=false 给调用方判定。
+		newStatus = -1
+	}
+	return &types.AdminMockPayoutSuccessResp{
+		Ok:        true,
+		OrderNo:   orderNo,
+		Changed:   changed,
+		NewStatus: newStatus,
+	}, nil
 }

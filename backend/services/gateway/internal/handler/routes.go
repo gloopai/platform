@@ -49,6 +49,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/payout/query",
 					Handler: checkouthandler.QueryPayoutOrderHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/merchant/balance/query",
+					Handler: checkouthandler.QueryMerchantBalanceHandler(serverCtx),
+				},
 			}...,
 		),
 	)
@@ -289,6 +294,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/payout_orders",
 					Handler: adminhandler.AdminListPayoutOrdersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/payout_orders/:order_no/mock_success",
+					Handler: adminhandler.AdminMockPayoutSuccessHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

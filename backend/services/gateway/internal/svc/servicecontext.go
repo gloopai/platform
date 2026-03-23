@@ -32,6 +32,7 @@ type ServiceContext struct {
 	AdminUsers     *store.AdminUsersStore
 	Sessions       *store.SessionsStore
 	GlobalSettings *store.GlobalSettingsStore
+	PayoutOrders   *store.PayoutOrdersStore
 
 	OrderRpc    orderclient.Order
 	SettleRpc   settleclient.Settle
@@ -68,6 +69,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	sessionsStore := store.NewSessionsStore(sqlDB)
 	globalSettingsStore := store.NewGlobalSettingsStore(sqlDB)
+	payoutOrdersStore := store.NewPayoutOrdersStore(sqlDB)
 	var runtimeCfg *consulx.ConfigStore
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
@@ -84,6 +86,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminUsers:     adminUsersStore,
 		Sessions:       sessionsStore,
 		GlobalSettings: globalSettingsStore,
+		PayoutOrders:   payoutOrdersStore,
 
 		OrderRpc:    orderclient.NewOrder(tradeCli),
 		SettleRpc:   settleclient.NewSettle(coreCli),
