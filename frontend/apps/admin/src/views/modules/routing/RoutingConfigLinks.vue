@@ -4,7 +4,7 @@
       to="/merchant-products"
       class="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
     >
-      <div class="text-sm font-semibold text-slate-900">代收产品与通道</div>
+      <div class="text-sm font-semibold text-slate-900">代收产品</div>
       <p class="mt-2 text-sm text-slate-600">
         为每个对外<strong>代收</strong>产品绑定上游通道（须开启代收能力）及权重；费率在通道与商户侧配置。
       </p>
