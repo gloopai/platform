@@ -13,5 +13,5 @@ Redis:
   Key: payment.rpc.trade
 BizRedis:
   Addr: 127.0.0.1:6379
-  Password: "h9#Zp$2LmA&7kQ!r9Wv*X4cNt8EjS6uB"
+  Password: "yourpassword"
   DB: 1

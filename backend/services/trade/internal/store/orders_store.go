@@ -50,7 +50,7 @@ func NewOrdersStore(db *sql.DB) *OrdersStore {
 
 func (s *OrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
@@ -60,7 +60,7 @@ LIMIT 1
 
 func (s *OrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
 	row := s.db.QueryRowContext(ctx, `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE order_no = ?
 LIMIT 1
@@ -99,7 +99,7 @@ func (s *OrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword st
 	keyword = strings.TrimSpace(keyword)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE merchant_id = ?
 `
@@ -144,7 +144,7 @@ func (s *OrdersStore) AdminList(ctx context.Context, merchantId, keyword string,
 	merchantId = strings.TrimSpace(merchantId)
 
 	query := `
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, upstream_trade_no, created_at, updated_at
+SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, pay_product_id, COALESCE(pay_product_code,''), channel_locked, paid_amount, return_url, notify_url, COALESCE(upstream_trade_no,''), created_at, updated_at
 FROM orders
 WHERE 1=1`
 	args := []any{}
