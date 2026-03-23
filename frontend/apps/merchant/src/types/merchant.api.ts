@@ -16,6 +16,21 @@ export type MerchantSummary = {
   collect_balance: number
   payout_balance: number
   merchant_id: string
+  api_secret: string
+  notify_url: string
+  ip_whitelist: string
+}
+
+export type MerchantUpdateConfigReq = {
+  notify_url: string
+  ip_whitelist: string
+}
+
+export type MerchantUpdateConfigResp = {
+  merchant_id: string
+  api_secret: string
+  notify_url: string
+  ip_whitelist: string
 }
 
 export type MerchantProductStatsItem = {

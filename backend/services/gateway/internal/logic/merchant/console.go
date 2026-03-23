@@ -58,8 +58,47 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		CollectBalance: auth.GetCollectBalance(),
 		PayoutBalance:  auth.GetPayoutBalance(),
 		MerchantId:     merchantId,
+		ApiSecret:      auth.GetApiSecret(),
 		NotifyUrl:      auth.GetNotifyUrl(),
 		IpWhitelist:    auth.GetIpWhitelist(),
+	}, nil
+}
+
+func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigReq) (*types.MerchantUpdateConfigResp, error) {
+	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
+	if merchantId == "" {
+		return nil, status.Error(codes.Unauthenticated, "merchant not authenticated")
+	}
+	current, err := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	if err != nil {
+		return nil, err
+	}
+	m := current.GetMerchant()
+	if m == nil {
+		return nil, status.Error(codes.NotFound, "merchant not found")
+	}
+	updated, err := c.svcCtx.MerchantRpc.UpdateMerchant(c.ctx, &merchantclient.UpdateMerchantReq{
+		MerchantId:            merchantId,
+		ApiSecret:             m.GetApiSecret(),
+		Status:                m.GetStatus(),
+		DefaultCollectRateBps: m.GetDefaultCollectRateBps(),
+		DefaultPayoutRateBps:  m.GetDefaultPayoutRateBps(),
+		NotifyUrl:             strings.TrimSpace(req.NotifyUrl),
+		ReturnUrl:             m.GetReturnUrl(),
+		IpWhitelist:           strings.TrimSpace(req.IpWhitelist),
+	})
+	if err != nil {
+		return nil, err
+	}
+	out := updated.GetMerchant()
+	if out == nil {
+		out = m
+	}
+	return &types.MerchantUpdateConfigResp{
+		MerchantId:  out.GetMerchantId(),
+		ApiSecret:   out.GetApiSecret(),
+		NotifyUrl:   out.GetNotifyUrl(),
+		IpWhitelist: out.GetIpWhitelist(),
 	}, nil
 }
 

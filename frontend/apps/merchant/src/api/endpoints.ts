@@ -5,6 +5,7 @@ export const MERCHANT_API = {
   login: '/v1/merchant/login',
   logout: '/v1/merchant/logout',
   summary: '/v1/merchant/summary',
+  config: '/v1/merchant/config',
   statsByProduct: '/v1/merchant/stats/by_product',
   payOrders: '/v1/merchant/pay_orders',
   payoutOrders: '/v1/merchant/payout_orders',
@@ -17,6 +18,8 @@ export const MERCHANT_API = {
 /** 开放网关（非 X-Merchant-Token） */
 export const OPEN_API = {
   payOrder: '/v1/pay/order',
+  payoutOrder: '/v1/payout/order',
   queryOrder: '/v1/pay/query',
+  queryPayoutOrder: '/v1/payout/query',
   callbackNotify: '/v1/callback/notify',
 } as const

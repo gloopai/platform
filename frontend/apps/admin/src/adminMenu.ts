@@ -37,6 +37,7 @@ export const adminMenu: AdminMenuEntry[] = [
       { to: '/merchants', label: '商户管理' },
       { to: '/merchant-products', label: '代收产品与通道' },
       { to: '/merchant-payout-products', label: '代付产品与通道' },
+      { to: '/developer-docs', label: '开发文档' },
     ],
   },
   {
@@ -81,6 +82,7 @@ export const adminPathTitle: Record<string, string> = {
   '/merchants': '商户管理',
   '/merchant-products': '代收产品与通道',
   '/merchant-payout-products': '代付产品与通道',
+  '/developer-docs': '开发文档',
   '/channels': '通道管理',
   '/routing': '路由策略',
   '/channel-health': '通道监控',

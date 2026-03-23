@@ -211,14 +211,20 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		return nil, err
 	}
 	o := r.GetOrder()
-	totalDebit := req.Amount + feeAmount
-	if _, derr := c.svcCtx.SettleRpc.DebitPayout(c.ctx, &settleclient.DebitPayoutReq{
-		MerchantId: merchantID,
-		OrderNo:    o.GetOrderNo(),
-		Amount:     totalDebit,
-		Reason:     "PAYOUT_ORDER_DEBIT",
-	}); derr != nil {
-		return nil, derr
+	if r.GetExisted() && o.GetStatus() == 0 {
+		return nil, status.Error(codes.FailedPrecondition, "payout order already exists and pending; use new merchant_order_no")
+	}
+	// 轻量幂等：仅在首次创建代付单时扣款；同 merchant_order_no 重试不重复扣款。
+	if !r.GetExisted() {
+		totalDebit := req.Amount + feeAmount
+		if _, derr := c.svcCtx.SettleRpc.DebitPayout(c.ctx, &settleclient.DebitPayoutReq{
+			MerchantId: merchantID,
+			OrderNo:    o.GetOrderNo(),
+			Amount:     totalDebit,
+			Reason:     "PAYOUT_ORDER_DEBIT",
+		}); derr != nil {
+			return nil, derr
+		}
 	}
 	return &types.CreateOrderResp{
 		OrderNo:        o.GetOrderNo(),

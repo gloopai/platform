@@ -68,6 +68,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: merchanthandler.MerchantDisplaySettingsHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPut,
+					Path:    "/v1/merchant/config",
+					Handler: merchanthandler.MerchantUpdateConfigHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/stats/by_product",
 					Handler: merchanthandler.MerchantProductStatsHandler(serverCtx),

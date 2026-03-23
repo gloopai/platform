@@ -180,15 +180,28 @@ type MerchantSummaryReq struct {
 }
 
 type MerchantSummaryResp struct {
-	TodayAmount int64   `json:"today_amount"`
-	TodayCount  int64   `json:"today_count"`
-	SuccessRate float64 `json:"success_rate"`
-	Balance     int64   `json:"balance"`
-	CollectBalance int64 `json:"collect_balance"`
-	PayoutBalance  int64 `json:"payout_balance"`
-	MerchantId  string  `json:"merchant_id"`
-	NotifyUrl   string  `json:"notify_url"`
-	IpWhitelist string  `json:"ip_whitelist"`
+	TodayAmount    int64   `json:"today_amount"`
+	TodayCount     int64   `json:"today_count"`
+	SuccessRate    float64 `json:"success_rate"`
+	Balance        int64   `json:"balance"`
+	CollectBalance int64   `json:"collect_balance"`
+	PayoutBalance  int64   `json:"payout_balance"`
+	MerchantId     string  `json:"merchant_id"`
+	ApiSecret      string  `json:"api_secret"`
+	NotifyUrl      string  `json:"notify_url"`
+	IpWhitelist    string  `json:"ip_whitelist"`
+}
+
+type MerchantUpdateConfigReq struct {
+	NotifyUrl   string `json:"notify_url"`
+	IpWhitelist string `json:"ip_whitelist"`
+}
+
+type MerchantUpdateConfigResp struct {
+	MerchantId  string `json:"merchant_id"`
+	ApiSecret   string `json:"api_secret"`
+	NotifyUrl   string `json:"notify_url"`
+	IpWhitelist string `json:"ip_whitelist"`
 }
 
 type MerchantDisplaySettingsReq struct {

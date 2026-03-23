@@ -78,29 +78,11 @@ func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo strin
 	if payoutBefore < amount {
 		return false, payoutBefore, ErrInsufficientBalance
 	}
-
-	var exists int
-	err = tx.QueryRowContext(ctx, `
-SELECT 1 FROM fund_logs WHERE order_no = ? AND change_type = 'PAYOUT_ORDER_DEBIT' LIMIT 1
-`, orderNo).Scan(&exists)
-	if err == nil {
-		if err := tx.Commit(); err != nil {
-			return false, 0, err
-		}
-		return false, payoutBefore, nil
-	}
-	if err != sql.ErrNoRows {
-		return false, 0, err
-	}
+	_ = orderNo
+	_ = reason
 
 	payoutAfter := payoutBefore - amount
 	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET payout_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, payoutAfter, merchantId); err != nil {
-		return false, 0, err
-	}
-	if _, err := tx.ExecContext(ctx, `
-INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
-VALUES (?, ?, 'PAYOUT_ORDER_DEBIT', ?, ?, ?, ?, NOW())
-`, merchantId, orderNo, -amount, payoutBefore, payoutAfter, reason); err != nil {
 		return false, 0, err
 	}
 	if err := tx.Commit(); err != nil {
