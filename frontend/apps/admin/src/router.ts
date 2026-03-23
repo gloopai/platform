@@ -7,13 +7,13 @@ import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayProductsPage from './views/modules/pay-products/PayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
-import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
 import OrdersPage from './views/modules/orders/OrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import RefundsPage from './views/modules/refunds/RefundsPage.vue'
 import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
 import SettlementPage from './views/modules/settlement/SettlementPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
+import SystemPage from './views/modules/system/SystemPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -35,7 +35,7 @@ export const router = createRouter({
         { path: 'refunds', component: RefundsPage },
         { path: 'reconcile', component: ReconcilePage },
         { path: 'settlement', component: SettlementPage },
-        { path: 'system', component: ModulePlaceholderPage },
+        { path: 'system', component: SystemPage },
         { path: 'ops', component: OpsPage },
       ],
     },

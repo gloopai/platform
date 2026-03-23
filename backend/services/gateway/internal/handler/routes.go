@@ -250,6 +250,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/admin/reconcile/day",
 					Handler: adminhandler.AdminReconcileDayHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/admin_users",
+					Handler: adminhandler.AdminListUsersHandler(serverCtx),
+				},
 			}...,
 		),
 	)

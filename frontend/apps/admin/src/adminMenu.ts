@@ -91,7 +91,7 @@ export const adminPathTitle: Record<string, string> = {
   '/ops': '运维监控',
 }
 
-/** 占位页文案（路径 -> 说明） */
+/** 占位页文案（路径 -> 说明）；当前无路由使用通用占位页，保留结构供后续模块。 */
 export const adminPlaceholderMeta: Record<
   string,
   {
@@ -99,18 +99,7 @@ export const adminPlaceholderMeta: Record<
     bullets: string[]
     apiNote: string
   }
-> = {
-  '/settlement': {
-    summary: '商户结算周期、提现审核、打款与手续费清算。',
-    bullets: ['结算单生成与确认', '提现风控与打款通道', 'T+N、D+1 等策略'],
-    apiNote: '待接入：/v1/admin/settlement',
-  },
-  '/system': {
-    summary: '管理员账号、角色权限、菜单与系统参数。',
-    bullets: ['RBAC、数据权限（商户维度）', '操作审计留痕', '参数：全局开关、密钥轮换策略'],
-    apiNote: '待接入：/v1/admin/users、roles、settings',
-  },
-}
+> = {}
 
 export function pathBelongsToGroup(path: string, group: AdminMenuGroup): boolean {
   return group.children.some((c) => c.to === path)

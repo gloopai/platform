@@ -573,3 +573,15 @@ type AdminDayOverviewResp struct {
 	ByPayProduct []AdminStatsProductRow `json:"by_pay_product"`
 	ByChannel    []AdminStatsChannelRow `json:"by_channel"`
 }
+
+// --- 系统管理（管理员账号只读） ---
+
+type AdminUserRow struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+	Status   int64  `json:"status"`
+}
+
+type AdminUsersResp struct {
+	Users []AdminUserRow `json:"users"`
+}

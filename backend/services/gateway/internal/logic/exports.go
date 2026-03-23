@@ -48,3 +48,7 @@ func NewAdminStats(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.
 func NewAdminOrders(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminOrders {
 	return adminlogic.NewAdminOrders(ctx, svcCtx)
 }
+
+func NewAdminSystem(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminSystem {
+	return adminlogic.NewAdminSystem(ctx, svcCtx)
+}

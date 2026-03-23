@@ -56,7 +56,7 @@
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/system` | 系统管理 | 管理员、角色、系统参数；**占位** |
+| `/system` | 系统管理 | **已对接（MVP）**：`GET /v1/admin/admin_users` 管理员账号只读列表（无密码）；RBAC/审计为后续 |
 | `/ops` | 运维监控 | **已对接（MVP）**：`GET /health` 网关探活 JSON；无 QPS/链路 |
 
 ---
@@ -110,8 +110,9 @@
 - **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
 - **对账（平台账按日）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD`（trade `Order.AdminDayOverview`，与 `stats/overview` 同口径聚合，可选历史自然日）
 - **探活（无需管理 Token）**：`GET /health`（JSON：`status`、`service`、`timestamp_ms`；供运维与「运维监控」页）
+- **管理员账号（只读）**：`GET /v1/admin/admin_users`（`id`、`username`、`status`；不含密码哈希）
 
-其余未列「已对接」的菜单仍以 `ModulePlaceholderPage` + `adminPlaceholderMeta` 为占位说明（`/refunds`、`/settlement` 另有独立说明页）。
+其余未列「已对接」的能力见各页内「后续规划」说明。通用占位组件 `ModulePlaceholderPage` 仍保留在仓库供后续模块使用。
 
 ---
 
@@ -133,7 +134,8 @@
 | `src/views/modules/reconcile/` | 对账中心（`ReconcilePage.vue`，按日平台账 + 复用 `stats` 拆解表） |
 | `src/views/modules/settlement/` | 结算与提现（`SettlementPage.vue`，MVP 说明） |
 | `src/views/modules/ops/` | 运维监控（`OpsPage.vue`，`GET /health`） |
-| `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（读 `adminPlaceholderMeta`） |
+| `src/views/modules/system/` | 系统管理（`SystemPage.vue`，`GET /v1/admin/admin_users`） |
+| `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（可选读 `adminPlaceholderMeta`） |
 | `src/router.ts` | 路由注册 |
 
 ---
@@ -150,6 +152,7 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/system` 系统管理 MVP：`GET /v1/admin/admin_users`；`AdminUsersStore.List`。
 - **2026-03-23**：侧栏收敛，去掉「风控与合规」占位菜单；`/reconcile` 对账中心对接 `GET /v1/admin/reconcile/day`（trade `AdminDayOverview`）；`/settlement` 说明页；`order.proto` 增加 `AdminDayOverview`。
 - **2026-03-23**：`/refunds` 退款与差错 MVP 说明页；`/ops` 运维监控对接 `GET /health`；网关 `GET /health`。
 - **2026-03-23**：`/channel-health` 通道监控 MVP（路由汇总 + 通道列表只读）。
