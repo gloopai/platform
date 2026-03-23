@@ -161,7 +161,7 @@
       </div>
 
       <template #footer>
-        <div class="flex flex-wrap items-center justify-end gap-3">
+        <div class="flex flex-wrap items-center justify-start gap-3">
           <template v-if="rightTab === 'basic'">
             <button
               type="button"

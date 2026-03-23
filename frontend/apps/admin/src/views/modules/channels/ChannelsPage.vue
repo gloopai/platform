@@ -123,7 +123,7 @@
       />
 
       <template #footer>
-        <div class="flex flex-wrap items-center justify-end gap-3">
+        <div class="flex flex-wrap items-center justify-start gap-3">
           <button
             type="button"
             class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
