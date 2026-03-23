@@ -1,7 +1,7 @@
 <template>
-  <PayProductsPage />
+  <ProductsPageBase />
 </template>
 
 <script setup lang="ts">
-import PayProductsPage from './PayProductsPage.vue'
+import ProductsPageBase from './PayProductsPage.vue'
 </script>

@@ -135,7 +135,7 @@
             v-if="!isNew && selectedMerchant"
             embedded
             :grants="selectedMerchant.payin_grants || []"
-            :catalog="payProducts"
+            :catalog="payinProducts"
             :loading="loadingProducts"
             :saving="bindingSaving"
             :bind-error="bindError"
@@ -272,7 +272,7 @@ const transferLoading = ref(false)
 const transferMsg = ref('')
 
 const merchants = ref<AdminMerchantInfo[]>([])
-const payProducts = ref<ProductRow[]>([])
+const payinProducts = ref<ProductRow[]>([])
 const payoutProducts = ref<ProductRow[]>([])
 const selectedMerchantId = ref<string | null>(null)
 const rightTab = ref<'basic' | 'bindings_payin' | 'bindings_payout'>('basic')
@@ -390,13 +390,13 @@ function openNew() {
   drawerOpen.value = true
 }
 
-async function loadPayProducts() {
+async function loadPayinProducts() {
   loadingProducts.value = true
   try {
     const res = await adminGet<{ products: ProductRow[] }>('/v1/admin/payin_products')
-    payProducts.value = res.products || []
+    payinProducts.value = res.products || []
   } catch {
-    payProducts.value = []
+    payinProducts.value = []
   } finally {
     loadingProducts.value = false
   }
@@ -712,7 +712,7 @@ watch(drawerOpen, (open, wasOpen) => {
 
 let unregister: (() => void) | null = null
 onMounted(() => {
-  void loadPayProducts()
+  void loadPayinProducts()
   void loadPayoutProducts()
   void reload()
   if (registerRefresh) unregister = registerRefresh(() => void reload())

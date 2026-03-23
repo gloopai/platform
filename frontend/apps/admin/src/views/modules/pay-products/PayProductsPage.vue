@@ -1,6 +1,6 @@
 <template>
   <div class="grid gap-4">
-    <PayinProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="openNew" @refresh="reloadAll" />
+    <ProductsHeader :title="headerTitle" :subtitle="headerSubtitle" @new-product="openNew" @refresh="reloadAll" />
 
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -88,7 +88,7 @@
       max-width-class="max-w-3xl"
     >
       <div v-if="drawerOpen" class="space-y-4">
-        <PayinProductFormCard
+        <ProductFormCard
           :model="form"
           embedded
           hide-footer-actions
@@ -101,7 +101,7 @@
           @reset="resetProductForm"
         />
 
-        <PayinProductBindingsCard
+        <ProductBindingsCard
           v-if="form.id"
           embedded
           :bindings="bindings"
@@ -157,9 +157,9 @@ import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
-import PayinProductBindingsCard from './PayProductBindingsCard.vue'
-import PayinProductFormCard from './PayProductFormCard.vue'
-import PayinProductsHeader from './PayProductsHeader.vue'
+import ProductBindingsCard from './PayProductBindingsCard.vue'
+import ProductFormCard from './PayProductFormCard.vue'
+import ProductsHeader from './PayProductsHeader.vue'
 import type { PayinProduct, PayinProductBinding, PayinProductChannelOption } from './types'
 
 const props = withDefaults(

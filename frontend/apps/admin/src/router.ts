@@ -6,9 +6,9 @@ import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
 import PayinProductsPage from './views/modules/pay-products/PayinProductsPage.vue'
-import PayoutPayProductsPage from './views/modules/pay-products/PayoutPayProductsPage.vue'
+import PayoutProductsPage from './views/modules/pay-products/PayoutPayProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
-import PayOrdersPage from './views/modules/orders/PayOrdersPage.vue'
+import PayinOrdersPage from './views/modules/orders/PayOrdersPage.vue'
 import PayoutOrdersPage from './views/modules/orders/PayoutOrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import RefundsPage from './views/modules/refunds/RefundsPage.vue'
@@ -30,10 +30,10 @@ export const router = createRouter({
         { path: 'merchants', component: MerchantsPage },
         { path: 'channels', component: ChannelsPage },
         { path: 'merchant-payin-products', component: PayinProductsPage },
-        { path: 'merchant-payout-products', component: PayoutPayProductsPage },
+        { path: 'merchant-payout-products', component: PayoutProductsPage },
         { path: 'routing', component: RouteStrategyPage },
         { path: 'channel-health', component: ChannelHealthPage },
-        { path: 'payin-orders', component: PayOrdersPage },
+        { path: 'payin-orders', component: PayinOrdersPage },
         { path: 'payout-orders', component: PayoutOrdersPage },
         { path: 'refunds', component: RefundsPage },
         { path: 'reconcile', component: ReconcilePage },
