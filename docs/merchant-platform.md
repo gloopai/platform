@@ -81,6 +81,17 @@
 
 下单/查单失败时，网关返回 JSON：`{ "code": "...", "message": "..." }`（HTTP 4xx/5xx）。详见 [**开放 API 错误码**](./开放API错误码.md)。开发页已优先解析 `code` + `message` 展示。
 
+### 4.3 本地通知验收（推荐）
+
+为验证商户 `notify_url` 实际可达与签名正确，可在本机启动：
+
+```bash
+cd backend/services/notice-consumer
+go run ./cmd/mock-notify-receiver
+```
+
+默认地址 `http://127.0.0.1:18090/notify`、默认验签密钥 `demo_secret`。完整步骤见 [**端到端联调一遍**](./端到端联调一遍.md) §5.1。
+
 ---
 
 ## 5. 占位模块扩展方式

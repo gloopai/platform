@@ -1,6 +1,8 @@
 # 开放 API 错误响应（网关）
 
-适用于 **商户签名** 的 `POST /v1/pay/order`、`GET /v1/pay/query`，以及 **无签名** 的收银台 `GET /v1/terminal/order`、`POST /v1/terminal/pay`、上游回调 `POST /v1/callback/notify` 等由网关 `openapi` 包统一写出 JSON 错误的接口。
+适用于 **商户签名** 的 `POST /v1/pay/order`、`GET /v1/pay/query`，以及 **无签名** 的收银台 `GET /v1/terminal/order`、`POST /v1/terminal/pay` 等由网关 `openapi` 包统一写出 JSON 错误的接口。
+
+> `POST /v1/callback/notify` 为兼容上游习惯，成功与失败都返回 `{"ok": true|false}`；不走本文的 `code` 错误体。
 
 **成功**：仍为各接口原有 JSON 结构。
 
@@ -52,3 +54,4 @@
 | 日期 | 说明 |
 |------|------|
 | 2026-03-23 | 首版：统一 JSON 错误体、`code` 表；商户开发页与收银台展示错误时优先解析 `code` + `message`。 |
+| 2026-03-23 | 备注：`/v1/callback/notify` 仍返回 `ok` 布尔值，不使用 `code` 错误体。 |

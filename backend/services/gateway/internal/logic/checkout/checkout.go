@@ -260,6 +260,10 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 }
 
 func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.UpstreamNotifyResp, err error) {
+	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.UpstreamTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
+		return &types.UpstreamNotifyResp{Ok: false}, nil
+	}
+
 	signResp, err := c.svcCtx.ChannelRpc.GetSignSecret(c.ctx, &channelclient.GetSignSecretReq{ChannelId: req.ChannelId})
 	if err != nil {
 		return &types.UpstreamNotifyResp{Ok: false}, nil
@@ -284,6 +288,19 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 	}
 	o := getResp.GetOrder()
 
+	// 幂等与重放控制：
+	// - 已支付订单仅接受与已落库支付快照完全一致的重复通知
+	// - 非待支付（失败/关闭）不再接受支付成功通知
+	if o.GetStatus() == 1 {
+		if samePaidSnapshot(o, req) {
+			return &types.UpstreamNotifyResp{Ok: true}, nil
+		}
+		return &types.UpstreamNotifyResp{Ok: false}, nil
+	}
+	if o.GetStatus() != 0 {
+		return &types.UpstreamNotifyResp{Ok: false}, nil
+	}
+
 	markResp, err := c.svcCtx.OrderRpc.MarkPaid(c.ctx, &orderclient.MarkPaidReq{
 		OrderNo:         req.OrderNo,
 		PaidAmount:      req.PaidAmount,
@@ -294,23 +311,41 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return &types.UpstreamNotifyResp{Ok: false}, nil
 	}
 
-	if markResp.GetChanged() {
-		_, _ = c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
-			MerchantId: o.GetMerchantId(),
-			OrderNo:    o.GetOrderNo(),
-			Amount:     req.PaidAmount,
-			Reason:     "ORDER_PAID",
-		})
-
-		body, _ := json.Marshal(map[string]any{
-			"merchant_id": o.GetMerchantId(),
-			"order_no":    o.GetOrderNo(),
-			"attempt":     0,
-		})
-		_ = c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body)
+	if !markResp.GetChanged() {
+		// 并发场景：若另一条回调已先落库，允许同快照重放成功。
+		latest, ge := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{OrderNo: req.OrderNo})
+		if ge != nil {
+			return &types.UpstreamNotifyResp{Ok: false}, nil
+		}
+		if samePaidSnapshot(latest.GetOrder(), req) {
+			return &types.UpstreamNotifyResp{Ok: true}, nil
+		}
+		return &types.UpstreamNotifyResp{Ok: false}, nil
 	}
 
+	_, _ = c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
+		MerchantId: o.GetMerchantId(),
+		OrderNo:    o.GetOrderNo(),
+		Amount:     req.PaidAmount,
+		Reason:     "ORDER_PAID",
+	})
+
+	body, _ := json.Marshal(map[string]any{
+		"merchant_id": o.GetMerchantId(),
+		"order_no":    o.GetOrderNo(),
+		"attempt":     0,
+	})
+	_ = c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body)
+
 	return &types.UpstreamNotifyResp{Ok: true}, nil
+}
+
+func samePaidSnapshot(o *orderclient.OrderInfo, req *types.UpstreamNotifyReq) bool {
+	return o != nil &&
+		o.GetStatus() == 1 &&
+		o.GetPaidAmount() == req.PaidAmount &&
+		o.GetChannelId() == req.ChannelId &&
+		strings.EqualFold(strings.TrimSpace(o.GetUpstreamTradeNo()), strings.TrimSpace(req.UpstreamTradeNo))
 }
 
 func md5Sign(params map[string]string, secret string) string {
