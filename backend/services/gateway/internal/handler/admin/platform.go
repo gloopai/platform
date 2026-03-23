@@ -1,0 +1,52 @@
+// 管理台：路由概览、统计大盘、全站订单
+package handler
+
+import (
+	"net/http"
+
+	"github.com/gloopai/pay/gateway/internal/logic"
+	"github.com/gloopai/pay/gateway/internal/svc"
+	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/zeromicro/go-zero/rest/httpx"
+)
+
+func AdminRoutingSummaryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := logic.NewAdminRouting(r.Context(), svcCtx)
+		resp, err := l.AdminRoutingSummary()
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
+func AdminStatsOverviewHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := logic.NewAdminStats(r.Context(), svcCtx)
+		resp, err := l.AdminStatsOverview()
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
+func AdminListOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.AdminOrdersReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+		l := logic.NewAdminOrders(r.Context(), svcCtx)
+		resp, err := l.AdminListOrders(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}

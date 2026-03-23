@@ -273,3 +273,4 @@ func (p *AdminPayProducts) AdminDeletePayoutProductBinding(req *types.AdminDelet
 	}
 	return &types.AdminDeletePayoutProductBindingResp{Ok: true}, nil
 }
+
