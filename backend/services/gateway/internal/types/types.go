@@ -563,6 +563,31 @@ type AdminOrdersResp struct {
 	Orders []AdminOrderRow `json:"orders"`
 }
 
+type AdminRefundsReq struct {
+	MerchantId string `form:"merchant_id,optional"`
+	Keyword    string `form:"keyword,optional"`
+	Status     string `form:"status,optional"` // failed | closed | all
+	Limit      int64  `form:"limit,optional"`
+}
+
+type AdminRefundRow struct {
+	OrderNo         string `json:"order_no"`
+	MerchantId      string `json:"merchant_id"`
+	MerchantOrderNo string `json:"merchant_order_no"`
+	Amount          int64  `json:"amount"`
+	Currency        string `json:"currency"`
+	Status          int32  `json:"status"`
+	StatusLabel     string `json:"status_label"`
+	ChannelId       int64  `json:"channel_id"`
+	PayProductCode  string `json:"pay_product_code"`
+	UpstreamTradeNo string `json:"upstream_trade_no"`
+	CreatedAt       int64  `json:"created_at"`
+}
+
+type AdminRefundsResp struct {
+	Items []AdminRefundRow `json:"items"`
+}
+
 // --- 对账：按日平台账快照（与系统概览同源聚合，可选历史日） ---
 
 type AdminDayOverviewReq struct {
@@ -587,4 +612,27 @@ type AdminUserRow struct {
 
 type AdminUsersResp struct {
 	Users []AdminUserRow `json:"users"`
+}
+
+// --- 结算中心（MVP：平台资金流水） ---
+
+type AdminSettlementLogsReq struct {
+	MerchantId string `form:"merchant_id,optional"`
+	Limit      int64  `form:"limit,optional"`
+}
+
+type AdminSettlementLogItem struct {
+	Id            int64  `json:"id"`
+	MerchantId    string `json:"merchant_id"`
+	OrderNo       string `json:"order_no"`
+	ChangeType    string `json:"change_type"`
+	Amount        int64  `json:"amount"`
+	BalanceBefore int64  `json:"balance_before"`
+	BalanceAfter  int64  `json:"balance_after"`
+	Reason        string `json:"reason"`
+	CreatedAt     int64  `json:"created_at"`
+}
+
+type AdminSettlementLogsResp struct {
+	Logs []AdminSettlementLogItem `json:"logs"`
 }

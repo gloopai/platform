@@ -41,7 +41,7 @@ LIMIT 1
 		}
 		return false, balanceBefore, nil
 	}
-	if err != nil && err != sql.ErrNoRows {
+	if err != sql.ErrNoRows {
 		return false, 0, err
 	}
 
@@ -77,6 +77,32 @@ func (s *SettleStore) ListByMerchant(ctx context.Context, merchantId string, lim
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
+	if merchantId == "" {
+		rows, err := s.db.QueryContext(ctx, `
+SELECT id, merchant_id, order_no, change_type, amount, balance_before, balance_after, COALESCE(reason,''), created_at
+FROM fund_logs
+ORDER BY created_at DESC
+LIMIT ?
+`, limit)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+
+		var out []FundLogRow
+		for rows.Next() {
+			var f FundLogRow
+			if err := rows.Scan(&f.Id, &f.MerchantId, &f.OrderNo, &f.ChangeType, &f.Amount, &f.BalanceBefore, &f.BalanceAfter, &f.Reason, &f.CreatedAt); err != nil {
+				return nil, err
+			}
+			out = append(out, f)
+		}
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+		return out, nil
+	}
+
 	rows, err := s.db.QueryContext(ctx, `
 SELECT id, merchant_id, order_no, change_type, amount, balance_before, balance_after, COALESCE(reason,''), created_at
 FROM fund_logs

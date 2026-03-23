@@ -27,6 +27,7 @@ func (l *ListFundLogsLogic) ListFundLogs(in *settlepb.ListFundLogsReq) (*settlep
 	for _, f := range rows {
 		out = append(out, &settlepb.FundLogItem{
 			Id:            f.Id,
+			MerchantId:    f.MerchantId,
 			OrderNo:       f.OrderNo,
 			ChangeType:    f.ChangeType,
 			Amount:        f.Amount,

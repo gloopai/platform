@@ -52,3 +52,11 @@ func NewAdminOrders(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic
 func NewAdminSystem(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminSystem {
 	return adminlogic.NewAdminSystem(ctx, svcCtx)
 }
+
+func NewAdminSettlement(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminSettlement {
+	return adminlogic.NewAdminSettlement(ctx, svcCtx)
+}
+
+func NewAdminRefunds(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRefunds {
+	return adminlogic.NewAdminRefunds(ctx, svcCtx)
+}

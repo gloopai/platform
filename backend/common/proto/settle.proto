@@ -34,6 +34,7 @@ message FundLogItem {
   int64 balance_after = 6;
   string reason = 7;
   int64 created_at = 8;
+  string merchant_id = 9;
 }
 
 message ListFundLogsResp {

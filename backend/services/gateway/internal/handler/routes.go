@@ -247,6 +247,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/v1/admin/refunds",
+					Handler: adminhandler.AdminRefundsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/v1/admin/reconcile/day",
 					Handler: adminhandler.AdminReconcileDayHandler(serverCtx),
 				},
@@ -254,6 +259,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/admin_users",
 					Handler: adminhandler.AdminListUsersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/settlement/logs",
+					Handler: adminhandler.AdminSettlementLogsHandler(serverCtx),
 				},
 			}...,
 		),

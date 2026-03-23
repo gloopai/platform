@@ -46,9 +46,9 @@
 | 路径 | 页面 | 说明 |
 |------|------|------|
 | `/orders` | 全站订单 | **已对接（MVP）**：`GET /v1/admin/orders` 跨商户列表；关键词与商户 ID、状态筛选；只读无导出 |
-| `/refunds` | 退款与差错 | **MVP 说明页**：指引至全站订单；退款/差错 API 未接入，列表占位 |
+| `/refunds` | 退款与差错 | **已对接（MVP）**：`GET /v1/admin/refunds` 候选订单只读列表（失败/关闭），支持商户与关键词筛选 |
 | `/reconcile` | 对账中心 | **已对接（MVP）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD&merchant_id=` 按自然日平台侧订单聚合（可选按商户过滤，与系统概览同源）；上游文件导入与差异批次为后续 |
-| `/settlement` | 结算与提现 | **MVP 说明页**：结算/提现 API 未接入；链至订单与对账 |
+| `/settlement` | 结算与提现 | **已对接（MVP）**：`GET /v1/admin/settlement/logs?merchant_id=&limit=` 平台资金流水只读（可按商户筛选） |
 
 > **说明**：侧栏暂不挂「风控与合规」等占位菜单，优先跑通收单—订单—对账主路径；风控、审计、公告等能力见 §3.4 规划。
 
@@ -108,9 +108,11 @@
 - **路由策略概览**：`GET /v1/admin/routing/summary`（当前算法标识、各表计数，供「路由策略」页展示）
 - **系统概览统计**：`GET /v1/admin/stats/overview`（今日 `orders` 聚合：总额、笔数、状态分布；按 `pay_product_code`、按 `channel_id` 分组）
 - **全站订单（只读）**：`GET /v1/admin/orders?keyword=&merchant_id=&status=&limit=`（`status` 省略为不限状态；trade `AdminListOrders`）
+- **退款候选（只读）**：`GET /v1/admin/refunds?merchant_id=&keyword=&status=&limit=`（失败/关闭订单初筛，MVP）
 - **对账（平台账按日）**：`GET /v1/admin/reconcile/day?date=YYYY-MM-DD&merchant_id=`（trade `Order.AdminDayOverview`，可选商户过滤；与 `stats/overview` 同口径聚合，可选历史自然日）
 - **探活（无需管理 Token）**：`GET /health`（JSON：`status`、`service`、`timestamp_ms`；供运维与「运维监控」页）
 - **管理员账号（只读）**：`GET /v1/admin/admin_users`（`id`、`username`、`status`；不含密码哈希）
+- **结算流水（只读）**：`GET /v1/admin/settlement/logs?merchant_id=&limit=`（`fund_logs` 聚合；MVP 不含结算单与提现流）
 
 其余未列「已对接」的能力见各页内「后续规划」说明。通用占位组件 `ModulePlaceholderPage` 仍保留在仓库供后续模块使用。
 
@@ -130,9 +132,9 @@
 | `src/views/modules/stats/` | 系统概览（`StatsPage.vue` + KPI / 状态条 / 产品·通道双表） |
 | `src/views/modules/orders/` | 全站订单（`OrdersPage.vue` + `types.ts`） |
 | `src/views/modules/channel-health/` | 通道监控（`ChannelHealthPage.vue`，复用 `routing/RoutingStatGrid`） |
-| `src/views/modules/refunds/` | 退款与差错（`RefundsPage.vue`，MVP 说明 + 占位） |
+| `src/views/modules/refunds/` | 退款与差错（`RefundsPage.vue`，候选订单表 + 筛选） |
 | `src/views/modules/reconcile/` | 对账中心（`ReconcilePage.vue`，按日平台账（可选商户过滤）+ 复用 `stats` 拆解表） |
-| `src/views/modules/settlement/` | 结算与提现（`SettlementPage.vue`，MVP 说明） |
+| `src/views/modules/settlement/` | 结算与提现（`SettlementPage.vue`，资金流水表 + 商户筛选） |
 | `src/views/modules/ops/` | 运维监控（`OpsPage.vue`，`GET /health`） |
 | `src/views/modules/system/` | 系统管理（`SystemPage.vue`，`GET /v1/admin/admin_users`） |
 | `src/views/pages/ModulePlaceholderPage.vue` | 通用占位页（可选读 `adminPlaceholderMeta`） |
@@ -152,6 +154,8 @@
 
 ## 7. 修订记录
 
+- **2026-03-23**：`/refunds` 对接 `GET /v1/admin/refunds`（失败/关闭候选订单只读）。
+- **2026-03-23**：`/settlement` 对接 `GET /v1/admin/settlement/logs`（平台资金流水只读）。
 - **2026-03-23**：`/reconcile` 支持 `merchant_id` 可选过滤（按商户核对平台账）。
 - **2026-03-23**：`/system` 系统管理 MVP：`GET /v1/admin/admin_users`；`AdminUsersStore.List`。
 - **2026-03-23**：侧栏收敛，去掉「风控与合规」占位菜单；`/reconcile` 对账中心对接 `GET /v1/admin/reconcile/day`（trade `AdminDayOverview`）；`/settlement` 说明页；`order.proto` 增加 `AdminDayOverview`。

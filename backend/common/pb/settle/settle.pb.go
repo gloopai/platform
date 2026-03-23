@@ -203,6 +203,7 @@ type FundLogItem struct {
 	BalanceAfter  int64                  `protobuf:"varint,6,opt,name=balance_after,json=balanceAfter,proto3" json:"balance_after,omitempty"`
 	Reason        string                 `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
 	CreatedAt     int64                  `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	MerchantId    string                 `protobuf:"bytes,9,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,6 +294,13 @@ func (x *FundLogItem) GetCreatedAt() int64 {
 	return 0
 }
 
+func (x *FundLogItem) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
 type ListFundLogsResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Logs          []*FundLogItem         `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
@@ -355,7 +363,7 @@ const file_settle_proto_rawDesc = "" +
 	"\x0fListFundLogsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x03R\x05limit\"\xf4\x01\n" +
+	"\x05limit\x18\x02 \x01(\x03R\x05limit\"\x95\x02\n" +
 	"\vFundLogItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
 	"\border_no\x18\x02 \x01(\tR\aorderNo\x12\x1f\n" +
@@ -366,7 +374,9 @@ const file_settle_proto_rawDesc = "" +
 	"\rbalance_after\x18\x06 \x01(\x03R\fbalanceAfter\x12\x16\n" +
 	"\x06reason\x18\a \x01(\tR\x06reason\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\b \x01(\x03R\tcreatedAt\";\n" +
+	"created_at\x18\b \x01(\x03R\tcreatedAt\x12\x1f\n" +
+	"\vmerchant_id\x18\t \x01(\tR\n" +
+	"merchantId\";\n" +
 	"\x10ListFundLogsResp\x12'\n" +
 	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs2|\n" +
 	"\x06Settle\x12/\n" +
