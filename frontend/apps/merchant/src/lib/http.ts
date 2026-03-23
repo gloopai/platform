@@ -23,6 +23,17 @@ export async function merchantConsoleGet<T>(
   return (await resp.json()) as T
 }
 
+export async function merchantConsolePut<T>(path: string, body?: Record<string, unknown>): Promise<T> {
+  const tok = loadMerchantToken()
+  const resp = await fetch(path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Merchant-Token': tok },
+    body: JSON.stringify(body || {}),
+  })
+  if (!resp.ok) throw new Error(String(resp.status))
+  return (await resp.json()) as T
+}
+
 export async function merchantConsolePost<T>(path: string, body?: Record<string, unknown>): Promise<T> {
   const tok = loadMerchantToken()
   const resp = await fetch(path, {

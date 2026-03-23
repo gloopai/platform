@@ -57,6 +57,24 @@ func MerchantSummaryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func MerchantDisplaySettingsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.MerchantDisplaySettingsReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+
+		l := logic.NewMerchantConsole(r.Context(), svcCtx)
+		resp, err := l.MerchantDisplaySettings(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func MerchantProductStatsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.MerchantProductStatsReq

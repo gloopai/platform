@@ -157,6 +157,9 @@
           </div>
 
           <div class="flex shrink-0 items-center gap-2">
+            <div class="hidden rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono text-slate-600 lg:block">
+               {{ serverTimeText }}
+            </div>
             <button
               type="button"
               class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
@@ -274,6 +277,8 @@ import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
 import AdminToastHost from '../components/AdminToastHost.vue'
 import { adminMenu, adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuGroup } from '../adminMenu'
 import { adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
+import { loadAdminDisplaySettings } from '../lib/displaySettings'
+import { useServerClock } from '../composables/useServerClock'
 
 type RefreshFn = () => void
 
@@ -282,6 +287,7 @@ const SIDEBAR_KEY = 'admin_sidebar_collapsed'
 const router = useRouter()
 const route = useRoute()
 const adminToken = ref(loadAdminToken())
+const { serverTimeText } = useServerClock()
 
 const refreshFns = ref<RefreshFn[]>([])
 provide('adminToken', adminToken)
@@ -489,6 +495,7 @@ function onWindowResizeOrScroll() {
 }
 
 onMounted(() => {
+  void loadAdminDisplaySettings()
   document.addEventListener('click', onDocClick)
   window.addEventListener('resize', onWindowResizeOrScroll)
 })

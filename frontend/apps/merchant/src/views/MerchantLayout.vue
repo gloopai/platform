@@ -15,6 +15,7 @@
         </div>
         <div class="min-w-0">
           <div class="truncate text-sm font-semibold tracking-tight text-slate-900">商户中心</div>
+          <div class="truncate text-[10px] font-mono text-slate-500"> {{ serverTimeText }}</div>
         </div>
       </div>
       <details ref="mobileAccountDetailsRef" class="relative">
@@ -73,6 +74,10 @@
               </div>
             </div>
           </div>
+          <div class="mt-2 border-t border-slate-200/80 pt-2 text-[11px] leading-tight">
+            <span class="text-slate-400">服务器时间</span>
+            <div class="mt-0.5 font-mono tabular-nums text-slate-700">{{ serverTimeText }}</div>
+          </div>
         </div>
         <div class="px-2 pb-2 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">菜单</div>
         <nav class="flex flex-col gap-0.5">
@@ -125,14 +130,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { postMerchantLogout } from '@/api/session'
 import { merchantNavItems } from '@/config/merchantMenu'
 import { clearMerchantSession, loadMerchantAuth, merchantMonogram, resolveMerchantDisplayName } from '@/lib/merchantApi'
+import { loadMerchantDisplaySettings } from '@/lib/displaySettings'
+import { useServerClock } from '@/composables/useServerClock'
 
 const router = useRouter()
 const mobileAccountDetailsRef = ref<HTMLDetailsElement | null>(null)
+const { serverTimeText } = useServerClock()
 
 const merchantIdDisplay = computed(() => {
   try {
@@ -145,6 +153,10 @@ const merchantIdDisplay = computed(() => {
 const merchantDisplayName = computed(() => resolveMerchantDisplayName(merchantIdDisplay.value))
 
 const monogram = computed(() => merchantMonogram(merchantDisplayName.value, merchantIdDisplay.value))
+
+onMounted(() => {
+  void loadMerchantDisplaySettings()
+})
 
 async function logout() {
   try {

@@ -1,11 +1,15 @@
 /** 金额：后端分为单位 */
+import { merchantDisplaySettings } from '@/lib/displaySettings'
 
 export function formatCentsWithCurrency(amount: number, currency = 'CNY'): string {
-  return `${(amount / 100).toFixed(2)} ${currency}`
+  const symbol = merchantDisplaySettings.value.currency_symbol || '¥'
+  const code = merchantDisplaySettings.value.currency_code || currency
+  return `${symbol} ${(amount / 100).toFixed(2)} ${code}`
 }
 
 export function formatYuanLabel(cents: number): string {
-  return `¥ ${(cents / 100).toFixed(2)}`
+  const symbol = merchantDisplaySettings.value.currency_symbol || '¥'
+  return `${symbol} ${(cents / 100).toFixed(2)}`
 }
 
 export function formatUnixSeconds(ts: number): string {

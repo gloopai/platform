@@ -118,6 +118,7 @@ import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
+import { formatAdminMoney } from '../../../lib/displaySettings'
 
 type RefundItem = {
   order_no: string
@@ -152,7 +153,7 @@ function formatTs(ts: number): string {
 }
 
 function formatAmount(cents: number): string {
-  return (Math.abs(cents) / 100).toFixed(2)
+  return formatAdminMoney(cents)
 }
 
 async function load() {

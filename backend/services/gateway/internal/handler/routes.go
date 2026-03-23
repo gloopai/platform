@@ -54,6 +54,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/v1/merchant/display_settings",
+					Handler: merchanthandler.MerchantDisplaySettingsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/v1/merchant/stats/by_product",
 					Handler: merchanthandler.MerchantProductStatsHandler(serverCtx),
 				},
@@ -264,6 +269,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/admin_users",
 					Handler: adminhandler.AdminListUsersHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/display_settings",
+					Handler: adminhandler.AdminDisplaySettingsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/display_settings",
+					Handler: adminhandler.AdminUpdateDisplaySettingsHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

@@ -56,3 +56,9 @@ ON DUPLICATE KEY UPDATE enabled = VALUES(enabled), sort_order = VALUES(sort_orde
 INSERT INTO admin_users (username, password_hash, status)
 VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1)
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);
+
+INSERT INTO global_settings (setting_key, setting_value) VALUES
+  ('country_code', 'CN'),
+  ('currency_code', 'CNY'),
+  ('currency_symbol', '¥')
+ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);

@@ -61,6 +61,18 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 	}, nil
 }
 
+func (c *MerchantConsole) MerchantDisplaySettings(req *types.MerchantDisplaySettingsReq) (*types.MerchantDisplaySettingsResp, error) {
+	row, err := c.svcCtx.GlobalSettings.GetDisplaySettings(c.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MerchantDisplaySettingsResp{
+		CountryCode:    row.CountryCode,
+		CurrencyCode:   row.CurrencyCode,
+		CurrencySymbol: row.CurrencySymbol,
+	}, nil
+}
+
 func (c *MerchantConsole) MerchantOrders(req *types.MerchantOrdersReq) (*types.MerchantOrdersResp, error) {
 	orderStatus := int32(-1)
 	if strings.TrimSpace(req.Status) != "" {

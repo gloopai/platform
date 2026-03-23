@@ -112,6 +112,7 @@ import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
+import { formatAdminMoney } from '../../../lib/displaySettings'
 
 import type { AdminOrderRow, AdminOrdersResp } from './types'
 
@@ -127,7 +128,7 @@ const rows = ref<AdminOrderRow[]>([])
 const { page, pageSize, total, pageCount, slice: pagedRows } = useClientPagination(rows, 20)
 
 function formatYuan(cents: number) {
-  return `¥ ${(cents / 100).toFixed(2)}`
+  return formatAdminMoney(cents)
 }
 
 function formatTime(ts: number) {

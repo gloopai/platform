@@ -97,6 +97,7 @@ import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
+import { adminDisplaySettings } from '../../../lib/displaySettings'
 
 type SettlementLogItem = {
   id: number
@@ -129,7 +130,8 @@ function formatTs(ts: number): string {
 function formatAmount(cents: number): string {
   const sign = cents < 0 ? '-' : ''
   const abs = Math.abs(cents)
-  return `${sign}${(abs / 100).toFixed(2)}`
+  const symbol = adminDisplaySettings.value.currency_symbol || '¥'
+  return `${sign}${symbol} ${(abs / 100).toFixed(2)}`
 }
 
 async function load() {

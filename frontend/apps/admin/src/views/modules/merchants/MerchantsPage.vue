@@ -200,6 +200,7 @@ import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { formatAdminMoney } from '../../../lib/displaySettings'
 
 import MerchantFormCard from './MerchantFormCard.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
@@ -267,7 +268,7 @@ watch(searchQuery, () => {
 })
 
 function formatMoney(v: number) {
-  return `¥ ${(v / 100).toFixed(2)}`
+  return formatAdminMoney(v)
 }
 
 function applySelectedToForm() {

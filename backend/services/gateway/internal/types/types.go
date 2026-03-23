@@ -160,6 +160,15 @@ type MerchantSummaryResp struct {
 	IpWhitelist string  `json:"ip_whitelist"`
 }
 
+type MerchantDisplaySettingsReq struct {
+}
+
+type MerchantDisplaySettingsResp struct {
+	CountryCode    string `json:"country_code"`
+	CurrencyCode   string `json:"currency_code"`
+	CurrencySymbol string `json:"currency_symbol"`
+}
+
 type MerchantProductStatsReq struct {
 }
 
@@ -631,6 +640,21 @@ type AdminUserRow struct {
 
 type AdminUsersResp struct {
 	Users []AdminUserRow `json:"users"`
+}
+
+type AdminDisplaySettingsReq struct {
+}
+
+type AdminDisplaySettingsUpdateReq struct {
+	CountryCode    string `json:"country_code"`
+	CurrencyCode   string `json:"currency_code"`
+	CurrencySymbol string `json:"currency_symbol"`
+}
+
+type AdminDisplaySettingsResp struct {
+	CountryCode    string `json:"country_code"`
+	CurrencyCode   string `json:"currency_code"`
+	CurrencySymbol string `json:"currency_symbol"`
 }
 
 // --- 结算中心（MVP：平台资金流水） ---

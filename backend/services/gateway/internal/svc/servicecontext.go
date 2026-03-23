@@ -29,8 +29,9 @@ type ServiceContext struct {
 	MerchantConsoleAuthMiddleware rest.Middleware
 
 	// 仅管理台账号与 BFF 会话；业务数据经 Trade/Core RPC。
-	AdminUsers *store.AdminUsersStore
-	Sessions   *store.SessionsStore
+	AdminUsers     *store.AdminUsersStore
+	Sessions       *store.SessionsStore
+	GlobalSettings *store.GlobalSettingsStore
 
 	OrderRpc    orderclient.Order
 	SettleRpc   settleclient.Settle
@@ -66,6 +67,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	sessionsStore := store.NewSessionsStore(sqlDB)
+	globalSettingsStore := store.NewGlobalSettingsStore(sqlDB)
 	var runtimeCfg *consulx.ConfigStore
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
@@ -79,8 +81,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(coreCli)).Handle,
 
-		AdminUsers: adminUsersStore,
-		Sessions:   sessionsStore,
+		AdminUsers:     adminUsersStore,
+		Sessions:       sessionsStore,
+		GlobalSettings: globalSettingsStore,
 
 		OrderRpc:    orderclient.NewOrder(tradeCli),
 		SettleRpc:   settleclient.NewSettle(coreCli),
