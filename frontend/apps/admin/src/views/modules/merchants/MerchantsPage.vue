@@ -197,6 +197,7 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
@@ -208,6 +209,7 @@ import type { AdminMerchantInfo, MerchantForm, PayProductRow } from './types'
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
+const toast = useAdminToast()
 
 const loading = ref(false)
 const loadingProducts = ref(false)
@@ -344,8 +346,9 @@ async function saveForm() {
   saving.value = true
   formError.value = ''
   saved.value = false
+  const creating = isNew.value
   try {
-    if (isNew.value) {
+    if (creating) {
       const resp = await adminPost<{ merchant: AdminMerchantInfo }>('/v1/admin/merchants', {
         merchant_id: form.value.merchant_id.trim(),
         api_secret: form.value.api_secret,
@@ -381,6 +384,7 @@ async function saveForm() {
       form.value = merchantToForm(row)
     }
     saved.value = true
+    toast.success(creating ? '商户创建成功' : '编辑已保存')
   } catch {
     formError.value = '网络错误'
   } finally {
@@ -409,6 +413,7 @@ async function toggleLock() {
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
     saved.value = true
+    toast.success('状态已更新')
   } catch {
     formError.value = '更新状态失败'
   }
@@ -438,6 +443,7 @@ async function resetSecret() {
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
     saved.value = true
+    toast.success('密钥已重置')
   } catch {
     formError.value = '重置密钥失败'
   }
@@ -463,6 +469,7 @@ async function persistPayProducts(newIds: number[]) {
     const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
+    toast.success('代收产品授权已更新')
   } catch {
     bindError.value = '保存失败'
   } finally {
@@ -490,6 +497,7 @@ async function persistPayoutProducts(newIds: number[]) {
     const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
+    toast.success('代付产品授权已更新')
   } catch {
     bindError.value = '保存失败'
   } finally {

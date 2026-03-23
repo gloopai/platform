@@ -153,6 +153,7 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
@@ -173,6 +174,7 @@ const adminToken = inject('adminToken') as { value: string } | undefined
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 const adminTokenValue = computed(() => adminToken?.value || '')
 
+const toast = useAdminToast()
 const loadingProducts = ref(false)
 const loadingBindings = ref(false)
 const savingProduct = ref(false)
@@ -357,6 +359,7 @@ async function saveProduct() {
   savingProduct.value = true
   productError.value = ''
   savedProduct.value = false
+  const creating = form.value.id <= 0
   try {
     const body = {
       code: form.value.code,
@@ -377,6 +380,7 @@ async function saveProduct() {
     form.value = { ...p }
     savedProduct.value = true
     await loadBindings(p.id)
+    toast.success(creating ? '产品已创建' : '编辑已保存')
   } catch {
     productError.value = '保存失败（编码重复或网络错误）'
   } finally {
@@ -396,6 +400,7 @@ async function addBinding() {
     })
     newBind.value = { channel_id: 0, weight: 100, enabled: true }
     await loadBindings(form.value.id)
+    toast.success('通道绑定已添加')
   } catch {
     bindingError.value = '添加失败（通道不存在或已绑定）'
   } finally {
@@ -416,6 +421,7 @@ async function updateBinding(bindingId: number, weight: number, enabled: boolean
   try {
     await adminPut(apiBindingRow(bindingId), { weight, enabled })
     await loadBindings(form.value.id)
+    toast.success('绑定已更新')
   } catch {
     bindingError.value = '更新绑定失败'
   }
@@ -427,6 +433,7 @@ async function removeBinding(bindingId: number) {
   try {
     await adminDelete(apiBindingRow(bindingId))
     await loadBindings(form.value.id)
+    toast.success('绑定已删除')
   } catch {
     bindingError.value = '删除失败'
   }

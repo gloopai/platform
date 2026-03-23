@@ -236,6 +236,8 @@
     </div>
   </div>
 
+  <AdminToastHost />
+
   <Teleport to="body">
     <div
       v-show="flyoutKey && sidebarCollapsed"
@@ -269,6 +271,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
+import AdminToastHost from '../components/AdminToastHost.vue'
 import { adminMenu, adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuGroup } from '../adminMenu'
 import { adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
 

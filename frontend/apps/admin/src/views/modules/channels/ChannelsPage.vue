@@ -157,6 +157,7 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
@@ -169,6 +170,7 @@ const adminToken = inject('adminToken') as { value: string } | undefined
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 const adminTokenValue = computed(() => adminToken?.value || '')
 
+const toast = useAdminToast()
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
@@ -262,6 +264,7 @@ async function save() {
   saving.value = true
   error.value = ''
   saved.value = false
+  const creating = form.value.id <= 0
   try {
     const isUpdate = form.value.id > 0
     const url = isUpdate ? `/v1/admin/channels/${form.value.id}` : '/v1/admin/channels'
@@ -276,6 +279,7 @@ async function save() {
     selectedId.value = ch.id
     form.value = { ...ch }
     saved.value = true
+    toast.success(creating ? '通道已创建' : '编辑已保存')
   } catch {
     error.value = '网络错误'
   } finally {
