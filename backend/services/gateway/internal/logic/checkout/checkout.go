@@ -261,12 +261,12 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 
 func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.UpstreamNotifyResp, err error) {
 	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.UpstreamTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
-		return notifyFail("INVALID_NOTIFY_PARAMS", "invalid notify params"), nil
+		return notifyFail(NotifyCodeInvalidNotifyParams, "invalid notify params"), nil
 	}
 
 	signResp, err := c.svcCtx.ChannelRpc.GetSignSecret(c.ctx, &channelclient.GetSignSecretReq{ChannelId: req.ChannelId})
 	if err != nil {
-		return notifyFail("CHANNEL_NOT_FOUND", "channel not found"), nil
+		return notifyFail(NotifyCodeChannelNotFound, "channel not found"), nil
 	}
 
 	expect := md5Sign(map[string]string{
@@ -277,14 +277,14 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		"sign":              req.Sign,
 	}, signResp.GetSignSecret())
 	if !strings.EqualFold(expect, req.Sign) {
-		return notifyFail("INVALID_SIGN", "invalid sign"), nil
+		return notifyFail(NotifyCodeInvalidSign, "invalid sign"), nil
 	}
 
 	getResp, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
 		OrderNo: req.OrderNo,
 	})
 	if err != nil {
-		return notifyFail("ORDER_NOT_FOUND", "order not found"), nil
+		return notifyFail(NotifyCodeOrderNotFound, "order not found"), nil
 	}
 	o := getResp.GetOrder()
 
@@ -293,12 +293,12 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 	// - 非待支付（失败/关闭）不再接受支付成功通知
 	if o.GetStatus() == 1 {
 		if samePaidSnapshot(o, req) {
-			return notifyOK("IDEMPOTENT_REPLAY_ACCEPTED", "idempotent replay accepted"), nil
+			return notifyOK(NotifyCodeIdempotentReplayAccepted, "idempotent replay accepted"), nil
 		}
-		return notifyFail("REPLAY_PAYLOAD_MISMATCH", "replay payload mismatch"), nil
+		return notifyFail(NotifyCodeReplayPayloadMismatch, "replay payload mismatch"), nil
 	}
 	if o.GetStatus() != 0 {
-		return notifyFail("ORDER_NOT_PENDING", "order not pending"), nil
+		return notifyFail(NotifyCodeOrderNotPending, "order not pending"), nil
 	}
 
 	markResp, err := c.svcCtx.OrderRpc.MarkPaid(c.ctx, &orderclient.MarkPaidReq{
@@ -308,19 +308,19 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		ChannelId:       req.ChannelId,
 	})
 	if err != nil {
-		return notifyFail("MARK_PAID_FAILED", "mark paid failed"), nil
+		return notifyFail(NotifyCodeMarkPaidFailed, "mark paid failed"), nil
 	}
 
 	if !markResp.GetChanged() {
 		// 并发场景：若另一条回调已先落库，允许同快照重放成功。
 		latest, ge := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{OrderNo: req.OrderNo})
 		if ge != nil {
-			return notifyFail("MARK_PAID_RACE", "mark paid race"), nil
+			return notifyFail(NotifyCodeMarkPaidRace, "mark paid race"), nil
 		}
 		if samePaidSnapshot(latest.GetOrder(), req) {
-			return notifyOK("IDEMPOTENT_RACE_ACCEPTED", "idempotent race accepted"), nil
+			return notifyOK(NotifyCodeIdempotentRaceAccepted, "idempotent race accepted"), nil
 		}
-		return notifyFail("MARK_PAID_RACE_MISMATCH", "mark paid race mismatch"), nil
+		return notifyFail(NotifyCodeMarkPaidRaceMismatch, "mark paid race mismatch"), nil
 	}
 
 	_, _ = c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
@@ -337,7 +337,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 	})
 	_ = c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body)
 
-	return &types.UpstreamNotifyResp{Ok: true}, nil
+	return notifyOK("", ""), nil
 }
 
 func samePaidSnapshot(o *orderclient.OrderInfo, req *types.UpstreamNotifyReq) bool {
