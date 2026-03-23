@@ -16,7 +16,7 @@ type PayProductAdmin struct {
 	Enabled   bool
 }
 
-// PayProductBindingAdmin 产品与上游通道绑定。
+// PayProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
 type PayProductBindingAdmin struct {
 	ID           int64
 	PayProductID int64
@@ -24,7 +24,6 @@ type PayProductBindingAdmin struct {
 	ChannelName  string
 	Weight       int64
 	Enabled      bool
-	CostRateBps  sql.NullInt64
 }
 
 // AdminListAllPayProducts 全部支付产品（含停用）。
@@ -109,7 +108,7 @@ UPDATE pay_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated
 // AdminListBindings 某产品下的通道绑定。
 func (s *PayProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayProductBindingAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
-SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled, ppc.cost_rate_bps
+SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM pay_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.pay_product_id = ?
@@ -123,7 +122,7 @@ ORDER BY ppc.id ASC
 	for rows.Next() {
 		var b PayProductBindingAdmin
 		var en int
-		if err := rows.Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en, &b.CostRateBps); err != nil {
+		if err := rows.Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
 			return nil, err
 		}
 		b.Enabled = en == 1
@@ -133,7 +132,7 @@ ORDER BY ppc.id ASC
 }
 
 // AdminUpsertBinding 插入或更新 (product_id, channel_id) 唯一键。
-func (s *PayProductsStore) AdminUpsertBinding(ctx context.Context, payProductID, channelID int64, weight int64, enabled bool, costRateBps *int64) (int64, error) {
+func (s *PayProductsStore) AdminUpsertBinding(ctx context.Context, payProductID, channelID int64, weight int64, enabled bool) (int64, error) {
 	if weight <= 0 {
 		return 0, errors.New("weight must be positive")
 	}
@@ -142,10 +141,10 @@ func (s *PayProductsStore) AdminUpsertBinding(ctx context.Context, payProductID,
 		en = 1
 	}
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO pay_product_channels (pay_product_id, channel_id, weight, cost_rate_bps, enabled)
-VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE weight = VALUES(weight), cost_rate_bps = VALUES(cost_rate_bps), enabled = VALUES(enabled), updated_at = NOW()
-`, payProductID, channelID, weight, costRateBps, en)
+INSERT INTO pay_product_channels (pay_product_id, channel_id, weight, enabled)
+VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), updated_at = NOW()
+`, payProductID, channelID, weight, en)
 	if err != nil {
 		return 0, err
 	}
@@ -160,7 +159,7 @@ SELECT id FROM pay_product_channels WHERE pay_product_id = ? AND channel_id = ? 
 }
 
 // AdminUpdateBinding 按绑定行 ID 更新权重与启用。
-func (s *PayProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int64, weight int64, enabled bool, costRateBps *int64) error {
+func (s *PayProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int64, weight int64, enabled bool) error {
 	if weight <= 0 {
 		return errors.New("weight must be positive")
 	}
@@ -169,8 +168,8 @@ func (s *PayProductsStore) AdminUpdateBinding(ctx context.Context, bindingID int
 		en = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-UPDATE pay_product_channels SET weight = ?, enabled = ?, cost_rate_bps = ?, updated_at = NOW() WHERE id = ?
-`, weight, en, costRateBps, bindingID)
+UPDATE pay_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHERE id = ?
+`, weight, en, bindingID)
 	if err != nil {
 		return err
 	}
@@ -189,11 +188,11 @@ func (s *PayProductsStore) AdminGetBindingByID(ctx context.Context, bindingID in
 	var b PayProductBindingAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
-SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled, ppc.cost_rate_bps
+SELECT ppc.id, ppc.pay_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM pay_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en, &b.CostRateBps)
+`, bindingID).Scan(&b.ID, &b.PayProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
 	if err != nil {
 		return nil, err
 	}

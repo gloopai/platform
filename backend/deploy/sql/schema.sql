@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS merchants (
   UNIQUE KEY uk_merchant_id (merchant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 上游通道：可单独开通代收/代付能力；成本默认在通道级，可被产品-通道绑定覆盖
+-- 上游通道：可单独开通代收/代付能力；平台相对上游的费率在通道级配置
 CREATE TABLE IF NOT EXISTS channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(64) NOT NULL,
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS channels (
   max_amount BIGINT NOT NULL DEFAULT 0,
   supports_collect TINYINT NOT NULL DEFAULT 1,
   supports_payout TINYINT NOT NULL DEFAULT 0,
-  upstream_collect_cost_bps INT NOT NULL DEFAULT 0 COMMENT '代收上游成本（万分比）',
-  upstream_payout_cost_bps INT NOT NULL DEFAULT 0 COMMENT '代付上游成本（万分比）',
+  upstream_collect_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收：平台相对上游费率（万分比）',
+  upstream_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：平台相对上游费率（万分比）',
   enabled TINYINT NOT NULL DEFAULT 1,
   fuse_enabled TINYINT NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,13 +70,12 @@ CREATE TABLE IF NOT EXISTS payout_products (
   KEY idx_enabled_sort (enabled, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 代收产品 ↔ 通道；cost_rate_bps NULL 表示使用通道 upstream_collect_cost_bps
+-- 代收产品 ↔ 通道（仅权重与启用；费率见 channels / 商户授权）
 CREATE TABLE IF NOT EXISTS pay_product_channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   pay_product_id BIGINT UNSIGNED NOT NULL,
   channel_id BIGINT UNSIGNED NOT NULL,
   weight INT NOT NULL DEFAULT 100,
-  cost_rate_bps INT NULL COMMENT '覆盖通道默认代收成本，NULL=用通道默认值',
   enabled TINYINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -87,13 +86,12 @@ CREATE TABLE IF NOT EXISTS pay_product_channels (
   CONSTRAINT fk_ppc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 代付产品 ↔ 通道
+-- 代付产品 ↔ 通道（仅权重与启用；费率见 channels / 商户授权）
 CREATE TABLE IF NOT EXISTS payout_product_channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   payout_product_id BIGINT UNSIGNED NOT NULL,
   channel_id BIGINT UNSIGNED NOT NULL,
   weight INT NOT NULL DEFAULT 100,
-  cost_rate_bps INT NULL COMMENT '覆盖通道默认代付成本，NULL=用通道默认值',
   enabled TINYINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

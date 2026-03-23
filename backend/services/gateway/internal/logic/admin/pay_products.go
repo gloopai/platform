@@ -103,35 +103,25 @@ func (p *AdminPayProducts) AdminListPayProductBindings(req *types.AdminListPayPr
 	}
 	out := make([]types.AdminPayProductBindingInfo, 0, len(r.GetBindings()))
 	for _, b := range r.GetBindings() {
-		info := types.AdminPayProductBindingInfo{
+		out = append(out, types.AdminPayProductBindingInfo{
 			Id:           b.GetId(),
 			PayProductId: b.GetPayProductId(),
 			ChannelId:    b.GetChannelId(),
 			ChannelName:  b.GetChannelName(),
 			Weight:       b.GetWeight(),
 			Enabled:      b.GetEnabled(),
-		}
-		if b.CostRateBps != nil {
-			v := *b.CostRateBps
-			info.CostRateBps = &v
-		}
-		out = append(out, info)
+		})
 	}
 	return &types.AdminListPayProductBindingsResp{Bindings: out}, nil
 }
 
 func (p *AdminPayProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPayProductBindingReq) (*types.AdminUpsertPayProductBindingResp, error) {
-	pb := &channelpb.AdminUpsertPayProductBindingReq{
+	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayProductBinding(p.ctx, &channelpb.AdminUpsertPayProductBindingReq{
 		PayProductId: req.PayProductId,
 		ChannelId:    req.ChannelId,
-		Weight:         req.Weight,
-		Enabled:        req.Enabled,
-	}
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		pb.CostRateBps = &v
-	}
-	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayProductBinding(p.ctx, pb)
+		Weight:       req.Weight,
+		Enabled:      req.Enabled,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -139,21 +129,14 @@ func (p *AdminPayProducts) AdminUpsertPayProductBinding(req *types.AdminUpsertPa
 	bi := types.AdminPayProductBindingInfo{
 		Id: b.GetId(), PayProductId: b.GetPayProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
-	}
-	if b.CostRateBps != nil {
-		v := *b.CostRateBps
-		bi.CostRateBps = &v
 	}
 	return &types.AdminUpsertPayProductBindingResp{Binding: bi}, nil
 }
 
 func (p *AdminPayProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePayProductBindingReq) (*types.AdminUpdatePayProductBindingResp, error) {
-	pb := &channelpb.AdminUpdatePayProductBindingReq{Id: req.Id, Weight: req.Weight, Enabled: req.Enabled}
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		pb.CostRateBps = &v
-	}
-	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayProductBinding(p.ctx, pb)
+	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayProductBinding(p.ctx, &channelpb.AdminUpdatePayProductBindingReq{
+		Id: req.Id, Weight: req.Weight, Enabled: req.Enabled,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -161,10 +144,6 @@ func (p *AdminPayProducts) AdminUpdatePayProductBinding(req *types.AdminUpdatePa
 	bi := types.AdminPayProductBindingInfo{
 		Id: b.GetId(), PayProductId: b.GetPayProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
-	}
-	if b.CostRateBps != nil {
-		v := *b.CostRateBps
-		bi.CostRateBps = &v
 	}
 	return &types.AdminUpdatePayProductBindingResp{Binding: bi}, nil
 }
@@ -246,31 +225,21 @@ func (p *AdminPayProducts) AdminListPayoutProductBindings(req *types.AdminListPa
 	}
 	out := make([]types.AdminPayoutProductBindingInfo, 0, len(r.GetBindings()))
 	for _, b := range r.GetBindings() {
-		info := types.AdminPayoutProductBindingInfo{
+		out = append(out, types.AdminPayoutProductBindingInfo{
 			Id: b.GetId(), PayoutProductId: b.GetPayoutProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 			Weight: b.GetWeight(), Enabled: b.GetEnabled(),
-		}
-		if b.CostRateBps != nil {
-			v := *b.CostRateBps
-			info.CostRateBps = &v
-		}
-		out = append(out, info)
+		})
 	}
 	return &types.AdminListPayoutProductBindingsResp{Bindings: out}, nil
 }
 
 func (p *AdminPayProducts) AdminUpsertPayoutProductBinding(req *types.AdminUpsertPayoutProductBindingReq) (*types.AdminUpsertPayoutProductBindingResp, error) {
-	pb := &channelpb.AdminUpsertPayoutProductBindingReq{
+	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayoutProductBinding(p.ctx, &channelpb.AdminUpsertPayoutProductBindingReq{
 		PayoutProductId: req.PayoutProductId,
 		ChannelId:       req.ChannelId,
 		Weight:          req.Weight,
 		Enabled:         req.Enabled,
-	}
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		pb.CostRateBps = &v
-	}
-	resp, err := p.svcCtx.ChannelRpc.AdminUpsertPayoutProductBinding(p.ctx, pb)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -278,21 +247,14 @@ func (p *AdminPayProducts) AdminUpsertPayoutProductBinding(req *types.AdminUpser
 	bi := types.AdminPayoutProductBindingInfo{
 		Id: b.GetId(), PayoutProductId: b.GetPayoutProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
-	}
-	if b.CostRateBps != nil {
-		v := *b.CostRateBps
-		bi.CostRateBps = &v
 	}
 	return &types.AdminUpsertPayoutProductBindingResp{Binding: bi}, nil
 }
 
 func (p *AdminPayProducts) AdminUpdatePayoutProductBinding(req *types.AdminUpdatePayoutProductBindingReq) (*types.AdminUpdatePayoutProductBindingResp, error) {
-	pb := &channelpb.AdminUpdatePayoutProductBindingReq{Id: req.Id, Weight: req.Weight, Enabled: req.Enabled}
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		pb.CostRateBps = &v
-	}
-	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayoutProductBinding(p.ctx, pb)
+	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayoutProductBinding(p.ctx, &channelpb.AdminUpdatePayoutProductBindingReq{
+		Id: req.Id, Weight: req.Weight, Enabled: req.Enabled,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -300,10 +262,6 @@ func (p *AdminPayProducts) AdminUpdatePayoutProductBinding(req *types.AdminUpdat
 	bi := types.AdminPayoutProductBindingInfo{
 		Id: b.GetId(), PayoutProductId: b.GetPayoutProductId(), ChannelId: b.GetChannelId(), ChannelName: b.GetChannelName(),
 		Weight: b.GetWeight(), Enabled: b.GetEnabled(),
-	}
-	if b.CostRateBps != nil {
-		v := *b.CostRateBps
-		bi.CostRateBps = &v
 	}
 	return &types.AdminUpdatePayoutProductBindingResp{Binding: bi}, nil
 }

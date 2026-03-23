@@ -70,8 +70,8 @@ message ChannelRow {
   bool fuse_enabled = 12;
   bool supports_collect = 13;
   bool supports_payout = 14;
-  int64 upstream_collect_cost_bps = 15;
-  int64 upstream_payout_cost_bps = 16;
+  int64 upstream_collect_rate_bps = 15;
+  int64 upstream_payout_rate_bps = 16;
 }
 
 message ListChannelsResp {
@@ -93,8 +93,8 @@ message UpsertChannelReq {
   bool fuse_enabled = 12;
   bool supports_collect = 13;
   bool supports_payout = 14;
-  int64 upstream_collect_cost_bps = 15;
-  int64 upstream_payout_cost_bps = 16;
+  int64 upstream_collect_rate_bps = 15;
+  int64 upstream_payout_rate_bps = 16;
 }
 
 message UpsertChannelResp {
@@ -202,7 +202,8 @@ message AdminPayProductBindingRow {
   string channel_name = 4;
   int64 weight = 5;
   bool enabled = 6;
-  optional int64 cost_rate_bps = 7;
+  reserved 7;
+  reserved "cost_rate_bps";
 }
 
 message AdminListPayProductBindingsResp {
@@ -214,7 +215,8 @@ message AdminUpsertPayProductBindingReq {
   int64 channel_id = 2;
   int64 weight = 3;
   bool enabled = 4;
-  optional int64 cost_rate_bps = 5;
+  reserved 5;
+  reserved "cost_rate_bps";
 }
 
 message AdminUpsertPayProductBindingResp {
@@ -225,7 +227,8 @@ message AdminUpdatePayProductBindingReq {
   int64 id = 1;
   int64 weight = 2;
   bool enabled = 3;
-  optional int64 cost_rate_bps = 4;
+  reserved 4;
+  reserved "cost_rate_bps";
 }
 
 message AdminUpdatePayProductBindingResp {
@@ -284,7 +287,8 @@ message AdminPayoutProductBindingRow {
   string channel_name = 4;
   int64 weight = 5;
   bool enabled = 6;
-  optional int64 cost_rate_bps = 7;
+  reserved 7;
+  reserved "cost_rate_bps";
 }
 
 message AdminListPayoutProductBindingsResp {
@@ -296,7 +300,8 @@ message AdminUpsertPayoutProductBindingReq {
   int64 channel_id = 2;
   int64 weight = 3;
   bool enabled = 4;
-  optional int64 cost_rate_bps = 5;
+  reserved 5;
+  reserved "cost_rate_bps";
 }
 
 message AdminUpsertPayoutProductBindingResp {
@@ -307,7 +312,8 @@ message AdminUpdatePayoutProductBindingReq {
   int64 id = 1;
   int64 weight = 2;
   bool enabled = 3;
-  optional int64 cost_rate_bps = 4;
+  reserved 4;
+  reserved "cost_rate_bps";
 }
 
 message AdminUpdatePayoutProductBindingResp {

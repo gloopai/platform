@@ -265,8 +265,8 @@ type ChannelRow struct {
 	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
 	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
-	UpstreamCollectCostBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_cost_bps,json=upstreamCollectCostBps,proto3" json:"upstream_collect_cost_bps,omitempty"`
-	UpstreamPayoutCostBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_cost_bps,json=upstreamPayoutCostBps,proto3" json:"upstream_payout_cost_bps,omitempty"`
+	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
+	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -399,16 +399,16 @@ func (x *ChannelRow) GetSupportsPayout() bool {
 	return false
 }
 
-func (x *ChannelRow) GetUpstreamCollectCostBps() int64 {
+func (x *ChannelRow) GetUpstreamCollectRateBps() int64 {
 	if x != nil {
-		return x.UpstreamCollectCostBps
+		return x.UpstreamCollectRateBps
 	}
 	return 0
 }
 
-func (x *ChannelRow) GetUpstreamPayoutCostBps() int64 {
+func (x *ChannelRow) GetUpstreamPayoutRateBps() int64 {
 	if x != nil {
-		return x.UpstreamPayoutCostBps
+		return x.UpstreamPayoutRateBps
 	}
 	return 0
 }
@@ -473,8 +473,8 @@ type UpsertChannelReq struct {
 	FuseEnabled            bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
 	SupportsCollect        bool                   `protobuf:"varint,13,opt,name=supports_collect,json=supportsCollect,proto3" json:"supports_collect,omitempty"`
 	SupportsPayout         bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
-	UpstreamCollectCostBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_cost_bps,json=upstreamCollectCostBps,proto3" json:"upstream_collect_cost_bps,omitempty"`
-	UpstreamPayoutCostBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_cost_bps,json=upstreamPayoutCostBps,proto3" json:"upstream_payout_cost_bps,omitempty"`
+	UpstreamCollectRateBps int64                  `protobuf:"varint,15,opt,name=upstream_collect_rate_bps,json=upstreamCollectRateBps,proto3" json:"upstream_collect_rate_bps,omitempty"`
+	UpstreamPayoutRateBps  int64                  `protobuf:"varint,16,opt,name=upstream_payout_rate_bps,json=upstreamPayoutRateBps,proto3" json:"upstream_payout_rate_bps,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -607,16 +607,16 @@ func (x *UpsertChannelReq) GetSupportsPayout() bool {
 	return false
 }
 
-func (x *UpsertChannelReq) GetUpstreamCollectCostBps() int64 {
+func (x *UpsertChannelReq) GetUpstreamCollectRateBps() int64 {
 	if x != nil {
-		return x.UpstreamCollectCostBps
+		return x.UpstreamCollectRateBps
 	}
 	return 0
 }
 
-func (x *UpsertChannelReq) GetUpstreamPayoutCostBps() int64 {
+func (x *UpsertChannelReq) GetUpstreamPayoutRateBps() int64 {
 	if x != nil {
-		return x.UpstreamPayoutCostBps
+		return x.UpstreamPayoutRateBps
 	}
 	return 0
 }
@@ -1657,7 +1657,6 @@ type AdminPayProductBindingRow struct {
 	ChannelName   string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Weight        int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps   *int64                 `protobuf:"varint,7,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1734,13 +1733,6 @@ func (x *AdminPayProductBindingRow) GetEnabled() bool {
 	return false
 }
 
-func (x *AdminPayProductBindingRow) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
-}
-
 type AdminListPayProductBindingsResp struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Bindings      []*AdminPayProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
@@ -1791,7 +1783,6 @@ type AdminUpsertPayProductBindingReq struct {
 	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Weight        int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps   *int64                 `protobuf:"varint,5,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1854,13 +1845,6 @@ func (x *AdminUpsertPayProductBindingReq) GetEnabled() bool {
 	return false
 }
 
-func (x *AdminUpsertPayProductBindingReq) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
-}
-
 type AdminUpsertPayProductBindingResp struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Binding       *AdminPayProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
@@ -1910,7 +1894,6 @@ type AdminUpdatePayProductBindingReq struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Weight        int64                  `protobuf:"varint,2,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps   *int64                 `protobuf:"varint,4,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1964,13 +1947,6 @@ func (x *AdminUpdatePayProductBindingReq) GetEnabled() bool {
 		return x.Enabled
 	}
 	return false
-}
-
-func (x *AdminUpdatePayProductBindingReq) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
 }
 
 type AdminUpdatePayProductBindingResp struct {
@@ -2501,7 +2477,6 @@ type AdminPayoutProductBindingRow struct {
 	ChannelName     string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Weight          int64                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled         bool                   `protobuf:"varint,6,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps     *int64                 `protobuf:"varint,7,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -2578,13 +2553,6 @@ func (x *AdminPayoutProductBindingRow) GetEnabled() bool {
 	return false
 }
 
-func (x *AdminPayoutProductBindingRow) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
-}
-
 type AdminListPayoutProductBindingsResp struct {
 	state         protoimpl.MessageState          `protogen:"open.v1"`
 	Bindings      []*AdminPayoutProductBindingRow `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
@@ -2635,7 +2603,6 @@ type AdminUpsertPayoutProductBindingReq struct {
 	ChannelId       int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Weight          int64                  `protobuf:"varint,3,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled         bool                   `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps     *int64                 `protobuf:"varint,5,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -2698,13 +2665,6 @@ func (x *AdminUpsertPayoutProductBindingReq) GetEnabled() bool {
 	return false
 }
 
-func (x *AdminUpsertPayoutProductBindingReq) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
-}
-
 type AdminUpsertPayoutProductBindingResp struct {
 	state         protoimpl.MessageState        `protogen:"open.v1"`
 	Binding       *AdminPayoutProductBindingRow `protobuf:"bytes,1,opt,name=binding,proto3" json:"binding,omitempty"`
@@ -2754,7 +2714,6 @@ type AdminUpdatePayoutProductBindingReq struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Weight        int64                  `protobuf:"varint,2,opt,name=weight,proto3" json:"weight,omitempty"`
 	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	CostRateBps   *int64                 `protobuf:"varint,4,opt,name=cost_rate_bps,json=costRateBps,proto3,oneof" json:"cost_rate_bps,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2808,13 +2767,6 @@ func (x *AdminUpdatePayoutProductBindingReq) GetEnabled() bool {
 		return x.Enabled
 	}
 	return false
-}
-
-func (x *AdminUpdatePayoutProductBindingReq) GetCostRateBps() int64 {
-	if x != nil && x.CostRateBps != nil {
-		return *x.CostRateBps
-	}
-	return 0
 }
 
 type AdminUpdatePayoutProductBindingResp struct {
@@ -2989,8 +2941,8 @@ const file_channel_proto_rawDesc = "" +
 	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
 	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
 	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
-	"\x19upstream_collect_cost_bps\x18\x0f \x01(\x03R\x16upstreamCollectCostBps\x127\n" +
-	"\x18upstream_payout_cost_bps\x18\x10 \x01(\x03R\x15upstreamPayoutCostBps\"C\n" +
+	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
+	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\"C\n" +
 	"\x10ListChannelsResp\x12/\n" +
 	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xc8\x04\n" +
 	"\x10UpsertChannelReq\x12\x0e\n" +
@@ -3013,8 +2965,8 @@ const file_channel_proto_rawDesc = "" +
 	"\ffuse_enabled\x18\f \x01(\bR\vfuseEnabled\x12)\n" +
 	"\x10supports_collect\x18\r \x01(\bR\x0fsupportsCollect\x12'\n" +
 	"\x0fsupports_payout\x18\x0e \x01(\bR\x0esupportsPayout\x129\n" +
-	"\x19upstream_collect_cost_bps\x18\x0f \x01(\x03R\x16upstreamCollectCostBps\x127\n" +
-	"\x18upstream_payout_cost_bps\x18\x10 \x01(\x03R\x15upstreamPayoutCostBps\"B\n" +
+	"\x19upstream_collect_rate_bps\x18\x0f \x01(\x03R\x16upstreamCollectRateBps\x127\n" +
+	"\x18upstream_payout_rate_bps\x18\x10 \x01(\x03R\x15upstreamPayoutRateBps\"B\n" +
 	"\x11UpsertChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\x16\n" +
 	"\x14GetRoutingSummaryReq\"\x90\x04\n" +
@@ -3084,7 +3036,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x19AdminUpsertPayProductResp\x125\n" +
 	"\aproduct\x18\x01 \x01(\v2\x1b.channel.AdminPayProductRowR\aproduct\"F\n" +
 	"\x1eAdminListPayProductBindingsReq\x12$\n" +
-	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\"\x80\x02\n" +
+	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\"\xda\x01\n" +
 	"\x19AdminPayProductBindingRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12$\n" +
 	"\x0epay_product_id\x18\x02 \x01(\x03R\fpayProductId\x12\x1d\n" +
@@ -3092,27 +3044,21 @@ const file_channel_proto_rawDesc = "" +
 	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x16\n" +
 	"\x06weight\x18\x05 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x06 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\a \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"a\n" +
+	"\aenabled\x18\x06 \x01(\bR\aenabledJ\x04\b\a\x10\bR\rcost_rate_bps\"a\n" +
 	"\x1fAdminListPayProductBindingsResp\x12>\n" +
-	"\bbindings\x18\x01 \x03(\v2\".channel.AdminPayProductBindingRowR\bbindings\"\xd3\x01\n" +
+	"\bbindings\x18\x01 \x03(\v2\".channel.AdminPayProductBindingRowR\bbindings\"\xad\x01\n" +
 	"\x1fAdminUpsertPayProductBindingReq\x12$\n" +
 	"\x0epay_product_id\x18\x01 \x01(\x03R\fpayProductId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06weight\x18\x03 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\x05 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"`\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabledJ\x04\b\x05\x10\x06R\rcost_rate_bps\"`\n" +
 	" AdminUpsertPayProductBindingResp\x12<\n" +
-	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"\x9e\x01\n" +
+	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"x\n" +
 	"\x1fAdminUpdatePayProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06weight\x18\x02 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\x04 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"`\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabledJ\x04\b\x04\x10\x05R\rcost_rate_bps\"`\n" +
 	" AdminUpdatePayProductBindingResp\x12<\n" +
 	"\abinding\x18\x01 \x01(\v2\".channel.AdminPayProductBindingRowR\abinding\"1\n" +
 	"\x1fAdminDeletePayProductBindingReq\x12\x0e\n" +
@@ -3145,7 +3091,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x1cAdminUpsertPayoutProductResp\x128\n" +
 	"\aproduct\x18\x01 \x01(\v2\x1e.channel.AdminPayoutProductRowR\aproduct\"O\n" +
 	"!AdminListPayoutProductBindingsReq\x12*\n" +
-	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\"\x89\x02\n" +
+	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\"\xe3\x01\n" +
 	"\x1cAdminPayoutProductBindingRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12*\n" +
 	"\x11payout_product_id\x18\x02 \x01(\x03R\x0fpayoutProductId\x12\x1d\n" +
@@ -3153,27 +3099,21 @@ const file_channel_proto_rawDesc = "" +
 	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x16\n" +
 	"\x06weight\x18\x05 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x06 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\a \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"g\n" +
+	"\aenabled\x18\x06 \x01(\bR\aenabledJ\x04\b\a\x10\bR\rcost_rate_bps\"g\n" +
 	"\"AdminListPayoutProductBindingsResp\x12A\n" +
-	"\bbindings\x18\x01 \x03(\v2%.channel.AdminPayoutProductBindingRowR\bbindings\"\xdc\x01\n" +
+	"\bbindings\x18\x01 \x03(\v2%.channel.AdminPayoutProductBindingRowR\bbindings\"\xb6\x01\n" +
 	"\"AdminUpsertPayoutProductBindingReq\x12*\n" +
 	"\x11payout_product_id\x18\x01 \x01(\x03R\x0fpayoutProductId\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06weight\x18\x03 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x04 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\x05 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"f\n" +
+	"\aenabled\x18\x04 \x01(\bR\aenabledJ\x04\b\x05\x10\x06R\rcost_rate_bps\"f\n" +
 	"#AdminUpsertPayoutProductBindingResp\x12?\n" +
-	"\abinding\x18\x01 \x01(\v2%.channel.AdminPayoutProductBindingRowR\abinding\"\xa1\x01\n" +
+	"\abinding\x18\x01 \x01(\v2%.channel.AdminPayoutProductBindingRowR\abinding\"{\n" +
 	"\"AdminUpdatePayoutProductBindingReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06weight\x18\x02 \x01(\x03R\x06weight\x12\x18\n" +
-	"\aenabled\x18\x03 \x01(\bR\aenabled\x12'\n" +
-	"\rcost_rate_bps\x18\x04 \x01(\x03H\x00R\vcostRateBps\x88\x01\x01B\x10\n" +
-	"\x0e_cost_rate_bps\"f\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabledJ\x04\b\x04\x10\x05R\rcost_rate_bps\"f\n" +
 	"#AdminUpdatePayoutProductBindingResp\x12?\n" +
 	"\abinding\x18\x01 \x01(\v2%.channel.AdminPayoutProductBindingRowR\abinding\"4\n" +
 	"\"AdminDeletePayoutProductBindingReq\x12\x0e\n" +
@@ -3345,12 +3285,6 @@ func file_channel_proto_init() {
 	if File_channel_proto != nil {
 		return
 	}
-	file_channel_proto_msgTypes[27].OneofWrappers = []any{}
-	file_channel_proto_msgTypes[29].OneofWrappers = []any{}
-	file_channel_proto_msgTypes[31].OneofWrappers = []any{}
-	file_channel_proto_msgTypes[42].OneofWrappers = []any{}
-	file_channel_proto_msgTypes[44].OneofWrappers = []any{}
-	file_channel_proto_msgTypes[46].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

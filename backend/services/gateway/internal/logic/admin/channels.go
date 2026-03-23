@@ -44,8 +44,8 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 		MaxAmount:              ch.GetMaxAmount(),
 		SupportsCollect:        ch.GetSupportsCollect(),
 		SupportsPayout:         ch.GetSupportsPayout(),
-		UpstreamCollectCostBps: ch.GetUpstreamCollectCostBps(),
-		UpstreamPayoutCostBps:  ch.GetUpstreamPayoutCostBps(),
+		UpstreamCollectRateBps: ch.GetUpstreamCollectRateBps(),
+		UpstreamPayoutRateBps:  ch.GetUpstreamPayoutRateBps(),
 		Enabled:                ch.GetEnabled(),
 		FuseEnabled:            ch.GetFuseEnabled(),
 	}
@@ -89,8 +89,8 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 		MaxAmount:              req.MaxAmount,
 		SupportsCollect:        req.SupportsCollect,
 		SupportsPayout:         req.SupportsPayout,
-		UpstreamCollectCostBps: req.UpstreamCollectCostBps,
-		UpstreamPayoutCostBps:  req.UpstreamPayoutCostBps,
+		UpstreamCollectRateBps: req.UpstreamCollectRateBps,
+		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})
@@ -130,8 +130,8 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 		MaxAmount:              req.MaxAmount,
 		SupportsCollect:        req.SupportsCollect,
 		SupportsPayout:         req.SupportsPayout,
-		UpstreamCollectCostBps: req.UpstreamCollectCostBps,
-		UpstreamPayoutCostBps:  req.UpstreamPayoutCostBps,
+		UpstreamCollectRateBps: req.UpstreamCollectRateBps,
+		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})

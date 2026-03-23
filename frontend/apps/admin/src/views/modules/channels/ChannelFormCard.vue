@@ -60,18 +60,18 @@
           <input v-model="model.supports_payout" type="checkbox" class="h-4 w-4" />
         </label>
         <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">上游代收成本（万分比）</span>
+          <span class="text-xs font-medium text-slate-600">上游代收费率（万分比）</span>
           <input
-            v-model.number="model.upstream_collect_cost_bps"
+            v-model.number="model.upstream_collect_rate_bps"
             type="number"
             min="0"
             class="rounded-md border border-slate-200 px-3 py-2 text-sm"
           />
         </label>
         <label class="col-span-12 grid gap-1 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">上游代付成本（万分比）</span>
+          <span class="text-xs font-medium text-slate-600">上游代付费率（万分比）</span>
           <input
-            v-model.number="model.upstream_payout_cost_bps"
+            v-model.number="model.upstream_payout_rate_bps"
             type="number"
             min="0"
             class="rounded-md border border-slate-200 px-3 py-2 text-sm"

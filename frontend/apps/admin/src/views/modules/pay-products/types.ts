@@ -14,7 +14,6 @@ export type PayProductBinding = {
   channel_name: string
   weight: number
   enabled: boolean
-  cost_rate_bps?: number | null
 }
 
 export type PayProductChannelOption = {

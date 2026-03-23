@@ -31,7 +31,6 @@ type PayoutProductBindingAdmin struct {
 	ChannelName     string
 	Weight          int64
 	Enabled         bool
-	CostRateBps     sql.NullInt64
 }
 
 func (s *PayoutProductsStore) AdminListAllPayoutProducts(ctx context.Context) ([]PayoutProductAdmin, error) {
@@ -105,7 +104,7 @@ UPDATE payout_products SET code = ?, name = ?, sort_order = ?, enabled = ?, upda
 
 func (s *PayoutProductsStore) AdminListPayoutBindings(ctx context.Context, payoutProductID int64) ([]PayoutProductBindingAdmin, error) {
 	rows, err := s.db.QueryContext(ctx, `
-SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled, ppc.cost_rate_bps
+SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payout_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.payout_product_id = ?
@@ -119,7 +118,7 @@ ORDER BY ppc.id ASC
 	for rows.Next() {
 		var b PayoutProductBindingAdmin
 		var en int
-		if err := rows.Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en, &b.CostRateBps); err != nil {
+		if err := rows.Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
 			return nil, err
 		}
 		b.Enabled = en == 1
@@ -128,7 +127,7 @@ ORDER BY ppc.id ASC
 	return out, rows.Err()
 }
 
-func (s *PayoutProductsStore) AdminUpsertPayoutBinding(ctx context.Context, payoutProductID, channelID int64, weight int64, enabled bool, costRateBps *int64) (int64, error) {
+func (s *PayoutProductsStore) AdminUpsertPayoutBinding(ctx context.Context, payoutProductID, channelID int64, weight int64, enabled bool) (int64, error) {
 	if weight <= 0 {
 		return 0, errors.New("weight must be positive")
 	}
@@ -137,10 +136,10 @@ func (s *PayoutProductsStore) AdminUpsertPayoutBinding(ctx context.Context, payo
 		en = 1
 	}
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, cost_rate_bps, enabled)
-VALUES (?, ?, ?, ?, ?)
-ON DUPLICATE KEY UPDATE weight = VALUES(weight), cost_rate_bps = VALUES(cost_rate_bps), enabled = VALUES(enabled), updated_at = NOW()
-`, payoutProductID, channelID, weight, costRateBps, en)
+INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, enabled)
+VALUES (?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), updated_at = NOW()
+`, payoutProductID, channelID, weight, en)
 	if err != nil {
 		return 0, err
 	}
@@ -154,7 +153,7 @@ SELECT id FROM payout_product_channels WHERE payout_product_id = ? AND channel_i
 	return bid, nil
 }
 
-func (s *PayoutProductsStore) AdminUpdatePayoutBinding(ctx context.Context, bindingID int64, weight int64, enabled bool, costRateBps *int64) error {
+func (s *PayoutProductsStore) AdminUpdatePayoutBinding(ctx context.Context, bindingID int64, weight int64, enabled bool) error {
 	if weight <= 0 {
 		return errors.New("weight must be positive")
 	}
@@ -163,8 +162,8 @@ func (s *PayoutProductsStore) AdminUpdatePayoutBinding(ctx context.Context, bind
 		en = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-UPDATE payout_product_channels SET weight = ?, enabled = ?, cost_rate_bps = ?, updated_at = NOW() WHERE id = ?
-`, weight, en, costRateBps, bindingID)
+UPDATE payout_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHERE id = ?
+`, weight, en, bindingID)
 	if err != nil {
 		return err
 	}
@@ -182,11 +181,11 @@ func (s *PayoutProductsStore) AdminGetPayoutBindingByID(ctx context.Context, bin
 	var b PayoutProductBindingAdmin
 	var en int
 	err := s.db.QueryRowContext(ctx, `
-SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled, ppc.cost_rate_bps
+SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payout_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en, &b.CostRateBps)
+`, bindingID).Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
 	if err != nil {
 		return nil, err
 	}

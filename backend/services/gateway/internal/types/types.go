@@ -111,8 +111,8 @@ type AdminChannelInfo struct {
 	MaxAmount              int64  `json:"max_amount"`
 	SupportsCollect        bool   `json:"supports_collect"`
 	SupportsPayout         bool   `json:"supports_payout"`
-	UpstreamCollectCostBps int64  `json:"upstream_collect_cost_bps"`
-	UpstreamPayoutCostBps  int64  `json:"upstream_payout_cost_bps"`
+	UpstreamCollectRateBps int64  `json:"upstream_collect_rate_bps"`
+	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps"`
 	Enabled                bool   `json:"enabled"`
 	FuseEnabled            bool   `json:"fuse_enabled"`
 }
@@ -134,8 +134,8 @@ type AdminUpsertChannelReq struct {
 	MaxAmount              int64  `json:"max_amount,optional"`
 	SupportsCollect        bool   `json:"supports_collect,optional"`
 	SupportsPayout         bool   `json:"supports_payout,optional"`
-	UpstreamCollectCostBps int64  `json:"upstream_collect_cost_bps,optional"`
-	UpstreamPayoutCostBps  int64  `json:"upstream_payout_cost_bps,optional"`
+	UpstreamCollectRateBps int64  `json:"upstream_collect_rate_bps,optional"`
+	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps,optional"`
 	Enabled                bool   `json:"enabled,optional"`
 	FuseEnabled            bool   `json:"fuse_enabled,optional"`
 }
@@ -350,13 +350,12 @@ type AdminUpdatePayProductReq struct {
 }
 
 type AdminPayProductBindingInfo struct {
-	Id            int64  `json:"id"`
-	PayProductId  int64  `json:"pay_product_id"`
-	ChannelId     int64  `json:"channel_id"`
-	ChannelName   string `json:"channel_name"`
-	Weight        int64  `json:"weight"`
-	Enabled       bool   `json:"enabled"`
-	CostRateBps   *int64 `json:"cost_rate_bps,omitempty"`
+	Id           int64  `json:"id"`
+	PayProductId int64  `json:"pay_product_id"`
+	ChannelId    int64  `json:"channel_id"`
+	ChannelName  string `json:"channel_name"`
+	Weight       int64  `json:"weight"`
+	Enabled      bool   `json:"enabled"`
 }
 
 type AdminListPayProductBindingsReq struct {
@@ -368,11 +367,10 @@ type AdminListPayProductBindingsResp struct {
 }
 
 type AdminUpsertPayProductBindingReq struct {
-	PayProductId int64  `path:"id"`
-	ChannelId    int64  `json:"channel_id"`
-	Weight       int64  `json:"weight"`
-	Enabled      bool   `json:"enabled,optional"`
-	CostRateBps  *int64 `json:"cost_rate_bps,optional"`
+	PayProductId int64 `path:"id"`
+	ChannelId    int64 `json:"channel_id"`
+	Weight       int64 `json:"weight"`
+	Enabled      bool  `json:"enabled,optional"`
 }
 
 type AdminUpsertPayProductBindingResp struct {
@@ -380,10 +378,9 @@ type AdminUpsertPayProductBindingResp struct {
 }
 
 type AdminUpdatePayProductBindingReq struct {
-	Id          int64  `path:"id"`
-	Weight      int64  `json:"weight"`
-	Enabled     bool   `json:"enabled,optional"`
-	CostRateBps *int64 `json:"cost_rate_bps,optional"`
+	Id      int64 `path:"id"`
+	Weight  int64 `json:"weight"`
+	Enabled bool  `json:"enabled,optional"`
 }
 
 type AdminUpdatePayProductBindingResp struct {
@@ -438,7 +435,6 @@ type AdminPayoutProductBindingInfo struct {
 	ChannelName     string `json:"channel_name"`
 	Weight          int64  `json:"weight"`
 	Enabled         bool   `json:"enabled"`
-	CostRateBps     *int64 `json:"cost_rate_bps,omitempty"`
 }
 
 type AdminListPayoutProductBindingsReq struct {
@@ -450,11 +446,10 @@ type AdminListPayoutProductBindingsResp struct {
 }
 
 type AdminUpsertPayoutProductBindingReq struct {
-	PayoutProductId int64  `path:"id"`
-	ChannelId       int64  `json:"channel_id"`
-	Weight          int64  `json:"weight"`
-	Enabled         bool   `json:"enabled,optional"`
-	CostRateBps     *int64 `json:"cost_rate_bps,optional"`
+	PayoutProductId int64 `path:"id"`
+	ChannelId       int64 `json:"channel_id"`
+	Weight          int64 `json:"weight"`
+	Enabled         bool  `json:"enabled,optional"`
 }
 
 type AdminUpsertPayoutProductBindingResp struct {
@@ -462,10 +457,9 @@ type AdminUpsertPayoutProductBindingResp struct {
 }
 
 type AdminUpdatePayoutProductBindingReq struct {
-	Id          int64  `path:"id"`
-	Weight      int64  `json:"weight"`
-	Enabled     bool   `json:"enabled,optional"`
-	CostRateBps *int64 `json:"cost_rate_bps,optional"`
+	Id      int64 `path:"id"`
+	Weight  int64 `json:"weight"`
+	Enabled bool  `json:"enabled,optional"`
 }
 
 type AdminUpdatePayoutProductBindingResp struct {

@@ -202,8 +202,8 @@ const headerTitle = computed(() =>
 )
 const headerSubtitle = computed(() =>
   props.payoutMode
-    ? '维护代付对外产品编码与绑定；仅 supports_payout 的通道可参与代付绑定。'
-    : '维护对外展示编码（code）、排序与启用；为每个产品绑定多条上游通道及权重。绑定行可覆盖上游成本（万分比）。',
+    ? '维护代付对外产品编码与路由绑定；仅 supports_payout 的通道可参与。费率在通道与商户侧配置。'
+    : '维护对外展示编码（code）、排序与启用；为每个产品绑定上游通道及权重。费率在通道与商户侧配置，不在产品绑定行设置。',
 )
 
 const drawerTitle = computed(() =>
@@ -234,11 +234,10 @@ const emptyForm = (): PayProduct => ({
 const form = ref<PayProduct>(emptyForm())
 const bindings = ref<PayProductBinding[]>([])
 
-const newBind = ref<{ channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }>({
+const newBind = ref<{ channel_id: number; weight: number; enabled: boolean }>({
   channel_id: 0,
   weight: 100,
   enabled: true,
-  cost_rate_bps: null,
 })
 
 const boundChannelIds = computed(() => bindings.value.map((b) => b.channel_id))
@@ -267,12 +266,7 @@ function setForm(v: PayProduct) {
   form.value = v
 }
 
-function setNewBindDraft(v: {
-  channel_id: number
-  weight: number
-  enabled: boolean
-  cost_rate_bps?: number | null
-}) {
+function setNewBindDraft(v: { channel_id: number; weight: number; enabled: boolean }) {
   newBind.value = v
 }
 
@@ -344,7 +338,7 @@ function newProduct() {
   bindings.value = []
   savedProduct.value = false
   productError.value = ''
-  newBind.value = { channel_id: 0, weight: 100, enabled: true, cost_rate_bps: null }
+  newBind.value = { channel_id: 0, weight: 100, enabled: true }
 }
 
 function openNew() {
@@ -390,26 +384,17 @@ async function saveProduct() {
   }
 }
 
-function bodyWithCost(cost: number | null | undefined) {
-  const o: Record<string, unknown> = {}
-  if (cost === undefined) return o
-  o.cost_rate_bps = cost
-  return o
-}
-
 async function addBinding() {
   if (!form.value.id || newBind.value.channel_id <= 0) return
   addingBinding.value = true
   bindingError.value = ''
   try {
-    const payload: Record<string, unknown> = {
+    await adminPost(apiBindings(form.value.id), {
       channel_id: newBind.value.channel_id,
       weight: newBind.value.weight,
       enabled: newBind.value.enabled,
-      ...bodyWithCost(newBind.value.cost_rate_bps === null ? null : newBind.value.cost_rate_bps),
-    }
-    await adminPost(apiBindings(form.value.id), payload)
-    newBind.value = { channel_id: 0, weight: 100, enabled: true, cost_rate_bps: null }
+    })
+    newBind.value = { channel_id: 0, weight: 100, enabled: true }
     await loadBindings(form.value.id)
   } catch {
     bindingError.value = '添加失败（通道不存在或已绑定）'
@@ -418,29 +403,18 @@ async function addBinding() {
   }
 }
 
-function onSaveBindingRow(payload: {
-  id: number
-  weight: number
-  enabled: boolean
-  cost_rate_bps?: number | null
-}) {
-  void updateBinding(payload.id, payload.weight, payload.enabled, payload.cost_rate_bps)
+function onSaveBindingRow(payload: { id: number; weight: number; enabled: boolean }) {
+  void updateBinding(payload.id, payload.weight, payload.enabled)
 }
 
-async function updateBinding(
-  bindingId: number,
-  weight: number,
-  enabled: boolean,
-  cost_rate_bps?: number | null,
-) {
+async function updateBinding(bindingId: number, weight: number, enabled: boolean) {
   bindingError.value = ''
   if (weight == null || weight < 1) {
     bindingError.value = '权重须为正整数'
     return
   }
   try {
-    const body: Record<string, unknown> = { weight, enabled, ...bodyWithCost(cost_rate_bps) }
-    await adminPut(apiBindingRow(bindingId), body)
+    await adminPut(apiBindingRow(bindingId), { weight, enabled })
     await loadBindings(form.value.id)
   } catch {
     bindingError.value = '更新绑定失败'

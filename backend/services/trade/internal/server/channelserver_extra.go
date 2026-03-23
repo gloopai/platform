@@ -31,8 +31,8 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 		FuseEnabled:            c.FuseEnabled,
 		SupportsCollect:        c.SupportsCollect,
 		SupportsPayout:         c.SupportsPayout,
-		UpstreamCollectCostBps: c.UpstreamCollectCostBps,
-		UpstreamPayoutCostBps:  c.UpstreamPayoutCostBps,
+		UpstreamCollectRateBps: c.UpstreamCollectRateBps,
+		UpstreamPayoutRateBps:  c.UpstreamPayoutRateBps,
 	}
 }
 
@@ -51,13 +51,13 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 		FuseEnabled:            req.GetFuseEnabled(),
 		SupportsCollect:        req.GetSupportsCollect(),
 		SupportsPayout:         req.GetSupportsPayout(),
-		UpstreamCollectCostBps: req.GetUpstreamCollectCostBps(),
-		UpstreamPayoutCostBps:  req.GetUpstreamPayoutCostBps(),
+		UpstreamCollectRateBps: req.GetUpstreamCollectRateBps(),
+		UpstreamPayoutRateBps:  req.GetUpstreamPayoutRateBps(),
 	}
 }
 
 func payBindingToProto(b *store.PayProductBindingAdmin) *channelpb.AdminPayProductBindingRow {
-	row := &channelpb.AdminPayProductBindingRow{
+	return &channelpb.AdminPayProductBindingRow{
 		Id:           b.ID,
 		PayProductId: b.PayProductID,
 		ChannelId:    b.ChannelID,
@@ -65,15 +65,10 @@ func payBindingToProto(b *store.PayProductBindingAdmin) *channelpb.AdminPayProdu
 		Weight:       b.Weight,
 		Enabled:      b.Enabled,
 	}
-	if b.CostRateBps.Valid {
-		v := b.CostRateBps.Int64
-		row.CostRateBps = &v
-	}
-	return row
 }
 
 func payoutBindingToProto(b *store.PayoutProductBindingAdmin) *channelpb.AdminPayoutProductBindingRow {
-	row := &channelpb.AdminPayoutProductBindingRow{
+	return &channelpb.AdminPayoutProductBindingRow{
 		Id:              b.ID,
 		PayoutProductId: b.PayoutProductID,
 		ChannelId:       b.ChannelID,
@@ -81,11 +76,6 @@ func payoutBindingToProto(b *store.PayoutProductBindingAdmin) *channelpb.AdminPa
 		Weight:          b.Weight,
 		Enabled:         b.Enabled,
 	}
-	if b.CostRateBps.Valid {
-		v := b.CostRateBps.Int64
-		row.CostRateBps = &v
-	}
-	return row
 }
 
 func (s *ChannelServer) ListChannels(ctx context.Context, _ *channelpb.ListChannelsReq) (*channelpb.ListChannelsResp, error) {
@@ -329,12 +319,7 @@ func (s *ChannelServer) AdminUpsertPayProductBinding(ctx context.Context, req *c
 	if !sup {
 		return nil, status.Error(codes.FailedPrecondition, "channel does not support collect")
 	}
-	var costPtr *int64
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		costPtr = &v
-	}
-	bid, err := s.svcCtx.PayProducts.AdminUpsertBinding(ctx, req.GetPayProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled(), costPtr)
+	bid, err := s.svcCtx.PayProducts.AdminUpsertBinding(ctx, req.GetPayProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		return nil, err
 	}
@@ -349,12 +334,7 @@ func (s *ChannelServer) AdminUpdatePayProductBinding(ctx context.Context, req *c
 	if req.GetId() <= 0 || req.GetWeight() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id and positive weight required")
 	}
-	var costPtr *int64
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		costPtr = &v
-	}
-	err := s.svcCtx.PayProducts.AdminUpdateBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled(), costPtr)
+	err := s.svcCtx.PayProducts.AdminUpdateBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "binding not found")
@@ -497,12 +477,7 @@ func (s *ChannelServer) AdminUpsertPayoutProductBinding(ctx context.Context, req
 	if !ok {
 		return nil, status.Error(codes.FailedPrecondition, "channel does not support payout")
 	}
-	var costPtr *int64
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		costPtr = &v
-	}
-	bid, err := s.svcCtx.PayoutProducts.AdminUpsertPayoutBinding(ctx, req.GetPayoutProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled(), costPtr)
+	bid, err := s.svcCtx.PayoutProducts.AdminUpsertPayoutBinding(ctx, req.GetPayoutProductId(), req.GetChannelId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		return nil, err
 	}
@@ -517,12 +492,7 @@ func (s *ChannelServer) AdminUpdatePayoutProductBinding(ctx context.Context, req
 	if req.GetId() <= 0 || req.GetWeight() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id and positive weight required")
 	}
-	var costPtr *int64
-	if req.CostRateBps != nil {
-		v := *req.CostRateBps
-		costPtr = &v
-	}
-	err := s.svcCtx.PayoutProducts.AdminUpdatePayoutBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled(), costPtr)
+	err := s.svcCtx.PayoutProducts.AdminUpdatePayoutBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "binding not found")

@@ -6,7 +6,7 @@
     >
       <div class="text-sm font-semibold text-slate-900">代收产品与通道</div>
       <p class="mt-2 text-sm text-slate-600">
-        为每个对外<strong>代收</strong>产品绑定多条上游通道（须通道开启代收能力），设置权重与可选上游成本覆盖。
+        为每个对外<strong>代收</strong>产品绑定上游通道（须开启代收能力）及权重；费率在通道与商户侧配置。
       </p>
       <div class="mt-3 text-sm font-medium text-indigo-600 group-hover:underline">去配置 →</div>
     </RouterLink>

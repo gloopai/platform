@@ -5,7 +5,7 @@
   >
     <div class="text-sm font-semibold text-slate-900">上游通道绑定</div>
     <p class="mt-1 text-xs text-slate-500">
-      同产品下多条通道按权重加权随机；「上游成本」留空表示使用通道默认值。
+      同产品下多条通道按权重加权随机。代收/代付费率请在「通道管理」与「商户管理」中配置，不在此处设置。
     </p>
 
     <div v-if="loading" class="mt-4 text-sm text-slate-500">加载绑定...</div>
@@ -15,7 +15,6 @@
           <tr>
             <th class="py-2 pr-3">通道</th>
             <th class="py-2 pr-3">权重</th>
-            <th class="py-2 pr-3">上游成本(bps)</th>
             <th class="py-2 pr-3">启用</th>
             <th class="py-2">操作</th>
           </tr>
@@ -32,16 +31,6 @@
                 min="1"
                 class="w-24 rounded border border-slate-200 px-2 py-1 text-sm"
                 @input="setWeight(b.id, Number(($event.target as HTMLInputElement).value))"
-              />
-            </td>
-            <td class="py-2 pr-3">
-              <input
-                :value="rowCostDisplay[b.id]"
-                type="text"
-                inputmode="numeric"
-                placeholder="默认"
-                class="w-24 rounded border border-slate-200 px-2 py-1 text-sm"
-                @input="setCostRaw(b.id, ($event.target as HTMLInputElement).value)"
               />
             </td>
             <td class="py-2 pr-3">
@@ -95,17 +84,6 @@
             @input="emitDraft({ weight: Number(($event.target as HTMLInputElement).value) })"
           />
         </label>
-        <label class="grid gap-1">
-          <span class="text-xs text-slate-500">上游成本(bps)</span>
-          <input
-            :value="draftCostStr"
-            type="text"
-            inputmode="numeric"
-            placeholder="默认"
-            class="w-24 rounded-md border border-slate-200 px-3 py-2 text-sm"
-            @input="onDraftCostInput(($event.target as HTMLInputElement).value)"
-          />
-        </label>
         <label class="flex items-center gap-2 pb-2">
           <input
             :checked="draft.enabled"
@@ -130,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { reactive, watch } from 'vue'
 
 import ChannelPicker from '../../../components/ChannelPicker.vue'
 
@@ -144,36 +122,28 @@ const props = withDefaults(
     loading: boolean
     error: string
     adding: boolean
-    draft: { channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }
+    draft: { channel_id: number; weight: number; enabled: boolean }
     embedded?: boolean
   }>(),
   { embedded: false },
 )
 
 const emit = defineEmits<{
-  'update:draft': [v: { channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }]
-  'save-row': [payload: { id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }]
+  'update:draft': [v: { channel_id: number; weight: number; enabled: boolean }]
+  'save-row': [payload: { id: number; weight: number; enabled: boolean }]
   'delete-row': [bindingId: number]
   add: []
 }>()
 
 const rowWeight = reactive<Record<number, number>>({})
 const rowEnabled = reactive<Record<number, boolean>>({})
-/** 本地编辑中的成本：undefined=未改，null=清空用默认，number=覆盖 */
-const rowCost = reactive<Record<number, number | null | undefined>>({})
-const rowCostDisplay = reactive<Record<number, string>>({})
 
 function syncRows(rows: PayProductBinding[]) {
   Object.keys(rowWeight).forEach((k) => delete rowWeight[Number(k)])
   Object.keys(rowEnabled).forEach((k) => delete rowEnabled[Number(k)])
-  Object.keys(rowCost).forEach((k) => delete rowCost[Number(k)])
-  Object.keys(rowCostDisplay).forEach((k) => delete rowCostDisplay[Number(k)])
   for (const b of rows) {
     rowWeight[b.id] = b.weight
     rowEnabled[b.id] = b.enabled
-    rowCost[b.id] = b.cost_rate_bps === undefined || b.cost_rate_bps === null ? undefined : b.cost_rate_bps
-    rowCostDisplay[b.id] =
-      b.cost_rate_bps === undefined || b.cost_rate_bps === null ? '' : String(b.cost_rate_bps)
   }
 }
 
@@ -191,46 +161,17 @@ function setEnabled(id: number, v: boolean) {
   rowEnabled[id] = v
 }
 
-function setCostRaw(id: number, raw: string) {
-  rowCostDisplay[id] = raw
-  const t = raw.trim()
-  if (t === '') {
-    rowCost[id] = null
-    return
-  }
-  const n = Number(t)
-  rowCost[id] = Number.isFinite(n) ? n : undefined
-}
-
-const draftCostStr = computed(() => {
-  const v = props.draft.cost_rate_bps
-  if (v === undefined || v === null) return ''
-  return String(v)
-})
-
-function onDraftCostInput(raw: string) {
-  const t = raw.trim()
-  if (t === '') {
-    emit('update:draft', { ...props.draft, cost_rate_bps: null })
-    return
-  }
-  const n = Number(t)
-  emit('update:draft', { ...props.draft, cost_rate_bps: Number.isFinite(n) ? n : undefined })
-}
-
-function emitDraft(p: Partial<{ channel_id: number; weight: number; enabled: boolean; cost_rate_bps?: number | null }>) {
+function emitDraft(p: Partial<{ channel_id: number; weight: number; enabled: boolean }>) {
   emit('update:draft', { ...props.draft, ...p })
 }
 
 function emitSaveRow(b: PayProductBinding) {
   const w = rowWeight[b.id]
   const en = rowEnabled[b.id]
-  const c = rowCost[b.id]
   emit('save-row', {
     id: b.id,
     weight: w !== undefined ? w : b.weight,
     enabled: en !== undefined ? en : b.enabled,
-    cost_rate_bps: c === undefined ? undefined : c,
   })
 }
 </script>
