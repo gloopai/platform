@@ -49,7 +49,7 @@ func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func CreatePayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.CreatePayoutOrderReq
+		var req types.CreatePayinOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
 			return

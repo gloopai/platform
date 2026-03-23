@@ -14,8 +14,8 @@ type channelWeight struct {
 }
 
 type routePick struct {
-	ChannelID    int64
-	Weight       int64
+	ChannelID      int64
+	Weight         int64
 	PayinProductID int64
 }
 
@@ -27,11 +27,11 @@ func NewChannelsStore(db *sql.DB) *ChannelsStore {
 	return &ChannelsStore{db: db}
 }
 
-// Route 按支付产品编码选一条上游通道：优先 payin_products + payin_product_channels；否则回退到 channels.pay_type 旧逻辑。仅 supports_payin=1 的通道参与代收路由。
+// Route 按支付产品编码选一条上游通道：优先 payin_products + payin_product_channels；否则回退到 channels.payin_type 旧逻辑。仅 supports_payin=1 的通道参与代收路由。
 func (s *ChannelsStore) Route(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
 	code := strings.TrimSpace(payinProductCode)
 	if code == "" {
-		return 0, 0, errors.New("pay_type (product code) required")
+		return 0, 0, errors.New("payin_type (product code) required")
 	}
 
 	if ch, pid, e := s.routeByPayinProduct(ctx, code, amount); e == nil && ch > 0 {
@@ -99,7 +99,7 @@ FROM channels
 WHERE enabled = 1
   AND fuse_enabled = 0
   AND supports_payin = 1
-  AND (pay_type = ? OR pay_type = '' OR pay_type IS NULL)
+  AND (payin_type = ? OR payin_type = '' OR payin_type IS NULL)
   AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)
   AND (max_amount = 0 OR max_amount >= ?)
@@ -137,12 +137,12 @@ WHERE enabled = 1
 	return items[len(items)-1].ID, nil
 }
 
-// GetGatewayURLAndPayType 用于收银台组装跳转/二维码载体。
-func (s *ChannelsStore) GetGatewayURLAndPayType(ctx context.Context, channelID int64) (gatewayURL, payType string, err error) {
+// GetGatewayURLAndPayinType 用于收银台组装跳转/二维码载体。
+func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID int64) (gatewayURL, payinType string, err error) {
 	err = s.db.QueryRowContext(ctx, `
-SELECT COALESCE(gateway_url,''), COALESCE(pay_type,'')
+SELECT COALESCE(gateway_url,''), COALESCE(payin_type,'')
 FROM channels WHERE id = ? LIMIT 1
-`, channelID).Scan(&gatewayURL, &payType)
+`, channelID).Scan(&gatewayURL, &payinType)
 	return
 }
 
@@ -163,7 +163,7 @@ LIMIT 1
 type Channel struct {
 	ID                     int64
 	Name                   string
-	PayType                string
+	PayinType              string
 	GatewayUrl             string
 	UpstreamMerchantNo     string
 	RsaPrivateKey          string
@@ -185,7 +185,7 @@ func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*Channel, e
 	var c Channel
 	var sc, sp int
 	err := s.db.QueryRowContext(ctx, `
-SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
+SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
        supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
@@ -196,7 +196,7 @@ LIMIT 1
 `, id).Scan(
 		&c.ID,
 		&c.Name,
-		&c.PayType,
+		&c.PayinType,
 		&c.GatewayUrl,
 		&c.UpstreamMerchantNo,
 		&c.RsaPrivateKey,
@@ -223,7 +223,7 @@ LIMIT 1
 
 func (s *ChannelsStore) AdminList(ctx context.Context) ([]Channel, error) {
 	rows, err := s.db.QueryContext(ctx, `
-SELECT id, COALESCE(name,''), COALESCE(pay_type,''), COALESCE(gateway_url,''),
+SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        weight, min_amount, max_amount,
        supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
@@ -243,7 +243,7 @@ ORDER BY id DESC
 		if err := rows.Scan(
 			&c.ID,
 			&c.Name,
-			&c.PayType,
+			&c.PayinType,
 			&c.GatewayUrl,
 			&c.UpstreamMerchantNo,
 			&c.RsaPrivateKey,
@@ -281,11 +281,11 @@ func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, err
 		sp = 1
 	}
 	res, err := s.db.ExecContext(ctx, `
-INSERT INTO channels (name, pay_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+INSERT INTO channels (name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
   enabled, fuse_enabled, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.Weight, c.MinAmount, c.MaxAmount,
+`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.Weight, c.MinAmount, c.MaxAmount,
 		sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee, c.Enabled, c.FuseEnabled)
 	if err != nil {
 		return 0, err
@@ -307,12 +307,12 @@ func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) e
 	}
 	_, err := s.db.ExecContext(ctx, `
 UPDATE channels
-SET name = ?, pay_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?,
+SET name = ?, payin_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?,
     weight = ?, min_amount = ?, max_amount = ?,
     supports_payin = ?, supports_payout = ?, upstream_payin_rate_bps = ?, upstream_payout_rate_bps = ?, upstream_payout_fee_mode = ?, upstream_payout_fixed_fee = ?,
     enabled = ?, fuse_enabled = ?, updated_at = NOW()
 WHERE id = ?
-`, c.Name, c.PayType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret,
+`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret,
 		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee,
 		c.Enabled, c.FuseEnabled, id)
 	return err

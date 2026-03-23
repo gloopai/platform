@@ -40,7 +40,7 @@ func NewCheckout(ctx context.Context, svcCtx *svc.ServiceContext) *Checkout {
 
 func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
 	merchantID := strings.TrimSpace(req.MerchantId)
-	payType := strings.TrimSpace(req.PayType)
+	payinType := strings.TrimSpace(req.PayinType)
 	channelID := req.ChannelId
 
 	var (
@@ -64,26 +64,26 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		ppid = rl.GetPayinProductId()
 		payinProductCode = rl.GetPayinProductCode()
 
-	case payType != "":
+	case payinType != "":
 		has, err := c.svcCtx.ChannelRpc.MerchantHasPayinProductCode(c.ctx, &channelpb.MerchantHasPayinProductCodeReq{
-			MerchantId: merchantID, PayinProductCode: payType,
+			MerchantId: merchantID, PayinProductCode: payinType,
 		})
 		if err != nil {
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
 		}
 		if !has.GetOk() {
-			return nil, status.Error(codes.PermissionDenied, "pay_type not enabled for this merchant")
+			return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
 		}
 		route, err = c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
-			Amount:  req.Amount,
-			PayType: payType,
+			Amount:    req.Amount,
+			PayinType: payinType,
 		})
 		if err != nil {
 			return nil, err
 		}
 		cid = route.GetChannelId()
 		ppid = route.GetPayinProductId()
-		payinProductCode = payType
+		payinProductCode = payinType
 		channelLocked = 0
 
 	default:
@@ -98,23 +98,23 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 	}
 
 	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
-		MerchantId:      req.MerchantId,
-		MerchantOrderNo: req.MerchantOrderNo,
-		Amount:          req.Amount,
-		Currency:        req.Currency,
-		Subject:         req.Subject,
-		ReturnUrl:       req.ReturnUrl,
-		NotifyUrl:       req.NotifyUrl,
-		PayType:         payType,
-		ChannelId:       cid,
-		PayinProductId:    ppid,
-		PayinProductCode:  payinProductCode,
-		ChannelLocked:   channelLocked,
-		FeeMode:         feeMode,
-		FeeRateBps:      feeRateBps,
-		FeeFixedAmount:  feeFixedAmount,
-		FeeAmount:       feeAmount,
-		NetAmount:       netAmount,
+		MerchantId:       req.MerchantId,
+		MerchantOrderNo:  req.MerchantOrderNo,
+		Amount:           req.Amount,
+		Currency:         req.Currency,
+		Subject:          req.Subject,
+		ReturnUrl:        req.ReturnUrl,
+		NotifyUrl:        req.NotifyUrl,
+		PayinType:        payinType,
+		ChannelId:        cid,
+		PayinProductId:   ppid,
+		PayinProductCode: payinProductCode,
+		ChannelLocked:    channelLocked,
+		FeeMode:          feeMode,
+		FeeRateBps:       feeRateBps,
+		FeeFixedAmount:   feeFixedAmount,
+		FeeAmount:        feeAmount,
+		NetAmount:        netAmount,
 	})
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		OrderNo:          orderInfo.GetOrderNo(),
 		Status:           orderInfo.GetStatus(),
 		ChannelId:        orderInfo.GetChannelId(),
-		PayinProductId:     orderInfo.GetPayinProductId(),
+		PayinProductId:   orderInfo.GetPayinProductId(),
 		PayinProductCode: orderInfo.GetPayinProductCode(),
 		CheckoutUrl:      checkoutURL,
 		ChannelLocked:    orderInfo.GetChannelLocked(),
@@ -159,7 +159,7 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayinProductId:     o.GetPayinProductId(),
+			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
@@ -175,14 +175,14 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 	}, nil
 }
 
-func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.CreateOrderResp, error) {
+func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.CreateOrderResp, error) {
 	merchantID := strings.TrimSpace(req.MerchantId)
 	if merchantID == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 	payoutCode := strings.TrimSpace(req.PayoutProductCode)
 	if payoutCode == "" {
-		payoutCode = strings.TrimSpace(req.PayType)
+		payoutCode = strings.TrimSpace(req.PayinType)
 	}
 	if payoutCode == "" {
 		return nil, status.Error(codes.InvalidArgument, "payout_product_code required")
@@ -230,7 +230,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayoutOrderReq) (*types.Cr
 		OrderNo:          o.GetOrderNo(),
 		Status:           o.GetStatus(),
 		ChannelId:        o.GetChannelId(),
-		PayinProductId:     o.GetPayinProductId(),
+		PayinProductId:   o.GetPayinProductId(),
 		PayinProductCode: o.GetPayinProductCode(),
 		CheckoutUrl:      "",
 		ChannelLocked:    0,
@@ -309,7 +309,7 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayinProductId:     o.GetPayinProductId(),
+			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
@@ -383,7 +383,7 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayinProductId:     o.GetPayinProductId(),
+			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
@@ -429,7 +429,7 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 	}
 
 	r, err := c.svcCtx.OrderRpc.PrepareTerminalPay(c.ctx, &orderclient.PrepareTerminalPayReq{
-		OrderNo:        orderNo,
+		OrderNo:          orderNo,
 		PayinProductCode: code,
 	})
 	if err != nil {
@@ -437,7 +437,7 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 	}
 	return &types.TerminalPayResp{
 		ChannelId:        r.GetChannelId(),
-		PayinProductId:     r.GetPayinProductId(),
+		PayinProductId:   r.GetPayinProductId(),
 		PayinProductCode: r.GetPayinProductCode(),
 		PayUrl:           r.GetPayUrl(),
 		QrPayload:        r.GetQrPayload(),

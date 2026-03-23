@@ -49,7 +49,7 @@ message CreateOrderReq {
   string subject = 5;
   string return_url = 6;
   string notify_url = 7;
-  string pay_type = 8;
+  string payin_type = 8;
   int64 channel_id = 9;
   int64 payin_product_id = 10;
   string payin_product_code = 11;

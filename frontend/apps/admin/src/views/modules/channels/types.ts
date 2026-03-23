@@ -2,7 +2,7 @@
 export type AdminChannel = {
   id: number
   name: string
-  pay_type: string
+  payin_type: string
   gateway_url: string
   upstream_merchant_no: string
   rsa_private_key: string
@@ -24,7 +24,7 @@ export function emptyChannelForm(): AdminChannel {
   return {
     id: 0,
     name: '',
-    pay_type: '',
+    payin_type: '',
     gateway_url: '',
     upstream_merchant_no: '',
     rsa_private_key: '',

@@ -37,7 +37,7 @@ service Channel {
 
 message RouteReq {
   int64 amount = 1;
-  string pay_type = 2;
+  string payin_type = 2;
 }
 
 message RouteResp {
@@ -58,7 +58,7 @@ message ListChannelsReq {}
 message ChannelRow {
   int64 id = 1;
   string name = 2;
-  string pay_type = 3;
+  string payin_type = 3;
   string gateway_url = 4;
   string upstream_merchant_no = 5;
   string rsa_private_key = 6;
@@ -83,7 +83,7 @@ message ListChannelsResp {
 message UpsertChannelReq {
   int64 id = 1;
   string name = 2;
-  string pay_type = 3;
+  string payin_type = 3;
   string gateway_url = 4;
   string upstream_merchant_no = 5;
   string rsa_private_key = 6;

@@ -82,7 +82,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.Internal, "update order failed")
 	}
 
-	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayType(l.ctx, chID)
+	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayinType(l.ctx, chID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
@@ -123,7 +123,7 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 		return nil, status.Error(codes.Internal, "update order failed")
 	}
 
-	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayType(l.ctx, chID)
+	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayinType(l.ctx, chID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}

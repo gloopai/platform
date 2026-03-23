@@ -34,7 +34,7 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 	return types.AdminChannelInfo{
 		Id:                     ch.GetId(),
 		Name:                   ch.GetName(),
-		PayType:                ch.GetPayType(),
+		PayinType:              ch.GetPayinType(),
 		GatewayUrl:             ch.GetGatewayUrl(),
 		UpstreamMerchantNo:     ch.GetUpstreamMerchantNo(),
 		RsaPrivateKey:          ch.GetRsaPrivateKey(),
@@ -81,7 +81,7 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 
 	resp, err := c.svcCtx.ChannelRpc.CreateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Name:                   req.Name,
-		PayType:                req.PayType,
+		PayinType:              req.PayinType,
 		GatewayUrl:             req.GatewayUrl,
 		UpstreamMerchantNo:     req.UpstreamMerchantNo,
 		RsaPrivateKey:          req.RsaPrivateKey,
@@ -124,7 +124,7 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 	resp, err := c.svcCtx.ChannelRpc.UpdateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Id:                     req.Id,
 		Name:                   req.Name,
-		PayType:                req.PayType,
+		PayinType:              req.PayinType,
 		GatewayUrl:             req.GatewayUrl,
 		UpstreamMerchantNo:     req.UpstreamMerchantNo,
 		RsaPrivateKey:          req.RsaPrivateKey,

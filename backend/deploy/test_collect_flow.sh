@@ -11,7 +11,7 @@ set -euo pipefail
 GATEWAY_BASE_URL="${GATEWAY_BASE_URL:-http://127.0.0.1:8080}"
 MERCHANT_ID="${MERCHANT_ID:-m_demo}"
 MERCHANT_SECRET="${MERCHANT_SECRET:-demo_secret}"
-PAY_TYPE="${PAY_TYPE:-mock}"
+PAYIN_TYPE="${PAYIN_TYPE:-mock}"
 AMOUNT="${AMOUNT:-1234}"
 
 CHANNEL_SIGN_SECRET="${CHANNEL_SIGN_SECRET:-channel_secret}"
@@ -19,9 +19,9 @@ CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret,channel_secret_b,ch
 ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 DEFAULT_TEST_CASES_JSON='[
-  {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"mock","amount":1234,"expected_fee_rate_bps":60},
-  {"name":"product-rate-wechat","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
-  {"name":"zero-rate-alipay","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
+  {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"mock","amount":1234,"expected_fee_rate_bps":60},
+  {"name":"product-rate-wechat","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
+  {"name":"zero-rate-alipay","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
 ]'
 TEST_CASES_JSON="${TEST_CASES_JSON:-$DEFAULT_TEST_CASES_JSON}"
 
@@ -203,7 +203,7 @@ except Exception:
         sys.exit(1)
 for c in cases:
     print(
-      f"{c.get('name','case')}\t{c['merchant_id']}\t{c['merchant_secret']}\t{c['pay_type']}\t{int(c['amount'])}\t{int(c.get('expected_fee_rate_bps', 0))}"
+      f"{c.get('name','case')}\t{c['merchant_id']}\t{c['merchant_secret']}\t{c['payin_type']}\t{int(c['amount'])}\t{int(c.get('expected_fee_rate_bps', 0))}"
     )
 PY
 }
@@ -278,7 +278,7 @@ run_case() {
   local case_name="$1"
   local merchant_id="$2"
   local merchant_secret="$3"
-  local pay_type="$4"
+  local payin_type="$4"
   local amount="$5"
   local expect_fee_rate_bps="$6"
 
@@ -294,7 +294,7 @@ print(json.dumps({
   "merchant_order_no": "${merchant_order_no}",
   "amount": int("${amount}"),
   "currency": "CNY",
-  "pay_type": "${pay_type}",
+  "payin_type": "${payin_type}",
   "notify_url": ""
 }))
 PY
@@ -430,12 +430,12 @@ if [[ -z "${case_lines}" ]]; then
   exit 1
 fi
 executed_cases=0
-while IFS=$'\t' read -r case_name case_merchant_id case_merchant_secret case_pay_type case_amount case_expected_fee_rate_bps; do
+while IFS=$'\t' read -r case_name case_merchant_id case_merchant_secret case_payin_type case_amount case_expected_fee_rate_bps; do
   if [[ -z "${case_name}" ]]; then
     continue
   fi
   executed_cases=$((executed_cases + 1))
-  run_case "${case_name}" "${case_merchant_id}" "${case_merchant_secret}" "${case_pay_type}" "${case_amount}" "${case_expected_fee_rate_bps}"
+  run_case "${case_name}" "${case_merchant_id}" "${case_merchant_secret}" "${case_payin_type}" "${case_amount}" "${case_expected_fee_rate_bps}"
 done <<< "${case_lines}"
 if [[ "${executed_cases}" -le 0 ]]; then
   echo "no test case executed"

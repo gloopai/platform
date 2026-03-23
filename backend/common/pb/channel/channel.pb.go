@@ -24,7 +24,7 @@ const (
 type RouteReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Amount        int64                  `protobuf:"varint,1,opt,name=amount,proto3" json:"amount,omitempty"`
-	PayType       string                 `protobuf:"bytes,2,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	PayinType     string                 `protobuf:"bytes,2,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -66,9 +66,9 @@ func (x *RouteReq) GetAmount() int64 {
 	return 0
 }
 
-func (x *RouteReq) GetPayType() string {
+func (x *RouteReq) GetPayinType() string {
 	if x != nil {
-		return x.PayType
+		return x.PayinType
 	}
 	return ""
 }
@@ -253,7 +253,7 @@ type ChannelRow struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Id                     int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name                   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayType                string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	PayinType              string                 `protobuf:"bytes,3,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
 	GatewayUrl             string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
 	UpstreamMerchantNo     string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
 	RsaPrivateKey          string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
@@ -317,9 +317,9 @@ func (x *ChannelRow) GetName() string {
 	return ""
 }
 
-func (x *ChannelRow) GetPayType() string {
+func (x *ChannelRow) GetPayinType() string {
 	if x != nil {
-		return x.PayType
+		return x.PayinType
 	}
 	return ""
 }
@@ -477,7 +477,7 @@ type UpsertChannelReq struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Id                     int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name                   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayType                string                 `protobuf:"bytes,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	PayinType              string                 `protobuf:"bytes,3,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
 	GatewayUrl             string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
 	UpstreamMerchantNo     string                 `protobuf:"bytes,5,opt,name=upstream_merchant_no,json=upstreamMerchantNo,proto3" json:"upstream_merchant_no,omitempty"`
 	RsaPrivateKey          string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
@@ -541,9 +541,9 @@ func (x *UpsertChannelReq) GetName() string {
 	return ""
 }
 
-func (x *UpsertChannelReq) GetPayType() string {
+func (x *UpsertChannelReq) GetPayinType() string {
 	if x != nil {
-		return x.PayType
+		return x.PayinType
 	}
 	return ""
 }
@@ -2937,10 +2937,11 @@ var File_channel_proto protoreflect.FileDescriptor
 
 const file_channel_proto_rawDesc = "" +
 	"\n" +
-	"\rchannel.proto\x12\achannel\"=\n" +
+	"\rchannel.proto\x12\achannel\"A\n" +
 	"\bRouteReq\x12\x16\n" +
-	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x19\n" +
-	"\bpay_type\x18\x02 \x01(\tR\apayType\"T\n" +
+	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x1d\n" +
+	"\n" +
+	"payin_type\x18\x02 \x01(\tR\tpayinType\"T\n" +
 	"\tRouteResp\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12(\n" +
@@ -2951,12 +2952,13 @@ const file_channel_proto_rawDesc = "" +
 	"\x11GetSignSecretResp\x12\x1f\n" +
 	"\vsign_secret\x18\x01 \x01(\tR\n" +
 	"signSecret\"\x11\n" +
-	"\x0fListChannelsReq\"\xae\x05\n" +
+	"\x0fListChannelsReq\"\xb2\x05\n" +
 	"\n" +
 	"ChannelRow\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\tR\apayType\x12\x1f\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"payin_type\x18\x03 \x01(\tR\tpayinType\x12\x1f\n" +
 	"\vgateway_url\x18\x04 \x01(\tR\n" +
 	"gatewayUrl\x120\n" +
 	"\x14upstream_merchant_no\x18\x05 \x01(\tR\x12upstreamMerchantNo\x12&\n" +
@@ -2978,11 +2980,12 @@ const file_channel_proto_rawDesc = "" +
 	"\x18upstream_payout_fee_mode\x18\x11 \x01(\x03R\x15upstreamPayoutFeeMode\x129\n" +
 	"\x19upstream_payout_fixed_fee\x18\x12 \x01(\x03R\x16upstreamPayoutFixedFee\"C\n" +
 	"\x10ListChannelsResp\x12/\n" +
-	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xb4\x05\n" +
+	"\bchannels\x18\x01 \x03(\v2\x13.channel.ChannelRowR\bchannels\"\xb8\x05\n" +
 	"\x10UpsertChannelReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\tR\apayType\x12\x1f\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"payin_type\x18\x03 \x01(\tR\tpayinType\x12\x1f\n" +
 	"\vgateway_url\x18\x04 \x01(\tR\n" +
 	"gatewayUrl\x120\n" +
 	"\x14upstream_merchant_no\x18\x05 \x01(\tR\x12upstreamMerchantNo\x12&\n" +

@@ -16,7 +16,7 @@ ON DUPLICATE KEY UPDATE
   ip_whitelist = VALUES(ip_whitelist);
 
 INSERT INTO channels (
-  name, pay_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+  name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
@@ -35,7 +35,7 @@ ON DUPLICATE KEY UPDATE
   enabled = VALUES(enabled),
   fuse_enabled = VALUES(fuse_enabled),
   weight = VALUES(weight),
-  pay_type = VALUES(pay_type);
+  payin_type = VALUES(payin_type);
 
 INSERT INTO payin_products (code, name, sort_order, enabled) VALUES
   ('mock', 'Mock支付', 10, 1),

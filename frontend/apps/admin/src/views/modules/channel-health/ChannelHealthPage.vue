@@ -52,7 +52,7 @@
               <tr v-for="c in channels" v-else :key="c.id" class="hover:bg-slate-50/80">
                 <td class="px-4 py-3 font-mono text-slate-800">#{{ c.id }}</td>
                 <td class="px-4 py-3 font-medium text-slate-900">{{ c.name }}</td>
-                <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.pay_type || '—' }}</td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.payin_type || '—' }}</td>
                 <td class="px-4 py-3">
                   <span :class="c.supports_payin ? 'text-emerald-700' : 'text-slate-400'">
                     {{ c.supports_payin ? '是' : '否' }}

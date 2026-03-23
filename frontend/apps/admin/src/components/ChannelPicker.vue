@@ -54,7 +54,7 @@
       >
         <span class="font-mono text-xs text-slate-500">#{{ c.id }}</span>
         <span class="min-w-0 flex-1 truncate font-medium text-slate-900">{{ c.name }}</span>
-        <span class="shrink-0 font-mono text-xs text-slate-500">{{ c.pay_type || '—' }}</span>
+        <span class="shrink-0 font-mono text-xs text-slate-500">{{ c.payin_type || '—' }}</span>
       </button>
     </div>
   </div>
@@ -66,7 +66,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 export type ChannelPickItem = {
   id: number
   name: string
-  pay_type: string
+  payin_type: string
 }
 
 const props = withDefaults(
@@ -108,7 +108,7 @@ const filtered = computed(() => {
   return list.filter((c) => {
     const idStr = String(c.id)
     const name = (c.name || '').toLowerCase()
-    const pt = (c.pay_type || '').toLowerCase()
+    const pt = (c.payin_type || '').toLowerCase()
     return idStr.includes(s) || name.includes(s) || pt.includes(s)
   })
 })
@@ -124,7 +124,7 @@ const selectedLabel = computed(() => {
   if (props.modelValue <= 0) return ''
   const c = props.channels.find((x) => x.id === props.modelValue)
   if (!c) return `#${props.modelValue}`
-  return `#${c.id} ${c.name} (${c.pay_type || '-'})`
+  return `#${c.id} ${c.name} (${c.payin_type || '-'})`
 })
 
 watch(

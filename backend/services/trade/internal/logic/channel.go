@@ -26,7 +26,7 @@ func NewRouteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RouteLogic 
 }
 
 func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
-	channelId, payProductID, err := l.svcCtx.Channels.Route(l.ctx, in.GetPayType(), in.GetAmount())
+	channelId, payProductID, err := l.svcCtx.Channels.Route(l.ctx, in.GetPayinType(), in.GetAmount())
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
 	}

@@ -55,7 +55,7 @@ export type MerchantOrderItem = {
   currency: string
   status: number
   channel_id: number
-  /** 支付产品编码（微信/支付宝/mock 等），与开放平台 pay_type 一致 */
+  /** 支付产品编码（微信/支付宝/mock 等），与开放平台 payin_type 一致 */
   payin_product_code: string
   /** 管理台配置的展示名；缺省时前端仅用 `payin_product_code` */
   payin_product_name?: string

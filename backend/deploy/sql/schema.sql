@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS merchants (
 CREATE TABLE IF NOT EXISTS channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(64) NOT NULL,
-  pay_type VARCHAR(32) NULL,
+  payin_type VARCHAR(32) NULL,
   gateway_url VARCHAR(512) NULL,
   upstream_merchant_no VARCHAR(128) NULL,
   rsa_private_key TEXT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS channels (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  KEY idx_enabled_paytype (enabled, pay_type),
+  KEY idx_enabled_payintype (enabled, payin_type),
   KEY idx_enabled_fuse (enabled, fuse_enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

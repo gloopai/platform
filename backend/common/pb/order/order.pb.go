@@ -170,7 +170,7 @@ type CreateOrderReq struct {
 	Subject          string                 `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`
 	ReturnUrl        string                 `protobuf:"bytes,6,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
 	NotifyUrl        string                 `protobuf:"bytes,7,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
-	PayType          string                 `protobuf:"bytes,8,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
+	PayinType        string                 `protobuf:"bytes,8,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
 	ChannelId        int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	PayinProductId   int64                  `protobuf:"varint,10,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
 	PayinProductCode string                 `protobuf:"bytes,11,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
@@ -264,9 +264,9 @@ func (x *CreateOrderReq) GetNotifyUrl() string {
 	return ""
 }
 
-func (x *CreateOrderReq) GetPayType() string {
+func (x *CreateOrderReq) GetPayinType() string {
 	if x != nil {
-		return x.PayType
+		return x.PayinType
 	}
 	return ""
 }
@@ -2037,7 +2037,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"fee_amount\x18\f \x01(\x03R\tfeeAmount\x12\x1d\n" +
 	"\n" +
-	"net_amount\x18\r \x01(\x03R\tnetAmount\"\xc7\x04\n" +
+	"net_amount\x18\r \x01(\x03R\tnetAmount\"\xcb\x04\n" +
 	"\x0eCreateOrderReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12*\n" +
@@ -2048,8 +2048,9 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"return_url\x18\x06 \x01(\tR\treturnUrl\x12\x1d\n" +
 	"\n" +
-	"notify_url\x18\a \x01(\tR\tnotifyUrl\x12\x19\n" +
-	"\bpay_type\x18\b \x01(\tR\apayType\x12\x1d\n" +
+	"notify_url\x18\a \x01(\tR\tnotifyUrl\x12\x1d\n" +
+	"\n" +
+	"payin_type\x18\b \x01(\tR\tpayinType\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\t \x01(\x03R\tchannelId\x12(\n" +
 	"\x10payin_product_id\x18\n" +

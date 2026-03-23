@@ -48,7 +48,7 @@ func mapGRPC(c codes.Code, msg string) (httpStatus int, code string, outMsg stri
 		}
 		return http.StatusNotFound, code, outMsg
 	case codes.PermissionDenied:
-		if strings.Contains(msg, "pay_type not enabled") || strings.Contains(msg, "payin_product_code not enabled") {
+		if strings.Contains(msg, "payin_type not enabled") || strings.Contains(msg, "payin_product_code not enabled") {
 			return http.StatusForbidden, "PAY_PRODUCT_NOT_ENABLED", outMsg
 		}
 		return http.StatusForbidden, "FORBIDDEN", outMsg

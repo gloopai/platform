@@ -82,13 +82,13 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	if len(out) > 0 {
 		return out, nil
 	}
-	// 未迁移 payin_products 时的回退：按 channels.pay_type 去重
-	return s.listLegacyChannelPayTypes(ctx, amount)
+	// 未迁移 payin_products 时的回退：按 channels.payin_type 去重
+	return s.listLegacyChannelPayinTypes(ctx, amount)
 }
 
-func (s *PayinProductsStore) listLegacyChannelPayTypes(ctx context.Context, amount int64) ([]PayinProductOption, error) {
+func (s *PayinProductsStore) listLegacyChannelPayinTypes(ctx context.Context, amount int64) ([]PayinProductOption, error) {
 	rows, err := s.db.QueryContext(ctx, `
-SELECT DISTINCT COALESCE(NULLIF(TRIM(pay_type), ''), 'mock')
+SELECT DISTINCT COALESCE(NULLIF(TRIM(payin_type), ''), 'mock')
 FROM channels
 WHERE enabled = 1 AND fuse_enabled = 0 AND supports_payin = 1 AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)

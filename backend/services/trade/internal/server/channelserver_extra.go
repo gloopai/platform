@@ -19,7 +19,7 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 	return &channelpb.ChannelRow{
 		Id:                     c.ID,
 		Name:                   c.Name,
-		PayType:                c.PayType,
+		PayinType:              c.PayinType,
 		GatewayUrl:             c.GatewayUrl,
 		UpstreamMerchantNo:     c.UpstreamMerchantNo,
 		RsaPrivateKey:          c.RsaPrivateKey,
@@ -49,7 +49,7 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	}
 	return &store.Channel{
 		Name:                   req.GetName(),
-		PayType:                req.GetPayType(),
+		PayinType:              req.GetPayinType(),
 		GatewayUrl:             req.GetGatewayUrl(),
 		UpstreamMerchantNo:     req.GetUpstreamMerchantNo(),
 		RsaPrivateKey:          req.GetRsaPrivateKey(),
@@ -70,12 +70,12 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 
 func payBindingToProto(b *store.PayinProductBindingAdmin) *channelpb.AdminPayinProductBindingRow {
 	return &channelpb.AdminPayinProductBindingRow{
-		Id:           b.ID,
+		Id:             b.ID,
 		PayinProductId: b.PayinProductID,
-		ChannelId:    b.ChannelID,
-		ChannelName:  b.ChannelName,
-		Weight:       b.Weight,
-		Enabled:      b.Enabled,
+		ChannelId:      b.ChannelID,
+		ChannelName:    b.ChannelName,
+		Weight:         b.Weight,
+		Enabled:        b.Enabled,
 	}
 }
 
@@ -162,7 +162,7 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 	return &channelpb.GetRoutingSummaryResp{
 		AlgorithmKey:                 "weighted_random_within_product",
 		AlgorithmLabel:               "支付产品内加权随机（同产品多上游按权重分流）",
-		EnabledPayinProducts:           rs.EnabledPayinProducts,
+		EnabledPayinProducts:         rs.EnabledPayinProducts,
 		EnabledPayoutProducts:        rs.EnabledPayoutProducts,
 		EnabledChannels:              rs.EnabledChannels,
 		ActiveBindings:               rs.ActiveBindings,

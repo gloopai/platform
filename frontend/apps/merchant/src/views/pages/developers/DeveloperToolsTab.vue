@@ -11,14 +11,14 @@
 
       <div class="mt-6 grid grid-cols-12 gap-4">
         <label class="col-span-12 grid gap-1.5 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">pay_type（支付产品）</span>
+          <span class="text-xs font-medium text-slate-600">payin_type（支付产品）</span>
           <select v-model="payTypePreset" class="input-merchant">
             <option v-for="p in payProductOptions" :key="p.code" :value="p.code">{{ p.label }}（{{ p.code }}）</option>
             <option value="__custom__">自定义编码…</option>
           </select>
         </label>
         <label v-if="payTypePreset === '__custom__'" class="col-span-12 grid gap-1.5 md:col-span-6">
-          <span class="text-xs font-medium text-slate-600">自定义 pay_type</span>
+          <span class="text-xs font-medium text-slate-600">自定义 payin_type</span>
           <input v-model.trim="payTypeCustom" class="input-merchant font-mono text-xs" placeholder="与后端 payin_products.code 一致" />
         </label>
         <label class="col-span-12 grid gap-1.5 md:col-span-6">

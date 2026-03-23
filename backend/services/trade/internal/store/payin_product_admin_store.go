@@ -18,12 +18,12 @@ type PayinProductAdmin struct {
 
 // PayinProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
 type PayinProductBindingAdmin struct {
-	ID           int64
+	ID             int64
 	PayinProductID int64
-	ChannelID    int64
-	ChannelName  string
-	Weight       int64
-	Enabled      bool
+	ChannelID      int64
+	ChannelName    string
+	Weight         int64
+	Enabled        bool
 }
 
 // AdminListAllPayinProducts 全部支付产品（含停用）。

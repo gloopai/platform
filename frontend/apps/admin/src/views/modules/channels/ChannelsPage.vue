@@ -46,7 +46,7 @@
             >
               <td class="px-4 py-3 font-mono text-slate-800">#{{ c.id }}</td>
               <td class="px-4 py-3 font-medium text-slate-900">{{ c.name }}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.pay_type || '—' }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.payin_type || '—' }}</td>
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -196,7 +196,7 @@ const filteredChannels = computed(() => {
   return list.filter((c) => {
     const idStr = String(c.id)
     const name = (c.name || '').toLowerCase()
-    const pt = (c.pay_type || '').toLowerCase()
+    const pt = (c.payin_type || '').toLowerCase()
     return idStr.includes(s) || name.includes(s) || pt.includes(s)
   })
 })

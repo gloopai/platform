@@ -15,7 +15,7 @@
       </label>
       <label class="col-span-12 grid gap-1 md:col-span-6">
         <span class="text-xs font-medium text-slate-600">支付类型</span>
-        <input v-model.trim="model.pay_type" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+        <input v-model.trim="model.payin_type" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
       </label>
 
       <label class="col-span-12 grid gap-1">
