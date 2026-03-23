@@ -17,6 +17,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
+	"github.com/gloopai/pay/gateway/internal/openapi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -33,41 +34,41 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
-			http.Error(w, "invalid params", http.StatusBadRequest)
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
 			return
 		}
 		merchantId := params["merchant_id"]
 		if merchantId == "" {
-			http.Error(w, "merchant_id required", http.StatusBadRequest)
+			openapi.Write(w, http.StatusBadRequest, "MERCHANT_ID_REQUIRED", "merchant_id required")
 			return
 		}
 		sign := params["sign"]
 		if sign == "" {
-			http.Error(w, "sign required", http.StatusBadRequest)
+			openapi.Write(w, http.StatusBadRequest, "SIGN_REQUIRED", "sign required")
 			return
 		}
 
 		auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				http.Error(w, "merchant not found", http.StatusUnauthorized)
+				openapi.Write(w, http.StatusUnauthorized, "MERCHANT_NOT_FOUND", "merchant not found")
 				return
 			}
-			http.Error(w, "merchant lookup failed", http.StatusInternalServerError)
+			openapi.Write(w, http.StatusInternalServerError, "INTERNAL_ERROR", "merchant lookup failed")
 			return
 		}
 		if auth.GetStatus() != 1 {
-			http.Error(w, "merchant disabled", http.StatusUnauthorized)
+			openapi.Write(w, http.StatusUnauthorized, "MERCHANT_DISABLED", "merchant disabled")
 			return
 		}
 		if !ipAllowed(r.Context(), r.RemoteAddr, auth.GetIpWhitelist()) {
-			http.Error(w, "ip not allowed", http.StatusForbidden)
+			openapi.Write(w, http.StatusForbidden, "IP_NOT_ALLOWED", "ip not allowed")
 			return
 		}
 
 		expect := md5Sign(params, auth.GetApiSecret())
 		if !strings.EqualFold(expect, sign) {
-			http.Error(w, "invalid sign", http.StatusUnauthorized)
+			openapi.Write(w, http.StatusUnauthorized, "INVALID_SIGN", "invalid sign")
 			return
 		}
 

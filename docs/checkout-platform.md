@@ -39,6 +39,8 @@ npm run dev:checkout
 | GET | `/v1/terminal/order?order_no=` | 拉取订单展示字段（金额、币种、状态、`return_url`、`merchant_id`、`merchant_order_no`、`pay_product_code` 等），并返回 **`pay_products`**：当前金额下可用的支付产品列表（`code` / `name`），收银台应优先用该列表渲染「选择支付方式」。 |
 | POST | `/v1/terminal/pay` | **发起支付（E2）**：Body JSON `order_no`、`pay_product_code`（可选，默认用订单已有编码）。trade 侧按产品重新路由并更新待支付订单的 `channel_id` / `pay_product_*`；响应 `pay_url`、`qr_payload`、`pay_mode`（`mock` / `qr`）。无 `gateway_url` 的通道返回 `mock://…` 载体，前端可生成二维码；有 HTTP `gateway_url` 时拼接 `order_no` 查询参数。 |
 
+接口失败（非 2xx）时与开放 API 一致，返回 JSON `code` / `message`，见 [**开放 API 错误码**](./开放API错误码.md)；收银台页会解析并展示。
+
 前端类型与网关 `OrderInfo` 对齐；改字段时同步 **`gateway` 的 API 定义** 与本文。
 
 ---
@@ -59,5 +61,6 @@ npm run dev:checkout
 | 2026-03-22 | 视觉与信息架构：页头品牌与「加密传输」提示、订单区展示 `merchant_order_no`/`merchant_id`、复制订单号、支付方式单选样式、超时与缺参态、轮询与成功提示文案优化。 |
 | 2026-03-22 | 主色与商户台对齐：**slate** 蓝灰（主按钮、Logo、支付方式选中、成功态卡片），整体更稳重。 |
 | 2026-03-22 | E2：`POST /v1/terminal/pay` 与收银台发起支付、扫码弹窗展示路由结果。 |
+| 2026-03-23 | 终端接口失败响应统一为 JSON `code`/`message`；见 [`开放API错误码.md`](./开放API错误码.md)。 |
 
 详见仓库 `docs/开发日志.md` 当日条目。

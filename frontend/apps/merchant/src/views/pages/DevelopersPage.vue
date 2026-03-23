@@ -281,6 +281,16 @@ function md5Sign(params: Record<string, string>, secret: string): string {
   return md5(parts.join('&'))
 }
 
+function formatOpenApiError(status: number, bodyText: string): string {
+  try {
+    const j = JSON.parse(bodyText) as { code?: string; message?: string }
+    if (j?.code) return `${j.code}: ${j.message ?? ''}`
+  } catch {
+    /* ignore */
+  }
+  return bodyText.trim() || `HTTP ${status}`
+}
+
 async function createOrder() {
   loading.value = true
   error.value = ''
@@ -300,11 +310,12 @@ async function createOrder() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...params, sign }),
     })
+    const text = await resp.text()
     if (!resp.ok) {
-      error.value = `创建失败(${resp.status})`
+      error.value = `创建失败 — ${formatOpenApiError(resp.status, text)}`
       return
     }
-    result.value = (await resp.json()) as CreateOrderResp
+    result.value = JSON.parse(text) as CreateOrderResp
     queryOrderNo.value = result.value.order_no
     mockChannelId.value = result.value.channel_id || mockChannelId.value
     mockPaidAmount.value = amount.value
@@ -337,7 +348,7 @@ async function queryOpenOrder() {
     const resp = await fetch(`${OPEN_API.queryOrder}?${qs.toString()}`)
     const text = await resp.text()
     if (!resp.ok) {
-      queryError.value = text || `查询失败(${resp.status})`
+      queryError.value = formatOpenApiError(resp.status, text)
       return
     }
     try {

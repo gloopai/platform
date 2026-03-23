@@ -8,4 +8,4 @@
 2. 启动：`bash dev-up.sh`（网关默认 `http://127.0.0.1:8080`，收银台 `http://127.0.0.1:5174`）  
 3. 按文档从 **下单 → 收银台 → 模拟回调 → 查单** 走一遍：[`docs/端到端联调一遍.md`](docs/端到端联调一遍.md)
 
-更多：[`docs/开发计划.md`](docs/开发计划.md)、[`docs/MVP与后续迭代.md`](docs/MVP与后续迭代.md)。
+更多：[`docs/开发计划.md`](docs/开发计划.md)、[`docs/MVP与后续迭代.md`](docs/MVP与后续迭代.md)、开放接口错误格式 [`docs/开放API错误码.md`](docs/开放API错误码.md)。

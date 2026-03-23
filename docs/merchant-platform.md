@@ -77,6 +77,10 @@
 - 演示用可选值集中在 **`src/config/payProducts.ts`**（`DEMO_PAY_PRODUCT_OPTIONS`），应与演示库 `seed_demo.sql` 中的产品行保持同步；需要其他编码时使用联调页「自定义编码」。
 - 模拟回调区块中的 **`channel_id`** 仅用于**扮演上游**通知平台，与「商户下单不传 channel」不矛盾。
 
+### 4.2 错误响应（开放 API）
+
+下单/查单失败时，网关返回 JSON：`{ "code": "...", "message": "..." }`（HTTP 4xx/5xx）。详见 [**开放 API 错误码**](./开放API错误码.md)。开发页已优先解析 `code` + `message` 展示。
+
 ---
 
 ## 5. 占位模块扩展方式

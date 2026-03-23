@@ -403,6 +403,17 @@ const redirectText = computed(() => {
   return `${redirectIn.value} 秒后自动跳转`
 })
 
+async function openApiErrorText(res: Response): Promise<string> {
+  const t = await res.text()
+  try {
+    const j = JSON.parse(t) as { code?: string; message?: string }
+    if (j?.code) return `${j.code}: ${j.message ?? ''}`
+  } catch {
+    /* ignore */
+  }
+  return t.trim() || `HTTP ${res.status}`
+}
+
 async function copyOrderNo() {
   if (!orderNo.value) return
   try {
@@ -423,7 +434,7 @@ async function load() {
   if (!orderNo.value) return
   const res = await fetch(`/v1/terminal/order?order_no=${encodeURIComponent(orderNo.value)}`)
   if (!res.ok) {
-    throw new Error(String(res.status))
+    throw new Error(await openApiErrorText(res))
   }
   const data = (await res.json()) as TerminalOrderPayload
   amount.value = data.order.amount
@@ -444,8 +455,8 @@ async function refresh() {
     if (status.value === 1 && returnUrl.value) {
       startRedirect()
     }
-  } catch {
-    error.value = '查询订单失败'
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : '查询订单失败'
   }
 }
 
@@ -480,7 +491,7 @@ async function payNow() {
       }),
     })
     if (!res.ok) {
-      error.value = `发起支付失败(${res.status})`
+      error.value = await openApiErrorText(res)
       return
     }
     const data = (await res.json()) as {
