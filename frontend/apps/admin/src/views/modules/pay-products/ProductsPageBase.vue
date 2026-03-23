@@ -157,9 +157,9 @@ import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
-import ProductBindingsCard from './PayProductBindingsCard.vue'
-import ProductFormCard from './PayProductFormCard.vue'
-import ProductsHeader from './PayProductsHeader.vue'
+import ProductBindingsCard from './ProductBindingsCard.vue'
+import ProductFormCard from './ProductFormCard.vue'
+import ProductsHeader from './ProductsHeader.vue'
 import type { PayinProduct, PayinProductBinding, PayinProductChannelOption } from './types'
 
 const props = withDefaults(

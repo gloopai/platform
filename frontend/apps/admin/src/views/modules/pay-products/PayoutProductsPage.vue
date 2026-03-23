@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import ProductsPageBase from './PayProductsPage.vue'
+import ProductsPageBase from './ProductsPageBase.vue'
 </script>
