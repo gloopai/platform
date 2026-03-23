@@ -16,6 +16,7 @@
           <tr>
             <th class="py-2 pr-3">产品</th>
             <th class="py-2 pr-3">编码</th>
+            <th class="py-2 pr-3">费率(bps)</th>
             <th class="py-2">操作</th>
           </tr>
         </thead>
@@ -23,6 +24,16 @@
           <tr v-for="row in boundRows" :key="row.id" class="border-b border-slate-100">
             <td class="py-2 pr-3 font-medium text-slate-900">{{ row.name }}</td>
             <td class="py-2 pr-3 font-mono text-xs text-slate-600">{{ row.code }}</td>
+            <td class="py-2 pr-3">
+              <input
+                v-model.number="row.merchant_rate_bps"
+                type="number"
+                min="0"
+                class="w-24 rounded-md border border-slate-200 px-2 py-1 text-xs"
+                :disabled="saving"
+                @change="emitUpdate(row)"
+              />
+            </td>
             <td class="py-2">
               <button
                 type="button"
@@ -77,11 +88,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import type { PayProductRow } from './types'
+import type { MerchantCollectGrant, PayProductRow } from './types'
 
 const props = withDefaults(
   defineProps<{
-    productIds: number[]
+    grants: MerchantCollectGrant[]
     catalog: PayProductRow[]
     loading: boolean
     saving: boolean
@@ -94,31 +105,33 @@ const props = withDefaults(
 const emit = defineEmits<{
   remove: [productId: number]
   add: [productId: number]
+  update: [grant: MerchantCollectGrant]
 }>()
 
 const localPick = ref(0)
 
 watch(
-  () => props.productIds,
+  () => props.grants,
   () => {
     localPick.value = 0
   },
 )
 
 const boundRows = computed(() => {
-  const ids = props.productIds || []
+  const grants = props.grants || []
   const cat = props.catalog
-  return ids
-    .map((id) => {
+  return grants
+    .map((g) => {
+      const id = g.pay_product_id
       const p = cat.find((x) => x.id === id)
       return p
-        ? { id: p.id, code: p.code, name: p.name }
-        : { id, code: `#${id}`, name: '（未知产品）' }
+        ? { id: p.id, code: p.code, name: p.name, merchant_rate_bps: g.merchant_rate_bps ?? 0 }
+        : { id, code: `#${id}`, name: '（未知产品）', merchant_rate_bps: g.merchant_rate_bps ?? 0 }
     })
     .sort((a, b) => a.code.localeCompare(b.code))
 })
 
-const boundSet = computed(() => new Set(props.productIds || []))
+const boundSet = computed(() => new Set((props.grants || []).map((g) => g.pay_product_id)))
 
 const availableToAdd = computed(() =>
   props.catalog.filter((p) => !boundSet.value.has(p.id)),
@@ -128,5 +141,12 @@ function emitAdd() {
   if (localPick.value <= 0) return
   emit('add', localPick.value)
   localPick.value = 0
+}
+
+function emitUpdate(row: { id: number; merchant_rate_bps: number }) {
+  emit('update', {
+    pay_product_id: row.id,
+    merchant_rate_bps: row.merchant_rate_bps ?? 0,
+  })
 }
 </script>

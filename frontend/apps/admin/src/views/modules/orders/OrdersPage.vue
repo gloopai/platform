@@ -52,12 +52,15 @@
 
     <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[960px] text-left text-sm">
+        <table class="w-full min-w-[1400px] text-left text-sm">
           <thead class="border-b border-slate-100 bg-slate-50/90 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               <th class="whitespace-nowrap px-4 py-3">平台订单号</th>
               <th class="whitespace-nowrap px-4 py-3">商户</th>
               <th class="whitespace-nowrap px-4 py-3">金额</th>
+              <th class="whitespace-nowrap px-4 py-3">手续费</th>
+              <th class="whitespace-nowrap px-4 py-3">净额</th>
+              <th class="whitespace-nowrap px-4 py-3">费率模式</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">通道</th>
@@ -67,10 +70,10 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-if="loading">
-              <td class="px-4 py-8 text-center text-slate-500" colspan="8">加载中…</td>
+              <td class="px-4 py-8 text-center text-slate-500" colspan="11">加载中…</td>
             </tr>
             <tr v-else-if="!rows.length">
-              <td class="px-4 py-10 text-center text-slate-500" colspan="8">暂无数据</td>
+              <td class="px-4 py-10 text-center text-slate-500" colspan="11">暂无数据</td>
             </tr>
             <tr v-for="o in pagedRows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
               <td class="px-4 py-3 font-mono text-xs text-slate-900">{{ o.order_no }}</td>
@@ -79,6 +82,9 @@
                 <div class="mt-0.5 font-mono text-[11px] text-slate-500">{{ o.merchant_order_no }}</div>
               </td>
               <td class="px-4 py-3 tabular-nums text-slate-800">{{ formatYuan(o.amount) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.fee_amount || 0) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.net_amount || 0) }}</td>
+              <td class="px-4 py-3 text-xs text-slate-600">{{ feeModeLabel(o.fee_mode) }}</td>
               <td class="px-4 py-3">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -152,6 +158,12 @@ function statusClass(s: number) {
   if (s === 0) return 'bg-amber-100 text-amber-900'
   if (s === 2 || s === 3) return 'bg-rose-100 text-rose-800'
   return 'bg-slate-100 text-slate-700'
+}
+
+function feeModeLabel(m: number) {
+  if (m === 2) return '固定金额'
+  if (m === 3) return '固定+比例'
+  return '比例'
 }
 
 function buildQuery(): string {

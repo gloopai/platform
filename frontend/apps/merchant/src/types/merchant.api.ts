@@ -44,6 +44,11 @@ export type MerchantOrderItem = {
   /** 管理台配置的展示名；缺省时前端仅用 `pay_product_code` */
   pay_product_name?: string
   paid_amount: number
+  fee_mode: number
+  fee_rate_bps: number
+  fee_fixed_amount: number
+  fee_amount: number
+  net_amount: number
   upstream_trade_no: string
   created_at: number
 }
@@ -73,6 +78,11 @@ export type MerchantOrderDetail = {
   pay_product_id: number
   pay_product_code: string
   pay_product_name?: string
+  fee_mode: number
+  fee_rate_bps: number
+  fee_fixed_amount: number
+  fee_amount: number
+  net_amount: number
   return_url: string
   notify_url: string
   upstream_trade_no: string

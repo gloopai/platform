@@ -25,17 +25,15 @@
               <th class="whitespace-nowrap px-4 py-3">商户 ID</th>
               <th class="whitespace-nowrap px-4 py-3">余额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
-              <th class="whitespace-nowrap px-4 py-3">默认代收(bps)</th>
-              <th class="whitespace-nowrap px-4 py-3">默认代付(bps)</th>
               <th class="whitespace-nowrap px-4 py-3 text-right">操作</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="6" class="px-4 py-8 text-center text-slate-500">加载中...</td>
+              <td colspan="4" class="px-4 py-8 text-center text-slate-500">加载中...</td>
             </tr>
             <tr v-else-if="!filteredMerchants.length">
-              <td colspan="6" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
+              <td colspan="4" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
             </tr>
             <tr
               v-for="m in pagedMerchants"
@@ -54,8 +52,6 @@
                 </span>
                 <span v-else class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">锁定</span>
               </td>
-              <td class="px-4 py-3 tabular-nums text-slate-600">{{ m.default_collect_rate_bps }}</td>
-              <td class="px-4 py-3 tabular-nums text-slate-600">{{ m.default_payout_rate_bps }}</td>
               <td class="px-4 py-3 text-right">
                 <button
                   type="button"
@@ -129,13 +125,14 @@
           <MerchantPayProductsCard
             v-if="!isNew && selectedMerchant"
             embedded
-            :product-ids="selectedMerchant.pay_product_ids || []"
+            :grants="selectedMerchant.collect_grants || []"
             :catalog="payProducts"
             :loading="loadingProducts"
             :saving="bindingSaving"
             :bind-error="bindError"
             @remove="removePayProduct"
             @add="addPayProduct"
+            @update="updateCollectGrant"
           />
           <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
             请先保存商户基本信息后再配置代收产品。
@@ -207,7 +204,7 @@ import MerchantFormCard from './MerchantFormCard.vue'
 import MerchantPayProductsCard from './MerchantPayProductsCard.vue'
 import MerchantPayoutProductsCard from './MerchantPayoutProductsCard.vue'
 import MerchantsHeader from './MerchantsHeader.vue'
-import type { AdminMerchantInfo, MerchantForm, MerchantPayoutGrant, PayProductRow } from './types'
+import type { AdminMerchantInfo, MerchantCollectGrant, MerchantForm, MerchantPayoutGrant, PayProductRow } from './types'
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
@@ -287,6 +284,20 @@ function normalizedPayoutGrants(m: AdminMerchantInfo): MerchantPayoutGrant[] {
     merchant_rate_bps: 0,
     fee_mode: 1,
     fee_fixed_amount: 0,
+  }))
+}
+
+function normalizedCollectGrants(m: AdminMerchantInfo): MerchantCollectGrant[] {
+  const grants = m.collect_grants || []
+  if (grants.length > 0) {
+    return grants.map((g) => ({
+      pay_product_id: g.pay_product_id,
+      merchant_rate_bps: g.merchant_rate_bps ?? 0,
+    }))
+  }
+  return (m.pay_product_ids || []).map((id) => ({
+    pay_product_id: id,
+    merchant_rate_bps: 0,
   }))
 }
 
@@ -372,8 +383,8 @@ async function saveForm() {
       const resp = await adminPost<{ merchant: AdminMerchantInfo }>('/v1/admin/merchants', {
         merchant_id: form.value.merchant_id.trim(),
         api_secret: form.value.api_secret,
-        default_collect_rate_bps: form.value.default_collect_rate_bps,
-        default_payout_rate_bps: form.value.default_payout_rate_bps,
+        default_collect_rate_bps: 0,
+        default_payout_rate_bps: 0,
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
@@ -390,12 +401,12 @@ async function saveForm() {
       const mid = selectedMerchant.value!.merchant_id
       const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(mid)}`, {
         status: form.value.status,
-        default_collect_rate_bps: form.value.default_collect_rate_bps,
-        default_payout_rate_bps: form.value.default_payout_rate_bps,
+        default_collect_rate_bps: selectedMerchant.value!.default_collect_rate_bps,
+        default_payout_rate_bps: selectedMerchant.value!.default_payout_rate_bps,
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
-        pay_product_ids: selectedMerchant.value!.pay_product_ids || [],
+        collect_grants: normalizedCollectGrants(selectedMerchant.value!),
         payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
       })
       const row = resp.merchant
@@ -425,7 +436,7 @@ async function toggleLock() {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      pay_product_ids: m.pay_product_ids || [],
+      collect_grants: normalizedCollectGrants(m),
       payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
@@ -454,7 +465,7 @@ async function resetSecret() {
         notify_url: m.notify_url,
         return_url: m.return_url,
         ip_whitelist: m.ip_whitelist,
-        pay_product_ids: m.pay_product_ids || [],
+        collect_grants: normalizedCollectGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
     )
@@ -469,7 +480,7 @@ async function resetSecret() {
   }
 }
 
-async function persistPayProducts(newIds: number[]) {
+async function persistPayProducts(newGrants: MerchantCollectGrant[]) {
   const m = selectedMerchant.value
   if (!m) return
   bindingSaving.value = true
@@ -482,7 +493,7 @@ async function persistPayProducts(newIds: number[]) {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      pay_product_ids: newIds,
+      collect_grants: newGrants,
       payout_grants: normalizedPayoutGrants(m),
     })
     const row = resp.merchant
@@ -510,7 +521,7 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
-      pay_product_ids: m.pay_product_ids || [],
+      collect_grants: normalizedCollectGrants(m),
       payout_grants: newGrants,
     })
     const row = resp.merchant
@@ -528,17 +539,33 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
 function removePayProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m) return
-  const cur = [...(m.pay_product_ids || [])]
-  const next = cur.filter((id) => id !== productId)
+  const cur = normalizedCollectGrants(m)
+  const next = cur.filter((x) => x.pay_product_id !== productId)
   void persistPayProducts(next)
 }
 
 function addPayProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m || productId <= 0) return
-  const cur = [...(m.pay_product_ids || [])]
-  if (cur.includes(productId)) return
-  cur.push(productId)
+  const cur = normalizedCollectGrants(m)
+  if (cur.some((x) => x.pay_product_id === productId)) return
+  cur.push({
+    pay_product_id: productId,
+    merchant_rate_bps: 0,
+  })
+  void persistPayProducts(cur)
+}
+
+function updateCollectGrant(grant: MerchantCollectGrant) {
+  const m = selectedMerchant.value
+  if (!m) return
+  const cur = normalizedCollectGrants(m)
+  const idx = cur.findIndex((x) => x.pay_product_id === grant.pay_product_id)
+  if (idx < 0) return
+  cur[idx] = {
+    pay_product_id: grant.pay_product_id,
+    merchant_rate_bps: grant.merchant_rate_bps ?? 0,
+  }
   void persistPayProducts(cur)
 }
 

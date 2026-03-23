@@ -32,8 +32,6 @@ export type MerchantForm = {
   merchant_id: string
   api_secret: string
   status: number
-  default_collect_rate_bps: number
-  default_payout_rate_bps: number
   notify_url: string
   return_url: string
   ip_whitelist: string
@@ -44,8 +42,6 @@ export function emptyMerchantForm(): MerchantForm {
     merchant_id: '',
     api_secret: '',
     status: 1,
-    default_collect_rate_bps: 0,
-    default_payout_rate_bps: 0,
     notify_url: '',
     return_url: '',
     ip_whitelist: '',
@@ -57,8 +53,6 @@ export function merchantToForm(m: AdminMerchantInfo): MerchantForm {
     merchant_id: m.merchant_id,
     api_secret: m.api_secret,
     status: m.status,
-    default_collect_rate_bps: m.default_collect_rate_bps,
-    default_payout_rate_bps: m.default_payout_rate_bps,
     notify_url: m.notify_url,
     return_url: m.return_url,
     ip_whitelist: m.ip_whitelist,

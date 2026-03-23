@@ -37,11 +37,14 @@
 
     <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[720px] text-left text-sm">
+        <table class="w-full min-w-[1200px] text-left text-sm">
           <thead class="border-b border-slate-100 bg-slate-50/90 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               <th class="whitespace-nowrap px-4 py-3">订单号</th>
               <th class="whitespace-nowrap px-4 py-3">金额</th>
+              <th class="whitespace-nowrap px-4 py-3">手续费</th>
+              <th class="whitespace-nowrap px-4 py-3">净额</th>
+              <th class="whitespace-nowrap px-4 py-3">费率模式</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">上游单号</th>
@@ -51,10 +54,10 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-if="loading">
-              <td class="px-4 py-8 text-center text-slate-500" colspan="7">加载中…</td>
+              <td class="px-4 py-8 text-center text-slate-500" colspan="10">加载中…</td>
             </tr>
             <tr v-else-if="orders.length === 0">
-              <td class="px-4 py-12 text-center text-slate-500" colspan="7">
+              <td class="px-4 py-12 text-center text-slate-500" colspan="10">
                 <div class="mx-auto flex max-w-sm flex-col items-center gap-2">
                   <span class="rounded-full bg-slate-100 p-3 text-slate-400">
                     <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25">
@@ -72,6 +75,9 @@
                 <div class="mt-0.5 font-mono text-xs text-slate-500">{{ o.merchant_order_no }}</div>
               </td>
               <td class="px-4 py-3 align-top tabular-nums text-slate-800">{{ formatAmount(o.amount, o.currency) }}</td>
+              <td class="px-4 py-3 align-top tabular-nums text-slate-700">{{ formatAmount(o.fee_amount || 0, o.currency) }}</td>
+              <td class="px-4 py-3 align-top tabular-nums text-slate-700">{{ formatAmount(o.net_amount || 0, o.currency) }}</td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">{{ feeModeLabel(o.fee_mode) }}</td>
               <td class="px-4 py-3 align-top">
                 <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="statusBadgeClass(o.status)">
                   {{ statusLabel(o.status) }}
@@ -259,6 +265,12 @@ function payProductShowCodeLine(o: MerchantOrderItem | MerchantOrderDetail) {
   const name = o.pay_product_name?.trim()
   const code = o.pay_product_code?.trim()
   return !!(name && code && name !== code)
+}
+
+function feeModeLabel(m: number) {
+  if (m === 2) return '固定金额'
+  if (m === 3) return '固定+比例'
+  return '比例'
 }
 
 async function reload() {

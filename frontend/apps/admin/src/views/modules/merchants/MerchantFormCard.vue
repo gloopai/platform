@@ -43,24 +43,6 @@
       </label>
 
       <label class="col-span-12 grid gap-1 md:col-span-6">
-        <span class="text-xs font-medium text-slate-600">默认代收费率（万分比）</span>
-        <input
-          v-model.number="model.default_collect_rate_bps"
-          type="number"
-          min="0"
-          class="rounded-md border border-slate-200 px-3 py-2 text-sm"
-        />
-      </label>
-      <label class="col-span-12 grid gap-1 md:col-span-6">
-        <span class="text-xs font-medium text-slate-600">默认代付费率（万分比）</span>
-        <input
-          v-model.number="model.default_payout_rate_bps"
-          type="number"
-          min="0"
-          class="rounded-md border border-slate-200 px-3 py-2 text-sm"
-        />
-      </label>
-      <label class="col-span-12 grid gap-1 md:col-span-6">
         <span class="text-xs font-medium text-slate-600">状态</span>
         <select v-model.number="model.status" class="rounded-md border border-slate-200 px-3 py-2 text-sm">
           <option :value="1">启用</option>

@@ -15,9 +15,15 @@ PAY_TYPE="${PAY_TYPE:-mock}"
 AMOUNT="${AMOUNT:-1234}"
 
 CHANNEL_SIGN_SECRET="${CHANNEL_SIGN_SECRET:-channel_secret}"
-CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret,channel_secret_b}"
+CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret,channel_secret_b,channel_secret_wechat,channel_secret_alipay}"
 ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
+DEFAULT_TEST_CASES_JSON='[
+  {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","pay_type":"mock","amount":1234,"expected_fee_rate_bps":60},
+  {"name":"product-rate-wechat","merchant_id":"m_rate_mix","merchant_secret":"demo_secret_mix","pay_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
+  {"name":"zero-rate-alipay","merchant_id":"m_zero_fee","merchant_secret":"demo_secret_zero","pay_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
+]'
+TEST_CASES_JSON="${TEST_CASES_JSON:-$DEFAULT_TEST_CASES_JSON}"
 
 if ! command -v curl >/dev/null 2>&1; then
   echo "curl not found"
@@ -164,80 +170,7 @@ notify_with_candidates() {
   return 0
 }
 
-echo "[1/5] 创建订单..."
-MERCHANT_ORDER_NO="MO-E2E-$(date +%s)"
-CREATE_PARAMS_JSON="$(python3 - <<PY
-import json
-print(json.dumps({
-  "merchant_id": "${MERCHANT_ID}",
-  "merchant_order_no": "${MERCHANT_ORDER_NO}",
-  "amount": int("${AMOUNT}"),
-  "currency": "CNY",
-  "pay_type": "${PAY_TYPE}",
-  "notify_url": ""
-}))
-PY
-)"
-CREATE_SIGN="$(md5_sign "${MERCHANT_SECRET}" "${CREATE_PARAMS_JSON}")"
-CREATE_BODY="$(python3 - "${CREATE_PARAMS_JSON}" "${CREATE_SIGN}" <<'PY'
-import json, sys
-p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
-print(json.dumps(p))
-PY
-)"
-
-CREATE_RESP="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/pay/order" \
-  -H "Content-Type: application/json" \
-  -d "${CREATE_BODY}")"
-
-ORDER_NO="$(json_get "${CREATE_RESP}" "order_no")"
-CHANNEL_ID="$(json_get "${CREATE_RESP}" "channel_id")"
-if [[ -z "${ORDER_NO}" ]]; then
-  echo "create order failed: ${CREATE_RESP}"
-  exit 1
-fi
-if [[ -z "${CHANNEL_ID}" || "${CHANNEL_ID}" == "0" ]]; then
-  echo "create order returned invalid channel_id: ${CREATE_RESP}"
-  exit 1
-fi
-echo "  order_no=${ORDER_NO} channel_id=${CHANNEL_ID}"
-
-echo "[2/5] 模拟上游回调..."
-UPSTREAM_TRADE_NO="UP-E2E-$(date +%s)"
-NOTIFY_RESP="$(notify_with_candidates "${ORDER_NO}" "${AMOUNT}" "${UPSTREAM_TRADE_NO}" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
-assert_notify "notify_paid_first" "${NOTIFY_RESP}" "True" ""
-
-echo "[3/5] 查单校验..."
-QUERY_PARAMS_JSON="$(python3 - <<PY
-import json, time
-print(json.dumps({
-  "merchant_id": "${MERCHANT_ID}",
-  "order_no": "${ORDER_NO}",
-  "timestamp": str(int(time.time()))
-}))
-PY
-)"
-QUERY_SIGN="$(md5_sign "${MERCHANT_SECRET}" "${QUERY_PARAMS_JSON}")"
-QUERY_URL="$(python3 - "${QUERY_PARAMS_JSON}" "${QUERY_SIGN}" <<'PY'
-import json, sys, urllib.parse
-p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
-print(urllib.parse.urlencode(p))
-PY
-)"
-QUERY_RESP="$(curl -sS "${GATEWAY_BASE_URL}/v1/pay/query?${QUERY_URL}")"
-QUERY_STATUS="$(json_get "${QUERY_RESP}" "order.status")"
-QUERY_PAID_AMOUNT="$(json_get "${QUERY_RESP}" "order.paid_amount")"
-if [[ "${QUERY_STATUS}" != "1" ]]; then
-  echo "query order status expected 1, got ${QUERY_STATUS}: ${QUERY_RESP}"
-  exit 1
-fi
-if [[ "${QUERY_PAID_AMOUNT}" != "${AMOUNT}" ]]; then
-  echo "query order paid_amount expected ${AMOUNT}, got ${QUERY_PAID_AMOUNT}: ${QUERY_RESP}"
-  exit 1
-fi
-echo "  order status=1 paid_amount=${QUERY_PAID_AMOUNT}"
-
-echo "[4/5] 管理台接口校验订单视图..."
+echo "[0/2] 管理台登录..."
 ADMIN_LOGIN_BODY="$(python3 - <<PY
 import json
 print(json.dumps({
@@ -255,15 +188,41 @@ if [[ -z "${ADMIN_TOKEN}" ]]; then
   exit 1
 fi
 
-ADMIN_ORDERS_RESP="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/orders?merchant_id=${MERCHANT_ID}&keyword=${ORDER_NO}&limit=20" \
-  -H "X-Admin-Token: ${ADMIN_TOKEN}")"
-python3 - "${ADMIN_ORDERS_RESP}" "${ORDER_NO}" "${AMOUNT}" "${UPSTREAM_TRADE_NO}" "${CHANNEL_ID}" <<'PY'
+list_cases() {
+  python3 - "${TEST_CASES_JSON}" "${DEFAULT_TEST_CASES_JSON}" <<'PY'
+import json, sys
+raw = sys.argv[1]
+fallback = sys.argv[2]
+try:
+    cases = json.loads(raw)
+except Exception:
+    try:
+        cases = json.loads(fallback)
+    except Exception as e:
+        print(f"invalid TEST_CASES_JSON: {e}", file=sys.stderr)
+        sys.exit(1)
+for c in cases:
+    print(
+      f"{c.get('name','case')}\t{c['merchant_id']}\t{c['merchant_secret']}\t{c['pay_type']}\t{int(c['amount'])}\t{int(c.get('expected_fee_rate_bps', 0))}"
+    )
+PY
+}
+
+verify_admin_order() {
+  local admin_orders_resp="$1"
+  local order_no="$2"
+  local amount="$3"
+  local upstream_trade_no="$4"
+  local channel_id="$5"
+  local expect_fee_rate_bps="$6"
+  python3 - "${admin_orders_resp}" "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${expect_fee_rate_bps}" <<'PY'
 import json, sys
 resp = json.loads(sys.argv[1])
 order_no = sys.argv[2]
 amount = int(sys.argv[3])
 upstream_trade_no = sys.argv[4]
 channel_id = int(sys.argv[5])
+expect_fee_rate_bps = int(sys.argv[6])
 orders = resp.get("orders") or []
 target = next((o for o in orders if o.get("order_no") == order_no), None)
 if target is None:
@@ -281,14 +240,28 @@ if str(target.get("upstream_trade_no", "")) != upstream_trade_no:
 if int(target.get("channel_id", 0)) != channel_id:
     print(f"admin orders channel_id mismatch: {target}")
     sys.exit(1)
-print("admin orders view ok")
+fee_rate_bps = int(target.get("fee_rate_bps", -1))
+fee_amount = int(target.get("fee_amount", -1))
+net_amount = int(target.get("net_amount", -1))
+expected_fee = amount * expect_fee_rate_bps // 10000
+expected_net = amount - expected_fee
+if fee_rate_bps != expect_fee_rate_bps:
+    print(f"admin orders fee_rate_bps expected {expect_fee_rate_bps}, got {fee_rate_bps}: {target}")
+    sys.exit(1)
+if fee_amount != expected_fee:
+    print(f"admin orders fee_amount expected {expected_fee}, got {fee_amount}: {target}")
+    sys.exit(1)
+if net_amount != expected_net:
+    print(f"admin orders net_amount expected {expected_net}, got {net_amount}: {target}")
+    sys.exit(1)
+print(f"admin orders view ok (fee_rate_bps={fee_rate_bps}, fee_amount={fee_amount}, net_amount={net_amount})")
 PY
-echo "  admin orders view ok"
+}
 
-echo "[5/5] 管理台接口校验资金流水..."
-ADMIN_SETTLEMENT_RESP="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/settlement/logs?merchant_id=${MERCHANT_ID}&limit=100" \
-  -H "X-Admin-Token: ${ADMIN_TOKEN}")"
-python3 - "${ADMIN_SETTLEMENT_RESP}" "${ORDER_NO}" <<'PY'
+verify_admin_settlement() {
+  local admin_settlement_resp="$1"
+  local order_no="$2"
+  python3 - "${admin_settlement_resp}" "${order_no}" <<'PY'
 import json, sys
 resp = json.loads(sys.argv[1])
 order_no = sys.argv[2]
@@ -299,26 +272,175 @@ if not ok:
     sys.exit(1)
 print("admin settlement logs ok")
 PY
-echo "  admin settlement logs ok"
+}
 
-echo "[6/6] 回调状态矩阵..."
-REPLAY_OK_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "${UPSTREAM_TRADE_NO}" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
-assert_notify "notify_idempotent_replay" "${REPLAY_OK_RESP}" "True" "IDEMPOTENT_REPLAY_ACCEPTED"
+run_case() {
+  local case_name="$1"
+  local merchant_id="$2"
+  local merchant_secret="$3"
+  local pay_type="$4"
+  local amount="$5"
+  local expect_fee_rate_bps="$6"
 
-REPLAY_MISMATCH_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "UP-E2E-MISMATCH-$(date +%s)" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
-assert_notify "notify_replay_mismatch" "${REPLAY_MISMATCH_RESP}" "False" "REPLAY_PAYLOAD_MISMATCH"
+  echo
+  echo "========== CASE: ${case_name} =========="
+  echo "[1/6] 创建订单..."
+  local merchant_order_no="MO-E2E-${case_name}-$(date +%s)"
+  local create_params_json
+  create_params_json="$(python3 - <<PY
+import json
+print(json.dumps({
+  "merchant_id": "${merchant_id}",
+  "merchant_order_no": "${merchant_order_no}",
+  "amount": int("${amount}"),
+  "currency": "CNY",
+  "pay_type": "${pay_type}",
+  "notify_url": ""
+}))
+PY
+)"
+  local create_sign
+  create_sign="$(md5_sign "${merchant_secret}" "${create_params_json}")"
+  local create_body
+  create_body="$(python3 - "${create_params_json}" "${create_sign}" <<'PY'
+import json, sys
+p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
+print(json.dumps(p))
+PY
+)"
+  local create_resp
+  create_resp="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/pay/order" -H "Content-Type: application/json" -d "${create_body}")"
+  local order_no
+  local channel_id
+  order_no="$(json_get "${create_resp}" "order_no")"
+  channel_id="$(json_get "${create_resp}" "channel_id")"
+  if [[ -z "${order_no}" ]]; then
+    echo "create order failed: ${create_resp}"
+    exit 1
+  fi
+  if [[ -z "${channel_id}" || "${channel_id}" == "0" ]]; then
+    echo "create order returned invalid channel_id: ${create_resp}"
+    exit 1
+  fi
+  echo "  order_no=${order_no} channel_id=${channel_id}"
 
-INVALID_SIGN_RESP="$(notify_request "${ORDER_NO}" "${AMOUNT}" "UP-E2E-BAD-SIGN-$(date +%s)" "${CHANNEL_ID}" "wrong_secret")"
-assert_notify "notify_invalid_sign" "${INVALID_SIGN_RESP}" "False" "INVALID_SIGN"
+  echo "[2/6] 模拟上游回调..."
+  local upstream_trade_no="UP-E2E-${case_name}-$(date +%s)"
+  local notify_resp
+  notify_resp="$(notify_with_candidates "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
+  assert_notify "notify_paid_first" "${notify_resp}" "True" ""
 
-NOT_FOUND_RESP="$(notify_request "P-NOT-FOUND-$(date +%s)" "${AMOUNT}" "UP-E2E-NOTFOUND-$(date +%s)" "${CHANNEL_ID}" "${CHANNEL_SIGN_SECRET}")"
-assert_notify "notify_order_not_found" "${NOT_FOUND_RESP}" "False" "ORDER_NOT_FOUND"
+  echo "[3/6] 查单校验金额与手续费快照..."
+  local query_params_json
+  query_params_json="$(python3 - <<PY
+import json, time
+print(json.dumps({
+  "merchant_id": "${merchant_id}",
+  "order_no": "${order_no}",
+  "timestamp": str(int(time.time()))
+}))
+PY
+)"
+  local query_sign
+  query_sign="$(md5_sign "${merchant_secret}" "${query_params_json}")"
+  local query_url
+  query_url="$(python3 - "${query_params_json}" "${query_sign}" <<'PY'
+import json, sys, urllib.parse
+p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
+print(urllib.parse.urlencode(p))
+PY
+)"
+  local query_resp
+  query_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/pay/query?${query_url}")"
+  local query_status
+  local query_paid_amount
+  local query_fee_rate_bps
+  local query_fee_amount
+  local query_net_amount
+  query_status="$(json_get "${query_resp}" "order.status")"
+  query_paid_amount="$(json_get "${query_resp}" "order.paid_amount")"
+  query_fee_rate_bps="$(json_get "${query_resp}" "order.fee_rate_bps")"
+  query_fee_amount="$(json_get "${query_resp}" "order.fee_amount")"
+  query_net_amount="$(json_get "${query_resp}" "order.net_amount")"
+  local expected_fee_amount=$(( amount * expect_fee_rate_bps / 10000 ))
+  local expected_net_amount=$(( amount - expected_fee_amount ))
+  if [[ "${query_status}" != "1" ]]; then
+    echo "query order status expected 1, got ${query_status}: ${query_resp}"
+    exit 1
+  fi
+  if [[ "${query_paid_amount}" != "${amount}" ]]; then
+    echo "query order paid_amount expected ${amount}, got ${query_paid_amount}: ${query_resp}"
+    exit 1
+  fi
+  if [[ "${query_fee_rate_bps}" != "${expect_fee_rate_bps}" ]]; then
+    echo "query order fee_rate_bps expected ${expect_fee_rate_bps}, got ${query_fee_rate_bps}: ${query_resp}"
+    exit 1
+  fi
+  if [[ "${query_fee_amount}" != "${expected_fee_amount}" ]]; then
+    echo "query order fee_amount expected ${expected_fee_amount}, got ${query_fee_amount}: ${query_resp}"
+    exit 1
+  fi
+  if [[ "${query_net_amount}" != "${expected_net_amount}" ]]; then
+    echo "query order net_amount expected ${expected_net_amount}, got ${query_net_amount}: ${query_resp}"
+    exit 1
+  fi
+  echo "  order status=1 fee_rate_bps=${query_fee_rate_bps} fee_amount=${query_fee_amount} net_amount=${query_net_amount}"
 
-INVALID_PARAMS_RESP="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/callback/notify" \
-  -H "Content-Type: application/json" \
-  -d '{"order_no":"","paid_amount":0,"upstream_trade_no":"","channel_id":0,"sign":"x"}')"
-assert_notify "notify_invalid_params" "${INVALID_PARAMS_RESP}" "False" "INVALID_NOTIFY_PARAMS"
+  echo "[4/6] 管理台接口校验订单视图..."
+  local admin_orders_resp
+  admin_orders_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/orders?merchant_id=${merchant_id}&keyword=${order_no}&limit=20" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
+  verify_admin_order "${admin_orders_resp}" "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${expect_fee_rate_bps}"
+
+  echo "[5/6] 管理台接口校验资金流水..."
+  local admin_settlement_resp
+  admin_settlement_resp="$(curl -sS "${GATEWAY_BASE_URL}/v1/admin/settlement/logs?merchant_id=${merchant_id}&limit=100" -H "X-Admin-Token: ${ADMIN_TOKEN}")"
+  verify_admin_settlement "${admin_settlement_resp}" "${order_no}"
+
+  echo "[6/6] 回调状态矩阵..."
+  local replay_ok_resp
+  replay_ok_resp="$(notify_with_candidates "${order_no}" "${amount}" "${upstream_trade_no}" "${channel_id}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
+  assert_notify "notify_idempotent_replay" "${replay_ok_resp}" "True" "IDEMPOTENT_REPLAY_ACCEPTED"
+
+  local replay_mismatch_resp
+  replay_mismatch_resp="$(notify_with_candidates "${order_no}" "${amount}" "UP-E2E-MISMATCH-$(date +%s)" "${channel_id}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
+  assert_notify "notify_replay_mismatch" "${replay_mismatch_resp}" "False" "REPLAY_PAYLOAD_MISMATCH"
+
+  local invalid_sign_resp
+  invalid_sign_resp="$(notify_request "${order_no}" "${amount}" "UP-E2E-BAD-SIGN-$(date +%s)" "${channel_id}" "wrong_secret")"
+  assert_notify "notify_invalid_sign" "${invalid_sign_resp}" "False" "INVALID_SIGN"
+
+  local not_found_resp
+  not_found_resp="$(notify_with_candidates "P-NOT-FOUND-$(date +%s)" "${amount}" "UP-E2E-NOTFOUND-$(date +%s)" "${channel_id}" "${CHANNEL_SIGN_SECRET},${CHANNEL_SIGN_SECRETS}")"
+  assert_notify "notify_order_not_found" "${not_found_resp}" "False" "ORDER_NOT_FOUND"
+
+  local invalid_params_resp
+  invalid_params_resp="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/callback/notify" \
+    -H "Content-Type: application/json" \
+    -d '{"order_no":"","paid_amount":0,"upstream_trade_no":"","channel_id":0,"sign":"x"}')"
+  assert_notify "notify_invalid_params" "${invalid_params_resp}" "False" "INVALID_NOTIFY_PARAMS"
+
+  echo "  case=${case_name} done"
+}
 
 echo
-echo "PASS: 收款主链路与回调状态矩阵验证成功"
-echo "order_no=${ORDER_NO}"
+echo "[1/2] 执行多测试样例..."
+case_lines="$(list_cases)"
+if [[ -z "${case_lines}" ]]; then
+  echo "no valid test cases parsed from TEST_CASES_JSON"
+  exit 1
+fi
+executed_cases=0
+while IFS=$'\t' read -r case_name case_merchant_id case_merchant_secret case_pay_type case_amount case_expected_fee_rate_bps; do
+  if [[ -z "${case_name}" ]]; then
+    continue
+  fi
+  executed_cases=$((executed_cases + 1))
+  run_case "${case_name}" "${case_merchant_id}" "${case_merchant_secret}" "${case_pay_type}" "${case_amount}" "${case_expected_fee_rate_bps}"
+done <<< "${case_lines}"
+if [[ "${executed_cases}" -le 0 ]]; then
+  echo "no test case executed"
+  exit 1
+fi
+
+echo
+echo "PASS: 多商户/多产品/多费率收款主链路与回调状态矩阵验证成功"
