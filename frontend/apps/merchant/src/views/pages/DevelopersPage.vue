@@ -36,9 +36,24 @@
         <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-xs font-bold text-white">2</span>
         <h2 class="text-sm font-semibold text-slate-900">下单联调</h2>
       </div>
-      <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">/v1/pay/order</code> 创建订单并跳转收银台。</p>
+      <p class="mt-2 text-sm text-slate-600">
+        调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">/v1/pay/order</code> 创建订单并跳转收银台。请求体中的
+        <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">pay_type</code> 表示<strong>支付产品编码</strong>（如 mock、wechat），平台在内部再路由到具体上游通道；商户侧<strong>不要</strong>传内部
+        <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">channel_id</code> 参与选路。
+      </p>
 
       <div class="mt-6 grid grid-cols-12 gap-4">
+        <label class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">pay_type（支付产品）</span>
+          <select v-model="payTypePreset" class="input-merchant">
+            <option v-for="p in payProductOptions" :key="p.code" :value="p.code">{{ p.label }}（{{ p.code }}）</option>
+            <option value="__custom__">自定义编码…</option>
+          </select>
+        </label>
+        <label v-if="payTypePreset === '__custom__'" class="col-span-12 grid gap-1.5 md:col-span-6">
+          <span class="text-xs font-medium text-slate-600">自定义 pay_type</span>
+          <input v-model.trim="payTypeCustom" class="input-merchant font-mono text-xs" placeholder="与后端 pay_products.code 一致" />
+        </label>
         <label class="col-span-12 grid gap-1.5 md:col-span-6">
           <span class="text-xs font-medium text-slate-600">merchant_order_no</span>
           <input v-model.trim="merchantOrderNo" class="input-merchant font-mono text-xs" />
@@ -53,7 +68,7 @@
         <button
           type="button"
           class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-          :disabled="loading || !merchantId || !apiSecret || !merchantOrderNo || amount <= 0"
+          :disabled="loading || !merchantId || !apiSecret || !merchantOrderNo || amount <= 0 || !resolvedPayType"
           @click="createOrder"
         >
           {{ loading ? '创建中…' : '创建订单' }}
@@ -166,6 +181,7 @@
 import md5 from 'blueimp-md5'
 import { computed, ref, watch } from 'vue'
 import { OPEN_API } from '@/api/endpoints'
+import { DEMO_PAY_PRODUCT_OPTIONS } from '@/config/payProducts'
 import { loadMerchantAuth, saveMerchantAuth } from '@/lib/merchantApi'
 
 type CreateOrderResp = {
@@ -180,6 +196,13 @@ const merchantId = ref(auth.merchantId)
 const apiSecret = ref(auth.apiSecret)
 const ipWhitelist = ref('127.0.0.1')
 const notifyUrl = ref('')
+
+const payProductOptions = DEMO_PAY_PRODUCT_OPTIONS
+const payTypePreset = ref<(typeof DEMO_PAY_PRODUCT_OPTIONS)[number]['code'] | '__custom__'>('mock')
+const payTypeCustom = ref('')
+const resolvedPayType = computed(() =>
+  payTypePreset.value === '__custom__' ? payTypeCustom.value.trim() : payTypePreset.value,
+)
 
 const merchantOrderNo = ref(`MO-${Date.now()}`)
 const amount = ref(100)
@@ -229,7 +252,7 @@ async function createOrder() {
       merchant_order_no: merchantOrderNo.value,
       amount: String(amount.value),
       currency: 'CNY',
-      pay_type: 'mock',
+      pay_type: resolvedPayType.value,
       notify_url: notifyUrl.value,
     }
     const sign = md5Sign(params, apiSecret.value)
@@ -294,32 +317,26 @@ const localCheckoutUrl = computed(() => {
   return `http://127.0.0.1:5174/?order_no=${encodeURIComponent(result.value.order_no)}`
 })
 
-const signJson = ref(
-  JSON.stringify(
-    {
-      merchant_id: merchantId.value,
-      merchant_order_no: merchantOrderNo.value,
-      amount: String(amount.value),
-      currency: 'CNY',
-      pay_type: 'mock',
-    },
-    null,
-    2,
-  ),
-)
+const signJson = ref('')
 
-watch([merchantId, merchantOrderNo, amount], () => {
+function syncSignJsonFromForm() {
   signJson.value = JSON.stringify(
     {
       merchant_id: merchantId.value,
       merchant_order_no: merchantOrderNo.value,
       amount: String(amount.value),
       currency: 'CNY',
-      pay_type: 'mock',
+      pay_type: resolvedPayType.value,
     },
     null,
     2,
   )
+}
+
+syncSignJsonFromForm()
+
+watch([merchantId, merchantOrderNo, amount, payTypePreset, payTypeCustom], () => {
+  syncSignJsonFromForm()
 })
 
 const signSecret = ref(apiSecret.value)

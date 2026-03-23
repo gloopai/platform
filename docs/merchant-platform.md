@@ -15,7 +15,7 @@
 | `/finance` | 财务中心：资金流水、提现/对账占位 | 已对接 `GET /v1/merchant/fund_logs` |
 | `/products` | 产品与费率 | 占位页，文案见 `config/merchantPlaceholder.ts` |
 | `/account` | 账户与安全 | 占位页 |
-| `/developers` | 开发配置：参数、下单联调、模拟回调、签名工具 | 部分直连开放接口，见下节 |
+| `/developers` | 开发配置：参数、下单联调、模拟回调、签名工具 | **已对接**开放接口；联调下单可选 **支付产品编码**（`pay_type`），见 §4.1 |
 
 侧栏与底部导航数据来自 **`src/config/merchantMenu.ts`**（唯一数据源），新增菜单请同步修改该文件与 **`src/router.ts`**。
 
@@ -67,6 +67,12 @@
 - `POST /v1/callback/notify` — 模拟上游回调（开发页）
 
 `DevelopersPage.vue` 中已改为引用 `OPEN_API`，避免硬编码散落。
+
+### 4.1 下单与「支付产品」编码（阶段 D1 / D2）
+
+- 创建订单请求体中的 **`pay_type` 表示支付产品编码**（与 `pay_products.code`、收银台可选列表一致），**不是**内部上游实例 ID；商户开放 API **不要求**传 `channel_id` 参与选路（路由在平台侧完成）。
+- 演示用可选值集中在 **`src/config/payProducts.ts`**（`DEMO_PAY_PRODUCT_OPTIONS`），应与演示库 `seed_demo.sql` 中的产品行保持同步；需要其他编码时使用联调页「自定义编码」。
+- 模拟回调区块中的 **`channel_id`** 仅用于**扮演上游**通知平台，与「商户下单不传 channel」不矛盾。
 
 ---
 
