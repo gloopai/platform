@@ -40,14 +40,6 @@
             <option value="3">已关闭</option>
           </select>
         </label>
-        <label class="grid w-24 gap-1 text-sm">
-          <span class="text-xs font-medium text-slate-500">条数</span>
-          <select v-model.number="limit" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
-            <option :value="30">30</option>
-            <option :value="50">50</option>
-            <option :value="100">100</option>
-          </select>
-        </label>
         <button
           type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
@@ -80,7 +72,7 @@
             <tr v-else-if="!rows.length">
               <td class="px-4 py-10 text-center text-slate-500" colspan="8">暂无数据</td>
             </tr>
-            <tr v-for="o in rows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
+            <tr v-for="o in pagedRows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
               <td class="px-4 py-3 font-mono text-xs text-slate-900">{{ o.order_no }}</td>
               <td class="px-4 py-3">
                 <div class="font-mono text-xs font-medium text-slate-800">{{ o.merchant_id }}</div>
@@ -103,12 +95,21 @@
           </tbody>
         </table>
       </div>
+      <AdminPaginationBar
+        v-if="!loading && rows.length > 0"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :total="total"
+        :page-count="pageCount"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { inject, onMounted, onUnmounted, ref } from 'vue'
+import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
 
@@ -119,11 +120,11 @@ const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => 
 const keyword = ref('')
 const merchantId = ref('')
 const status = ref('')
-const limit = ref(50)
 
 const loading = ref(false)
 const error = ref('')
 const rows = ref<AdminOrderRow[]>([])
+const { page, pageSize, total, pageCount, slice: pagedRows } = useClientPagination(rows, 20)
 
 function formatYuan(cents: number) {
   return `¥ ${(cents / 100).toFixed(2)}`
@@ -132,7 +133,9 @@ function formatYuan(cents: number) {
 function formatTime(ts: number) {
   if (!ts) return '—'
   const d = new Date(ts * 1000)
-  return d.toLocaleString()
+  return Number.isNaN(d.getTime())
+    ? '—'
+    : d.toLocaleString('zh-CN', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 function statusLabel(s: number) {
@@ -155,7 +158,7 @@ function buildQuery(): string {
   if (keyword.value) q.set('keyword', keyword.value)
   if (merchantId.value) q.set('merchant_id', merchantId.value)
   if (status.value !== '') q.set('status', status.value)
-  if (limit.value > 0) q.set('limit', String(limit.value))
+  q.set('limit', '200')
   const s = q.toString()
   return s ? `/v1/admin/orders?${s}` : '/v1/admin/orders'
 }
@@ -164,6 +167,7 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
+    page.value = 1
     const res = await adminGet<AdminOrdersResp>(buildQuery())
     rows.value = res.orders || []
   } catch {

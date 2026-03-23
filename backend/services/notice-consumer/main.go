@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/dbdsn"
+	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/notice-consumer/internal/config"
 	"github.com/gloopai/pay/notice-consumer/internal/notice"
 	_ "github.com/go-sql-driver/mysql"
@@ -28,6 +30,9 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	if err := timex.ApplyProcessTimezone(c.Timezone); err != nil {
+		panic(err)
+	}
 
 	consulSvc := c.Consul.Service
 	if consulSvc == "" {
@@ -38,7 +43,7 @@ func main() {
 	}
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
-	db, err := sql.Open("mysql", c.Mysql.DataSource)
+	db, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
 	if err != nil {
 		panic(err)
 	}

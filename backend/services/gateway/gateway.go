@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/handler"
 	"github.com/gloopai/pay/gateway/internal/middleware"
@@ -34,6 +35,9 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	if err := timex.ApplyProcessTimezone(c.Timezone); err != nil {
+		panic(err)
+	}
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
 	server := rest.MustNewServer(c.RestConf)

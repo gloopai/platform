@@ -3,8 +3,9 @@ package config
 import "time"
 
 type Config struct {
-	Name string
-	Nsq  struct {
+	Name     string
+	Timezone string
+	Nsq      struct {
 		NsqdTCPAddr string
 		Topic       string
 		Channel     string

@@ -10,6 +10,7 @@ import (
 	"github.com/gloopai/pay/common/consulx"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
+	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/core/internal/config"
 	"github.com/gloopai/pay/core/internal/server"
 	"github.com/gloopai/pay/core/internal/svc"
@@ -35,6 +36,9 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	if err := timex.ApplyProcessTimezone(c.Timezone); err != nil {
+		panic(err)
+	}
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 	ctx := svc.NewServiceContext(c)
 

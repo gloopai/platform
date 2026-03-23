@@ -28,7 +28,7 @@
               <tr v-else-if="logs.length === 0">
                 <td class="px-4 py-12 text-center text-slate-500" colspan="5">暂无流水记录</td>
               </tr>
-              <tr v-for="l in logs" :key="l.id" class="transition hover:bg-slate-50/80">
+              <tr v-for="l in pagedLogs" :key="l.id" class="transition hover:bg-slate-50/80">
                 <td class="whitespace-nowrap px-4 py-3 text-slate-700">{{ formatTime(l.created_at) }}</td>
                 <td class="px-4 py-3 text-slate-800">{{ l.change_type }}</td>
                 <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ l.order_no || '—' }}</td>
@@ -38,6 +38,13 @@
             </tbody>
           </table>
         </div>
+        <MerchantPaginationBar
+          v-if="!loading && logs.length > 0"
+          v-model:page="page"
+          v-model:pageSize="pageSize"
+          :total="total"
+          :page-count="pageCount"
+        />
       </div>
     </div>
 
@@ -98,11 +105,14 @@
 import { onMounted, ref } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
+import MerchantPaginationBar from '@/components/ui/MerchantPaginationBar.vue'
+import { useClientPagination } from '@/composables/useClientPagination'
 import { fetchMerchantFundLogs } from '@/api/finance'
 import type { MerchantFundLogItem } from '@/types/merchant.api'
 import { formatUnixSeconds, formatYuanLabel } from '@/utils/format'
 
 const logs = ref<MerchantFundLogItem[]>([])
+const { page, pageSize, total, pageCount, slice: pagedLogs } = useClientPagination(logs, 20)
 const loading = ref(false)
 const error = ref('')
 
@@ -118,7 +128,8 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetchMerchantFundLogs(50)
+    page.value = 1
+    const res = await fetchMerchantFundLogs(200)
     logs.value = res.logs || []
   } catch {
     error.value = '加载失败：请确认已登录且网关已启动。'

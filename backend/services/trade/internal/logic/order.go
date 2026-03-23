@@ -252,7 +252,7 @@ func newOrderNo() (string, error) {
 	if _, err := rand.Read(b[:]); err != nil {
 		return "", err
 	}
-	return "P" + time.Now().UTC().Format("20060102150405") + hex.EncodeToString(b[:8]), nil
+	return "P" + time.Now().Format("20060102150405") + hex.EncodeToString(b[:8]), nil
 }
 
 func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {

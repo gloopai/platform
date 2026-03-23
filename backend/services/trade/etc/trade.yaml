@@ -1,5 +1,6 @@
 Name: payment.rpc.trade
 ListenOn: 0.0.0.0:8081
+Timezone: Asia/Shanghai
 Middlewares:
   Trace: true
   Stat: true
@@ -7,7 +8,7 @@ Consul:
   Addr: 127.0.0.1:8500
   Service: payment.rpc.trade
 Mysql:
-  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
 Redis:
   Host: 127.0.0.1:6379
   Key: payment.rpc.trade

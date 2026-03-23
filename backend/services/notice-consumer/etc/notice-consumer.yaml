@@ -1,11 +1,12 @@
 Name: payment.worker.notice-consumer
+Timezone: Asia/Shanghai
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice
   Channel: notice
   MaxAttempts: 6
 Mysql:
-  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Local
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
 Http:
   Timeout: 5s
 Consul:

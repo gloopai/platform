@@ -27,17 +27,6 @@
           @keyup.enter="load"
         />
       </label>
-      <label class="flex flex-col gap-1 text-sm">
-        <span class="font-medium text-slate-700">条数</span>
-        <input
-          v-model.number="limit"
-          type="number"
-          min="1"
-          max="200"
-          class="w-28 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm"
-          @keyup.enter="load"
-        />
-      </label>
       <button
         type="button"
         class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50"
@@ -69,7 +58,7 @@
             <tr v-else-if="!logs.length">
               <td class="px-4 py-10 text-center text-slate-500" colspan="8">暂无资金流水</td>
             </tr>
-            <tr v-for="x in logs" v-else :key="x.id" class="hover:bg-slate-50/80">
+            <tr v-for="x in pagedLogs" v-else :key="x.id" class="hover:bg-slate-50/80">
               <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatTs(x.created_at) }}</td>
               <td class="px-4 py-3 font-medium text-slate-900">{{ x.merchant_id }}</td>
               <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ x.order_no }}</td>
@@ -82,6 +71,13 @@
           </tbody>
         </table>
       </div>
+      <AdminPaginationBar
+        v-if="!loading && logs.length > 0"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :total="total"
+        :page-count="pageCount"
+      />
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -97,6 +93,8 @@
 
 <script setup lang="ts">
 import { inject, onMounted, onUnmounted, ref } from 'vue'
+import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
 
@@ -115,15 +113,17 @@ type SettlementLogItem = {
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 
 const merchantId = ref('')
-const limit = ref(50)
 const loading = ref(true)
 const error = ref('')
 const logs = ref<SettlementLogItem[]>([])
+const { page, pageSize, total, pageCount, slice: pagedLogs } = useClientPagination(logs, 20)
 
 function formatTs(ts: number): string {
   if (!ts) return '—'
   const d = new Date(ts * 1000)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
+  return Number.isNaN(d.getTime())
+    ? '—'
+    : d.toLocaleString('zh-CN', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 function formatAmount(cents: number): string {
@@ -136,9 +136,10 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
+    page.value = 1
     const q = new URLSearchParams()
     if (merchantId.value) q.set('merchant_id', merchantId.value)
-    q.set('limit', String(limit.value || 50))
+    q.set('limit', '200')
     const r = await adminGet<{ logs: SettlementLogItem[] }>(`/v1/admin/settlement/logs?${q.toString()}`)
     logs.value = r.logs ?? []
   } catch {

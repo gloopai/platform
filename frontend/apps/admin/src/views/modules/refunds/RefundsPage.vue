@@ -72,7 +72,7 @@
             <tr v-else-if="!items.length">
               <td class="px-4 py-10 text-center text-slate-500" colspan="8">暂无候选订单</td>
             </tr>
-            <tr v-for="x in items" v-else :key="x.order_no" class="hover:bg-slate-50/80">
+            <tr v-for="x in pagedItems" v-else :key="x.order_no" class="hover:bg-slate-50/80">
               <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatTs(x.created_at) }}</td>
               <td class="px-4 py-3">
                 <span
@@ -92,6 +92,13 @@
           </tbody>
         </table>
       </div>
+      <AdminPaginationBar
+        v-if="!loading && items.length > 0"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :total="total"
+        :page-count="pageCount"
+      />
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -107,6 +114,8 @@
 
 <script setup lang="ts">
 import { inject, onMounted, onUnmounted, ref } from 'vue'
+import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
 
@@ -132,11 +141,14 @@ const status = ref<'all' | 'failed' | 'closed'>('all')
 const loading = ref(true)
 const error = ref('')
 const items = ref<RefundItem[]>([])
+const { page, pageSize, total, pageCount, slice: pagedItems } = useClientPagination(items, 20)
 
 function formatTs(ts: number): string {
   if (!ts) return '—'
   const d = new Date(ts * 1000)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
+  return Number.isNaN(d.getTime())
+    ? '—'
+    : d.toLocaleString('zh-CN', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 function formatAmount(cents: number): string {
@@ -147,7 +159,8 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const q = new URLSearchParams({ status: status.value, limit: '80' })
+    page.value = 1
+    const q = new URLSearchParams({ status: status.value, limit: '200' })
     if (merchantId.value) q.set('merchant_id', merchantId.value)
     if (keyword.value) q.set('keyword', keyword.value)
     const r = await adminGet<{ items: RefundItem[] }>(`/v1/admin/refunds?${q.toString()}`)

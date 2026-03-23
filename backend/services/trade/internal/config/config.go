@@ -4,7 +4,8 @@ import "github.com/zeromicro/go-zero/zrpc"
 
 type Config struct {
 	zrpc.RpcServerConf
-	Mysql struct {
+	Timezone string `json:",optional"`
+	Mysql    struct {
 		DataSource string
 	}
 	BizRedis struct {

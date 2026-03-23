@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/trade/internal/config"
 	"github.com/gloopai/pay/trade/internal/store"
 	_ "github.com/go-sql-driver/mysql"
@@ -26,7 +27,7 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	sqlDB, err := sql.Open("mysql", c.Mysql.DataSource)
+	sqlDB, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
 	if err != nil {
 		panic(err)
 	}

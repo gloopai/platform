@@ -10,7 +10,8 @@ import (
 
 type Config struct {
 	rest.RestConf
-	Mysql struct {
+	Timezone string `json:",optional"`
+	Mysql    struct {
 		DataSource string
 	}
 	AdminToken      string `json:",optional"`

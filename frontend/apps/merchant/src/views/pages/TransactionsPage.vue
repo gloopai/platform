@@ -66,7 +66,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-for="o in orders" :key="o.order_no" class="transition hover:bg-slate-50/80">
+            <tr v-for="o in pagedOrders" :key="o.order_no" class="transition hover:bg-slate-50/80">
               <td class="px-4 py-3 align-top">
                 <div class="font-medium text-slate-900">{{ o.order_no }}</div>
                 <div class="mt-0.5 font-mono text-xs text-slate-500">{{ o.merchant_order_no }}</div>
@@ -111,6 +111,13 @@
           </tbody>
         </table>
       </div>
+      <MerchantPaginationBar
+        v-if="!loading && orders.length > 0"
+        v-model:page="page"
+        v-model:pageSize="pageSize"
+        :total="total"
+        :page-count="pageCount"
+      />
     </div>
 
     <ErrorCallout v-if="error" :message="error" />
@@ -211,6 +218,8 @@
 import { onMounted, ref } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
+import MerchantPaginationBar from '@/components/ui/MerchantPaginationBar.vue'
+import { useClientPagination } from '@/composables/useClientPagination'
 import { fetchMerchantOrderDetail, fetchMerchantOrders, postRetryMerchantNotify } from '@/api/orders'
 import type { MerchantOrderDetail, MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
 import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
@@ -219,6 +228,7 @@ import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLa
 const keyword = ref('')
 const status = ref('')
 const orders = ref<MerchantOrderItem[]>([])
+const { page, pageSize, total, pageCount, slice: pagedOrders } = useClientPagination(orders, 20)
 const loading = ref(false)
 const error = ref('')
 const retrying = ref(false)
@@ -255,10 +265,11 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
+    page.value = 1
     const res = await fetchMerchantOrders({
       order_no: keyword.value,
       status: status.value,
-      limit: 50,
+      limit: 200,
     })
     orders.value = res.orders || []
   } catch {
