@@ -95,6 +95,31 @@ export default {
         },
       },
     },
+    crypto: {
+      title: 'Pagamentos em criptomoedas',
+      lead:
+        'Aceite ativos digitais junto com fiat—ciclo de pedido unificado, confirmações, liquidação e relatórios para comerciantes globais.',
+      items: {
+        onchain: {
+          title: 'On-chain e Layer 2',
+          desc: 'Redes principais e L2 com profundidade de confirmação configurável e monitoramento.',
+        },
+        stablecoin: {
+          title: 'Stablecoins e preços',
+          desc: 'USDT, USDC e outros ativos aprovados com cotações em tempo real, slippage e políticas de tesouraria.',
+        },
+        compliance: {
+          title: 'Risco e conformidade',
+          desc: 'Triagem de endereços, preparação para travel rule e políticas por jurisdição.',
+        },
+        experience: {
+          title: 'API e operações',
+          desc: 'Uma API para sessões de checkout cripto, webhooks por nível de confirmação e exportações de conciliação.',
+        },
+      },
+      disclaimer:
+        'Recursos de cripto dependem de região, licença e política de risco; ativos e redes sujeitos à aprovação.',
+    },
   },
   products: {
     title: 'Produtos e serviços',

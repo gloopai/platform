@@ -102,6 +102,38 @@
       </div>
     </section>
 
+    <!-- Cryptocurrency -->
+    <section class="relative border-y border-violet-200/60 bg-gradient-to-b from-violet-950/[0.03] via-slate-50 to-white">
+      <div
+        class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/40 to-transparent"
+      />
+      <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div class="max-w-2xl">
+            <p
+              class="inline-flex items-center gap-2 rounded-full border border-violet-200/80 bg-violet-50/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-violet-800"
+            >
+              <span class="font-mono text-sm leading-none text-violet-600" aria-hidden="true">₿</span>
+              Web3
+            </p>
+            <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{{ t('home.crypto.title') }}</h2>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">{{ t('home.crypto.lead') }}</p>
+          </div>
+        </div>
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <article
+            v-for="key in cryptoKeys"
+            :key="key"
+            class="rounded-2xl border border-violet-100/90 bg-white p-6 shadow-sm transition hover:border-violet-200 hover:shadow-md"
+          >
+            <h3 class="text-base font-semibold text-slate-900">{{ t(`home.crypto.items.${key}.title`) }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ t(`home.crypto.items.${key}.desc`) }}</p>
+          </article>
+        </div>
+        <p class="mt-8 text-xs leading-relaxed text-slate-500">{{ t('home.crypto.disclaimer') }}</p>
+      </div>
+    </section>
+
     <!-- Partners strip -->
     <section class="border-y border-slate-200 bg-white">
       <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -176,4 +208,6 @@ const regionFlags: Record<(typeof regionKeys)[number], string> = {
   in: '🇮🇳',
   br: '🇧🇷',
 }
+
+const cryptoKeys = ['onchain', 'stablecoin', 'compliance', 'experience'] as const
 </script>

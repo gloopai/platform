@@ -95,6 +95,31 @@ export default {
         },
       },
     },
+    crypto: {
+      title: 'Cryptocurrency payments',
+      lead:
+        'Accept digital assets alongside fiat—a unified order lifecycle with confirmations, settlement options, and reporting built for global merchants.',
+      items: {
+        onchain: {
+          title: 'On-chain & Layer 2',
+          desc: 'Support for major networks and L2s with configurable confirmation depth and monitoring.',
+        },
+        stablecoin: {
+          title: 'Stablecoins & pricing',
+          desc: 'USDT, USDC, and other approved assets with real-time quotes, slippage controls, and treasury policies.',
+        },
+        compliance: {
+          title: 'Risk & compliance',
+          desc: 'Address screening, travel-rule readiness, and jurisdiction-aware controls to reduce exposure.',
+        },
+        experience: {
+          title: 'Developer & ops',
+          desc: 'One API for crypto checkout sessions, tiered webhooks for confirmations, and reconciliation exports.',
+        },
+      },
+      disclaimer:
+        'Cryptocurrency features depend on region, licence, and risk policy; supported assets and networks are subject to approval.',
+    },
   },
   products: {
     title: 'Products & services',

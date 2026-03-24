@@ -94,6 +94,30 @@ export default {
         },
       },
     },
+    crypto: {
+      title: '加密貨幣支付',
+      lead:
+        '在法幣收單之外，支援數位資產支付：統一訂單生命週期、確認數策略、結算與對帳，面向全球化商戶。',
+      items: {
+        onchain: {
+          title: '鏈上與 Layer 2',
+          desc: '支援主流公鏈與二層網路，可設定確認深度與鏈上監控，降低重組與壅塞風險。',
+        },
+        stablecoin: {
+          title: '穩定幣與報價',
+          desc: 'USDT、USDC 等經審批的資產，支援即時報價、滑點與金庫策略，便於財務核算。',
+        },
+        compliance: {
+          title: '風控與合規',
+          desc: '地址篩查、Travel Rule 對接準備與分司法轄區策略，協助降低合規與洗錢風險。',
+        },
+        experience: {
+          title: '接入與維運',
+          desc: '統一 API 建立加密收銀工作階段，分級 Webhook 通知確認進度，並匯出對帳與報表。',
+        },
+      },
+      disclaimer: '加密能力受地區、牌照與風控策略限制；具體資產與網路以審批為準。',
+    },
   },
   products: {
     title: '產品與服務',

@@ -94,6 +94,30 @@ export default {
         },
       },
     },
+    crypto: {
+      title: '加密货币支付',
+      lead:
+        '在法币收单之外，支持数字资产支付：统一订单生命周期、确认数策略、结算与对账，面向全球化商户。',
+      items: {
+        onchain: {
+          title: '链上与 Layer 2',
+          desc: '支持主流公链与二层网络，可配置确认深度与链上监控，降低重组与拥堵风险。',
+        },
+        stablecoin: {
+          title: '稳定币与报价',
+          desc: 'USDT、USDC 等经审批的资产，支持实时报价、滑点与金库策略，便于财务核算。',
+        },
+        compliance: {
+          title: '风控与合规',
+          desc: '地址筛查、Travel Rule 对接准备与分司法辖区策略，帮助降低合规与反洗钱风险。',
+        },
+        experience: {
+          title: '接入与运维',
+          desc: '统一 API 创建加密收银会话，分级 Webhook 通知确认进度，并导出对账与报表。',
+        },
+      },
+      disclaimer: '加密能力受地区、牌照与风控策略限制；具体资产与网络以审批为准。',
+    },
   },
   products: {
     title: '产品与服务',
