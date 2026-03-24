@@ -14,4 +14,8 @@ const (
 
 	NotifyCodeIdempotentReplayAccepted = "IDEMPOTENT_REPLAY_ACCEPTED"
 	NotifyCodeIdempotentRaceAccepted   = "IDEMPOTENT_RACE_ACCEPTED"
+
+	NotifyCodeCreditFailed       = "CREDIT_FAILED"
+	NotifyCodeNotifyMarshalFailed = "NOTIFY_MARSHAL_FAILED"
+	NotifyCodeNotifyPublishFailed = "NOTIFY_PUBLISH_FAILED"
 )

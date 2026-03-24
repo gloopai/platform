@@ -130,6 +130,14 @@ JOIN payin_products pp ON pp.code = 'mock'
 WHERE c.name = 'mock-channel'
 ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);
 
+-- 与 C-DEMO-001 一致：已支付代收应对应一笔 ORDER_PAID（入账金额 = net_amount），否则不变量检查会报错
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES ('m_demo', 'C-DEMO-001', 'ORDER_PAID', 994, 999006, 100000, 'ORDER_PAID', NOW())
+ON DUPLICATE KEY UPDATE
+  amount = VALUES(amount),
+  balance_before = VALUES(balance_before),
+  balance_after = VALUES(balance_after);
+
 INSERT INTO payout_orders (
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
   payout_product_id, payout_product_code, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,

@@ -12,6 +12,7 @@
 ## 常用错误码
 
 - `INVALID_PARAMS`：请求体/参数解析失败
+- `PAYLOAD_TOO_LARGE`：JSON 请求体超过服务端限制（默认约 256KB）
 - `TIMESTAMP_REQUIRED`：缺少 `timestamp`
 - `NONCE_REQUIRED`：缺少 `nonce`
 - `INVALID_TIMESTAMP`：`timestamp` 非法或超出时间窗

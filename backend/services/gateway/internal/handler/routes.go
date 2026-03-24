@@ -27,7 +27,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.OpenAPIRateLimitMiddleware, serverCtx.MerchantSignMiddleware},
+			[]rest.Middleware{
+				serverCtx.OpenAPIParamsParseMiddleware,
+				serverCtx.OpenAPIRateLimitMiddleware,
+				serverCtx.MerchantSignMiddleware,
+			},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
@@ -123,7 +127,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.LoginRateLimitMiddleware},
+			[]rest.Middleware{serverCtx.OpenAPIParamsParseMiddleware, serverCtx.LoginRateLimitMiddleware},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,

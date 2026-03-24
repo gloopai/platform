@@ -2,11 +2,17 @@ Name: gateway-api
 Host: 0.0.0.0
 Port: 8080
 Timezone: Asia/Shanghai
+OpenAPI:
+  MaxBodyBytes: 262144
+  TrustForwardedFor: false
 Consul:
   Addr: 127.0.0.1:8500
   Service: gateway-api
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
+  MaxOpenConns: 50
+  MaxIdleConns: 10
+  ConnMaxLifetimeSeconds: 3600
 ReplayGuard:
   RedisAddr: 127.0.0.1:6379
   RedisPassword: "yourpassword"
@@ -19,7 +25,8 @@ RateLimit:
   RedisPassword: "yourpassword"
   RedisDB: 3
   KeyPrefix: pay:openapi:ratelimit
-  OpenAPILimitPerWindow: 600
+  # -1 = 关闭 OpenAPI 限流（本地压测）；0 = 未配置时用默认 600；线上可改为 600 等正整数
+  OpenAPILimitPerWindow: -1
   OpenAPIWindowSeconds: 60
   LoginLimitPerWindow: 60
   LoginWindowSeconds: 60

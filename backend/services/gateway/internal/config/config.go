@@ -11,8 +11,17 @@ import (
 type Config struct {
 	rest.RestConf
 	Timezone string `json:",optional"`
-	Mysql    struct {
-		DataSource string
+	OpenAPI  struct {
+		// MaxBodyBytes caps JSON body size for signed OpenAPI and login param parsing (default 262144).
+		MaxBodyBytes int64 `json:",optional"`
+		// TrustForwardedFor: when true, IP whitelist and rate limits use X-Forwarded-For / X-Real-IP. Only enable behind a trusted reverse proxy.
+		TrustForwardedFor bool `json:",optional"`
+	}
+	Mysql struct {
+		DataSource             string
+		MaxOpenConns           int   `json:",optional"`
+		MaxIdleConns           int   `json:",optional"`
+		ConnMaxLifetimeSeconds int64 `json:",optional"`
 	}
 	ReplayGuard struct {
 		RedisAddr          string `json:",optional"`
@@ -23,14 +32,15 @@ type Config struct {
 		TTLSeconds         int64  `json:",optional"`
 	}
 	RateLimit struct {
-		RedisAddr             string `json:",optional"`
-		RedisPassword         string `json:",optional"`
-		RedisDB               int    `json:",optional"`
-		KeyPrefix             string `json:",optional"`
-		OpenAPILimitPerWindow int64  `json:",optional"`
-		OpenAPIWindowSeconds  int64  `json:",optional"`
-		LoginLimitPerWindow   int64  `json:",optional"`
-		LoginWindowSeconds    int64  `json:",optional"`
+		RedisAddr     string `json:",optional"`
+		RedisPassword string `json:",optional"`
+		RedisDB       int    `json:",optional"`
+		KeyPrefix     string `json:",optional"`
+		// OpenAPILimitPerWindow: per-window cap; 0 = default 600; -1 = disable (see NewServiceContext).
+		OpenAPILimitPerWindow int64 `json:",optional"`
+		OpenAPIWindowSeconds  int64 `json:",optional"`
+		LoginLimitPerWindow   int64 `json:",optional"`
+		LoginWindowSeconds    int64 `json:",optional"`
 	}
 	AdminToken      string `json:",optional"`
 	JwtSecret       string `json:",optional"`

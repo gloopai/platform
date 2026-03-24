@@ -2,9 +2,7 @@ package middleware
 
 import (
 	"context"
-	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -35,18 +33,20 @@ func (l *RedisRateLimiter) Allow(ctx context.Context, key string, limit int64, w
 }
 
 type OpenAPIRateLimitMiddleware struct {
-	limiter   *RedisRateLimiter
-	keyPrefix string
-	limit     int64
-	window    time.Duration
+	limiter              *RedisRateLimiter
+	keyPrefix            string
+	limit                int64
+	window               time.Duration
+	trustForwardedForIPs bool
 }
 
-func NewOpenAPIRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration) *OpenAPIRateLimitMiddleware {
+func NewOpenAPIRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *OpenAPIRateLimitMiddleware {
 	return &OpenAPIRateLimitMiddleware{
-		limiter:   limiter,
-		keyPrefix: keyPrefix,
-		limit:     limit,
-		window:    window,
+		limiter:              limiter,
+		keyPrefix:            keyPrefix,
+		limit:                limit,
+		window:               window,
+		trustForwardedForIPs: trustForwardedForIPs,
 	}
 }
 
@@ -61,7 +61,7 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 		if merchantID == "" {
 			merchantID = "unknown"
 		}
-		ip := clientIP(r.RemoteAddr)
+		ip := ClientHost(r, m.trustForwardedForIPs)
 		key := m.keyPrefix + ":openapi:" + ip + ":" + merchantID
 		ok, err := m.limiter.Allow(r.Context(), key, m.limit, m.window)
 		if err != nil {
@@ -77,18 +77,20 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 }
 
 type LoginRateLimitMiddleware struct {
-	limiter   *RedisRateLimiter
-	keyPrefix string
-	limit     int64
-	window    time.Duration
+	limiter              *RedisRateLimiter
+	keyPrefix            string
+	limit                int64
+	window               time.Duration
+	trustForwardedForIPs bool
 }
 
-func NewLoginRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration) *LoginRateLimitMiddleware {
+func NewLoginRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *LoginRateLimitMiddleware {
 	return &LoginRateLimitMiddleware{
-		limiter:   limiter,
-		keyPrefix: keyPrefix,
-		limit:     limit,
-		window:    window,
+		limiter:              limiter,
+		keyPrefix:            keyPrefix,
+		limit:                limit,
+		window:               window,
+		trustForwardedForIPs: trustForwardedForIPs,
 	}
 }
 
@@ -106,7 +108,7 @@ func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFun
 		if account == "" {
 			account = "unknown"
 		}
-		ip := clientIP(r.RemoteAddr)
+		ip := ClientHost(r, m.trustForwardedForIPs)
 		key := m.keyPrefix + ":login:" + r.URL.Path + ":" + ip + ":" + account
 		ok, err := m.limiter.Allow(r.Context(), key, m.limit, m.window)
 		if err != nil {
@@ -119,41 +121,4 @@ func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFun
 		}
 		next(w, r)
 	}
-}
-
-func clientIP(remoteAddr string) string {
-	host, _, err := net.SplitHostPort(remoteAddr)
-	if err != nil {
-		return strings.TrimSpace(remoteAddr)
-	}
-	return host
-}
-
-func parseWindowSeconds(v int64, fallback int64) time.Duration {
-	if v <= 0 {
-		v = fallback
-	}
-	return time.Duration(v) * time.Second
-}
-
-func mustInt64(v int64, fallback int64) int64 {
-	if v <= 0 {
-		return fallback
-	}
-	return v
-}
-
-func joinParts(parts ...string) string {
-	var b strings.Builder
-	for i, p := range parts {
-		if i > 0 {
-			b.WriteByte(':')
-		}
-		b.WriteString(p)
-	}
-	return b.String()
-}
-
-func withWindowSuffix(prefix string, window time.Duration) string {
-	return joinParts(prefix, strconv.FormatInt(int64(window/time.Second), 10))
 }

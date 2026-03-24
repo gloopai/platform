@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/go-sql-driver/mysql"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/gloopai/pay/trade/internal/svc"
@@ -87,8 +88,13 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 	}
 
 	if err := l.svcCtx.PayoutOrders.Insert(l.ctx, rec); err != nil {
-		lowerErr := strings.ToLower(err.Error())
-		if strings.Contains(lowerErr, "duplicate") || strings.Contains(lowerErr, "unique") {
+		var me *mysql.MySQLError
+		dup := errors.As(err, &me) && me.Number == 1062
+		if !dup {
+			lowerErr := strings.ToLower(err.Error())
+			dup = strings.Contains(lowerErr, "duplicate") || strings.Contains(lowerErr, "unique")
+		}
+		if dup {
 			existed, ge := l.svcCtx.PayoutOrders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
 			if ge == nil {
 				return &orderpb.CreateOrderResp{Order: toOrderInfo(existed), Existed: true}, nil

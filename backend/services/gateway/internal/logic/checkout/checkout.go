@@ -2,10 +2,7 @@ package logic
 
 import (
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -15,6 +12,7 @@ import (
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/requestx"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -189,11 +187,52 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 	if payoutCode == "" {
 		return nil, status.Error(codes.InvalidArgument, "payout_product_code required")
 	}
-	payoutProductID := req.PayinProductId
-	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
-	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
-		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID = calcPayoutFeeSnapshot(info.GetMerchant(), payoutCode, req.Amount)
+	payoutCodeNorm := payoutCode
+	pl, err := c.svcCtx.ChannelRpc.AdminListPayoutProducts(c.ctx, &channelpb.AdminListPayoutProductsReq{})
+	if err != nil {
+		return nil, status.Error(codes.Internal, "list payout products failed")
 	}
+	var resolvedPayoutProductID int64
+	for _, p := range pl.GetProducts() {
+		if p == nil {
+			continue
+		}
+		if strings.EqualFold(strings.TrimSpace(p.GetCode()), payoutCodeNorm) {
+			resolvedPayoutProductID = p.GetId()
+			break
+		}
+	}
+	if resolvedPayoutProductID <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "unknown payout_product_code")
+	}
+	info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID})
+	if ge != nil {
+		return nil, ge
+	}
+	m := info.GetMerchant()
+	if m == nil {
+		return nil, status.Error(codes.Internal, "merchant load failed")
+	}
+	grantOk := false
+	for _, g := range m.GetPayoutGrants() {
+		if g != nil && g.GetPayoutProductId() == resolvedPayoutProductID {
+			grantOk = true
+			break
+		}
+	}
+	if !grantOk {
+		for _, id := range m.GetPayoutProductIds() {
+			if id == resolvedPayoutProductID {
+				grantOk = true
+				break
+			}
+		}
+	}
+	if !grantOk {
+		return nil, status.Error(codes.PermissionDenied, "payout_product_code not enabled for merchant")
+	}
+	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := calcPayoutFeeSnapshot(m, resolvedPayoutProductID, req.Amount)
+	payoutProductID := resolvedPayoutProductID
 	r, err := c.svcCtx.OrderRpc.CreatePayoutOrder(c.ctx, &orderclient.CreatePayoutOrderReq{
 		MerchantId:        merchantID,
 		MerchantOrderNo:   req.MerchantOrderNo,
@@ -251,33 +290,30 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 	}, nil
 }
 
-func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductCode string, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID int64) {
-	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount, payoutProductID = 1, 0, 0, 0, amount, 0
-	if m == nil || amount <= 0 {
+func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductID int64, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {
+	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = 1, 0, 0, 0, amount
+	if m == nil || amount <= 0 || payoutProductID <= 0 {
 		return
 	}
 	feeRateBps = m.GetDefaultPayoutRateBps()
-	targetID := int64(0)
+	var matched *merchantpb.MerchantPayoutGrant
 	for _, g := range m.GetPayoutGrants() {
-		if g == nil {
+		if g == nil || g.GetPayoutProductId() != payoutProductID {
 			continue
 		}
-		// 简化：根据商户授权列表命中的第一条 grant 计算（MVP）
-		targetID = g.GetPayoutProductId()
-		if targetID <= 0 {
-			continue
-		}
-		payoutProductID = targetID
-		mode := g.GetFeeMode()
+		matched = g
+		break
+	}
+	if matched != nil {
+		mode := matched.GetFeeMode()
 		if mode < 1 || mode > 3 {
 			mode = 1
 		}
 		feeMode = mode
-		if g.MerchantRateBps != nil {
-			feeRateBps = g.GetMerchantRateBps()
+		if matched.MerchantRateBps != nil {
+			feeRateBps = matched.GetMerchantRateBps()
 		}
-		feeFixedAmount = g.GetFeeFixedAmount()
-		break
+		feeFixedAmount = matched.GetFeeFixedAmount()
 	}
 	if feeRateBps < 0 {
 		feeRateBps = 0
@@ -300,7 +336,6 @@ func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductCode string,
 	if netAmount < 0 {
 		netAmount = 0
 	}
-	_ = payoutProductCode
 	return
 }
 
@@ -470,7 +505,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return notifyFail(NotifyCodeChannelNotFound, "channel not found"), nil
 	}
 
-	expect := md5Sign(map[string]string{
+	expect := middleware.Md5Sign(map[string]string{
 		"order_no":          req.OrderNo,
 		"paid_amount":       strconv.FormatInt(req.PaidAmount, 10),
 		"upstream_trade_no": req.UpstreamTradeNo,
@@ -495,7 +530,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 	// - 非待支付（失败/关闭）不再接受支付成功通知
 	if o.GetStatus() == 1 {
 		if samePaidSnapshot(o, req) {
-			return notifyOK(NotifyCodeIdempotentReplayAccepted, "idempotent replay accepted"), nil
+			return c.settlePaidOrderAndNotify(reqID, o, req, NotifyCodeIdempotentReplayAccepted, "idempotent replay accepted")
 		}
 		return notifyFail(NotifyCodeReplayPayloadMismatch, "replay payload mismatch"), nil
 	}
@@ -521,31 +556,51 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 			return notifyFail(NotifyCodeMarkPaidRace, "mark paid race"), nil
 		}
 		if samePaidSnapshot(latest.GetOrder(), req) {
-			return notifyOK(NotifyCodeIdempotentRaceAccepted, "idempotent race accepted"), nil
+			return c.settlePaidOrderAndNotify(reqID, latest.GetOrder(), req, NotifyCodeIdempotentRaceAccepted, "idempotent race accepted")
 		}
 		return notifyFail(NotifyCodeMarkPaidRaceMismatch, "mark paid race mismatch"), nil
 	}
 
+	return c.settlePaidOrderAndNotify(reqID, o, req, "", "")
+}
+
+func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderInfo, req *types.UpstreamNotifyReq, okCode, okReason string) (*types.UpstreamNotifyResp, error) {
 	creditAmount := req.PaidAmount
 	if o.GetNetAmount() > 0 {
 		creditAmount = o.GetNetAmount()
 	}
-	_, _ = c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
+	creditResp, err := c.svcCtx.SettleRpc.Credit(c.ctx, &settleclient.CreditReq{
 		MerchantId: o.GetMerchantId(),
 		OrderNo:    o.GetOrderNo(),
 		Amount:     creditAmount,
 		Reason:     "ORDER_PAID",
 	})
-	c.Infof("request_id=%s action=upstream_notify stage=credit_ok order_no=%s merchant_id=%s amount=%d changed=%v", reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, markResp.GetChanged())
-
-	body, _ := json.Marshal(map[string]any{
+	if err != nil {
+		c.Errorf("request_id=%s action=upstream_notify stage=credit_rpc_error order_no=%s merchant_id=%s amount=%d err=%v",
+			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, err)
+		return notifyFail(NotifyCodeCreditFailed, "credit failed"), nil
+	}
+	if creditResp.GetChanged() {
+		c.Infof("request_id=%s action=upstream_notify stage=credit_applied order_no=%s merchant_id=%s amount=%d balance=%d",
+			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, creditResp.GetBalance())
+	} else {
+		c.Infof("request_id=%s action=upstream_notify stage=credit_idempotent order_no=%s merchant_id=%s amount=%d",
+			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount)
+	}
+	body, err := json.Marshal(map[string]any{
 		"merchant_id": o.GetMerchantId(),
 		"order_no":    o.GetOrderNo(),
 		"attempt":     0,
 	})
-	_ = c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body)
-
-	return notifyOK("", ""), nil
+	if err != nil {
+		c.Errorf("request_id=%s action=upstream_notify stage=notify_marshal_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
+		return notifyFail(NotifyCodeNotifyMarshalFailed, "notify marshal failed"), nil
+	}
+	if err := c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body); err != nil {
+		c.Errorf("request_id=%s action=upstream_notify stage=notify_publish_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
+		return notifyFail(NotifyCodeNotifyPublishFailed, "notify publish failed"), nil
+	}
+	return notifyOK(okCode, okReason), nil
 }
 
 func samePaidSnapshot(o *orderclient.OrderInfo, req *types.UpstreamNotifyReq) bool {
@@ -570,38 +625,6 @@ func notifyOK(code, reason string) *types.UpstreamNotifyResp {
 		ReasonCode: code,
 		Reason:     reason,
 	}
-}
-
-func md5Sign(params map[string]string, secret string) string {
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		k = strings.ToLower(k)
-		if k == "sign" {
-			continue
-		}
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	var b strings.Builder
-	for i, k := range keys {
-		v := params[k]
-		if v == "" {
-			continue
-		}
-		if i > 0 && b.Len() > 0 {
-			b.WriteByte('&')
-		}
-		b.WriteString(k)
-		b.WriteByte('=')
-		b.WriteString(v)
-	}
-	if b.Len() > 0 {
-		b.WriteByte('&')
-	}
-	b.WriteString("key=")
-	b.WriteString(secret)
-	sum := md5.Sum([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
 }
 
 func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {

@@ -34,8 +34,11 @@
 | `MARK_PAID_FAILED` | 落支付状态失败 | 查看网关/trade 日志 |
 | `MARK_PAID_RACE` | 并发竞争，读取最终态失败 | 短暂重试后查询订单最终态 |
 | `MARK_PAID_RACE_MISMATCH` | 并发竞争且最终快照不一致 | 以平台最终订单快照为准排查上游重复回调 |
-| `IDEMPOTENT_REPLAY_ACCEPTED` | 已支付且回放快照一致（成功） | 可视为成功，无需补偿 |
+| `IDEMPOTENT_REPLAY_ACCEPTED` | 已支付且回放快照一致（成功）；会再次尝试入账（幂等）并入队商户通知 | 可视为成功；通知队列应按 `order_no` 幂等处理 |
 | `IDEMPOTENT_RACE_ACCEPTED` | 并发竞争后确认同快照（成功） | 可视为成功，无需补偿 |
+| `CREDIT_FAILED` | 订单已置支付成功，但入款（充值到商户 payin 余额）失败 | 根据 `reason` 重试回调；平台侧需查 settle/对账 |
+| `NOTIFY_MARSHAL_FAILED` | 组装通知消息失败 | 重试回调 |
+| `NOTIFY_PUBLISH_FAILED` | 消息队列发布失败 | 重试回调 |
 
 **成功**：仍为各接口原有 JSON 结构。
 
@@ -57,6 +60,7 @@
 | `code` | HTTP | 含义 |
 |--------|------|------|
 | `INVALID_PARAMS` | 400 | 参数无法解析（如 JSON 非法） |
+| `PAYLOAD_TOO_LARGE` | 413 | JSON 请求体超过 `OpenAPI.MaxBodyBytes`（默认 256KiB） |
 | `MERCHANT_ID_REQUIRED` | 400 | 缺少 `merchant_id` |
 | `SIGN_REQUIRED` | 400 | 缺少 `sign` |
 | `TIMESTAMP_REQUIRED` | 400 | 缺少 `timestamp` |

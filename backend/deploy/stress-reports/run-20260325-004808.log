@@ -1,0 +1,16 @@
+==> 健康检查 http://127.0.0.1:8080/health
+==> 压力参数 mode=rounds iterations=40000 concurrency=20 payin_weight=55%
+backend/deploy/stress_payin_payout.sh: line 240: /var/folders/wf/zb8jlcjs04x83y6tqvvyh1r80000gn/T//pay-stress.juydd2/results.tsv: No such file or directory
+backend/deploy/stress_payin_payout.sh: line 240: /var/folders/wf/zb8jlcjs04x83y6tqvvyh1r80000gn/T//pay-stress.juydd2/results.tsv: No such file or directory
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe
+Exception ignored on flushing sys.stdout:
+BrokenPipeError: [Errno 32] Broken pipe

@@ -27,6 +27,7 @@ import (
 type ServiceContext struct {
 	Config config.Config
 
+	OpenAPIParamsParseMiddleware  rest.Middleware
 	MerchantSignMiddleware        rest.Middleware
 	OpenAPIRateLimitMiddleware    rest.Middleware
 	LoginRateLimitMiddleware      rest.Middleware
@@ -55,6 +56,15 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	if err := sqlDB.Ping(); err != nil {
 		panic(err)
+	}
+	if v := c.Mysql.MaxOpenConns; v > 0 {
+		sqlDB.SetMaxOpenConns(v)
+	}
+	if v := c.Mysql.MaxIdleConns; v > 0 {
+		sqlDB.SetMaxIdleConns(v)
+	}
+	if sec := c.Mysql.ConnMaxLifetimeSeconds; sec > 0 {
+		sqlDB.SetConnMaxLifetime(time.Duration(sec) * time.Second)
 	}
 
 	consulx.RegisterResolver()
@@ -91,6 +101,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		replayTTL = 10 * time.Minute
 	}
 	replayGuard := middleware.NewRedisReplayGuard(replayRedis, replayPrefix, replayTTL)
+
+	trustForwarded := c.OpenAPI.TrustForwardedFor
+	openAPIBodyMax := c.OpenAPI.MaxBodyBytes
+	openAPIParamsParse := middleware.NewOpenAPIParamsParseMiddleware(openAPIBodyMax).Handle
 	rateRedisAddr := strings.TrimSpace(c.RateLimit.RedisAddr)
 	if rateRedisAddr == "" {
 		rateRedisAddr = "127.0.0.1:6379"
@@ -113,8 +127,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if loginWindow <= 0 {
 		loginWindow = 60 * time.Second
 	}
+	// OpenAPILimitPerWindow: >0 为每窗口请求上限；0 表示未配置，默认 600；-1 表示关闭 OpenAPI 限流（middleware 中 limit<=0 直接放行）
 	openAPILimit := c.RateLimit.OpenAPILimitPerWindow
-	if openAPILimit <= 0 {
+	switch {
+	case openAPILimit < 0:
+		openAPILimit = 0
+	case openAPILimit == 0:
 		openAPILimit = 600
 	}
 	loginLimit := c.RateLimit.LoginLimitPerWindow
@@ -130,9 +148,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli), replayGuard, c.ReplayGuard.AllowedSkewSeconds).Handle,
-		OpenAPIRateLimitMiddleware:    middleware.NewOpenAPIRateLimitMiddleware(rateLimiter, ratePrefix, openAPILimit, openAPIWindow).Handle,
-		LoginRateLimitMiddleware:      middleware.NewLoginRateLimitMiddleware(rateLimiter, ratePrefix, loginLimit, loginWindow).Handle,
+		OpenAPIParamsParseMiddleware:  openAPIParamsParse,
+		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli), replayGuard, c.ReplayGuard.AllowedSkewSeconds, trustForwarded).Handle,
+		OpenAPIRateLimitMiddleware:    middleware.NewOpenAPIRateLimitMiddleware(rateLimiter, ratePrefix, openAPILimit, openAPIWindow, trustForwarded).Handle,
+		LoginRateLimitMiddleware:      middleware.NewLoginRateLimitMiddleware(rateLimiter, ratePrefix, loginLimit, loginWindow, trustForwarded).Handle,
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
