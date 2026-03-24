@@ -22,6 +22,16 @@ type Config struct {
 		AllowedSkewSeconds int64  `json:",optional"`
 		TTLSeconds         int64  `json:",optional"`
 	}
+	RateLimit struct {
+		RedisAddr             string `json:",optional"`
+		RedisPassword         string `json:",optional"`
+		RedisDB               int    `json:",optional"`
+		KeyPrefix             string `json:",optional"`
+		OpenAPILimitPerWindow int64  `json:",optional"`
+		OpenAPIWindowSeconds  int64  `json:",optional"`
+		LoginLimitPerWindow   int64  `json:",optional"`
+		LoginWindowSeconds    int64  `json:",optional"`
+	}
 	AdminToken      string `json:",optional"`
 	JwtSecret       string `json:",optional"`
 	CheckoutBaseUrl string `json:",optional"`

@@ -27,7 +27,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.MerchantSignMiddleware},
+			[]rest.Middleware{serverCtx.OpenAPIRateLimitMiddleware, serverCtx.MerchantSignMiddleware},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
@@ -122,18 +122,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/merchant/login",
-				Handler: merchanthandler.MerchantLoginHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/admin/login",
-				Handler: adminhandler.AdminLoginHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.LoginRateLimitMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/merchant/login",
+					Handler: merchanthandler.MerchantLoginHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/login",
+					Handler: adminhandler.AdminLoginHandler(serverCtx),
+				},
+			}...,
+		),
 	)
 
 	server.AddRoutes(

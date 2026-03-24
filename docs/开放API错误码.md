@@ -63,6 +63,7 @@
 | `NONCE_REQUIRED` | 400 | 缺少 `nonce` |
 | `INVALID_TIMESTAMP` | 400 | `timestamp` 非法或超出允许时间窗 |
 | `INVALID_ARGUMENT` | 400 | 参数不合法（如缺必填字段） |
+| `TOO_MANY_REQUESTS` | 429 | 触发接口限流（登录或开放签名接口） |
 | `MERCHANT_NOT_FOUND` | 401 | 商户不存在 |
 | `MERCHANT_DISABLED` | 401 | 商户已停用 |
 | `INVALID_SIGN` | 401 | 签名错误 |

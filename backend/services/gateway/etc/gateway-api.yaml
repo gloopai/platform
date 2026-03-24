@@ -14,6 +14,15 @@ ReplayGuard:
   KeyPrefix: pay:openapi:replay
   AllowedSkewSeconds: 300
   TTLSeconds: 600
+RateLimit:
+  RedisAddr: 127.0.0.1:6379
+  RedisPassword: "yourpassword"
+  RedisDB: 3
+  KeyPrefix: pay:openapi:ratelimit
+  OpenAPILimitPerWindow: 600
+  OpenAPIWindowSeconds: 60
+  LoginLimitPerWindow: 60
+  LoginWindowSeconds: 60
 AdminToken: admin_token_change_me
 JwtSecret: jwt_secret_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/

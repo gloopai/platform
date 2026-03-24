@@ -28,6 +28,8 @@ type ServiceContext struct {
 	Config config.Config
 
 	MerchantSignMiddleware        rest.Middleware
+	OpenAPIRateLimitMiddleware    rest.Middleware
+	LoginRateLimitMiddleware      rest.Middleware
 	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
@@ -89,6 +91,36 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		replayTTL = 10 * time.Minute
 	}
 	replayGuard := middleware.NewRedisReplayGuard(replayRedis, replayPrefix, replayTTL)
+	rateRedisAddr := strings.TrimSpace(c.RateLimit.RedisAddr)
+	if rateRedisAddr == "" {
+		rateRedisAddr = "127.0.0.1:6379"
+	}
+	rateRedis := redis.NewClient(&redis.Options{
+		Addr:     rateRedisAddr,
+		Password: c.RateLimit.RedisPassword,
+		DB:       c.RateLimit.RedisDB,
+	})
+	rateLimiter := middleware.NewRedisRateLimiter(rateRedis)
+	ratePrefix := strings.TrimSpace(c.RateLimit.KeyPrefix)
+	if ratePrefix == "" {
+		ratePrefix = "pay:openapi:ratelimit"
+	}
+	openAPIWindow := time.Duration(c.RateLimit.OpenAPIWindowSeconds) * time.Second
+	if openAPIWindow <= 0 {
+		openAPIWindow = 60 * time.Second
+	}
+	loginWindow := time.Duration(c.RateLimit.LoginWindowSeconds) * time.Second
+	if loginWindow <= 0 {
+		loginWindow = 60 * time.Second
+	}
+	openAPILimit := c.RateLimit.OpenAPILimitPerWindow
+	if openAPILimit <= 0 {
+		openAPILimit = 600
+	}
+	loginLimit := c.RateLimit.LoginLimitPerWindow
+	if loginLimit <= 0 {
+		loginLimit = 60
+	}
 	var runtimeCfg *consulx.ConfigStore
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
@@ -99,6 +131,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config: c,
 
 		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli), replayGuard, c.ReplayGuard.AllowedSkewSeconds).Handle,
+		OpenAPIRateLimitMiddleware:    middleware.NewOpenAPIRateLimitMiddleware(rateLimiter, ratePrefix, openAPILimit, openAPIWindow).Handle,
+		LoginRateLimitMiddleware:      middleware.NewLoginRateLimitMiddleware(rateLimiter, ratePrefix, loginLimit, loginWindow).Handle,
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
