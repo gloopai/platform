@@ -42,3 +42,20 @@ WHERE order_no = ? AND status = 0
 	}
 	return affected > 0, nil
 }
+
+func (s *PayoutOrdersStore) MarkFailed(ctx context.Context, orderNo string) (bool, error) {
+	res, err := s.db.ExecContext(ctx, `
+UPDATE payout_orders
+SET status = 2,
+    updated_at = NOW()
+WHERE order_no = ? AND status = 0
+`, orderNo)
+	if err != nil {
+		return false, err
+	}
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return affected > 0, nil
+}

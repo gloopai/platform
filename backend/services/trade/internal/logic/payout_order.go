@@ -87,6 +87,13 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 	}
 
 	if err := l.svcCtx.PayoutOrders.Insert(l.ctx, rec); err != nil {
+		lowerErr := strings.ToLower(err.Error())
+		if strings.Contains(lowerErr, "duplicate") || strings.Contains(lowerErr, "unique") {
+			existed, ge := l.svcCtx.PayoutOrders.FindByMerchantOrderNo(l.ctx, in.GetMerchantId(), in.GetMerchantOrderNo())
+			if ge == nil {
+				return &orderpb.CreateOrderResp{Order: toOrderInfo(existed), Existed: true}, nil
+			}
+		}
 		return nil, status.Error(codes.Internal, "insert payout order failed")
 	}
 	created, err := l.svcCtx.PayoutOrders.FindByOrderNo(l.ctx, orderNo)

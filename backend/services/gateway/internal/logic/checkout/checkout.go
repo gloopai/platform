@@ -223,6 +223,8 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 			Amount:     totalDebit,
 			Reason:     "PAYOUT_ORDER_DEBIT",
 		}); derr != nil {
+			// Avoid leaving a pending payout order when any debit step fails.
+			_, _ = c.svcCtx.PayoutOrders.MarkFailed(c.ctx, o.GetOrderNo())
 			return nil, derr
 		}
 	}
