@@ -70,7 +70,7 @@
 | `ORDER_NOT_FOUND` | 404 | 订单不存在（与商户无关或无权） |
 | `NOT_FOUND` | 404 | 其它 gRPC NotFound |
 | `NO_AVAILABLE_CHANNEL` | 422 | 当前无可用上游通道（路由/熔断/金额区间等） |
-| `INSUFFICIENT_PAYOUT_BALANCE` | 422 | 代付余额不足（创建代付订单时校验失败） |
+| `INSUFFICIENT_AVAILABLE_BALANCE` | 422 | 可用余额不足（创建代付订单时校验失败） |
 | `PAYOUT_ORDER_ALREADY_EXISTS_PENDING` | 422 | 同一 `merchant_order_no` 的代付单已存在且仍待处理，需更换单号重试 |
 | `FAILED_PRECONDITION` | 422 | 其它前置条件不满足（如锁定通道校验失败） |
 | `INTERNAL_ERROR` | 500 | 内部错误或未单独映射的 gRPC 码 |
@@ -86,10 +86,10 @@
 
 ## 代付下单（`POST /v1/payout/order`）补充约定
 
-- 下单会先创建代付订单，再执行代付余额扣减（扣减金额 = `amount + fee_amount`）。
-- 当代付余额不足时，返回：
+- 下单会先创建代付订单，再执行可用余额扣减（扣减金额 = `amount + fee_amount`）。
+- 当可用余额不足时，返回：
   - HTTP `422`
-  - `code = INSUFFICIENT_PAYOUT_BALANCE`
+  - `code = INSUFFICIENT_AVAILABLE_BALANCE`
 - 轻量幂等策略：
   - 同一 `merchant_order_no` 重试不会重复扣款；
   - 若该单号对应订单仍是待处理状态，返回：

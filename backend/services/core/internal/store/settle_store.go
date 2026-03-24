@@ -71,24 +71,24 @@ func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo strin
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	var payoutBefore int64
-	if err := tx.QueryRowContext(ctx, `SELECT payout_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&payoutBefore); err != nil {
+	var availableBefore int64
+	if err := tx.QueryRowContext(ctx, `SELECT available_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&availableBefore); err != nil {
 		return false, 0, err
 	}
-	if payoutBefore < amount {
-		return false, payoutBefore, ErrInsufficientBalance
+	if availableBefore < amount {
+		return false, availableBefore, ErrInsufficientBalance
 	}
 	_ = orderNo
 	_ = reason
 
-	payoutAfter := payoutBefore - amount
-	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET payout_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, payoutAfter, merchantId); err != nil {
+	availableAfter := availableBefore - amount
+	if _, err := tx.ExecContext(ctx, `UPDATE merchants SET available_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, availableAfter, merchantId); err != nil {
 		return false, 0, err
 	}
 	if err := tx.Commit(); err != nil {
 		return false, 0, err
 	}
-	return true, payoutAfter, nil
+	return true, availableAfter, nil
 }
 
 func (s *SettleStore) TransferPayinToPayout(ctx context.Context, merchantId string, amount int64, reason string) (bool, int64, int64, error) {
@@ -98,20 +98,20 @@ func (s *SettleStore) TransferPayinToPayout(ctx context.Context, merchantId stri
 	}
 	defer func() { _ = tx.Rollback() }()
 
-	var payinBefore, payoutBefore int64
-	if err := tx.QueryRowContext(ctx, `SELECT payin_balance, payout_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&payinBefore, &payoutBefore); err != nil {
+	var payinBefore, availableBefore int64
+	if err := tx.QueryRowContext(ctx, `SELECT payin_balance, available_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Scan(&payinBefore, &availableBefore); err != nil {
 		return false, 0, 0, err
 	}
 	if payinBefore < amount {
-		return false, payinBefore, payoutBefore, ErrInsufficientBalance
+		return false, payinBefore, availableBefore, ErrInsufficientBalance
 	}
 	payinAfter := payinBefore - amount
-	payoutAfter := payoutBefore + amount
+	availableAfter := availableBefore + amount
 	if _, err := tx.ExecContext(ctx, `
 UPDATE merchants
-SET payin_balance = ?, payout_balance = ?, updated_at = NOW()
+SET payin_balance = ?, available_balance = ?, updated_at = NOW()
 WHERE merchant_id = ?
-`, payinAfter, payoutAfter, merchantId); err != nil {
+`, payinAfter, availableAfter, merchantId); err != nil {
 		return false, 0, 0, err
 	}
 	transferNo := "TRANSFER-" + merchantId + "-" + time.Now().Format("20060102150405")
@@ -124,7 +124,7 @@ VALUES (?, ?, 'PAYIN_TO_PAYOUT', ?, ?, ?, ?, NOW())
 	if err := tx.Commit(); err != nil {
 		return false, 0, 0, err
 	}
-	return true, payinAfter, payoutAfter, nil
+	return true, payinAfter, availableAfter, nil
 }
 
 type FundLogRow struct {

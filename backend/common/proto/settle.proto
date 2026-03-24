@@ -31,7 +31,7 @@ message DebitPayoutReq {
 
 message DebitPayoutResp {
   bool changed = 1;
-  int64 payout_balance = 2;
+  int64 available_balance = 2;
 }
 
 message TransferPayinToPayoutReq {
@@ -43,7 +43,7 @@ message TransferPayinToPayoutReq {
 message TransferPayinToPayoutResp {
   bool changed = 1;
   int64 payin_balance = 2;
-  int64 payout_balance = 3;
+  int64 available_balance = 3;
 }
 
 message ListFundLogsReq {

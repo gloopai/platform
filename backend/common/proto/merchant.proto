@@ -38,7 +38,7 @@ message MerchantInfo {
   int64 frozen_balance = 8;
   int64 withdrawn_amount = 9;
   int64 payin_balance = 16;
-  int64 payout_balance = 17;
+  int64 available_balance = 17;
   string notify_url = 10;
   string return_url = 11;
   repeated int64 payin_product_ids = 12;
@@ -69,7 +69,7 @@ message GetAuthInfoResp {
   int64 default_payin_rate_bps = 7;
   int64 default_payout_rate_bps = 8;
   int64 payin_balance = 9;
-  int64 payout_balance = 10;
+  int64 available_balance = 10;
 }
 
 message ListMerchantsReq {

@@ -15,11 +15,11 @@
 
 ## 关键校验
 
-- 创建代付订单时会进行代付余额校验。
+- 创建代付订单时会进行可用余额校验。
 - 扣减金额 = `amount + fee_amount`（手续费快照来自商户配置）。
 - 若余额不足，返回：
   - HTTP `422`
-  - `code = INSUFFICIENT_PAYOUT_BALANCE`
+  - `code = INSUFFICIENT_AVAILABLE_BALANCE`
 
 ## 幂等说明（轻量）
 

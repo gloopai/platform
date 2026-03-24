@@ -95,7 +95,7 @@ PY
   curl -fsS "${GATEWAY_BASE_URL}/v1/merchant/balance/query?${qs}"
 }
 
-echo "[1/6] merchant login + capture payout balance before create"
+echo "[1/6] merchant login + capture available balance before create"
 merchant_login_resp="$(curl -fsS -X POST "${GATEWAY_BASE_URL}/v1/merchant/login" -H "Content-Type: application/json" -d "{\"merchant_id\":\"${MERCHANT_ID}\",\"api_secret\":\"${MERCHANT_SECRET}\"}")"
 merchant_token="$(json_get "${merchant_login_resp}" "token")"
 if [[ -z "${merchant_token}" ]]; then
@@ -103,12 +103,12 @@ if [[ -z "${merchant_token}" ]]; then
   exit 1
 fi
 merchant_balance_before="$(query_merchant_balance)"
-payout_balance_before="$(json_get "${merchant_balance_before}" "payout_balance")"
-if [[ -z "${payout_balance_before}" ]]; then
+available_balance_before="$(json_get "${merchant_balance_before}" "available_balance")"
+if [[ -z "${available_balance_before}" ]]; then
   echo "get merchant balance before failed: ${merchant_balance_before}"
   exit 1
 fi
-echo "  payout_balance_before=${payout_balance_before}"
+echo "  available_balance_before=${available_balance_before}"
 
 echo "[2/6] create payout order"
 merchant_order_no="PO-E2E-$(date +%s)-$RANDOM"
@@ -158,14 +158,14 @@ if [[ -z "${query_fee_amount}" ]]; then
 fi
 expected_debit=$(( AMOUNT + query_fee_amount ))
 merchant_balance_after_create="$(query_merchant_balance)"
-payout_balance_after_create="$(json_get "${merchant_balance_after_create}" "payout_balance")"
-if [[ -z "${payout_balance_after_create}" ]]; then
+available_balance_after_create="$(json_get "${merchant_balance_after_create}" "available_balance")"
+if [[ -z "${available_balance_after_create}" ]]; then
   echo "get merchant balance after create failed: ${merchant_balance_after_create}"
   exit 1
 fi
-actual_debit=$(( payout_balance_before - payout_balance_after_create ))
+actual_debit=$(( available_balance_before - available_balance_after_create ))
 if [[ "${actual_debit}" -ne "${expected_debit}" ]]; then
-  echo "payout debit mismatch: expected=${expected_debit}, actual=${actual_debit}, query=${query_resp}, balance_before=${merchant_balance_before}, balance_after=${merchant_balance_after_create}"
+    echo "available balance debit mismatch: expected=${expected_debit}, actual=${actual_debit}, query=${query_resp}, balance_before=${merchant_balance_before}, balance_after=${merchant_balance_after_create}"
   exit 1
 fi
 echo "  debit_ok expected=${expected_debit} actual=${actual_debit}"
@@ -205,12 +205,12 @@ if [[ "${SIMULATE_PAYOUT_SUCCESS}" == "1" ]]; then
     exit 1
   fi
   merchant_balance_after_success="$(query_merchant_balance)"
-  payout_balance_after_success="$(json_get "${merchant_balance_after_success}" "payout_balance")"
-  if [[ "${payout_balance_after_success}" -ne "${payout_balance_after_create}" ]]; then
-    echo "payout balance changed unexpectedly after success simulation: before=${payout_balance_after_create}, after=${payout_balance_after_success}"
+  available_balance_after_success="$(json_get "${merchant_balance_after_success}" "available_balance")"
+  if [[ "${available_balance_after_success}" -ne "${available_balance_after_create}" ]]; then
+    echo "available balance changed unexpectedly after success simulation: before=${available_balance_after_create}, after=${available_balance_after_success}"
     exit 1
   fi
-  echo "  simulated_success_ok status=${query_status_after_success} payout_balance_unchanged=${payout_balance_after_success}"
+  echo "  simulated_success_ok status=${query_status_after_success} available_balance_unchanged=${available_balance_after_success}"
 else
   echo "  skip simulate payout success (set SIMULATE_PAYOUT_SUCCESS=1 to enable)"
 fi

@@ -11,7 +11,7 @@
         <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
           代收余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.payin_balance ?? 0) }}</span>
           <span class="mx-2 text-slate-400">|</span>
-          代付余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.payout_balance ?? 0) }}</span>
+          可用余额：<span class="font-semibold tabular-nums text-slate-900">{{ formatAmount(summary?.available_balance ?? 0) }}</span>
         </div>
       </div>
       <div class="mt-4 overflow-hidden rounded-xl border border-slate-100">
@@ -63,7 +63,7 @@
           </span>
           <div>
             <div class="text-sm font-semibold text-slate-900">提现申请（代收余额）</div>
-            <p class="mt-1 text-sm text-slate-600">提现仅使用代收余额，代付余额不可提现（MVP 规则）</p>
+            <p class="mt-1 text-sm text-slate-600">提现仅使用代收余额，可用余额不可提现（MVP 规则）</p>
             <button
               type="button"
               class="mt-4 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
@@ -82,7 +82,7 @@
           </span>
           <div>
             <div class="text-sm font-semibold text-slate-900">代收划转到代付</div>
-            <p class="mt-1 text-sm text-slate-600">用于补足代付余额；提交代付订单前系统将校验代付余额</p>
+            <p class="mt-1 text-sm text-slate-600">用于补足可用余额；提交代付订单前系统将校验可用余额</p>
             <div class="mt-4 flex flex-wrap items-end gap-2">
               <label class="grid gap-1.5">
                 <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
@@ -123,7 +123,7 @@ const logs = ref<MerchantFundLogItem[]>([])
 const { page, pageSize, total, pageCount, slice: pagedLogs } = useClientPagination(logs, 20)
 const loading = ref(false)
 const error = ref('')
-const summary = ref<{ payin_balance?: number; payout_balance?: number } | null>(null)
+const summary = ref<{ payin_balance?: number; available_balance?: number } | null>(null)
 const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
 const transferAmount = ref(0)
 const transferLoading = ref(false)
@@ -160,7 +160,7 @@ async function submitTransfer() {
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
     const resp = await transferPayinToPayout(amountCent)
-    transferMessage.value = `划转成功：代收余额 ${formatAmount(resp.payin_balance)}，代付余额 ${formatAmount(resp.payout_balance)}`
+    transferMessage.value = `划转成功：代收余额 ${formatAmount(resp.payin_balance)}，可用余额 ${formatAmount(resp.available_balance)}`
     transferAmount.value = 0
     await reload()
   } catch {

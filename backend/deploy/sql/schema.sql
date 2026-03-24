@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS merchants (
   default_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：未单独配置产品费率时使用',
   ip_whitelist TEXT NULL,
   payin_balance BIGINT NOT NULL DEFAULT 0,
-  payout_balance BIGINT NOT NULL DEFAULT 0,
+  available_balance BIGINT NOT NULL DEFAULT 0,
   frozen_balance BIGINT NOT NULL DEFAULT 0,
   withdrawn_amount BIGINT NOT NULL DEFAULT 0,
   notify_url VARCHAR(512) NULL,

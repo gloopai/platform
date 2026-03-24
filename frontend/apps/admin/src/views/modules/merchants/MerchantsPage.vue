@@ -24,7 +24,7 @@
             <tr>
               <th class="whitespace-nowrap px-4 py-3">商户 ID</th>
               <th class="whitespace-nowrap px-4 py-3">代收余额</th>
-              <th class="whitespace-nowrap px-4 py-3">代付余额</th>
+              <th class="whitespace-nowrap px-4 py-3">可用余额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="sticky right-0 z-20 whitespace-nowrap bg-slate-50 px-4 py-3 text-right">操作</th>
             </tr>
@@ -44,7 +44,7 @@
             >
               <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payin_balance) }}</td>
-              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payout_balance ?? 0) }}</td>
+              <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.available_balance ?? 0) }}</td>
               <td class="px-4 py-3">
                 <span
                   v-if="m.status === 1"
@@ -206,7 +206,7 @@
         <div class="space-y-3 px-5 py-4">
           <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
             <div>当前代收：{{ formatMoney(transferTargetMerchant?.payin_balance ?? 0) }}</div>
-            <div class="mt-1">当前代付：{{ formatMoney(transferTargetMerchant?.payout_balance ?? 0) }}</div>
+            <div class="mt-1">当前可用：{{ formatMoney(transferTargetMerchant?.available_balance ?? 0) }}</div>
           </div>
           <label class="grid gap-1">
             <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
@@ -689,13 +689,13 @@ async function submitTransfer() {
   transferMsg.value = ''
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
-    const resp = await adminPost<{ ok: boolean; payin_balance: number; payout_balance: number }>(
+    const resp = await adminPost<{ ok: boolean; payin_balance: number; available_balance: number }>(
       `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}/transfer_payin_to_payout`,
       { amount: amountCent, reason: 'ADMIN_QUICK_TRANSFER' },
     )
     m.payin_balance = resp.payin_balance
-    m.payout_balance = resp.payout_balance
-    transferMsg.value = `划转成功：代收 ${formatMoney(resp.payin_balance)}，代付 ${formatMoney(resp.payout_balance)}`
+    m.available_balance = resp.available_balance
+    transferMsg.value = `划转成功：代收 ${formatMoney(resp.payin_balance)}，可用 ${formatMoney(resp.available_balance)}`
     transferAmount.value = 0
     toast.success('划转成功')
     closeTransferDialog()

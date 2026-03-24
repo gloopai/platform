@@ -14,7 +14,7 @@ type Merchant struct {
 	DefaultPayoutRateBps int64
 	IpWhitelist          string
 	PayinBalance         int64
-	PayoutBalance        int64
+	AvailableBalance     int64
 	FrozenBalance        int64
 	WithdrawnAmount      int64
 	NotifyUrl            string
@@ -33,7 +33,7 @@ func (s *MerchantsStore) GetByMerchantId(ctx context.Context, merchantId string)
 	var m Merchant
 	err := s.db.QueryRowContext(ctx, `
 SELECT id, merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       COALESCE(payin_balance, 0), COALESCE(payout_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
+       COALESCE(payin_balance, 0), COALESCE(available_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
        COALESCE(notify_url,''), COALESCE(return_url,'')
 FROM merchants
 WHERE merchant_id = ?
@@ -47,7 +47,7 @@ LIMIT 1
 		&m.DefaultPayoutRateBps,
 		&m.IpWhitelist,
 		&m.PayinBalance,
-		&m.PayoutBalance,
+		&m.AvailableBalance,
 		&m.FrozenBalance,
 		&m.WithdrawnAmount,
 		&m.NotifyUrl,
@@ -65,7 +65,7 @@ func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]Merchant, err
 	}
 	rows, err := s.db.QueryContext(ctx, `
 SELECT id, merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       COALESCE(payin_balance, 0), COALESCE(payout_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
+       COALESCE(payin_balance, 0), COALESCE(available_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
        COALESCE(notify_url,''), COALESCE(return_url,'')
 FROM merchants
 ORDER BY id DESC
@@ -88,7 +88,7 @@ LIMIT ?
 			&m.DefaultPayoutRateBps,
 			&m.IpWhitelist,
 			&m.PayinBalance,
-			&m.PayoutBalance,
+			&m.AvailableBalance,
 			&m.FrozenBalance,
 			&m.WithdrawnAmount,
 			&m.NotifyUrl,
@@ -106,9 +106,9 @@ LIMIT ?
 
 func (s *MerchantsStore) Create(ctx context.Context, m *Merchant) error {
 	_, err := s.db.ExecContext(ctx, `
-INSERT INTO merchants (merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, ip_whitelist, payin_balance, payout_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
+INSERT INTO merchants (merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, m.MerchantId, m.ApiSecret, m.Status, m.DefaultPayinRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.PayinBalance, m.PayoutBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl)
+`, m.MerchantId, m.ApiSecret, m.Status, m.DefaultPayinRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl)
 	return err
 }
 

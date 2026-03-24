@@ -13,7 +13,7 @@ type PayoutOrderSnapshot struct {
 	PaidAmount   int64
 	ChannelId    int64
 	UpstreamNo   string
-	PayoutBalance int64
+	AvailableBalance int64
 }
 
 type PayoutOrdersStore struct {

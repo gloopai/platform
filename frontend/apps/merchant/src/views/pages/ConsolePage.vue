@@ -38,9 +38,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </span>
-              代付余额
+              可用余额
             </div>
-            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ payoutBalanceText }}</div>
+            <div class="mt-3 text-3xl font-semibold tabular-nums tracking-tight text-slate-900">{{ availableBalanceText }}</div>
             <div class="mt-2 text-xs text-slate-500">提交代付订单时优先扣减</div>
           </div>
         </div>
@@ -182,7 +182,7 @@
                 <div class="space-y-3 px-5 py-4">
                   <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
                     <div>当前代收：{{ payinBalanceText }}</div>
-                    <div class="mt-1">当前代付：{{ payoutBalanceText }}</div>
+                    <div class="mt-1">当前可用：{{ availableBalanceText }}</div>
                   </div>
                   <label class="grid gap-1">
                     <span class="text-xs text-slate-500">划转金额（{{ transferCurrencyCode }}）</span>
@@ -231,7 +231,7 @@ const { summary, byProduct, payoutOverview, error, loading, load } = useMerchant
 const todayAmountText = computed(() => formatYuanLabel(summary.value?.today_amount ?? 0))
 
 const payinBalanceText = computed(() => formatYuanLabel(summary.value?.payin_balance ?? 0))
-const payoutBalanceText = computed(() => formatYuanLabel(summary.value?.payout_balance ?? 0))
+const availableBalanceText = computed(() => formatYuanLabel(summary.value?.available_balance ?? 0))
 const transferCurrencyCode = computed(() => merchantDisplaySettings.value.currency_code || 'CNY')
 const transferAmount = ref(0)
 const transferLoading = ref(false)
@@ -274,7 +274,7 @@ async function submitTransfer() {
   try {
     const amountCent = Math.floor(transferAmount.value) * 100
     const r = await transferPayinToPayout(amountCent)
-    transferMsg.value = `划转成功：代收 ${formatYuanLabel(r.payin_balance)}，代付 ${formatYuanLabel(r.payout_balance)}`
+    transferMsg.value = `划转成功：代收 ${formatYuanLabel(r.payin_balance)}，可用 ${formatYuanLabel(r.available_balance)}`
     transferAmount.value = 0
     await load()
     closeTransferDialog()

@@ -73,7 +73,7 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		ReturnUrl:            m.GetReturnUrl(),
 		IpWhitelist:          m.GetIpWhitelist(),
 		PayinBalance:         m.GetPayinBalance(),
-		PayoutBalance:        m.GetPayoutBalance(),
+		AvailableBalance:     m.GetAvailableBalance(),
 		PayinProductIds:        m.GetPayinProductIds(),
 		PayoutProductIds:     m.GetPayoutProductIds(),
 		PayinGrants:          cg,
@@ -100,7 +100,7 @@ func (m *AdminMerchants) AdminTransferPayinToPayout(req *types.AdminTransferPayi
 	return &types.AdminTransferPayinToPayoutResp{
 		Ok:            r.GetChanged(),
 		PayinBalance:  r.GetPayinBalance(),
-		PayoutBalance: r.GetPayoutBalance(),
+		AvailableBalance: r.GetAvailableBalance(),
 	}, nil
 }
 

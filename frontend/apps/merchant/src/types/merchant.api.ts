@@ -13,7 +13,7 @@ export type MerchantSummary = {
   today_count: number
   success_rate: number
   payin_balance: number
-  payout_balance: number
+  available_balance: number
   merchant_id: string
   api_secret: string
   notify_url: string
@@ -127,5 +127,5 @@ export type MerchantFundLogsResp = {
 export type MerchantTransferPayinToPayoutResp = {
   ok: boolean
   payin_balance: number
-  payout_balance: number
+  available_balance: number
 }

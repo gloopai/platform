@@ -20,7 +20,7 @@ export type AdminMerchantInfo = {
   return_url: string
   ip_whitelist: string
   payin_balance: number
-  payout_balance: number
+  available_balance: number
   payin_product_ids?: number[]
   payout_product_ids?: number[]
   payin_grants?: MerchantPayinGrant[]

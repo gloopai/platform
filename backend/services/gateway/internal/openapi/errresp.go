@@ -54,8 +54,8 @@ func mapGRPC(c codes.Code, msg string) (httpStatus int, code string, outMsg stri
 		return http.StatusForbidden, "FORBIDDEN", outMsg
 	case codes.FailedPrecondition:
 		lowerMsg := strings.ToLower(msg)
-		if strings.Contains(lowerMsg, "insufficient payout balance") {
-			return http.StatusUnprocessableEntity, "INSUFFICIENT_PAYOUT_BALANCE", outMsg
+		if strings.Contains(lowerMsg, "insufficient available balance") {
+			return http.StatusUnprocessableEntity, "INSUFFICIENT_AVAILABLE_BALANCE", outMsg
 		}
 		if strings.Contains(lowerMsg, "payout order already exists and pending") {
 			return http.StatusUnprocessableEntity, "PAYOUT_ORDER_ALREADY_EXISTS_PENDING", outMsg

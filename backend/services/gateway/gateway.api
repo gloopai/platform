@@ -95,7 +95,7 @@ type MerchantBalanceQueryReq {
 type MerchantBalanceQueryResp {
 	MerchantId     string `json:"merchant_id"`
 	PayinBalance   int64  `json:"payin_balance"`
-	PayoutBalance  int64  `json:"payout_balance"`
+	AvailableBalance  int64  `json:"available_balance"`
 }
 
 type OrderInfo {

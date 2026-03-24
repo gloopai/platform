@@ -34,14 +34,14 @@ func (l *DebitPayoutLogic) DebitPayout(in *settlepb.DebitPayoutReq) (*settlepb.D
 	if in.GetAmount() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
-	changed, payoutBalance, err := l.svcCtx.Settle.DebitPayout(l.ctx, in.GetMerchantId(), in.GetOrderNo(), in.GetAmount(), in.GetReason())
+	changed, availableBalance, err := l.svcCtx.Settle.DebitPayout(l.ctx, in.GetMerchantId(), in.GetOrderNo(), in.GetAmount(), in.GetReason())
 	if err != nil {
 		if err == store.ErrInsufficientBalance {
-			return nil, status.Error(codes.FailedPrecondition, "insufficient payout balance")
+			return nil, status.Error(codes.FailedPrecondition, "insufficient available balance")
 		}
 		return nil, status.Error(codes.Internal, "debit payout failed")
 	}
-	return &settlepb.DebitPayoutResp{Changed: changed, PayoutBalance: payoutBalance}, nil
+	return &settlepb.DebitPayoutResp{Changed: changed, AvailableBalance: availableBalance}, nil
 }
 
 type TransferPayinToPayoutLogic struct {
@@ -61,7 +61,7 @@ func (l *TransferPayinToPayoutLogic) TransferPayinToPayout(in *settlepb.Transfer
 	if in.GetAmount() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive")
 	}
-	changed, payinBalance, payoutBalance, err := l.svcCtx.Settle.TransferPayinToPayout(l.ctx, in.GetMerchantId(), in.GetAmount(), in.GetReason())
+	changed, payinBalance, availableBalance, err := l.svcCtx.Settle.TransferPayinToPayout(l.ctx, in.GetMerchantId(), in.GetAmount(), in.GetReason())
 	if err != nil {
 		if err == store.ErrInsufficientBalance {
 			return nil, status.Error(codes.FailedPrecondition, "insufficient payin balance")
@@ -71,7 +71,7 @@ func (l *TransferPayinToPayoutLogic) TransferPayinToPayout(in *settlepb.Transfer
 	return &settlepb.TransferPayinToPayoutResp{
 		Changed:       changed,
 		PayinBalance:  payinBalance,
-		PayoutBalance: payoutBalance,
+		AvailableBalance: availableBalance,
 	}, nil
 }
 

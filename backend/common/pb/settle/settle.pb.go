@@ -210,11 +210,11 @@ func (x *DebitPayoutReq) GetReason() string {
 }
 
 type DebitPayoutResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Changed       bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
-	PayoutBalance int64                  `protobuf:"varint,2,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Changed          bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
+	AvailableBalance int64                  `protobuf:"varint,2,opt,name=available_balance,json=availableBalance,proto3" json:"available_balance,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *DebitPayoutResp) Reset() {
@@ -254,9 +254,9 @@ func (x *DebitPayoutResp) GetChanged() bool {
 	return false
 }
 
-func (x *DebitPayoutResp) GetPayoutBalance() int64 {
+func (x *DebitPayoutResp) GetAvailableBalance() int64 {
 	if x != nil {
-		return x.PayoutBalance
+		return x.AvailableBalance
 	}
 	return 0
 }
@@ -322,12 +322,12 @@ func (x *TransferPayinToPayoutReq) GetReason() string {
 }
 
 type TransferPayinToPayoutResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Changed       bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
-	PayinBalance  int64                  `protobuf:"varint,2,opt,name=payin_balance,json=payinBalance,proto3" json:"payin_balance,omitempty"`
-	PayoutBalance int64                  `protobuf:"varint,3,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Changed          bool                   `protobuf:"varint,1,opt,name=changed,proto3" json:"changed,omitempty"`
+	PayinBalance     int64                  `protobuf:"varint,2,opt,name=payin_balance,json=payinBalance,proto3" json:"payin_balance,omitempty"`
+	AvailableBalance int64                  `protobuf:"varint,3,opt,name=available_balance,json=availableBalance,proto3" json:"available_balance,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *TransferPayinToPayoutResp) Reset() {
@@ -374,9 +374,9 @@ func (x *TransferPayinToPayoutResp) GetPayinBalance() int64 {
 	return 0
 }
 
-func (x *TransferPayinToPayoutResp) GetPayoutBalance() int64 {
+func (x *TransferPayinToPayoutResp) GetAvailableBalance() int64 {
 	if x != nil {
-		return x.PayoutBalance
+		return x.AvailableBalance
 	}
 	return 0
 }
@@ -605,19 +605,19 @@ const file_settle_proto_rawDesc = "" +
 	"merchantId\x12\x19\n" +
 	"\border_no\x18\x02 \x01(\tR\aorderNo\x12\x16\n" +
 	"\x06amount\x18\x03 \x01(\x03R\x06amount\x12\x16\n" +
-	"\x06reason\x18\x04 \x01(\tR\x06reason\"R\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"X\n" +
 	"\x0fDebitPayoutResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\x12%\n" +
-	"\x0epayout_balance\x18\x02 \x01(\x03R\rpayoutBalance\"k\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\x12+\n" +
+	"\x11available_balance\x18\x02 \x01(\x03R\x10availableBalance\"k\n" +
 	"\x18TransferPayinToPayoutReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x16\n" +
 	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x81\x01\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\"\x87\x01\n" +
 	"\x19TransferPayinToPayoutResp\x12\x18\n" +
 	"\achanged\x18\x01 \x01(\bR\achanged\x12#\n" +
-	"\rpayin_balance\x18\x02 \x01(\x03R\fpayinBalance\x12%\n" +
-	"\x0epayout_balance\x18\x03 \x01(\x03R\rpayoutBalance\"H\n" +
+	"\rpayin_balance\x18\x02 \x01(\x03R\fpayinBalance\x12+\n" +
+	"\x11available_balance\x18\x03 \x01(\x03R\x10availableBalance\"H\n" +
 	"\x0fListFundLogsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x14\n" +

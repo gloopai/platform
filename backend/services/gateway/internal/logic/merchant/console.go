@@ -55,7 +55,7 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		TodayCount:    sum.GetTotalCount(),
 		SuccessRate:   rate,
 		PayinBalance:  auth.GetPayinBalance(),
-		PayoutBalance: auth.GetPayoutBalance(),
+		AvailableBalance: auth.GetAvailableBalance(),
 		MerchantId:    merchantId,
 		ApiSecret:     auth.GetApiSecret(),
 		NotifyUrl:     auth.GetNotifyUrl(),
@@ -287,7 +287,7 @@ func (c *MerchantConsole) MerchantTransferPayinToPayout(req *types.MerchantTrans
 	return &types.MerchantTransferPayinToPayoutResp{
 		Ok:            r.GetChanged(),
 		PayinBalance:  r.GetPayinBalance(),
-		PayoutBalance: r.GetPayoutBalance(),
+		AvailableBalance: r.GetAvailableBalance(),
 	}, nil
 }
 

@@ -335,7 +335,7 @@ func (c *Checkout) QueryMerchantBalance(req *types.MerchantBalanceQueryReq) (*ty
 	return &types.MerchantBalanceQueryResp{
 		MerchantId:    merchantID,
 		PayinBalance:  auth.GetPayinBalance(),
-		PayoutBalance: auth.GetPayoutBalance(),
+		AvailableBalance: auth.GetAvailableBalance(),
 	}, nil
 }
 

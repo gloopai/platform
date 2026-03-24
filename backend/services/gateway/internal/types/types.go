@@ -99,7 +99,7 @@ type MerchantBalanceQueryReq struct {
 type MerchantBalanceQueryResp struct {
 	MerchantId    string `json:"merchant_id"`
 	PayinBalance  int64  `json:"payin_balance"`
-	PayoutBalance int64  `json:"payout_balance"`
+	AvailableBalance int64  `json:"available_balance"`
 }
 
 type TerminalOrderReq struct {
@@ -197,7 +197,7 @@ type MerchantSummaryResp struct {
 	TodayCount    int64   `json:"today_count"`
 	SuccessRate   float64 `json:"success_rate"`
 	PayinBalance  int64   `json:"payin_balance"`
-	PayoutBalance int64   `json:"payout_balance"`
+	AvailableBalance int64   `json:"available_balance"`
 	MerchantId    string  `json:"merchant_id"`
 	ApiSecret     string  `json:"api_secret"`
 	NotifyUrl     string  `json:"notify_url"`
@@ -300,7 +300,7 @@ type MerchantTransferPayinToPayoutReq struct {
 type MerchantTransferPayinToPayoutResp struct {
 	Ok            bool  `json:"ok"`
 	PayinBalance  int64 `json:"payin_balance"`
-	PayoutBalance int64 `json:"payout_balance"`
+	AvailableBalance int64 `json:"available_balance"`
 }
 
 type MerchantOrderDetailReq struct {
@@ -381,7 +381,7 @@ type AdminMerchantInfo struct {
 	ReturnUrl            string                `json:"return_url"`
 	IpWhitelist          string                `json:"ip_whitelist"`
 	PayinBalance         int64                 `json:"payin_balance"`
-	PayoutBalance        int64                 `json:"payout_balance"`
+	AvailableBalance     int64                 `json:"available_balance"`
 	PayinProductIds      []int64               `json:"payin_product_ids"`
 	PayoutProductIds     []int64               `json:"payout_product_ids"`
 	PayinGrants          []MerchantPayinGrant  `json:"payin_grants"`
@@ -432,7 +432,7 @@ type AdminTransferPayinToPayoutReq struct {
 type AdminTransferPayinToPayoutResp struct {
 	Ok            bool  `json:"ok"`
 	PayinBalance  int64 `json:"payin_balance"`
-	PayoutBalance int64 `json:"payout_balance"`
+	AvailableBalance int64 `json:"available_balance"`
 }
 
 // --- 支付产品（对外 code）与上游通道绑定 ---

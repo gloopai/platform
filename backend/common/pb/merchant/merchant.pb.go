@@ -153,7 +153,7 @@ type MerchantInfo struct {
 	FrozenBalance        int64                  `protobuf:"varint,8,opt,name=frozen_balance,json=frozenBalance,proto3" json:"frozen_balance,omitempty"`
 	WithdrawnAmount      int64                  `protobuf:"varint,9,opt,name=withdrawn_amount,json=withdrawnAmount,proto3" json:"withdrawn_amount,omitempty"`
 	PayinBalance         int64                  `protobuf:"varint,16,opt,name=payin_balance,json=payinBalance,proto3" json:"payin_balance,omitempty"`
-	PayoutBalance        int64                  `protobuf:"varint,17,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
+	AvailableBalance     int64                  `protobuf:"varint,17,opt,name=available_balance,json=availableBalance,proto3" json:"available_balance,omitempty"`
 	NotifyUrl            string                 `protobuf:"bytes,10,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
 	ReturnUrl            string                 `protobuf:"bytes,11,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
 	PayinProductIds      []int64                `protobuf:"varint,12,rep,packed,name=payin_product_ids,json=payinProductIds,proto3" json:"payin_product_ids,omitempty"`
@@ -264,9 +264,9 @@ func (x *MerchantInfo) GetPayinBalance() int64 {
 	return 0
 }
 
-func (x *MerchantInfo) GetPayoutBalance() int64 {
+func (x *MerchantInfo) GetAvailableBalance() int64 {
 	if x != nil {
-		return x.PayoutBalance
+		return x.AvailableBalance
 	}
 	return 0
 }
@@ -456,7 +456,7 @@ type GetAuthInfoResp struct {
 	DefaultPayinRateBps  int64                  `protobuf:"varint,7,opt,name=default_payin_rate_bps,json=defaultPayinRateBps,proto3" json:"default_payin_rate_bps,omitempty"`
 	DefaultPayoutRateBps int64                  `protobuf:"varint,8,opt,name=default_payout_rate_bps,json=defaultPayoutRateBps,proto3" json:"default_payout_rate_bps,omitempty"`
 	PayinBalance         int64                  `protobuf:"varint,9,opt,name=payin_balance,json=payinBalance,proto3" json:"payin_balance,omitempty"`
-	PayoutBalance        int64                  `protobuf:"varint,10,opt,name=payout_balance,json=payoutBalance,proto3" json:"payout_balance,omitempty"`
+	AvailableBalance     int64                  `protobuf:"varint,10,opt,name=available_balance,json=availableBalance,proto3" json:"available_balance,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -554,9 +554,9 @@ func (x *GetAuthInfoResp) GetPayinBalance() int64 {
 	return 0
 }
 
-func (x *GetAuthInfoResp) GetPayoutBalance() int64 {
+func (x *GetAuthInfoResp) GetAvailableBalance() int64 {
 	if x != nil {
-		return x.PayoutBalance
+		return x.AvailableBalance
 	}
 	return 0
 }
@@ -1291,7 +1291,7 @@ const file_merchant_proto_rawDesc = "" +
 	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01\x12\x19\n" +
 	"\bfee_mode\x18\x03 \x01(\x03R\afeeMode\x12(\n" +
 	"\x10fee_fixed_amount\x18\x04 \x01(\x03R\x0efeeFixedAmountB\x14\n" +
-	"\x12_merchant_rate_bps\"\xca\x05\n" +
+	"\x12_merchant_rate_bps\"\xd0\x05\n" +
 	"\fMerchantInfo\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -1304,8 +1304,8 @@ const file_merchant_proto_rawDesc = "" +
 	"\abalance\x18\a \x01(\x03R\abalance\x12%\n" +
 	"\x0efrozen_balance\x18\b \x01(\x03R\rfrozenBalance\x12)\n" +
 	"\x10withdrawn_amount\x18\t \x01(\x03R\x0fwithdrawnAmount\x12#\n" +
-	"\rpayin_balance\x18\x10 \x01(\x03R\fpayinBalance\x12%\n" +
-	"\x0epayout_balance\x18\x11 \x01(\x03R\rpayoutBalance\x12\x1d\n" +
+	"\rpayin_balance\x18\x10 \x01(\x03R\fpayinBalance\x12+\n" +
+	"\x11available_balance\x18\x11 \x01(\x03R\x10availableBalance\x12\x1d\n" +
 	"\n" +
 	"notify_url\x18\n" +
 	" \x01(\tR\tnotifyUrl\x12\x1d\n" +
@@ -1322,7 +1322,7 @@ const file_merchant_proto_rawDesc = "" +
 	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant\"1\n" +
 	"\x0eGetAuthInfoReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
-	"merchantId\"\xfb\x02\n" +
+	"merchantId\"\x81\x03\n" +
 	"\x0fGetAuthInfoResp\x12\x1d\n" +
 	"\n" +
 	"api_secret\x18\x01 \x01(\tR\tapiSecret\x12\x16\n" +
@@ -1335,9 +1335,9 @@ const file_merchant_proto_rawDesc = "" +
 	"\abalance\x18\x06 \x01(\x03R\abalance\x123\n" +
 	"\x16default_payin_rate_bps\x18\a \x01(\x03R\x13defaultPayinRateBps\x125\n" +
 	"\x17default_payout_rate_bps\x18\b \x01(\x03R\x14defaultPayoutRateBps\x12#\n" +
-	"\rpayin_balance\x18\t \x01(\x03R\fpayinBalance\x12%\n" +
-	"\x0epayout_balance\x18\n" +
-	" \x01(\x03R\rpayoutBalance\"(\n" +
+	"\rpayin_balance\x18\t \x01(\x03R\fpayinBalance\x12+\n" +
+	"\x11available_balance\x18\n" +
+	" \x01(\x03R\x10availableBalance\"(\n" +
 	"\x10ListMerchantsReq\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x03R\x05limit\"I\n" +
 	"\x11ListMerchantsResp\x124\n" +
