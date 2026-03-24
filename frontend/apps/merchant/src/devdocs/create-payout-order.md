@@ -20,6 +20,7 @@
 - 若余额不足，返回：
   - HTTP `422`
   - `code = INSUFFICIENT_AVAILABLE_BALANCE`
+- 首次请求若在扣款阶段失败（如余额不足、资金服务异常）会创建代付单并置为失败态（`status=2`），避免单号长期停留 `pending`。
 
 ## 幂等说明（轻量）
 
@@ -27,4 +28,5 @@
 - 若该单号对应订单仍待处理，返回：
   - HTTP `422`
   - `code = PAYOUT_ORDER_ALREADY_EXISTS_PENDING`
+- 若该单号对应订单已失败/已成功，重试返回已存在订单（HTTP `200`），请按返回 `status` 判断后续流程。
 

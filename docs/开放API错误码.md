@@ -90,11 +90,13 @@
 - 当可用余额不足时，返回：
   - HTTP `422`
   - `code = INSUFFICIENT_AVAILABLE_BALANCE`
+- 当首次下单在扣款阶段失败（如余额不足或资金服务异常）时，平台会将该代付单标记为失败态（`status=2`），避免该单号长期停留待处理。
 - 轻量幂等策略：
   - 同一 `merchant_order_no` 重试不会重复扣款；
   - 若该单号对应订单仍是待处理状态，返回：
     - HTTP `422`
     - `code = PAYOUT_ORDER_ALREADY_EXISTS_PENDING`
+  - 若该单号对应订单已失败/已成功，重试返回该已存在订单（HTTP `200`，以返回体 `status` 判定）。
 
 ---
 
@@ -104,3 +106,4 @@
 |------|------|
 | 2026-03-23 | 首版：统一 JSON 错误体、`code` 表；商户开发页与收银台展示错误时优先解析 `code` + `message`。 |
 | 2026-03-23 | 备注：`/v1/callback/notify` 仍返回 `ok` 布尔值，不使用 `code` 错误体。 |
+| 2026-03-24 | 代付扣款失败补偿：首次扣款失败后订单置失败态（`status=2`）；同 `merchant_order_no` 重试返回已存在订单，不再卡在 pending。 |
