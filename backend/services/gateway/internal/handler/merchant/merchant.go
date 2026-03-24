@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gloopai/pay/gateway/internal/logic"
+	"github.com/gloopai/pay/gateway/internal/openapi"
+	"github.com/gloopai/pay/gateway/internal/requestx"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -12,15 +14,16 @@ import (
 
 func MerchantLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.MerchantLoginReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
 			return
 		}
 		l := logic.NewMerchantAuth(r.Context(), svcCtx)
 		resp, err := l.MerchantLogin(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			openapi.WriteFromErr(w, err)
 		} else {
 			httpx.OkJsonCtx(r.Context(), w, resp)
 		}
@@ -29,10 +32,11 @@ func MerchantLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func MerchantLogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		l := logic.NewMerchantAuth(r.Context(), svcCtx)
 		resp, err := l.MerchantLogout(r.Header.Get("X-Merchant-Token"))
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			openapi.WriteFromErr(w, err)
 		} else {
 			httpx.OkJsonCtx(r.Context(), w, resp)
 		}

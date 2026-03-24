@@ -15,6 +15,7 @@ import (
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	"github.com/gloopai/pay/gateway/internal/requestx"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 
@@ -176,6 +177,7 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 }
 
 func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.CreateOrderResp, error) {
+	reqID := requestx.FromContext(c.ctx)
 	merchantID := strings.TrimSpace(req.MerchantId)
 	if merchantID == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
@@ -208,10 +210,12 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 		NetAmount:         netAmount,
 	})
 	if err != nil {
+		c.Errorf("request_id=%s action=create_payout_order stage=create_order merchant_id=%s merchant_order_no=%s err=%v", reqID, merchantID, req.MerchantOrderNo, err)
 		return nil, err
 	}
 	o := r.GetOrder()
 	if r.GetExisted() && o.GetStatus() == 0 {
+		c.Infof("request_id=%s action=create_payout_order stage=idempotent_pending merchant_id=%s merchant_order_no=%s order_no=%s", reqID, merchantID, req.MerchantOrderNo, o.GetOrderNo())
 		return nil, status.Error(codes.FailedPrecondition, "payout order already exists and pending; use new merchant_order_no")
 	}
 	// 轻量幂等：仅在首次创建代付单时扣款；同 merchant_order_no 重试不重复扣款。
@@ -224,10 +228,18 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 			Reason:     "PAYOUT_ORDER_DEBIT",
 		}); derr != nil {
 			// Avoid leaving a pending payout order when any debit step fails.
-			_, _ = c.svcCtx.PayoutOrders.MarkFailed(c.ctx, o.GetOrderNo())
+			changed, markErr := c.svcCtx.PayoutOrders.MarkFailed(c.ctx, o.GetOrderNo())
+			if markErr != nil {
+				c.Errorf("request_id=%s action=create_payout_order stage=mark_failed_error merchant_id=%s order_no=%s err=%v", reqID, merchantID, o.GetOrderNo(), markErr)
+			} else {
+				c.Infof("request_id=%s action=create_payout_order stage=mark_failed merchant_id=%s order_no=%s changed=%v", reqID, merchantID, o.GetOrderNo(), changed)
+			}
+			c.Errorf("request_id=%s action=create_payout_order stage=debit_failed merchant_id=%s merchant_order_no=%s order_no=%s err=%v", reqID, merchantID, req.MerchantOrderNo, o.GetOrderNo(), derr)
 			return nil, derr
 		}
+		c.Infof("request_id=%s action=create_payout_order stage=debit_ok merchant_id=%s merchant_order_no=%s order_no=%s debit_amount=%d", reqID, merchantID, req.MerchantOrderNo, o.GetOrderNo(), totalDebit)
 	}
+	c.Infof("request_id=%s action=create_payout_order stage=done merchant_id=%s merchant_order_no=%s order_no=%s status=%d", reqID, merchantID, req.MerchantOrderNo, o.GetOrderNo(), o.GetStatus())
 	return &types.CreateOrderResp{
 		OrderNo:          o.GetOrderNo(),
 		Status:           o.GetStatus(),
@@ -448,6 +460,7 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 }
 
 func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.UpstreamNotifyResp, err error) {
+	reqID := requestx.FromContext(c.ctx)
 	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.UpstreamTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
 		return notifyFail(NotifyCodeInvalidNotifyParams, "invalid notify params"), nil
 	}
@@ -475,6 +488,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return notifyFail(NotifyCodeOrderNotFound, "order not found"), nil
 	}
 	o := getResp.GetOrder()
+	c.Infof("request_id=%s action=upstream_notify stage=received order_no=%s merchant_id=%s paid_amount=%d channel_id=%d", reqID, req.OrderNo, o.GetMerchantId(), req.PaidAmount, req.ChannelId)
 
 	// 幂等与重放控制：
 	// - 已支付订单仅接受与已落库支付快照完全一致的重复通知
@@ -496,6 +510,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		ChannelId:       req.ChannelId,
 	})
 	if err != nil {
+		c.Errorf("request_id=%s action=upstream_notify stage=mark_paid_failed order_no=%s err=%v", reqID, req.OrderNo, err)
 		return notifyFail(NotifyCodeMarkPaidFailed, "mark paid failed"), nil
 	}
 
@@ -521,6 +536,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		Amount:     creditAmount,
 		Reason:     "ORDER_PAID",
 	})
+	c.Infof("request_id=%s action=upstream_notify stage=credit_ok order_no=%s merchant_id=%s amount=%d changed=%v", reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, markResp.GetChanged())
 
 	body, _ := json.Marshal(map[string]any{
 		"merchant_id": o.GetMerchantId(),

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gloopai/pay/gateway/internal/logic"
 	"github.com/gloopai/pay/gateway/internal/openapi"
+	"github.com/gloopai/pay/gateway/internal/requestx"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -13,6 +14,7 @@ import (
 
 func CreateOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.CreateOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -31,6 +33,7 @@ func CreateOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.QueryOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -49,6 +52,7 @@ func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func CreatePayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.CreatePayinOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -67,6 +71,7 @@ func CreatePayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func QueryPayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.QueryOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -85,6 +90,7 @@ func QueryPayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func QueryMerchantBalanceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.MerchantBalanceQueryReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -102,6 +108,7 @@ func QueryMerchantBalanceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.UpstreamNotifyReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -120,6 +127,7 @@ func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.TerminalOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -138,6 +146,7 @@ func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func TerminalPayHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
 		var req types.TerminalPayReq
 		if err := httpx.Parse(r, &req); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())

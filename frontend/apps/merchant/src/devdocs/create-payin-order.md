@@ -10,6 +10,8 @@
 - `currency`：币种（可选，默认 `CNY`）
 - `payin_type`：支付产品编码（必填，例如 `mock`、`wechat`）
 - `notify_url`：异步通知地址（可选）
+- `timestamp`：Unix 时间戳（秒，必填，参与签名）
+- `nonce`：随机串（必填，参与签名，建议每次请求唯一）
 - `sign`：签名（必填）
 
 ## 成功返回
@@ -33,3 +35,8 @@
   "message": "human readable message"
 }
 ```
+
+常见错误补充：
+
+- `REPLAY_REQUEST`：相同 `merchant_id + nonce + timestamp` 重复请求
+- `TOO_MANY_REQUESTS`：触发限流
