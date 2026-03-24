@@ -2,17 +2,15 @@ package middleware
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"net/http"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
+	"github.com/gloopai/pay/gateway/internal/logic/shared"
 )
 
 type MerchantConsoleAuthMiddleware struct {
-	sessions  *store.SessionsStore
+	jwtSecret string
 	merchants merchantclient.Merchant
 }
 
@@ -27,9 +25,9 @@ func MerchantIdFromContext(ctx context.Context) string {
 	return s
 }
 
-func NewMerchantConsoleAuthMiddleware(sessions *store.SessionsStore, merchants merchantclient.Merchant) *MerchantConsoleAuthMiddleware {
+func NewMerchantConsoleAuthMiddleware(jwtSecret string, merchants merchantclient.Merchant) *MerchantConsoleAuthMiddleware {
 	return &MerchantConsoleAuthMiddleware{
-		sessions:  sessions,
+		jwtSecret: jwtSecret,
 		merchants: merchants,
 	}
 }
@@ -37,25 +35,23 @@ func NewMerchantConsoleAuthMiddleware(sessions *store.SessionsStore, merchants m
 func (m *MerchantConsoleAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tok := strings.TrimSpace(r.Header.Get("X-Merchant-Token"))
-		if tok == "" || m.sessions == nil {
+		if tok == "" || strings.TrimSpace(m.jwtSecret) == "" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		sum := sha256.Sum256([]byte(tok))
-		hash := hex.EncodeToString(sum[:])
-		sess, err := m.sessions.GetMerchantSession(r.Context(), hash)
-		if err != nil || sess == nil {
+		merchantID, err := shared.ParseMerchantJWT(m.jwtSecret, tok)
+		if err != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 		if m.merchants != nil {
-			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: sess.MerchantId})
+			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantID})
 			if err != nil || auth.GetStatus() != 1 {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 		}
-		ctx := context.WithValue(r.Context(), merchantIdKey{}, sess.MerchantId)
+		ctx := context.WithValue(r.Context(), merchantIdKey{}, merchantID)
 		next(w, r.WithContext(ctx))
 	}
 }

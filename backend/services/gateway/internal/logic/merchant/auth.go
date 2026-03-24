@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// MerchantAuth 商户控制台登录与会话。
+// MerchantAuth 商户控制台登录。
 type MerchantAuth struct {
 	logx.Logger
 	ctx    context.Context
@@ -43,12 +43,8 @@ func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.Mercha
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	tok, err := shared.NewToken()
+	tok, expiresAt, err := shared.IssueMerchantJWT(a.svcCtx.Config.JwtSecret, merchantId, 24*time.Hour)
 	if err != nil {
-		return nil, err
-	}
-	expiresAt := time.Now().Add(24 * time.Hour)
-	if err := a.svcCtx.Sessions.CreateMerchantSession(a.ctx, merchantId, shared.TokenHash(tok), expiresAt); err != nil {
 		return nil, err
 	}
 	return &types.MerchantLoginResp{
@@ -59,9 +55,6 @@ func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.Mercha
 }
 
 func (a *MerchantAuth) MerchantLogout(token string) (*types.MerchantLogoutResp, error) {
-	tok := strings.TrimSpace(token)
-	if tok != "" {
-		_ = a.svcCtx.Sessions.DeleteMerchantSession(a.ctx, shared.TokenHash(tok))
-	}
+	_ = strings.TrimSpace(token)
 	return &types.MerchantLogoutResp{Ok: true}, nil
 }

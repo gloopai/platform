@@ -8,6 +8,7 @@ Consul:
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
 AdminToken: admin_token_change_me
+JwtSecret: jwt_secret_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/
 TradeRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.trade

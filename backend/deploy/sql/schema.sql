@@ -234,28 +234,6 @@ CREATE TABLE IF NOT EXISTS admin_users (
   UNIQUE KEY uk_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS admin_sessions (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  admin_id BIGINT UNSIGNED NOT NULL,
-  token_hash CHAR(64) NOT NULL,
-  expires_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_token_hash (token_hash),
-  KEY idx_admin_expires (admin_id, expires_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS merchant_sessions (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  merchant_id VARCHAR(64) NOT NULL,
-  token_hash CHAR(64) NOT NULL,
-  expires_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_token_hash (token_hash),
-  KEY idx_merchant_expires (merchant_id, expires_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE IF NOT EXISTS global_settings (
   setting_key VARCHAR(64) NOT NULL,
   setting_value VARCHAR(255) NOT NULL,

@@ -15,6 +15,7 @@ type Config struct {
 		DataSource string
 	}
 	AdminToken      string `json:",optional"`
+	JwtSecret       string `json:",optional"`
 	CheckoutBaseUrl string `json:",optional"`
 	Consul          struct {
 		Addr    string

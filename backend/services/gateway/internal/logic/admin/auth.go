@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// AdminAuth 管理后台登录与会话。
+// AdminAuth 管理后台登录。
 type AdminAuth struct {
 	logx.Logger
 	ctx    context.Context
@@ -44,12 +44,8 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	tok, err := shared.NewToken()
+	tok, expiresAt, err := shared.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.ID, 24*time.Hour)
 	if err != nil {
-		return nil, err
-	}
-	expiresAt := time.Now().Add(24 * time.Hour)
-	if err := a.svcCtx.Sessions.CreateAdminSession(a.ctx, u.ID, shared.TokenHash(tok), expiresAt); err != nil {
 		return nil, err
 	}
 	return &types.AdminLoginResp{
@@ -66,6 +62,5 @@ func (a *AdminAuth) AdminLogout(token string) (*types.AdminLogoutResp, error) {
 	if a.svcCtx.Config.AdminToken != "" && tok == a.svcCtx.Config.AdminToken {
 		return &types.AdminLogoutResp{Ok: true}, nil
 	}
-	_ = a.svcCtx.Sessions.DeleteAdminSession(a.ctx, shared.TokenHash(tok))
 	return &types.AdminLogoutResp{Ok: true}, nil
 }

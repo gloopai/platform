@@ -28,9 +28,8 @@ type ServiceContext struct {
 	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
-	// 仅管理台账号与 BFF 会话；业务数据经 Trade/Core RPC。
+	// 仅管理台账号；业务数据经 Trade/Core RPC。
 	AdminUsers     *store.AdminUsersStore
-	Sessions       *store.SessionsStore
 	GlobalSettings *store.GlobalSettingsStore
 	PayoutOrders   *store.PayoutOrdersStore
 
@@ -67,7 +66,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
-	sessionsStore := store.NewSessionsStore(sqlDB)
 	globalSettingsStore := store.NewGlobalSettingsStore(sqlDB)
 	payoutOrdersStore := store.NewPayoutOrdersStore(sqlDB)
 	var runtimeCfg *consulx.ConfigStore
@@ -80,11 +78,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config: c,
 
 		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli)).Handle,
-		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, sessionsStore).Handle,
-		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(sessionsStore, merchantclient.NewMerchant(coreCli)).Handle,
+		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
+		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
 		AdminUsers:     adminUsersStore,
-		Sessions:       sessionsStore,
 		GlobalSettings: globalSettingsStore,
 		PayoutOrders:   payoutOrdersStore,
 

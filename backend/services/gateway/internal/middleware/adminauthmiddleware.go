@@ -2,17 +2,15 @@ package middleware
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"net/http"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
+	"github.com/gloopai/pay/gateway/internal/logic/shared"
 )
 
 type AdminAuthMiddleware struct {
 	masterToken string
-	sessions    *store.SessionsStore
+	jwtSecret   string
 }
 
 type adminIdKey struct{}
@@ -26,8 +24,8 @@ func AdminIdFromContext(ctx context.Context) int64 {
 	return id
 }
 
-func NewAdminAuthMiddleware(masterToken string, sessions *store.SessionsStore) *AdminAuthMiddleware {
-	return &AdminAuthMiddleware{masterToken: masterToken, sessions: sessions}
+func NewAdminAuthMiddleware(masterToken, jwtSecret string) *AdminAuthMiddleware {
+	return &AdminAuthMiddleware{masterToken: masterToken, jwtSecret: jwtSecret}
 }
 
 func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
@@ -41,18 +39,16 @@ func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			next(w, r)
 			return
 		}
-		if m.sessions == nil {
+		if strings.TrimSpace(m.jwtSecret) == "" {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		sum := sha256.Sum256([]byte(tok))
-		hash := hex.EncodeToString(sum[:])
-		sess, err := m.sessions.GetAdminSession(r.Context(), hash)
-		if err != nil || sess == nil {
+		adminID, err := shared.ParseAdminJWT(m.jwtSecret, tok)
+		if err != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), adminIdKey{}, sess.AdminId)
+		ctx := context.WithValue(r.Context(), adminIdKey{}, adminID)
 		next(w, r.WithContext(ctx))
 	}
 }
