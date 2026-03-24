@@ -43,6 +43,7 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 		MerchantId: strings.TrimSpace(req.MerchantId),
 		Keyword:    strings.TrimSpace(req.Keyword),
 		Limit:      req.Limit,
+		Offset:     req.Offset,
 	}
 	if strings.TrimSpace(req.Status) != "" {
 		v, err := strconv.ParseInt(strings.TrimSpace(req.Status), 10, 32)
@@ -88,7 +89,7 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 			CreatedAt:       o.GetCreatedAt(),
 		})
 	}
-	return &types.AdminOrdersResp{Orders: out}, nil
+	return &types.AdminOrdersResp{Orders: out, Total: r.GetTotal()}, nil
 }
 
 func (a *AdminOrders) AdminMockPayoutSuccess(req *types.AdminMockPayoutSuccessReq) (*types.AdminMockPayoutSuccessResp, error) {

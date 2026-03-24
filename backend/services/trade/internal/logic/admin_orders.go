@@ -35,7 +35,7 @@ func (l *AdminListPayOrdersLogic) AdminListPayOrders(in *orderpb.AdminListOrders
 		}
 	}
 
-	records, err := l.svcCtx.PayOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
+	records, total, err := l.svcCtx.PayOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, in.GetOffset(), limit)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "admin list orders failed")
 	}
@@ -44,5 +44,5 @@ func (l *AdminListPayOrdersLogic) AdminListPayOrders(in *orderpb.AdminListOrders
 	for i := range records {
 		out = append(out, toOrderInfo(&records[i]))
 	}
-	return &orderpb.AdminListOrdersResp{Orders: out}, nil
+	return &orderpb.AdminListOrdersResp{Orders: out, Total: total}, nil
 }

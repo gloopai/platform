@@ -248,6 +248,7 @@ type MerchantOrdersReq struct {
 	OrderNo string `form:"order_no,optional"`
 	Status  string `form:"status,optional"`
 	Limit   int64  `form:"limit,optional"`
+	Offset  int64  `form:"offset,optional"`
 }
 
 type MerchantOrderItem struct {
@@ -271,6 +272,7 @@ type MerchantOrderItem struct {
 
 type MerchantOrdersResp struct {
 	Orders []MerchantOrderItem `json:"orders"`
+	Total  int64               `json:"total"`
 }
 
 type MerchantFundLogsReq struct {
@@ -657,6 +659,7 @@ type AdminOrdersReq struct {
 	Keyword    string `form:"keyword,optional"`
 	Status     string `form:"status,optional"`
 	Limit      int64  `form:"limit,optional"`
+	Offset     int64  `form:"offset,optional"`
 }
 
 type AdminOrderRow struct {
@@ -681,6 +684,7 @@ type AdminOrderRow struct {
 
 type AdminOrdersResp struct {
 	Orders []AdminOrderRow `json:"orders"`
+	Total  int64           `json:"total"`
 }
 
 type AdminMockPayoutSuccessReq struct {

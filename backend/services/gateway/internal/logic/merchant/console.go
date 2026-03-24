@@ -136,6 +136,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 		Keyword:    req.OrderNo,
 		Status:     orderStatus,
 		Limit:      req.Limit,
+		Offset:     req.Offset,
 	}
 	var (
 		r   *orderclient.ListOrdersResp
@@ -173,7 +174,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 			CreatedAt:        o.GetCreatedAt(),
 		})
 	}
-	return &types.MerchantOrdersResp{Orders: out}, nil
+	return &types.MerchantOrdersResp{Orders: out, Total: r.GetTotal()}, nil
 }
 
 func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsReq) (*types.MerchantProductStatsResp, error) {

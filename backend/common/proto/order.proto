@@ -117,10 +117,14 @@ message ListOrdersReq {
   string keyword = 2;
   int32 status = 3;
   int64 limit = 4;
+  // 分页偏移，与 limit 配合使用；默认 0
+  int64 offset = 5;
 }
 
 message ListOrdersResp {
   repeated OrderInfo orders = 1;
+  // 满足当前筛选条件的总条数（用于分页总数）
+  int64 total = 2;
 }
 
 message TodaySummaryReq {
@@ -220,10 +224,12 @@ message AdminListOrdersReq {
   // 未设置或 -1：不按状态筛选；0～3 与订单状态一致
   optional int32 status = 3;
   int64 limit = 4;
+  int64 offset = 5;
 }
 
 message AdminListOrdersResp {
   repeated OrderInfo orders = 1;
+  int64 total = 2;
 }
 
 message AdminDayOverviewReq {

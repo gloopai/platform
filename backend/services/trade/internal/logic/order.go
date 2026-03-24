@@ -193,7 +193,7 @@ func (l *ListPayOrdersLogic) ListPayOrders(in *orderpb.ListOrdersReq) (*orderpb.
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
 
-	records, err := l.svcCtx.PayOrders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetLimit())
+	records, total, err := l.svcCtx.PayOrders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "list orders failed")
 	}
@@ -203,7 +203,7 @@ func (l *ListPayOrdersLogic) ListPayOrders(in *orderpb.ListOrdersReq) (*orderpb.
 		rec := records[i]
 		out = append(out, toOrderInfo(&rec))
 	}
-	return &orderpb.ListOrdersResp{Orders: out}, nil
+	return &orderpb.ListOrdersResp{Orders: out, Total: total}, nil
 }
 
 type TodaySummaryLogic struct {

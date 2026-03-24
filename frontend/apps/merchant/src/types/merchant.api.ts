@@ -71,6 +71,8 @@ export type MerchantOrderItem = {
 
 export type MerchantOrdersListResp = {
   orders: MerchantOrderItem[]
+  /** 满足筛选条件的总条数；旧网关未返回时可缺省 */
+  total?: number
 }
 
 export type MerchantNotifyLogItem = {

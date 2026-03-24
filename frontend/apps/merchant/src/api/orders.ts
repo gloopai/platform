@@ -6,6 +6,7 @@ export type MerchantOrderListQuery = {
   order_no?: string
   status?: string
   limit?: number
+  offset?: number
 }
 
 export async function fetchMerchantOrders(

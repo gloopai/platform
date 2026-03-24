@@ -27,7 +27,7 @@
           <button
             type="button"
             class="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/15 transition hover:bg-slate-700"
-            @click="reload"
+            @click="runSearch"
           >
             搜索
           </button>
@@ -69,7 +69,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-for="o in pagedOrders" :key="o.order_no" class="group transition hover:bg-slate-50/80">
+            <tr v-for="o in orders" :key="o.order_no" class="group transition hover:bg-slate-50/80">
               <td class="px-4 py-3 align-top">
                 <div class="font-medium text-slate-900">{{ o.order_no }}</div>
                 <div class="mt-0.5 font-mono text-xs text-slate-500">{{ o.merchant_order_no }}</div>
@@ -118,7 +118,7 @@
         </table>
       </div>
       <MerchantPaginationBar
-        v-if="!loading && orders.length > 0"
+        v-if="!loading && (total > 0 || orders.length > 0)"
         v-model:page="page"
         v-model:pageSize="pageSize"
         :total="total"
@@ -243,11 +243,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import MerchantPaginationBar from '@/components/ui/MerchantPaginationBar.vue'
-import { useClientPagination } from '@/composables/useClientPagination'
 import { fetchMerchantOrderDetail, fetchMerchantOrders, postRetryMerchantNotify } from '@/api/orders'
 import type { MerchantOrderDetail, MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
 import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
@@ -266,7 +265,10 @@ const props = withDefaults(defineProps<{
 const keyword = ref('')
 const status = ref('')
 const orders = ref<MerchantOrderItem[]>([])
-const { page, pageSize, total, pageCount, slice: pagedOrders } = useClientPagination(orders, 20)
+const page = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const loading = ref(false)
 const error = ref('')
 const retrying = ref(false)
@@ -309,18 +311,36 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
-    page.value = 1
     const res = await fetchMerchantOrders({
       order_no: keyword.value,
       status: status.value,
-      limit: 200,
+      limit: pageSize.value,
+      offset: (page.value - 1) * pageSize.value,
     }, props.mode)
     orders.value = res.orders || []
+    const rowN = orders.value.length
+    const t = typeof res.total === 'number' && Number.isFinite(res.total) ? res.total : 0
+    if (t > 0) {
+      total.value = t
+    } else if (rowN < pageSize.value) {
+      // 最后一页：可推算区间内准确总数
+      total.value = (page.value - 1) * pageSize.value + rowN
+    } else {
+      // 本页满条且接口未返回 total（旧 trade）：至少还有下一页
+      total.value = page.value * pageSize.value + 1
+    }
   } catch {
     error.value = '加载失败：请确认已登录且网关已启动。'
+    orders.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
+}
+
+function runSearch() {
+  if (page.value !== 1) page.value = 1
+  else void reload()
 }
 
 async function openDetail(orderNo: string) {
@@ -337,6 +357,18 @@ async function openDetail(orderNo: string) {
   }
 }
 
+watch(pageSize, () => {
+  page.value = 1
+})
+
+watch(
+  [page, pageSize],
+  () => {
+    void reload()
+  },
+  { immediate: true },
+)
+
 async function retryNotify(orderNo: string) {
   retrying.value = true
   error.value = ''
@@ -349,7 +381,4 @@ async function retryNotify(orderNo: string) {
   }
 }
 
-onMounted(() => {
-  void reload()
-})
 </script>

@@ -43,7 +43,7 @@
         <button
           type="button"
           class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-          @click="reload"
+          @click="runSearch"
         >
           查询
         </button>
@@ -75,7 +75,7 @@
             <tr v-else-if="!rows.length">
               <td class="px-4 py-10 text-center text-slate-500" colspan="11">暂无数据</td>
             </tr>
-            <tr v-for="o in pagedRows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
+            <tr v-for="o in rows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
               <td class="px-4 py-3 font-mono text-xs text-slate-900">{{ o.order_no }}</td>
               <td class="px-4 py-3">
                 <div class="font-mono text-xs font-medium text-slate-800">{{ o.merchant_id }}</div>
@@ -102,7 +102,7 @@
         </table>
       </div>
       <AdminPaginationBar
-        v-if="!loading && rows.length > 0"
+        v-if="!loading && (total > 0 || rows.length > 0)"
         v-model:page="page"
         v-model:pageSize="pageSize"
         :total="total"
@@ -113,9 +113,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
-import { useClientPagination } from '../../../composables/useClientPagination'
 
 import { adminGet } from '../../../lib/adminApi'
 import { formatAdminMoney } from '../../../lib/displaySettings'
@@ -141,7 +140,10 @@ const status = ref('')
 const loading = ref(false)
 const error = ref('')
 const rows = ref<AdminOrderRow[]>([])
-const { page, pageSize, total, pageCount, slice: pagedRows } = useClientPagination(rows, 20)
+const page = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
+const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
 function formatYuan(cents: number) {
   return formatAdminMoney(cents)
@@ -181,7 +183,8 @@ function buildQuery(): string {
   if (keyword.value) q.set('keyword', keyword.value)
   if (merchantId.value) q.set('merchant_id', merchantId.value)
   if (status.value !== '') q.set('status', status.value)
-  q.set('limit', '200')
+  q.set('limit', String(pageSize.value))
+  q.set('offset', String((page.value - 1) * pageSize.value))
   const s = q.toString()
   return s ? `${props.endpoint}?${s}` : props.endpoint
 }
@@ -190,20 +193,39 @@ async function reload() {
   loading.value = true
   error.value = ''
   try {
-    page.value = 1
     const res = await adminGet<AdminOrdersResp>(buildQuery())
     rows.value = res.orders || []
+    const rowN = rows.value.length
+    const t = typeof res.total === 'number' && Number.isFinite(res.total) ? res.total : 0
+    if (t > 0) {
+      total.value = t
+    } else if (rowN < pageSize.value) {
+      total.value = (page.value - 1) * pageSize.value + rowN
+    } else {
+      total.value = page.value * pageSize.value + 1
+    }
   } catch {
     error.value = '加载失败，请检查登录态与网关'
     rows.value = []
+    total.value = 0
   } finally {
     loading.value = false
   }
 }
 
+function runSearch() {
+  if (page.value !== 1) page.value = 1
+  else void reload()
+}
+
+watch(pageSize, () => {
+  page.value = 1
+})
+
+watch([page, pageSize], () => void reload(), { immediate: true })
+
 let unregister: (() => void) | null = null
 onMounted(() => {
-  void reload()
   if (registerRefresh) unregister = registerRefresh(() => void reload())
 })
 onUnmounted(() => {

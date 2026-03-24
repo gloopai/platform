@@ -20,4 +20,5 @@ export type AdminOrderRow = {
 
 export type AdminOrdersResp = {
   orders: AdminOrderRow[]
+  total?: number
 }

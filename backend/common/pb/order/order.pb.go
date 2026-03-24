@@ -807,11 +807,13 @@ func (x *OrderInfo) GetNetAmount() int64 {
 }
 
 type ListOrdersReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	Keyword       string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	Status        int32                  `protobuf:"varint,3,opt,name=status,proto3" json:"status,omitempty"`
-	Limit         int64                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Keyword    string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	Status     int32                  `protobuf:"varint,3,opt,name=status,proto3" json:"status,omitempty"`
+	Limit      int64                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	// 分页偏移，与 limit 配合使用；默认 0
+	Offset        int64 `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -874,9 +876,18 @@ func (x *ListOrdersReq) GetLimit() int64 {
 	return 0
 }
 
+func (x *ListOrdersReq) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
 type ListOrdersResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Orders        []*OrderInfo           `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Orders []*OrderInfo           `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
+	// 满足当前筛选条件的总条数（用于分页总数）
+	Total         int64 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -916,6 +927,13 @@ func (x *ListOrdersResp) GetOrders() []*OrderInfo {
 		return x.Orders
 	}
 	return nil
+}
+
+func (x *ListOrdersResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type TodaySummaryReq struct {
@@ -1784,6 +1802,7 @@ type AdminListOrdersReq struct {
 	// 未设置或 -1：不按状态筛选；0～3 与订单状态一致
 	Status        *int32 `protobuf:"varint,3,opt,name=status,proto3,oneof" json:"status,omitempty"`
 	Limit         int64  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int64  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1846,9 +1865,17 @@ func (x *AdminListOrdersReq) GetLimit() int64 {
 	return 0
 }
 
+func (x *AdminListOrdersReq) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
 type AdminListOrdersResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Orders        []*OrderInfo           `protobuf:"bytes,1,rep,name=orders,proto3" json:"orders,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1888,6 +1915,13 @@ func (x *AdminListOrdersResp) GetOrders() []*OrderInfo {
 		return x.Orders
 	}
 	return nil
+}
+
+func (x *AdminListOrdersResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type AdminDayOverviewReq struct {
@@ -2116,15 +2150,17 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"fee_amount\x18\x14 \x01(\x03R\tfeeAmount\x12\x1d\n" +
 	"\n" +
-	"net_amount\x18\x15 \x01(\x03R\tnetAmount\"x\n" +
+	"net_amount\x18\x15 \x01(\x03R\tnetAmount\"\x90\x01\n" +
 	"\rListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +
 	"\akeyword\x18\x02 \x01(\tR\akeyword\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\x05R\x06status\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x03R\x05limit\":\n" +
+	"\x05limit\x18\x04 \x01(\x03R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x05 \x01(\x03R\x06offset\"P\n" +
 	"\x0eListOrdersResp\x12(\n" +
-	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\"2\n" +
+	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"2\n" +
 	"\x0fTodaySummaryReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\"{\n" +
@@ -2208,16 +2244,18 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\a \x01(\x03R\tcreatedAt\"N\n" +
 	"\x1aListMerchantNotifyLogsResp\x120\n" +
-	"\x04logs\x18\x01 \x03(\v2\x1c.order.MerchantNotifyLogItemR\x04logs\"\x8d\x01\n" +
+	"\x04logs\x18\x01 \x03(\v2\x1c.order.MerchantNotifyLogItemR\x04logs\"\xa5\x01\n" +
 	"\x12AdminListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +
 	"\akeyword\x18\x02 \x01(\tR\akeyword\x12\x1b\n" +
 	"\x06status\x18\x03 \x01(\x05H\x00R\x06status\x88\x01\x01\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x03R\x05limitB\t\n" +
-	"\a_status\"?\n" +
+	"\x05limit\x18\x04 \x01(\x03R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x05 \x01(\x03R\x06offsetB\t\n" +
+	"\a_status\"U\n" +
 	"\x13AdminListOrdersResp\x12(\n" +
-	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\"J\n" +
+	"\x06orders\x18\x01 \x03(\v2\x10.order.OrderInfoR\x06orders\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"J\n" +
 	"\x13AdminDayOverviewReq\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +

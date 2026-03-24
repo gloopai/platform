@@ -139,7 +139,7 @@ func (l *PayoutOrderLogic) ListPayoutOrders(in *orderpb.ListOrdersReq) (*orderpb
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	records, err := l.svcCtx.PayoutOrders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetLimit())
+	records, total, err := l.svcCtx.PayoutOrders.ListByMerchant(l.ctx, merchantId, in.GetKeyword(), in.GetStatus(), in.GetOffset(), in.GetLimit())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "list payout orders failed")
 	}
@@ -147,7 +147,7 @@ func (l *PayoutOrderLogic) ListPayoutOrders(in *orderpb.ListOrdersReq) (*orderpb
 	for i := range records {
 		out = append(out, toOrderInfo(&records[i]))
 	}
-	return &orderpb.ListOrdersResp{Orders: out}, nil
+	return &orderpb.ListOrdersResp{Orders: out, Total: total}, nil
 }
 
 func (l *PayoutOrderLogic) AdminListPayoutOrders(in *orderpb.AdminListOrdersReq) (*orderpb.AdminListOrdersResp, error) {
@@ -159,7 +159,7 @@ func (l *PayoutOrderLogic) AdminListPayoutOrders(in *orderpb.AdminListOrdersReq)
 			return nil, status.Error(codes.InvalidArgument, "invalid status")
 		}
 	}
-	records, err := l.svcCtx.PayoutOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, limit)
+	records, total, err := l.svcCtx.PayoutOrders.AdminList(l.ctx, strings.TrimSpace(in.GetMerchantId()), strings.TrimSpace(in.GetKeyword()), st, in.GetOffset(), limit)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "admin list payout orders failed")
 	}
@@ -167,5 +167,5 @@ func (l *PayoutOrderLogic) AdminListPayoutOrders(in *orderpb.AdminListOrdersReq)
 	for i := range records {
 		out = append(out, toOrderInfo(&records[i]))
 	}
-	return &orderpb.AdminListOrdersResp{Orders: out}, nil
+	return &orderpb.AdminListOrdersResp{Orders: out, Total: total}, nil
 }
