@@ -200,9 +200,8 @@ const stats = computed(() => [
 
 const partners = ['Alipay', 'WeChat Pay', 'Stripe', 'UnionPay']
 
-const regionKeys = ['cn', 'us', 'jp', 'in', 'br'] as const
+const regionKeys = [ 'us', 'jp', 'in', 'br'] as const
 const regionFlags: Record<(typeof regionKeys)[number], string> = {
-  cn: '🇨🇳',
   us: '🇺🇸',
   jp: '🇯🇵',
   in: '🇮🇳',
