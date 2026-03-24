@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/gateway/internal/openapi"
@@ -23,11 +24,20 @@ import (
 )
 
 type MerchantSignMiddleware struct {
-	merchants merchantclient.Merchant
+	merchants          merchantclient.Merchant
+	replayGuard        ReplayGuard
+	allowedSkewSeconds int64
 }
 
-func NewMerchantSignMiddleware(merchants merchantclient.Merchant) *MerchantSignMiddleware {
-	return &MerchantSignMiddleware{merchants: merchants}
+func NewMerchantSignMiddleware(merchants merchantclient.Merchant, replayGuard ReplayGuard, allowedSkewSeconds int64) *MerchantSignMiddleware {
+	if allowedSkewSeconds <= 0 {
+		allowedSkewSeconds = 300
+	}
+	return &MerchantSignMiddleware{
+		merchants:          merchants,
+		replayGuard:        replayGuard,
+		allowedSkewSeconds: allowedSkewSeconds,
+	}
 }
 
 func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
@@ -45,6 +55,26 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 		sign := params["sign"]
 		if sign == "" {
 			openapi.Write(w, http.StatusBadRequest, "SIGN_REQUIRED", "sign required")
+			return
+		}
+		tsRaw := strings.TrimSpace(params["timestamp"])
+		if tsRaw == "" {
+			openapi.Write(w, http.StatusBadRequest, "TIMESTAMP_REQUIRED", "timestamp required")
+			return
+		}
+		ts, err := strconv.ParseInt(tsRaw, 10, 64)
+		if err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_TIMESTAMP", "invalid timestamp")
+			return
+		}
+		now := time.Now().Unix()
+		if ts < now-m.allowedSkewSeconds || ts > now+m.allowedSkewSeconds {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_TIMESTAMP", "timestamp out of allowed window")
+			return
+		}
+		nonce := strings.TrimSpace(params["nonce"])
+		if nonce == "" {
+			openapi.Write(w, http.StatusBadRequest, "NONCE_REQUIRED", "nonce required")
 			return
 		}
 
@@ -70,6 +100,17 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 		if !strings.EqualFold(expect, sign) {
 			openapi.Write(w, http.StatusUnauthorized, "INVALID_SIGN", "invalid sign")
 			return
+		}
+		if m.replayGuard != nil {
+			ok, err := m.replayGuard.MarkSeen(r.Context(), merchantId, nonce, ts)
+			if err != nil {
+				openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "replay guard unavailable")
+				return
+			}
+			if !ok {
+				openapi.Write(w, http.StatusConflict, "REPLAY_REQUEST", "replay request rejected")
+				return
+			}
 		}
 
 		next(w, r)

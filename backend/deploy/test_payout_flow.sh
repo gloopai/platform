@@ -78,9 +78,20 @@ PY
 signed_query_string() {
   local req_json="$1"
   local secret="$2"
+  local with_nonce
+  with_nonce="$(python3 - "${req_json}" <<'PY'
+import json, sys, time, uuid
+p = json.loads(sys.argv[1])
+if "timestamp" not in p or not str(p["timestamp"]).strip():
+    p["timestamp"] = str(int(time.time()))
+if "nonce" not in p or not str(p["nonce"]).strip():
+    p["nonce"] = uuid.uuid4().hex[:24]
+print(json.dumps(p))
+PY
+)"
   local sign
-  sign="$(md5_sign "${secret}" "${req_json}")"
-  python3 - "${req_json}" "${sign}" <<'PY'
+  sign="$(md5_sign "${secret}" "${with_nonce}")"
+  python3 - "${with_nonce}" "${sign}" <<'PY'
 import json, sys, urllib.parse
 p = json.loads(sys.argv[1]); p["sign"] = sys.argv[2]
 print(urllib.parse.urlencode(p))
@@ -99,7 +110,9 @@ print(json.dumps({
   "merchant_order_no": "${merchant_order_no}",
   "amount": int("${amount}"),
   "currency": "CNY",
-  "payout_product_code": "${product_code}"
+  "payout_product_code": "${product_code}",
+  "timestamp": int(__import__("time").time()),
+  "nonce": __import__("uuid").uuid4().hex[:24]
 }))
 PY
 )"
@@ -129,6 +142,16 @@ print(json.dumps(d))
 PY
 )"
   signed_query_string "${req_json}" "${merchant_secret}"
+}
+
+query_payout_order() {
+  local merchant_id="$1"
+  local merchant_secret="$2"
+  local order_no="$3"
+  local merchant_order_no="$4"
+  local qs
+  qs="$(build_signed_payout_query "${merchant_id}" "${merchant_secret}" "${order_no}" "${merchant_order_no}")"
+  curl -fsS "${GATEWAY_BASE_URL}/v1/payout/query?${qs}"
 }
 
 query_merchant_balance() {
@@ -191,8 +214,7 @@ import json, time
 print(json.dumps({"merchant_id":"${MERCHANT_ID}","order_no":"${order_no}","timestamp":str(int(time.time()))}))
 PY
 )"
-query_url="$(signed_query_string "${query_params}" "${MERCHANT_SECRET}")"
-query_resp="$(curl -fsS "${GATEWAY_BASE_URL}/v1/payout/query?${query_url}")"
+query_resp="$(query_payout_order "${MERCHANT_ID}" "${MERCHANT_SECRET}" "${order_no}" "")"
 query_order_no="$(json_get "${query_resp}" "order.order_no")"
 if [[ "${query_order_no}" != "${order_no}" ]]; then
   echo "query payout order mismatch: ${query_resp}"
@@ -218,7 +240,8 @@ fi
 echo "  debit_ok expected=${expected_debit} actual=${actual_debit}"
 
 echo "[4/18] duplicate merchant_order_no while pending should fail (no second debit)"
-dup_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${body}" -w $'\n%{http_code}')"
+dup_body="$(build_signed_payout_body "${merchant_order_no}" "${AMOUNT}" "${PAYOUT_PRODUCT_CODE}")"
+dup_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${dup_body}" -w $'\n%{http_code}')"
 dup_status="${dup_raw##*$'\n'}"
 dup_body="${dup_raw%$'\n'*}"
 dup_code="$(json_get "${dup_body}" "code")"
@@ -271,7 +294,8 @@ fi
 echo "  insufficient_failed_order_ok order_no=${insufficient_query_order_no} status=${insufficient_query_status}"
 
 echo "[7/18] retry same insufficient merchant_order_no should return existing failed order"
-insufficient_retry_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${insufficient_body}" -w $'\n%{http_code}')"
+insufficient_retry_body="$(build_signed_payout_body "${insufficient_order_no}" "${big_amount}" "${PAYOUT_PRODUCT_CODE}")"
+insufficient_retry_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${insufficient_retry_body}" -w $'\n%{http_code}')"
 insufficient_retry_status="${insufficient_retry_raw##*$'\n'}"
 insufficient_retry_body="${insufficient_retry_raw%$'\n'*}"
 insufficient_retry_order_no="$(json_get "${insufficient_retry_body}" "order_no")"
@@ -297,11 +321,11 @@ merchant_balance_before_concurrent="$(query_merchant_balance)"
 available_balance_before_concurrent="$(json_get "${merchant_balance_before_concurrent}" "available_balance")"
 concurrent_amount=1001
 concurrent_merchant_order_no="PO-E2E-CONCURRENT-$(date +%s)-$RANDOM"
-concurrent_body="$(build_signed_payout_body "${concurrent_merchant_order_no}" "${concurrent_amount}" "${PAYOUT_PRODUCT_CODE}")"
 tmp_dir="$(mktemp -d)"
 for i in $(seq 1 "${CONCURRENT_DUP_ATTEMPTS}"); do
   {
-    curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${concurrent_body}" -w $'\n%{http_code}' > "${tmp_dir}/resp_${i}.txt"
+    req_body="$(build_signed_payout_body "${concurrent_merchant_order_no}" "${concurrent_amount}" "${PAYOUT_PRODUCT_CODE}")"
+    curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${req_body}" -w $'\n%{http_code}' > "${tmp_dir}/resp_${i}.txt"
   } &
 done
 wait
@@ -402,7 +426,7 @@ if [[ "${SIMULATE_PAYOUT_SUCCESS}" == "1" ]]; then
     echo "mock payout success failed: ${mock_resp}"
     exit 1
   fi
-  query_resp_after_success="$(curl -fsS "${GATEWAY_BASE_URL}/v1/payout/query?${query_url}")"
+  query_resp_after_success="$(query_payout_order "${MERCHANT_ID}" "${MERCHANT_SECRET}" "${order_no}" "")"
   query_status_after_success="$(json_get "${query_resp_after_success}" "order.status")"
   if [[ "${query_status_after_success}" != "1" ]]; then
     echo "simulate payout success failed, expected status=1: ${query_resp_after_success}"
@@ -502,10 +526,10 @@ echo "[18/18] high concurrency duplicate test should stay stable"
 high_tmp_dir="$(mktemp -d)"
 high_amount=1003
 high_order_no="PO-E2E-HIGHCON-$(date +%s)-$RANDOM"
-high_body="$(build_signed_payout_body "${high_order_no}" "${high_amount}" "${PAYOUT_PRODUCT_CODE}")"
 for i in $(seq 1 "${CONCURRENT_DUP_ATTEMPTS_HIGH}"); do
   {
-    curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${high_body}" -w $'\n%{http_code}' > "${high_tmp_dir}/resp_${i}.txt"
+    req_body="$(build_signed_payout_body "${high_order_no}" "${high_amount}" "${PAYOUT_PRODUCT_CODE}")"
+    curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${req_body}" -w $'\n%{http_code}' > "${high_tmp_dir}/resp_${i}.txt"
   } &
 done
 wait
@@ -544,6 +568,18 @@ echo "[extra] malformed json should return 400 INVALID_PARAMS"
 malformed_json_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d '{"merchant_id":' -w $'\n%{http_code}')"
 assert_http_error "${malformed_json_raw}" "400" "INVALID_PARAMS" "malformed_json"
 
+echo "[extra] replay same signed request should return 409 REPLAY_REQUEST"
+replay_order_no="PO-E2E-REPLAY-$(date +%s)-$RANDOM"
+replay_body="$(build_signed_payout_body "${replay_order_no}" "1011" "${PAYOUT_PRODUCT_CODE}")"
+replay_first_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${replay_body}" -w $'\n%{http_code}')"
+replay_first_status="${replay_first_raw##*$'\n'}"
+if [[ "${replay_first_status}" != "200" ]]; then
+  echo "replay baseline first request failed unexpectedly: ${replay_first_raw}"
+  exit 1
+fi
+replay_second_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: application/json" -d "${replay_body}" -w $'\n%{http_code}')"
+assert_http_error "${replay_second_raw}" "409" "REPLAY_REQUEST" "replay_request"
+
 echo "[extra] wrong content-type should return 400 MERCHANT_ID_REQUIRED"
 wrong_ct_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Content-Type: text/plain" -d "${body}" -w $'\n%{http_code}')"
 assert_http_error "${wrong_ct_raw}" "400" "MERCHANT_ID_REQUIRED" "wrong_content_type"
@@ -558,6 +594,8 @@ p = {
   "amount": "abc",
   "currency": "CNY",
   "payout_product_code": product,
+  "timestamp": int(time.time()),
+  "nonce": __import__("uuid").uuid4().hex[:24],
 }
 pairs = []
 for k in sorted(p.keys(), key=lambda x: x.lower()):

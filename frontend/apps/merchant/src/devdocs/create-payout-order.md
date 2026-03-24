@@ -11,12 +11,17 @@
 - `payout_product_code`：代付产品编码（推荐）
 - `pay_type`：兼容字段，未传 `payout_product_code` 时可用
 - `notify_url`：异步通知地址（可选）
+- `timestamp`：Unix 时间戳（秒，必填，参与签名）
+- `nonce`：随机串（必填，参与签名，建议每次请求唯一）
 - `sign`：签名（必填）
 
 ## 关键校验
 
 - 创建代付订单时会进行可用余额校验。
 - 扣减金额 = `amount + fee_amount`（手续费快照来自商户配置）。
+- 防重放校验：
+  - `timestamp` 需在服务端允许时间窗内（默认 ±300 秒）；
+  - 相同 `merchant_id + nonce + timestamp` 仅允许一次通过签名校验。
 - 若余额不足，返回：
   - HTTP `422`
   - `code = INSUFFICIENT_AVAILABLE_BALANCE`

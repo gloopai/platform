@@ -7,6 +7,13 @@ Consul:
   Service: gateway-api
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
+ReplayGuard:
+  RedisAddr: 127.0.0.1:6379
+  RedisPassword: "yourpassword"
+  RedisDB: 2
+  KeyPrefix: pay:openapi:replay
+  AllowedSkewSeconds: 300
+  TTLSeconds: 600
 AdminToken: admin_token_change_me
 JwtSecret: jwt_secret_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/

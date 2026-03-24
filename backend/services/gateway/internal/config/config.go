@@ -14,6 +14,14 @@ type Config struct {
 	Mysql    struct {
 		DataSource string
 	}
+	ReplayGuard struct {
+		RedisAddr          string `json:",optional"`
+		RedisPassword      string `json:",optional"`
+		RedisDB            int    `json:",optional"`
+		KeyPrefix          string `json:",optional"`
+		AllowedSkewSeconds int64  `json:",optional"`
+		TTLSeconds         int64  `json:",optional"`
+	}
 	AdminToken      string `json:",optional"`
 	JwtSecret       string `json:",optional"`
 	CheckoutBaseUrl string `json:",optional"`

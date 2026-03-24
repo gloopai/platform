@@ -59,6 +59,9 @@
 | `INVALID_PARAMS` | 400 | 参数无法解析（如 JSON 非法） |
 | `MERCHANT_ID_REQUIRED` | 400 | 缺少 `merchant_id` |
 | `SIGN_REQUIRED` | 400 | 缺少 `sign` |
+| `TIMESTAMP_REQUIRED` | 400 | 缺少 `timestamp` |
+| `NONCE_REQUIRED` | 400 | 缺少 `nonce` |
+| `INVALID_TIMESTAMP` | 400 | `timestamp` 非法或超出允许时间窗 |
 | `INVALID_ARGUMENT` | 400 | 参数不合法（如缺必填字段） |
 | `MERCHANT_NOT_FOUND` | 401 | 商户不存在 |
 | `MERCHANT_DISABLED` | 401 | 商户已停用 |
@@ -72,6 +75,7 @@
 | `NO_AVAILABLE_CHANNEL` | 422 | 当前无可用上游通道（路由/熔断/金额区间等） |
 | `INSUFFICIENT_AVAILABLE_BALANCE` | 422 | 可用余额不足（创建代付订单时校验失败） |
 | `PAYOUT_ORDER_ALREADY_EXISTS_PENDING` | 422 | 同一 `merchant_order_no` 的代付单已存在且仍待处理，需更换单号重试 |
+| `REPLAY_REQUEST` | 409 | 签名请求被判定为重放（相同 `merchant_id+nonce+timestamp`） |
 | `FAILED_PRECONDITION` | 422 | 其它前置条件不满足（如锁定通道校验失败） |
 | `INTERNAL_ERROR` | 500 | 内部错误或未单独映射的 gRPC 码 |
 | `UNAVAILABLE` | 503 | 依赖服务不可用 |
@@ -87,6 +91,9 @@
 ## 代付下单（`POST /v1/payout/order`）补充约定
 
 - 下单会先创建代付订单，再执行可用余额扣减（扣减金额 = `amount + fee_amount`）。
+- 开放签名接口统一要求携带 `timestamp`（秒级 Unix 时间戳）与 `nonce`（随机串）参与签名：
+  - 时间窗默认 ±300 秒；
+  - 相同 `merchant_id + nonce + timestamp` 只允许成功校验一次（重放请求会被拒绝）。
 - 当可用余额不足时，返回：
   - HTTP `422`
   - `code = INSUFFICIENT_AVAILABLE_BALANCE`

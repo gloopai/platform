@@ -5,6 +5,8 @@ package svc
 
 import (
 	"database/sql"
+	"strings"
+	"time"
 
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
@@ -17,6 +19,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/store"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
+	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -68,6 +71,24 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	adminUsersStore := store.NewAdminUsersStore(sqlDB)
 	globalSettingsStore := store.NewGlobalSettingsStore(sqlDB)
 	payoutOrdersStore := store.NewPayoutOrdersStore(sqlDB)
+	replayAddr := strings.TrimSpace(c.ReplayGuard.RedisAddr)
+	if replayAddr == "" {
+		replayAddr = "127.0.0.1:6379"
+	}
+	replayRedis := redis.NewClient(&redis.Options{
+		Addr:     replayAddr,
+		Password: c.ReplayGuard.RedisPassword,
+		DB:       c.ReplayGuard.RedisDB,
+	})
+	replayPrefix := strings.TrimSpace(c.ReplayGuard.KeyPrefix)
+	if replayPrefix == "" {
+		replayPrefix = "pay:openapi:replay"
+	}
+	replayTTL := time.Duration(c.ReplayGuard.TTLSeconds) * time.Second
+	if replayTTL <= 0 {
+		replayTTL = 10 * time.Minute
+	}
+	replayGuard := middleware.NewRedisReplayGuard(replayRedis, replayPrefix, replayTTL)
 	var runtimeCfg *consulx.ConfigStore
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
@@ -77,7 +98,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli)).Handle,
+		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli), replayGuard, c.ReplayGuard.AllowedSkewSeconds).Handle,
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
