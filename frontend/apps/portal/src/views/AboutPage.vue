@@ -1,26 +1,30 @@
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-10">
-    <h1 class="text-2xl font-semibold text-slate-900">关于我们 & 合规</h1>
-    <p class="mt-2 text-sm text-slate-600">公司介绍、安全认证、服务协议与隐私政策。</p>
+  <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+    <header class="max-w-2xl">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{{ t('about.title') }}</h1>
+      <p class="mt-4 text-base leading-relaxed text-slate-600">{{ t('about.lead') }}</p>
+    </header>
 
-    <div class="mt-8 grid gap-4 md:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 bg-white p-6">
-        <div class="text-sm font-semibold text-slate-900">公司介绍</div>
-        <div class="mt-2 text-sm text-slate-600">
-          我们致力于为商户提供稳定、高性能的支付基础设施，帮助业务快速完成渠道接入与资金结算。
+    <div class="mt-12 grid gap-6 lg:grid-cols-2">
+      <article class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm lg:p-10">
+        <h2 class="text-lg font-semibold text-slate-900">{{ t('about.company.title') }}</h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-600">{{ t('about.company.desc') }}</p>
+      </article>
+      <article class="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white shadow-lg lg:p-10">
+        <h2 class="text-lg font-semibold">{{ t('about.security.title') }}</h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-300">{{ t('about.security.desc') }}</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-sm">{{ t('about.security.pci') }}</span>
+          <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-sm">{{ t('about.security.privacy') }}</span>
+          <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-sm">{{ t('about.security.terms') }}</span>
         </div>
-      </div>
-      <div class="rounded-2xl border border-slate-200 bg-white p-6">
-        <div class="text-sm font-semibold text-slate-900">安全与合规</div>
-        <div class="mt-2 text-sm text-slate-600">
-          提供敏感信息加密存储、操作审计与风险控制能力，可对接 PCI-DSS 等安全体系要求。
-        </div>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">PCI-DSS</span>
-          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">隐私政策</span>
-          <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">服务协议</span>
-        </div>
-      </div>
+      </article>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>

@@ -1,48 +1,70 @@
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-10">
-    <h1 class="text-2xl font-semibold text-slate-900">开发者中心</h1>
-    <p class="mt-2 text-sm text-slate-600">快速集成、SDK 下载与在线文档入口。</p>
+  <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+    <header class="max-w-2xl">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{{ t('docs.title') }}</h1>
+      <p class="mt-4 text-base leading-relaxed text-slate-600">{{ t('docs.lead') }}</p>
+    </header>
 
-    <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
-      <div class="text-sm font-semibold text-slate-900">快速集成</div>
-      <div class="mt-4 grid gap-3 md:grid-cols-3">
-        <div class="rounded-xl bg-slate-50 p-4">
-          <div class="text-xs font-semibold text-slate-700">1. 创建订单</div>
-          <div class="mt-1 text-sm text-slate-600">商户调用 CreateOrder，获取 order_no。</div>
+    <section class="mt-12 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+      <h2 class="text-lg font-semibold text-slate-900">{{ t('docs.quick.title') }}</h2>
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+          <div class="text-xs font-bold uppercase tracking-wide text-brand-700">{{ t('docs.quick.step1.title') }}</div>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ t('docs.quick.step1.desc') }}</p>
         </div>
-        <div class="rounded-xl bg-slate-50 p-4">
-          <div class="text-xs font-semibold text-slate-700">2. 跳转收银台</div>
-          <div class="mt-1 text-sm text-slate-600">用户完成支付，平台异步处理回调。</div>
+        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+          <div class="text-xs font-bold uppercase tracking-wide text-brand-700">{{ t('docs.quick.step2.title') }}</div>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ t('docs.quick.step2.desc') }}</p>
         </div>
-        <div class="rounded-xl bg-slate-50 p-4">
-          <div class="text-xs font-semibold text-slate-700">3. Webhook 通知</div>
-          <div class="mt-1 text-sm text-slate-600">NSQ 消费者阶梯重试推送通知商户。</div>
+        <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+          <div class="text-xs font-bold uppercase tracking-wide text-brand-700">{{ t('docs.quick.step3.title') }}</div>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ t('docs.quick.step3.desc') }}</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="mt-6 grid gap-4 md:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 bg-white p-6">
-        <div class="text-sm font-semibold text-slate-900">SDK 下载</div>
-        <div class="mt-3 grid gap-2 text-sm">
-          <a class="font-medium text-slate-700 hover:text-slate-900" href="#" @click.prevent>Go SDK（示例）</a>
-          <a class="font-medium text-slate-700 hover:text-slate-900" href="#" @click.prevent>PHP SDK（示例）</a>
-          <a class="font-medium text-slate-700 hover:text-slate-900" href="#" @click.prevent>Java SDK（示例）</a>
-          <a class="font-medium text-slate-700 hover:text-slate-900" href="#" @click.prevent>Python SDK（示例）</a>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h2 class="text-lg font-semibold text-slate-900">{{ t('docs.sdk.title') }}</h2>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li>
+            <a class="font-medium text-brand-700 hover:text-brand-800" href="#" @click.prevent>{{ t('docs.sdk.go') }}</a>
+          </li>
+          <li>
+            <a class="font-medium text-brand-700 hover:text-brand-800" href="#" @click.prevent>{{ t('docs.sdk.php') }}</a>
+          </li>
+          <li>
+            <a class="font-medium text-brand-700 hover:text-brand-800" href="#" @click.prevent>{{ t('docs.sdk.java') }}</a>
+          </li>
+          <li>
+            <a class="font-medium text-brand-700 hover:text-brand-800" href="#" @click.prevent>{{ t('docs.sdk.python') }}</a>
+          </li>
+        </ul>
+      </section>
+      <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h2 class="text-lg font-semibold text-slate-900">{{ t('docs.online.title') }}</h2>
+        <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ t('docs.online.lead') }}</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a
+            class="inline-flex rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-brand-200 hover:bg-brand-50"
+            href="#"
+            @click.prevent
+            >{{ t('docs.online.swagger') }}</a
+          >
+          <a
+            class="inline-flex rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-brand-200 hover:bg-brand-50"
+            href="#"
+            @click.prevent
+            >{{ t('docs.online.gitbook') }}</a
+          >
         </div>
-      </div>
-      <div class="rounded-2xl border border-slate-200 bg-white p-6">
-        <div class="text-sm font-semibold text-slate-900">在线文档</div>
-        <div class="mt-3 text-sm text-slate-600">可接入 Swagger / Redoc 或自建 GitBook 样式文档站。</div>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <a class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="#" @click.prevent>
-            Swagger
-          </a>
-          <a class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="#" @click.prevent>
-            GitBook
-          </a>
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
