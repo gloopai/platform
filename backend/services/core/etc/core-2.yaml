@@ -1,0 +1,12 @@
+Name: payment.rpc.core
+ListenOn: 0.0.0.0:8184
+Timezone: Asia/Shanghai
+Middlewares:
+  Trace: true
+  Stat: true
+Consul:
+  Addr: 127.0.0.1:8500
+  Service: payment.rpc.core
+  ID: payment-rpc-core-8184
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
