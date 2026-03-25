@@ -1,4 +1,6 @@
 ServiceName: gateway
+
+# HTTP：四路独立 Rest 服务（admin / merchant / openapi / checkout）
 AdminServer:
   Name: gateway-admin-api
   Host: 0.0.0.0
@@ -15,13 +17,20 @@ CheckoutServer:
   Name: gateway-checkout-api
   Host: 0.0.0.0
   Port: 8092
+
 Timezone: Asia/Shanghai
+
+# OpenAPI 请求体上限、是否信任反向代理转发的客户端 IP（与 OpenAPIServer 端口无关）
 OpenAPI:
   MaxBodyBytes: 262144
   TrustForwardedFor: false
+
+# 本进程在 Consul 中的注册（当前仅 admin 对外服务发现）
 Consul:
   Addr: 127.0.0.1:8500
   Service: gateway-admin-api
+
+# Redis：OpenAPI 防重放与限流（可同一实例，使用不同 DB）
 ReplayGuard:
   RedisAddr: 127.0.0.1:6379
   RedisPassword: "yourpassword"
@@ -39,25 +48,31 @@ RateLimit:
   OpenAPIWindowSeconds: 60
   LoginLimitPerWindow: 60
   LoginWindowSeconds: 60
+
+# 管理端口令、JWT、收银台前端基址（重定向等）
 AdminToken: admin_token_change_me
 JwtSecret: jwt_secret_change_me
 CheckoutBaseUrl: http://127.0.0.1:5174/
-TradeRpc:
-  Target: consul://127.0.0.1:8500/payment.rpc.trade
-  Middlewares:
-    Trace: true
+
+# 下游 gRPC（Consul 服务名与各 rpc 服务 Name/Consul.Service 一致）
 CoreRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.core
+  Middlewares:
+    Trace: true
+TradeRpc:
+  Target: consul://127.0.0.1:8500/payment.rpc.trade
   Middlewares:
     Trace: true
 ServiceHubRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.service-hub
   Middlewares:
     Trace: true
+
+# 运维监控页额外展示的 Consul 服务名（默认还会包含 gateway / trade / core 等）
 OpsMonitor:
-  # 运维监控页额外纳入的 Consul 服务名（默认也会包含 gateway/trade/core）
   Services:
     - payment.worker.notice-consumer
+
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice
