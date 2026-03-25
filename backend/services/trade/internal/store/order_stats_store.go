@@ -2,18 +2,19 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"math"
 	"strings"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // OrderStatsStore 管理台统计：读库聚合 payin_orders（与 trade 共用库表）。
 type OrderStatsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewOrderStatsStore(db *sql.DB) *OrderStatsStore {
+func NewOrderStatsStore(db *gorm.DB) *OrderStatsStore {
 	return &OrderStatsStore{db: db}
 }
 
@@ -69,7 +70,7 @@ func (s *OrderStatsStore) DayOverview(ctx context.Context, day time.Time, mercha
 	}
 
 	var t TodayTotals
-	err := s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT
   COUNT(*),
   COALESCE(SUM(CASE WHEN status = 1 THEN COALESCE(paid_amount, amount) ELSE 0 END), 0),
@@ -79,12 +80,12 @@ SELECT
   COALESCE(SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END), 0)
 FROM payin_orders
 WHERE `+where+`
-`, whereArgs...).Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
+`, whereArgs...).Row().Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
 	if err != nil {
 		return TodayTotals{}, nil, nil, err
 	}
 
-	prodRows, err := s.db.QueryContext(ctx, `
+	prodRows, err := s.db.WithContext(ctx).Raw(`
 SELECT
   COALESCE(NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)'),
   MAX(COALESCE(pp.name, NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)')),
@@ -98,7 +99,7 @@ WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`
 GROUP BY COALESCE(NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)')
 ORDER BY 4 DESC, 3 DESC
-`, append([]any{}, whereArgs...)...)
+`, append([]any{}, whereArgs...)...).Rows()
 	if err != nil {
 		return TodayTotals{}, nil, nil, err
 	}
@@ -116,7 +117,7 @@ ORDER BY 4 DESC, 3 DESC
 		return TodayTotals{}, nil, nil, err
 	}
 
-	chRows, err := s.db.QueryContext(ctx, `
+	chRows, err := s.db.WithContext(ctx).Raw(`
 SELECT
   o.channel_id,
   COALESCE(MAX(c.name), IF(o.channel_id = 0, '未路由', CONCAT('通道#', o.channel_id))),
@@ -130,7 +131,7 @@ WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`
 GROUP BY o.channel_id
 ORDER BY 4 DESC, 3 DESC
-`, append([]any{}, whereArgs...)...)
+`, append([]any{}, whereArgs...)...).Rows()
 	if err != nil {
 		return TodayTotals{}, products, nil, err
 	}

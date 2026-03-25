@@ -3,6 +3,9 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
 type AdminUser struct {
@@ -13,22 +16,26 @@ type AdminUser struct {
 }
 
 type AdminUsersStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewAdminUsersStore(db *sql.DB) *AdminUsersStore {
+func NewAdminUsersStore(db *gorm.DB) *AdminUsersStore {
 	return &AdminUsersStore{db: db}
 }
 
 func (s *AdminUsersStore) FindByUsername(ctx context.Context, username string) (*AdminUser, error) {
 	var u AdminUser
-	if err := s.db.QueryRowContext(ctx, `
-SELECT id, username, password_hash, status
-FROM admin_users
-WHERE username = ?
-LIMIT 1
-`, username).Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Status); err != nil {
-		return nil, err
+	tx := s.db.WithContext(ctx).
+		Table("admin_users").
+		Select("id, username, password_hash, status").
+		Where("username = ?", username).
+		Limit(1).
+		Take(&u)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return nil, sql.ErrNoRows
+	}
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 	return &u, nil
 }
@@ -42,23 +49,13 @@ type AdminUserPublic struct {
 
 // List 管理台账号列表（只读）。
 func (s *AdminUsersStore) List(ctx context.Context) ([]AdminUserPublic, error) {
-	rows, err := s.db.QueryContext(ctx, `
-SELECT id, username, status
-FROM admin_users
-ORDER BY id ASC
-`)
-	if err != nil {
+	var out []AdminUserPublic
+	if err := s.db.WithContext(ctx).
+		Table("admin_users").
+		Select("id, username, status").
+		Order("id ASC").
+		Find(&out).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	var out []AdminUserPublic
-	for rows.Next() {
-		var r AdminUserPublic
-		if err := rows.Scan(&r.ID, &r.Username, &r.Status); err != nil {
-			return nil, err
-		}
-		out = append(out, r)
-	}
-	return out, rows.Err()
+	return out, nil
 }

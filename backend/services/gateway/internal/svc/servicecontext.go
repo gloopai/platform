@@ -4,7 +4,6 @@
 package svc
 
 import (
-	"database/sql"
 	"strings"
 	"time"
 
@@ -17,11 +16,12 @@ import (
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/store"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
@@ -47,14 +47,17 @@ type ServiceContext struct {
 	NsqProducer *nsq.Producer
 
 	RuntimeConfig *consulx.ConfigStore
+
+	Gorm *gorm.DB
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	sqlDB, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
+	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	if err := sqlDB.Ping(); err != nil {
+	sqlDB, err := gdb.DB()
+	if err != nil {
 		panic(err)
 	}
 	if v := c.Mysql.MaxOpenConns; v > 0 {
@@ -65,6 +68,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	if sec := c.Mysql.ConnMaxLifetimeSeconds; sec > 0 {
 		sqlDB.SetConnMaxLifetime(time.Duration(sec) * time.Second)
+	}
+	if err := sqlDB.Ping(); err != nil {
+		panic(err)
 	}
 
 	consulx.RegisterResolver()
@@ -80,9 +86,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	adminUsersStore := store.NewAdminUsersStore(sqlDB)
-	globalSettingsStore := store.NewGlobalSettingsStore(sqlDB)
-	payoutOrdersStore := store.NewPayoutOrdersStore(sqlDB)
+	adminUsersStore := store.NewAdminUsersStore(gdb)
+	globalSettingsStore := store.NewGlobalSettingsStore(gdb)
+	payoutOrdersStore := store.NewPayoutOrdersStore(gdb)
 	replayAddr := strings.TrimSpace(c.ReplayGuard.RedisAddr)
 	if replayAddr == "" {
 		replayAddr = "127.0.0.1:6379"
@@ -166,5 +172,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		NsqProducer:   producer,
 		RuntimeConfig: runtimeCfg,
+		Gorm:          gdb,
 	}
 }

@@ -2,30 +2,31 @@ package store
 
 import (
 	"context"
-	"database/sql"
+
+	"gorm.io/gorm"
 )
 
 type PayoutOrderSnapshot struct {
-	OrderNo      string
-	MerchantId   string
-	Status       int32
-	Amount       int64
-	PaidAmount   int64
-	ChannelId    int64
-	UpstreamNo   string
+	OrderNo          string
+	MerchantId       string
+	Status           int32
+	Amount           int64
+	PaidAmount       int64
+	ChannelId        int64
+	UpstreamNo       string
 	AvailableBalance int64
 }
 
 type PayoutOrdersStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewPayoutOrdersStore(db *sql.DB) *PayoutOrdersStore {
+func NewPayoutOrdersStore(db *gorm.DB) *PayoutOrdersStore {
 	return &PayoutOrdersStore{db: db}
 }
 
 func (s *PayoutOrdersStore) MarkSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error) {
-	res, err := s.db.ExecContext(ctx, `
+	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payout_orders
 SET status = 1,
     paid_amount = CASE WHEN paid_amount > 0 THEN paid_amount ELSE amount END,
@@ -33,29 +34,15 @@ SET status = 1,
     updated_at = NOW()
 WHERE order_no = ? AND status = 0
 `, upstreamTradeNo, orderNo)
-	if err != nil {
-		return false, err
-	}
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-	return affected > 0, nil
+	return tx.RowsAffected > 0, tx.Error
 }
 
 func (s *PayoutOrdersStore) MarkFailed(ctx context.Context, orderNo string) (bool, error) {
-	res, err := s.db.ExecContext(ctx, `
+	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payout_orders
 SET status = 2,
     updated_at = NOW()
 WHERE order_no = ? AND status = 0
 `, orderNo)
-	if err != nil {
-		return false, err
-	}
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-	return affected > 0, nil
+	return tx.RowsAffected > 0, tx.Error
 }

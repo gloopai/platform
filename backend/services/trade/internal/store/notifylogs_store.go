@@ -2,8 +2,9 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type NotifyLogRow struct {
@@ -19,10 +20,10 @@ type NotifyLogRow struct {
 }
 
 type NotifyLogsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewNotifyLogsStore(db *sql.DB) *NotifyLogsStore {
+func NewNotifyLogsStore(db *gorm.DB) *NotifyLogsStore {
 	return &NotifyLogsStore{db: db}
 }
 
@@ -30,13 +31,13 @@ func (s *NotifyLogsStore) ListByOrder(ctx context.Context, merchantId, orderNo s
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, merchant_id, order_no, notify_url, attempt, http_status, COALESCE(response_body,''), COALESCE(error_msg,''), created_at
 FROM merchant_notify_logs
 WHERE merchant_id = ? AND order_no = ?
 ORDER BY created_at DESC
 LIMIT ?
-`, merchantId, orderNo, limit)
+`, merchantId, orderNo, limit).Rows()
 	if err != nil {
 		return nil, err
 	}

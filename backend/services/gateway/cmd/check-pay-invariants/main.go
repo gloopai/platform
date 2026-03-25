@@ -8,7 +8,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 	"strconv"
@@ -16,18 +15,15 @@ import (
 	"text/tabwriter"
 
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
 	dsn := dsnFromEnv()
-	db, err := sql.Open("mysql", dsn)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "open db: %v\n", err)
-		os.Exit(2)
-	}
-	defer db.Close()
-	if err := db.Ping(); err != nil {
-		fmt.Fprintf(os.Stderr, "ping db: %v\n", err)
 		os.Exit(2)
 	}
 
@@ -147,8 +143,8 @@ func getenv(k, def string) string {
 }
 
 // printRows runs query, prints a header and table; returns row count.
-func printRows(db *sql.DB, title, query string) (int, error) {
-	rows, err := db.Query(query)
+func printRows(db *gorm.DB, title, query string) (int, error) {
+	rows, err := db.Raw(query).Rows()
 	if err != nil {
 		return 0, err
 	}

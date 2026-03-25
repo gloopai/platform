@@ -6,6 +6,8 @@ import (
 	"errors"
 	"sort"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // PayoutGrant 商户代付产品行。
@@ -17,10 +19,10 @@ type PayoutGrant struct {
 }
 
 type MerchantPayoutProductsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewMerchantPayoutProductsStore(db *sql.DB) *MerchantPayoutProductsStore {
+func NewMerchantPayoutProductsStore(db *gorm.DB) *MerchantPayoutProductsStore {
 	return &MerchantPayoutProductsStore{db: db}
 }
 
@@ -43,38 +45,33 @@ func (s *MerchantPayoutProductsStore) Replace(ctx context.Context, merchantID st
 	}
 	sort.Slice(uniq, func(i, j int) bool { return uniq[i].PayoutProductID < uniq[j].PayoutProductID })
 
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	if _, err := tx.ExecContext(ctx, `DELETE FROM merchant_payout_products WHERE merchant_id = ?`, merchantID); err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-	for i, g := range uniq {
-		feeMode := g.FeeMode
-		if feeMode < 1 || feeMode > 3 {
-			feeMode = 1
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(`DELETE FROM merchant_payout_products WHERE merchant_id = ?`, merchantID).Error; err != nil {
+			return err
 		}
-		if g.RateBps == nil {
-			if _, err := tx.ExecContext(ctx, `
+		for i, g := range uniq {
+			feeMode := g.FeeMode
+			if feeMode < 1 || feeMode > 3 {
+				feeMode = 1
+			}
+			if g.RateBps == nil {
+				if err := tx.Exec(`
 INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
 VALUES (?, ?, 1, ?, ?, NULL, ?)
-`, merchantID, g.PayoutProductID, i, feeMode, g.FixedFeeAmount); err != nil {
-				_ = tx.Rollback()
-				return err
-			}
-		} else {
-			if _, err := tx.ExecContext(ctx, `
+`, merchantID, g.PayoutProductID, i, feeMode, g.FixedFeeAmount).Error; err != nil {
+					return err
+				}
+			} else {
+				if err := tx.Exec(`
 INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
 VALUES (?, ?, 1, ?, ?, ?, ?)
-`, merchantID, g.PayoutProductID, i, feeMode, *g.RateBps, g.FixedFeeAmount); err != nil {
-				_ = tx.Rollback()
-				return err
+`, merchantID, g.PayoutProductID, i, feeMode, *g.RateBps, g.FixedFeeAmount).Error; err != nil {
+					return err
+				}
 			}
 		}
-	}
-	return tx.Commit()
+		return nil
+	})
 }
 
 func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merchantID string) ([]PayoutGrant, error) {
@@ -82,12 +79,12 @@ func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merc
 	if merchantID == "" {
 		return nil, nil
 	}
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT payout_product_id, fee_mode, merchant_rate_bps, fee_fixed_amount
 FROM merchant_payout_products
 WHERE merchant_id = ? AND enabled = 1
 ORDER BY sort_order ASC, payout_product_id ASC
-`, merchantID)
+`, merchantID).Rows()
 	if err != nil {
 		return nil, err
 	}

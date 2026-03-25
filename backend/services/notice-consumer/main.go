@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"net"
 	"net/http"
@@ -15,9 +14,10 @@ import (
 	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/notice-consumer/internal/config"
 	"github.com/gloopai/pay/notice-consumer/internal/notice"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/nsqio/go-nsq"
 	"github.com/zeromicro/go-zero/core/conf"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -43,11 +43,13 @@ func main() {
 	}
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
-	db, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
+	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	if err := db.Ping(); err != nil {
+	if sqlDB, err := gdb.DB(); err != nil {
+		panic(err)
+	} else if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
 
@@ -76,7 +78,7 @@ func main() {
 		panic(err)
 	}
 
-	processor := notice.NewProcessor(db, httpClient, nil)
+	processor := notice.NewProcessor(gdb, httpClient, nil)
 	consumer.AddHandler(nsq.HandlerFunc(processor.HandleNSQMessage))
 
 	if err := consumer.ConnectToNSQD(c.Nsq.NsqdTCPAddr); err != nil {

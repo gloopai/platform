@@ -2,7 +2,8 @@ package store
 
 import (
 	"context"
-	"database/sql"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -18,51 +19,47 @@ type GlobalDisplaySettings struct {
 }
 
 type GlobalSettingsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewGlobalSettingsStore(db *sql.DB) *GlobalSettingsStore {
+func NewGlobalSettingsStore(db *gorm.DB) *GlobalSettingsStore {
 	return &GlobalSettingsStore{db: db}
 }
 
 func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDisplaySettings, error) {
-	rows, err := s.db.QueryContext(ctx, `
-SELECT setting_key, setting_value
-FROM global_settings
-WHERE setting_key IN (?, ?, ?)
-`, GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign)
-	if err != nil {
+	type kv struct {
+		K string `gorm:"column:setting_key"`
+		V string `gorm:"column:setting_value"`
+	}
+	var rows []kv
+	if err := s.db.WithContext(ctx).
+		Table("global_settings").
+		Select("setting_key, setting_value").
+		Where("setting_key IN ?", []string{GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign}).
+		Find(&rows).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	out := &GlobalDisplaySettings{
 		CountryCode:    "CN",
 		CurrencyCode:   "CNY",
 		CurrencySymbol: "¥",
 	}
-	for rows.Next() {
-		var k, v string
-		if err := rows.Scan(&k, &v); err != nil {
-			return nil, err
-		}
-		switch k {
+	for _, r := range rows {
+		switch r.K {
 		case GlobalSettingCountryCode:
-			out.CountryCode = v
+			out.CountryCode = r.V
 		case GlobalSettingCurrencyCode:
-			out.CurrencyCode = v
+			out.CurrencyCode = r.V
 		case GlobalSettingCurrencySign:
-			out.CurrencySymbol = v
+			out.CurrencySymbol = r.V
 		}
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
 	}
 	return out, nil
 }
 
 func (s *GlobalSettingsStore) UpsertDisplaySettings(ctx context.Context, in *GlobalDisplaySettings) error {
-	_, err := s.db.ExecContext(ctx, `
+	return s.db.WithContext(ctx).Exec(`
 INSERT INTO global_settings (setting_key, setting_value) VALUES
   (?, ?),
   (?, ?),
@@ -72,6 +69,5 @@ ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 		GlobalSettingCountryCode, in.CountryCode,
 		GlobalSettingCurrencyCode, in.CurrencyCode,
 		GlobalSettingCurrencySign, in.CurrencySymbol,
-	)
-	return err
+	).Error
 }

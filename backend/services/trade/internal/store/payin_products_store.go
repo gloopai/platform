@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // PayinProductOption 收银台展示的支付产品（与 payin_products 一致，按订单金额过滤可用通道）。
@@ -14,10 +16,10 @@ type PayinProductOption struct {
 }
 
 type PayinProductsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewPayinProductsStore(db *sql.DB) *PayinProductsStore {
+func NewPayinProductsStore(db *gorm.DB) *PayinProductsStore {
 	return &PayinProductsStore{db: db}
 }
 
@@ -29,9 +31,9 @@ func (s *PayinProductsStore) MerchantPayWhitelistStrict(ctx context.Context, mer
 		return false, nil
 	}
 	var n int
-	err := s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT COUNT(*) FROM merchant_payin_products WHERE merchant_id = ? AND enabled = 1
-`, merchantID).Scan(&n)
+`, merchantID).Row().Scan(&n)
 	if err != nil {
 		return false, err
 	}
@@ -52,7 +54,7 @@ func (s *PayinProductsStore) ListTerminalPayinProducts(ctx context.Context, merc
 
 // ListAvailableForAmount 返回：至少有一条可用上游通道、且金额在通道限额内的支付产品。
 func (s *PayinProductsStore) ListAvailableForAmount(ctx context.Context, amount int64) ([]PayinProductOption, error) {
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT DISTINCT pp.code, pp.name
 FROM payin_products pp
 INNER JOIN payin_product_channels ppc ON pp.id = ppc.payin_product_id AND ppc.enabled = 1
@@ -62,7 +64,7 @@ WHERE pp.enabled = 1
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY pp.sort_order ASC, pp.id ASC
-`, amount, amount)
+`, amount, amount).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -87,14 +89,14 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 }
 
 func (s *PayinProductsStore) listLegacyChannelPayinTypes(ctx context.Context, amount int64) ([]PayinProductOption, error) {
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT DISTINCT COALESCE(NULLIF(TRIM(payin_type), ''), 'mock')
 FROM channels
 WHERE enabled = 1 AND fuse_enabled = 0 AND supports_payin = 1 AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)
   AND (max_amount = 0 OR max_amount >= ?)
 ORDER BY 1
-`, amount, amount)
+`, amount, amount).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +122,7 @@ func (s *PayinProductsStore) ListAvailableForMerchantAndAmount(ctx context.Conte
 	if merchantID == "" {
 		return nil, nil
 	}
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT DISTINCT pp.code, pp.name
 FROM payin_products pp
 INNER JOIN merchant_payin_products mpp ON mpp.payin_product_id = pp.id AND mpp.merchant_id = ? AND mpp.enabled = 1
@@ -131,7 +133,7 @@ WHERE pp.enabled = 1
   AND (c.min_amount = 0 OR c.min_amount <= ?)
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY mpp.sort_order ASC, pp.sort_order ASC, pp.id ASC
-`, merchantID, amount, amount)
+`, merchantID, amount, amount).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -166,13 +168,13 @@ func (s *PayinProductsStore) MerchantHasPayinProductCode(ctx context.Context, me
 		return true, nil
 	}
 	var one int
-	err = s.db.QueryRowContext(ctx, `
+	err = s.db.WithContext(ctx).Raw(`
 SELECT 1
 FROM merchant_payin_products mpp
 INNER JOIN payin_products pp ON pp.id = mpp.payin_product_id AND pp.enabled = 1
 WHERE mpp.merchant_id = ? AND mpp.enabled = 1 AND pp.code = ?
 LIMIT 1
-`, merchantID, code).Scan(&one)
+`, merchantID, code).Row().Scan(&one)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
@@ -193,7 +195,7 @@ func (s *PayinProductsStore) ResolveLockedChannelForMerchant(ctx context.Context
 		return 0, "", err
 	}
 	if strict {
-		err = s.db.QueryRowContext(ctx, `
+		err = s.db.WithContext(ctx).Raw(`
 SELECT pp.id, pp.code
 FROM payin_product_channels ppc
 INNER JOIN payin_products pp ON pp.id = ppc.payin_product_id AND pp.enabled = 1
@@ -205,9 +207,9 @@ WHERE ppc.channel_id = ? AND ppc.enabled = 1
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY ppc.weight DESC, pp.id ASC
 LIMIT 1
-`, merchantID, channelID, amount, amount).Scan(&payProductID, &payinProductCode)
+`, merchantID, channelID, amount, amount).Row().Scan(&payProductID, &payinProductCode)
 	} else {
-		err = s.db.QueryRowContext(ctx, `
+		err = s.db.WithContext(ctx).Raw(`
 SELECT pp.id, pp.code
 FROM payin_product_channels ppc
 INNER JOIN payin_products pp ON pp.id = ppc.payin_product_id AND pp.enabled = 1
@@ -218,7 +220,7 @@ WHERE ppc.channel_id = ? AND ppc.enabled = 1
   AND (c.max_amount = 0 OR c.max_amount >= ?)
 ORDER BY ppc.weight DESC, pp.id ASC
 LIMIT 1
-`, channelID, amount, amount).Scan(&payProductID, &payinProductCode)
+`, channelID, amount, amount).Row().Scan(&payProductID, &payinProductCode)
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -236,9 +238,9 @@ func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, cod
 		return "", nil
 	}
 	var name string
-	err := s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT COALESCE(NULLIF(TRIM(name), ''), code) FROM payin_products WHERE code = ? AND enabled = 1 LIMIT 1
-`, code).Scan(&name)
+`, code).Row().Scan(&name)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return code, nil

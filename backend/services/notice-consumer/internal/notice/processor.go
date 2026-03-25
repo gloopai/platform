@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"io"
@@ -15,6 +14,7 @@ import (
 	"time"
 
 	"github.com/nsqio/go-nsq"
+	"gorm.io/gorm"
 )
 
 // Processor consumes NSQ messages and delivers order-paid webhooks to merchants.
@@ -22,13 +22,13 @@ import (
 // - idempotent-ish delivery via bounded retries (retry schedule is time-based)
 // - observability via writing merchant_notify_logs for every attempt
 type Processor struct {
-	db              *sql.DB
+	db               *gorm.DB
 	httpClient       *http.Client
-	delays          []time.Duration
+	delays           []time.Duration
 	maxRespBodyBytes int64
 }
 
-func NewProcessor(db *sql.DB, httpClient *http.Client, delays []time.Duration) *Processor {
+func NewProcessor(db *gorm.DB, httpClient *http.Client, delays []time.Duration) *Processor {
 	if len(delays) == 0 {
 		delays = []time.Duration{15 * time.Second, 1 * time.Minute, 5 * time.Minute, 30 * time.Minute, 2 * time.Hour}
 	}
@@ -37,7 +37,7 @@ func NewProcessor(db *sql.DB, httpClient *http.Client, delays []time.Duration) *
 	}
 	return &Processor{
 		db:               db,
-		httpClient:        httpClient,
+		httpClient:       httpClient,
 		delays:           delays,
 		maxRespBodyBytes: 8 << 10,
 	}
@@ -135,27 +135,27 @@ type orderRow struct {
 	PaidAmount      int64
 }
 
-func loadMerchant(ctx context.Context, db *sql.DB, merchantId string) (string, string, error) {
+func loadMerchant(ctx context.Context, db *gorm.DB, merchantId string) (string, string, error) {
 	var notifyURL, secret string
-	if err := db.QueryRowContext(ctx, `
+	if err := db.WithContext(ctx).Raw(`
 SELECT COALESCE(notify_url, ''), api_secret
 FROM merchants
 WHERE merchant_id = ? AND status = 1
 LIMIT 1
-`, merchantId).Scan(&notifyURL, &secret); err != nil {
+`, merchantId).Row().Scan(&notifyURL, &secret); err != nil {
 		return "", "", err
 	}
 	return notifyURL, secret, nil
 }
 
-func loadOrder(ctx context.Context, db *sql.DB, orderNo string) (*orderRow, error) {
+func loadOrder(ctx context.Context, db *gorm.DB, orderNo string) (*orderRow, error) {
 	var o orderRow
-	if err := db.QueryRowContext(ctx, `
+	if err := db.WithContext(ctx).Raw(`
 SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, COALESCE(upstream_trade_no,''), paid_amount
 FROM orders
 WHERE order_no = ?
 LIMIT 1
-`, orderNo).Scan(&o.OrderNo, &o.MerchantId, &o.MerchantOrderNo, &o.Amount, &o.Currency, &o.Status, &o.ChannelId, &o.UpstreamTradeNo, &o.PaidAmount); err != nil {
+`, orderNo).Row().Scan(&o.OrderNo, &o.MerchantId, &o.MerchantOrderNo, &o.Amount, &o.Currency, &o.Status, &o.ChannelId, &o.UpstreamTradeNo, &o.PaidAmount); err != nil {
 		return nil, err
 	}
 	return &o, nil
@@ -189,7 +189,7 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 	return json.Marshal(out)
 }
 
-func insertNotifyLog(ctx context.Context, db *sql.DB, merchantId, orderNo, notifyUrl string, attempt int, httpStatus int, responseBody string, httpErr error) error {
+func insertNotifyLog(ctx context.Context, db *gorm.DB, merchantId, orderNo, notifyUrl string, attempt int, httpStatus int, responseBody string, httpErr error) error {
 	errMsg := ""
 	if httpErr != nil {
 		errMsg = httpErr.Error()
@@ -200,11 +200,10 @@ func insertNotifyLog(ctx context.Context, db *sql.DB, merchantId, orderNo, notif
 	if len(responseBody) > 8000 {
 		responseBody = responseBody[:8000]
 	}
-	_, err := db.ExecContext(ctx, `
+	return db.WithContext(ctx).Exec(`
 INSERT INTO merchant_notify_logs (merchant_id, order_no, notify_url, attempt, http_status, response_body, error_msg, created_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-`, merchantId, orderNo, notifyUrl, attempt, httpStatus, responseBody, errMsg)
-	return err
+`, merchantId, orderNo, notifyUrl, attempt, httpStatus, responseBody, errMsg).Error
 }
 
 func md5Sign(params map[string]string, secret string) string {

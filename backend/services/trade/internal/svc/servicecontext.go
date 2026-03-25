@@ -1,40 +1,42 @@
 package svc
 
 import (
-	"database/sql"
-
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/trade/internal/config"
 	"github.com/gloopai/pay/trade/internal/store"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
-	Config              config.Config
-	Sql                 *sql.DB
-	Redis               *redis.Client
-	PayOrders           *store.PayinOrdersStore
-	PayoutOrders        *store.PayoutOrdersStore
-	Channels            *store.ChannelsStore
+	Config                config.Config
+	Gorm                  *gorm.DB
+	Redis                 *redis.Client
+	PayOrders             *store.PayinOrdersStore
+	PayoutOrders          *store.PayoutOrdersStore
+	Channels              *store.ChannelsStore
 	MerchantPayinProducts *store.MerchantPayinProductsStore
 	PayinProducts         *store.PayinProductsStore
-	PayoutProducts      *store.PayoutProductsStore
-	OrderStats          *store.OrderStatsStore
-	RoutingSummary      *store.RoutingSummaryStore
-	NotifyLogs          *store.NotifyLogsStore
-	RuntimeConfig       *consulx.ConfigStore
+	PayoutProducts        *store.PayoutProductsStore
+	OrderStats            *store.OrderStatsStore
+	RoutingSummary        *store.RoutingSummaryStore
+	NotifyLogs            *store.NotifyLogsStore
+	RuntimeConfig         *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	sqlDB, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
+	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	if err := sqlDB.Ping(); err != nil {
+	if sqlDB, err := gdb.DB(); err != nil {
+		panic(err)
+	} else if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     c.BizRedis.Addr,
 		Password: c.BizRedis.Password,
@@ -46,18 +48,18 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 	return &ServiceContext{
-		Config:              c,
-		Sql:                 sqlDB,
-		Redis:               rdb,
-		PayOrders:           store.NewPayinOrdersStore(sqlDB),
-		PayoutOrders:        store.NewPayoutOrdersStore(sqlDB),
-		Channels:            store.NewChannelsStore(sqlDB),
-		MerchantPayinProducts: store.NewMerchantPayinProductsStore(sqlDB),
-		PayinProducts:         store.NewPayinProductsStore(sqlDB),
-		PayoutProducts:      store.NewPayoutProductsStore(sqlDB),
-		OrderStats:          store.NewOrderStatsStore(sqlDB),
-		RoutingSummary:      store.NewRoutingSummaryStore(sqlDB),
-		NotifyLogs:          store.NewNotifyLogsStore(sqlDB),
-		RuntimeConfig:       runtimeCfg,
+		Config:                c,
+		Gorm:                  gdb,
+		Redis:                 rdb,
+		PayOrders:             store.NewPayinOrdersStore(gdb),
+		PayoutOrders:          store.NewPayoutOrdersStore(gdb),
+		Channels:              store.NewChannelsStore(gdb),
+		MerchantPayinProducts: store.NewMerchantPayinProductsStore(gdb),
+		PayinProducts:         store.NewPayinProductsStore(gdb),
+		PayoutProducts:        store.NewPayoutProductsStore(gdb),
+		OrderStats:            store.NewOrderStatsStore(gdb),
+		RoutingSummary:        store.NewRoutingSummaryStore(gdb),
+		NotifyLogs:            store.NewNotifyLogsStore(gdb),
+		RuntimeConfig:         runtimeCfg,
 	}
 }

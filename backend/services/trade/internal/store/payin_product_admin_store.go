@@ -28,11 +28,11 @@ type PayinProductBindingAdmin struct {
 
 // AdminListAllPayinProducts 全部支付产品（含停用）。
 func (s *PayinProductsStore) AdminListAllPayinProducts(ctx context.Context) ([]PayinProductAdmin, error) {
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, code, name, sort_order, enabled
 FROM payin_products
 ORDER BY sort_order ASC, id ASC
-`)
+`).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +54,9 @@ ORDER BY sort_order ASC, id ASC
 func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64) (*PayinProductAdmin, error) {
 	var p PayinProductAdmin
 	var en int
-	err := s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
-`, id).Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en)
+`, id).Row().Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en)
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +70,14 @@ func (s *PayinProductsStore) AdminCreatePayinProduct(ctx context.Context, code, 
 	if enabled {
 		en = 1
 	}
-	res, err := s.db.ExecContext(ctx, `
+	tx := s.db.WithContext(ctx).Exec(`
 INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 `, code, name, sortOrder, en)
-	if err != nil {
-		return 0, err
+	if tx.Error != nil {
+		return 0, tx.Error
 	}
-	id, err := res.LastInsertId()
-	if err != nil {
+	var id int64
+	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID()`).Row().Scan(&id); err != nil {
 		return 0, err
 	}
 	return id, nil
@@ -89,17 +89,13 @@ func (s *PayinProductsStore) AdminUpdatePayinProduct(ctx context.Context, id int
 	if enabled {
 		en = 1
 	}
-	res, err := s.db.ExecContext(ctx, `
+	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated_at = NOW() WHERE id = ?
 `, code, name, sortOrder, en, id)
-	if err != nil {
-		return err
+	if tx.Error != nil {
+		return tx.Error
 	}
-	n, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if n == 0 {
+	if tx.RowsAffected == 0 {
 		return sql.ErrNoRows
 	}
 	return nil
@@ -107,13 +103,13 @@ UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updat
 
 // AdminListBindings 某产品下的通道绑定。
 func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayinProductBindingAdmin, error) {
-	rows, err := s.db.QueryContext(ctx, `
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.payin_product_id = ?
 ORDER BY ppc.id ASC
-`, payProductID)
+`, payProductID).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -140,18 +136,17 @@ func (s *PayinProductsStore) AdminUpsertBinding(ctx context.Context, payProductI
 	if enabled {
 		en = 1
 	}
-	_, err := s.db.ExecContext(ctx, `
+	if err := s.db.WithContext(ctx).Exec(`
 INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enabled)
 VALUES (?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), updated_at = NOW()
-`, payProductID, channelID, weight, en)
-	if err != nil {
+`, payProductID, channelID, weight, en).Error; err != nil {
 		return 0, err
 	}
 	var bid int64
-	err = s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT id FROM payin_product_channels WHERE payin_product_id = ? AND channel_id = ? LIMIT 1
-`, payProductID, channelID).Scan(&bid)
+`, payProductID, channelID).Row().Scan(&bid)
 	if err != nil {
 		return 0, fmt.Errorf("load binding id: %w", err)
 	}
@@ -167,17 +162,13 @@ func (s *PayinProductsStore) AdminUpdateBinding(ctx context.Context, bindingID i
 	if enabled {
 		en = 1
 	}
-	res, err := s.db.ExecContext(ctx, `
+	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WHERE id = ?
 `, weight, en, bindingID)
-	if err != nil {
-		return err
+	if tx.Error != nil {
+		return tx.Error
 	}
-	n, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if n == 0 {
+	if tx.RowsAffected == 0 {
 		return sql.ErrNoRows
 	}
 	return nil
@@ -187,12 +178,12 @@ UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WH
 func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayinProductBindingAdmin, error) {
 	var b PayinProductBindingAdmin
 	var en int
-	err := s.db.QueryRowContext(ctx, `
+	err := s.db.WithContext(ctx).Raw(`
 SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
+`, bindingID).Row().Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
 	if err != nil {
 		return nil, err
 	}
@@ -202,15 +193,11 @@ WHERE ppc.id = ? LIMIT 1
 
 // AdminDeleteBinding 删除一条绑定。
 func (s *PayinProductsStore) AdminDeleteBinding(ctx context.Context, bindingID int64) error {
-	res, err := s.db.ExecContext(ctx, `DELETE FROM payin_product_channels WHERE id = ?`, bindingID)
-	if err != nil {
-		return err
+	tx := s.db.WithContext(ctx).Exec(`DELETE FROM payin_product_channels WHERE id = ?`, bindingID)
+	if tx.Error != nil {
+		return tx.Error
 	}
-	n, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if n == 0 {
+	if tx.RowsAffected == 0 {
 		return sql.ErrNoRows
 	}
 	return nil
@@ -219,7 +206,7 @@ func (s *PayinProductsStore) AdminDeleteBinding(ctx context.Context, bindingID i
 // AdminChannelSupportsPayin 通道是否存在且支持代收。
 func (s *PayinProductsStore) AdminChannelSupportsPayin(ctx context.Context, channelID int64) (bool, error) {
 	var sc int
-	err := s.db.QueryRowContext(ctx, `SELECT supports_payin FROM channels WHERE id = ? LIMIT 1`, channelID).Scan(&sc)
+	err := s.db.WithContext(ctx).Raw(`SELECT supports_payin FROM channels WHERE id = ? LIMIT 1`, channelID).Row().Scan(&sc)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	}
@@ -232,7 +219,7 @@ func (s *PayinProductsStore) AdminChannelSupportsPayin(ctx context.Context, chan
 // AdminChannelExists 通道是否存在。
 func (s *PayinProductsStore) AdminChannelExists(ctx context.Context, channelID int64) (bool, error) {
 	var n int
-	err := s.db.QueryRowContext(ctx, `SELECT 1 FROM channels WHERE id = ? LIMIT 1`, channelID).Scan(&n)
+	err := s.db.WithContext(ctx).Raw(`SELECT 1 FROM channels WHERE id = ? LIMIT 1`, channelID).Row().Scan(&n)
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	}

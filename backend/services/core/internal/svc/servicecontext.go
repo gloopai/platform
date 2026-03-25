@@ -1,31 +1,32 @@
 package svc
 
 import (
-	"database/sql"
-
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/core/internal/config"
 	"github.com/gloopai/pay/core/internal/store"
-	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
 	Config                 config.Config
-	Sql                    *sql.DB
+	Gorm                   *gorm.DB
 	Merchants              *store.MerchantsStore
-	MerchantPayinProducts    *store.MerchantPayinProductsStore
+	MerchantPayinProducts  *store.MerchantPayinProductsStore
 	MerchantPayoutProducts *store.MerchantPayoutProductsStore
 	Settle                 *store.SettleStore
 	RuntimeConfig          *consulx.ConfigStore
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	sqlDB, err := sql.Open("mysql", dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
+	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	if err := sqlDB.Ping(); err != nil {
+	if sqlDB, err := gdb.DB(); err != nil {
+		panic(err)
+	} else if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
 	var runtimeCfg *consulx.ConfigStore
@@ -35,11 +36,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	return &ServiceContext{
 		Config:                 c,
-		Sql:                    sqlDB,
-		Merchants:              store.NewMerchantsStore(sqlDB),
-		MerchantPayinProducts:    store.NewMerchantPayinProductsStore(sqlDB),
-		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(sqlDB),
-		Settle:                 store.NewSettleStore(sqlDB),
+		Gorm:                   gdb,
+		Merchants:              store.NewMerchantsStore(gdb),
+		MerchantPayinProducts:  store.NewMerchantPayinProductsStore(gdb),
+		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(gdb),
+		Settle:                 store.NewSettleStore(gdb),
 		RuntimeConfig:          runtimeCfg,
 	}
 }

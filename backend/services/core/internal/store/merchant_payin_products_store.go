@@ -6,6 +6,8 @@ import (
 	"errors"
 	"sort"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 // PayinGrant 商户代收产品行（含可选覆盖费率）。
@@ -15,10 +17,10 @@ type PayinGrant struct {
 }
 
 type MerchantPayinProductsStore struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewMerchantPayinProductsStore(db *sql.DB) *MerchantPayinProductsStore {
+func NewMerchantPayinProductsStore(db *gorm.DB) *MerchantPayinProductsStore {
 	return &MerchantPayinProductsStore{db: db}
 }
 
@@ -41,34 +43,29 @@ func (s *MerchantPayinProductsStore) Replace(ctx context.Context, merchantID str
 	}
 	sort.Slice(uniq, func(i, j int) bool { return uniq[i].PayinProductID < uniq[j].PayinProductID })
 
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	if _, err := tx.ExecContext(ctx, `DELETE FROM merchant_payin_products WHERE merchant_id = ?`, merchantID); err != nil {
-		_ = tx.Rollback()
-		return err
-	}
-	for i, g := range uniq {
-		if g.RateBps == nil {
-			if _, err := tx.ExecContext(ctx, `
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec(`DELETE FROM merchant_payin_products WHERE merchant_id = ?`, merchantID).Error; err != nil {
+			return err
+		}
+		for i, g := range uniq {
+			if g.RateBps == nil {
+				if err := tx.Exec(`
 INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
 VALUES (?, ?, 1, ?, NULL)
-`, merchantID, g.PayinProductID, i); err != nil {
-				_ = tx.Rollback()
-				return err
-			}
-		} else {
-			if _, err := tx.ExecContext(ctx, `
+`, merchantID, g.PayinProductID, i).Error; err != nil {
+					return err
+				}
+			} else {
+				if err := tx.Exec(`
 INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
 VALUES (?, ?, 1, ?, ?)
-`, merchantID, g.PayinProductID, i, *g.RateBps); err != nil {
-				_ = tx.Rollback()
-				return err
+`, merchantID, g.PayinProductID, i, *g.RateBps).Error; err != nil {
+					return err
+				}
 			}
 		}
-	}
-	return tx.Commit()
+		return nil
+	})
 }
 
 func (s *MerchantPayinProductsStore) ListProductIDs(ctx context.Context, merchantID string) ([]int64, error) {
@@ -89,18 +86,17 @@ func (s *MerchantPayinProductsStore) ListPayinGrants(ctx context.Context, mercha
 	if merchantID == "" {
 		return nil, nil
 	}
-	rows, err := s.db.QueryContext(ctx, `
+	var out []PayinGrant
+	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT payin_product_id, merchant_rate_bps
 FROM merchant_payin_products
 WHERE merchant_id = ? AND enabled = 1
 ORDER BY sort_order ASC, payin_product_id ASC
-`, merchantID)
+`, merchantID).Rows()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var out []PayinGrant
 	for rows.Next() {
 		var g PayinGrant
 		var rate sql.NullInt64
