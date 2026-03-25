@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 
 	"gorm.io/gorm"
 )
@@ -33,33 +32,27 @@ func NewMerchantsStore(db *gorm.DB) *MerchantsStore {
 
 func (s *MerchantsStore) GetByMerchantId(ctx context.Context, merchantId string) (*Merchant, error) {
 	var m Merchant
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id, merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       COALESCE(payin_balance, 0), COALESCE(available_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
-       COALESCE(notify_url,''), COALESCE(return_url,'')
-FROM merchants
-WHERE merchant_id = ?
-LIMIT 1
-`, merchantId).Row().Scan(
-		&m.ID,
-		&m.MerchantId,
-		&m.ApiSecret,
-		&m.Status,
-		&m.DefaultPayinRateBps,
-		&m.DefaultPayoutRateBps,
-		&m.IpWhitelist,
-		&m.PayinBalance,
-		&m.AvailableBalance,
-		&m.FrozenBalance,
-		&m.WithdrawnAmount,
-		&m.NotifyUrl,
-		&m.ReturnUrl,
-	)
-	if err == sql.ErrNoRows {
-		return nil, sql.ErrNoRows
-	}
-	if err != nil {
-		return nil, err
+	tx := s.db.WithContext(ctx).
+		Table("merchants").
+		Select(`
+id,
+merchant_id,
+api_secret,
+status,
+default_payin_rate_bps,
+default_payout_rate_bps,
+COALESCE(ip_whitelist,'') AS ip_whitelist,
+COALESCE(payin_balance, 0) AS payin_balance,
+COALESCE(available_balance, 0) AS available_balance,
+COALESCE(frozen_balance, 0) AS frozen_balance,
+COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
+COALESCE(notify_url,'') AS notify_url,
+COALESCE(return_url,'') AS return_url`).
+		Where("merchant_id = ?", merchantId).
+		Limit(1).
+		Take(&m)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 	return &m, nil
 }

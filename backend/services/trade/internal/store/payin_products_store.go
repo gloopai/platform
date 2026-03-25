@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
@@ -30,11 +29,11 @@ func (s *PayinProductsStore) MerchantPayWhitelistStrict(ctx context.Context, mer
 	if merchantID == "" {
 		return false, nil
 	}
-	var n int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT COUNT(*) FROM merchant_payin_products WHERE merchant_id = ? AND enabled = 1
-`, merchantID).Row().Scan(&n)
-	if err != nil {
+	var n int64
+	if err := s.db.WithContext(ctx).
+		Table("merchant_payin_products").
+		Where("merchant_id = ? AND enabled = 1", merchantID).
+		Count(&n).Error; err != nil {
 		return false, err
 	}
 	return n > 0, nil
@@ -167,19 +166,21 @@ func (s *PayinProductsStore) MerchantHasPayinProductCode(ctx context.Context, me
 	if !strict {
 		return true, nil
 	}
-	var one int
-	err = s.db.WithContext(ctx).Raw(`
-SELECT 1
-FROM merchant_payin_products mpp
-INNER JOIN payin_products pp ON pp.id = mpp.payin_product_id AND pp.enabled = 1
-WHERE mpp.merchant_id = ? AND mpp.enabled = 1 AND pp.code = ?
-LIMIT 1
-`, merchantID, code).Row().Scan(&one)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	var one struct {
+		One int `gorm:"column:one"`
+	}
+	tx := s.db.WithContext(ctx).
+		Table("merchant_payin_products mpp").
+		Select("1 AS one").
+		Joins("INNER JOIN payin_products pp ON pp.id = mpp.payin_product_id AND pp.enabled = 1").
+		Where("mpp.merchant_id = ? AND mpp.enabled = 1 AND pp.code = ?", merchantID, code).
+		Limit(1).
+		Take(&one)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
 			return false, nil
 		}
-		return false, err
+		return false, tx.Error
 	}
 	return true, nil
 }
@@ -194,41 +195,31 @@ func (s *PayinProductsStore) ResolveLockedChannelForMerchant(ctx context.Context
 	if err != nil {
 		return 0, "", err
 	}
-	if strict {
-		err = s.db.WithContext(ctx).Raw(`
-SELECT pp.id, pp.code
-FROM payin_product_channels ppc
-INNER JOIN payin_products pp ON pp.id = ppc.payin_product_id AND pp.enabled = 1
-INNER JOIN channels c ON c.id = ppc.channel_id
-INNER JOIN merchant_payin_products mpp ON mpp.payin_product_id = pp.id AND mpp.merchant_id = ? AND mpp.enabled = 1
-WHERE ppc.channel_id = ? AND ppc.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_payin = 1 AND ppc.weight > 0
-  AND (c.min_amount = 0 OR c.min_amount <= ?)
-  AND (c.max_amount = 0 OR c.max_amount >= ?)
-ORDER BY ppc.weight DESC, pp.id ASC
-LIMIT 1
-`, merchantID, channelID, amount, amount).Row().Scan(&payProductID, &payinProductCode)
-	} else {
-		err = s.db.WithContext(ctx).Raw(`
-SELECT pp.id, pp.code
-FROM payin_product_channels ppc
-INNER JOIN payin_products pp ON pp.id = ppc.payin_product_id AND pp.enabled = 1
-INNER JOIN channels c ON c.id = ppc.channel_id
-WHERE ppc.channel_id = ? AND ppc.enabled = 1
-  AND c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_payin = 1 AND ppc.weight > 0
-  AND (c.min_amount = 0 OR c.min_amount <= ?)
-  AND (c.max_amount = 0 OR c.max_amount >= ?)
-ORDER BY ppc.weight DESC, pp.id ASC
-LIMIT 1
-`, channelID, amount, amount).Row().Scan(&payProductID, &payinProductCode)
+	type row struct {
+		PayProductID int64  `gorm:"column:pay_product_id"`
+		Code         string `gorm:"column:code"`
 	}
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	var r row
+	q := s.db.WithContext(ctx).
+		Table("payin_product_channels ppc").
+		Select("pp.id AS pay_product_id, pp.code AS code").
+		Joins("INNER JOIN payin_products pp ON pp.id = ppc.payin_product_id AND pp.enabled = 1").
+		Joins("INNER JOIN channels c ON c.id = ppc.channel_id").
+		Where("ppc.channel_id = ? AND ppc.enabled = 1", channelID).
+		Where("c.enabled = 1 AND c.fuse_enabled = 0 AND c.supports_payin = 1 AND ppc.weight > 0").
+		Where("(c.min_amount = 0 OR c.min_amount <= ?)", amount).
+		Where("(c.max_amount = 0 OR c.max_amount >= ?)", amount)
+	if strict {
+		q = q.Joins("INNER JOIN merchant_payin_products mpp ON mpp.payin_product_id = pp.id AND mpp.merchant_id = ? AND mpp.enabled = 1", merchantID)
+	}
+	tx := q.Order("ppc.weight DESC, pp.id ASC").Limit(1).Take(&r)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
 			return 0, "", errors.New("channel not allowed for merchant or amount out of range")
 		}
-		return 0, "", err
+		return 0, "", tx.Error
 	}
-	return payProductID, payinProductCode, nil
+	return r.PayProductID, r.Code, nil
 }
 
 // GetPayinProductDisplayName 按 code 取展示名，不存在则返回 code。
@@ -237,15 +228,20 @@ func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, cod
 	if code == "" {
 		return "", nil
 	}
-	var name string
-	err := s.db.WithContext(ctx).Raw(`
-SELECT COALESCE(NULLIF(TRIM(name), ''), code) FROM payin_products WHERE code = ? AND enabled = 1 LIMIT 1
-`, code).Row().Scan(&name)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	var r struct {
+		Name string `gorm:"column:name"`
+	}
+	tx := s.db.WithContext(ctx).
+		Table("payin_products").
+		Select("COALESCE(NULLIF(TRIM(name), ''), code) AS name").
+		Where("code = ? AND enabled = 1", code).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
 			return code, nil
 		}
-		return "", err
+		return "", tx.Error
 	}
-	return name, nil
+	return r.Name, nil
 }

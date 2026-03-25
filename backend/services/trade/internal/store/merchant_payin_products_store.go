@@ -2,8 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"strings"
 
 	"gorm.io/gorm"
@@ -24,11 +22,11 @@ func (s *MerchantPayinProductsStore) MerchantPayWhitelistStrict(ctx context.Cont
 	if merchantID == "" {
 		return false, nil
 	}
-	var n int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT COUNT(*) FROM merchant_payin_products WHERE merchant_id = ? AND enabled = 1
-`, merchantID).Row().Scan(&n)
-	if err != nil {
+	var n int64
+	if err := s.db.WithContext(ctx).
+		Table("merchant_payin_products").
+		Where("merchant_id = ? AND enabled = 1", merchantID).
+		Count(&n).Error; err != nil {
 		return false, err
 	}
 	return n > 0, nil
@@ -48,19 +46,21 @@ func (s *MerchantPayinProductsStore) MerchantHasPayinProductCode(ctx context.Con
 	if !strict {
 		return true, nil
 	}
-	var one int
-	err = s.db.WithContext(ctx).Raw(`
-SELECT 1
-FROM merchant_payin_products mpp
-INNER JOIN payin_products pp ON pp.id = mpp.payin_product_id AND pp.enabled = 1
-WHERE mpp.merchant_id = ? AND mpp.enabled = 1 AND pp.code = ?
-LIMIT 1
-`, merchantID, code).Row().Scan(&one)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	var one struct {
+		One int `gorm:"column:one"`
+	}
+	tx := s.db.WithContext(ctx).
+		Table("merchant_payin_products mpp").
+		Select("1 AS one").
+		Joins("INNER JOIN payin_products pp ON pp.id = mpp.payin_product_id AND pp.enabled = 1").
+		Where("mpp.merchant_id = ? AND mpp.enabled = 1 AND pp.code = ?", merchantID, code).
+		Limit(1).
+		Take(&one)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
 			return false, nil
 		}
-		return false, err
+		return false, tx.Error
 	}
 	return true, nil
 }

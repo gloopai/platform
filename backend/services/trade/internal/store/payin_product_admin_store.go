@@ -2,9 +2,10 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 // PayinProductAdmin 管理台支付产品行。
@@ -52,16 +53,29 @@ ORDER BY sort_order ASC, id ASC
 
 // AdminGetPayinProduct 按 ID。
 func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64) (*PayinProductAdmin, error) {
-	var p PayinProductAdmin
-	var en int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
-`, id).Row().Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en)
-	if err != nil {
-		return nil, err
+	var r struct {
+		ID        int64  `gorm:"column:id"`
+		Code      string `gorm:"column:code"`
+		Name      string `gorm:"column:name"`
+		SortOrder int64  `gorm:"column:sort_order"`
+		Enabled   int    `gorm:"column:enabled"`
 	}
-	p.Enabled = en == 1
-	return &p, nil
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
+`, id).Scan(&r)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &PayinProductAdmin{
+		ID:        r.ID,
+		Code:      r.Code,
+		Name:      r.Name,
+		SortOrder: r.SortOrder,
+		Enabled:   r.Enabled == 1,
+	}, nil
 }
 
 // AdminCreatePayinProduct 新建；code 唯一。
@@ -76,11 +90,13 @@ INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
-	var id int64
-	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID()`).Row().Scan(&id); err != nil {
+	var rid struct {
+		ID int64 `gorm:"column:id"`
+	}
+	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID() AS id`).Scan(&rid).Error; err != nil {
 		return 0, err
 	}
-	return id, nil
+	return rid.ID, nil
 }
 
 // AdminUpdatePayinProduct 更新。
@@ -96,7 +112,7 @@ UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updat
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
@@ -144,12 +160,19 @@ ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), upda
 		return 0, err
 	}
 	var bid int64
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id FROM payin_product_channels WHERE payin_product_id = ? AND channel_id = ? LIMIT 1
-`, payProductID, channelID).Row().Scan(&bid)
-	if err != nil {
-		return 0, fmt.Errorf("load binding id: %w", err)
+	var r struct {
+		ID int64 `gorm:"column:id"`
 	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT id FROM payin_product_channels WHERE payin_product_id = ? AND channel_id = ? LIMIT 1
+`, payProductID, channelID).Scan(&r)
+	if tx.Error != nil {
+		return 0, fmt.Errorf("load binding id: %w", tx.Error)
+	}
+	if tx.RowsAffected == 0 {
+		return 0, fmt.Errorf("load binding id: %w", gorm.ErrRecordNotFound)
+	}
+	bid = r.ID
 	return bid, nil
 }
 
@@ -169,7 +192,7 @@ UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WH
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
@@ -177,17 +200,37 @@ UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WH
 // AdminGetBindingByID 单条绑定（含通道名）。
 func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayinProductBindingAdmin, error) {
 	var b PayinProductBindingAdmin
-	var en int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
+	var r struct {
+		ID             int64  `gorm:"column:id"`
+		PayinProductID int64  `gorm:"column:payin_product_id"`
+		ChannelID      int64  `gorm:"column:channel_id"`
+		ChannelName    string `gorm:"column:channel_name"`
+		Weight         int64  `gorm:"column:weight"`
+		Enabled        int    `gorm:"column:enabled"`
+	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT ppc.id,
+       ppc.payin_product_id,
+       ppc.channel_id,
+       COALESCE(c.name,'') AS channel_name,
+       ppc.weight,
+       ppc.enabled
 FROM payin_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Row().Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
-	if err != nil {
-		return nil, err
+`, bindingID).Scan(&r)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
-	b.Enabled = en == 1
+	if tx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	b.ID = r.ID
+	b.PayinProductID = r.PayinProductID
+	b.ChannelID = r.ChannelID
+	b.ChannelName = r.ChannelName
+	b.Weight = r.Weight
+	b.Enabled = r.Enabled == 1
 	return &b, nil
 }
 
@@ -198,33 +241,47 @@ func (s *PayinProductsStore) AdminDeleteBinding(ctx context.Context, bindingID i
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
 
 // AdminChannelSupportsPayin 通道是否存在且支持代收。
 func (s *PayinProductsStore) AdminChannelSupportsPayin(ctx context.Context, channelID int64) (bool, error) {
-	var sc int
-	err := s.db.WithContext(ctx).Raw(`SELECT supports_payin FROM channels WHERE id = ? LIMIT 1`, channelID).Row().Scan(&sc)
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
+	var r struct {
+		SupportsPayin int `gorm:"column:supports_payin"`
 	}
-	if err != nil {
-		return false, err
+	tx := s.db.WithContext(ctx).
+		Table("channels").
+		Select("supports_payin").
+		Where("id = ?", channelID).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, tx.Error
 	}
-	return sc == 1, nil
+	return r.SupportsPayin == 1, nil
 }
 
 // AdminChannelExists 通道是否存在。
 func (s *PayinProductsStore) AdminChannelExists(ctx context.Context, channelID int64) (bool, error) {
-	var n int
-	err := s.db.WithContext(ctx).Raw(`SELECT 1 FROM channels WHERE id = ? LIMIT 1`, channelID).Row().Scan(&n)
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
+	var one struct {
+		One int `gorm:"column:one"`
 	}
-	if err != nil {
-		return false, err
+	tx := s.db.WithContext(ctx).
+		Table("channels").
+		Select("1 AS one").
+		Where("id = ?", channelID).
+		Limit(1).
+		Take(&one)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, tx.Error
 	}
 	return true, nil
 }

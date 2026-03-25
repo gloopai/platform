@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
@@ -14,6 +13,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type PrepareTerminalPayLogic struct {
@@ -38,7 +38,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 
 	rec, err := l.svcCtx.PayOrders.FindByOrderNo(l.ctx, orderNo)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "order not found")
 		}
 		return nil, status.Error(codes.Internal, "get order failed")
@@ -76,7 +76,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 	}
 
 	if err := l.svcCtx.PayOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.FailedPrecondition, "order not pending or not found")
 		}
 		return nil, status.Error(codes.Internal, "update order failed")
@@ -90,12 +90,12 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 	payURL, qrPayload, payMode := buildPaySurface(orderNo, rec.Amount, gw)
 
 	return &orderpb.PrepareTerminalPayResp{
-		ChannelId:      chID,
+		ChannelId:        chID,
 		PayinProductId:   payPID,
 		PayinProductCode: code,
-		PayUrl:         payURL,
-		QrPayload:      qrPayload,
-		PayMode:        payMode,
+		PayUrl:           payURL,
+		QrPayload:        qrPayload,
+		PayMode:          payMode,
 	}, nil
 }
 
@@ -117,7 +117,7 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 	payPID := rec.PayinProductId
 
 	if err := l.svcCtx.PayOrders.UpdatePendingPayRoute(l.ctx, orderNo, chID, payPID, code); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.FailedPrecondition, "order not pending or not found")
 		}
 		return nil, status.Error(codes.Internal, "update order failed")
@@ -131,12 +131,12 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 	payURL, qrPayload, payMode := buildPaySurface(orderNo, rec.Amount, gw)
 
 	return &orderpb.PrepareTerminalPayResp{
-		ChannelId:      chID,
+		ChannelId:        chID,
 		PayinProductId:   payPID,
 		PayinProductCode: code,
-		PayUrl:         payURL,
-		QrPayload:      qrPayload,
-		PayMode:        payMode,
+		PayUrl:           payURL,
+		QrPayload:        qrPayload,
+		PayMode:          payMode,
 	}, nil
 }
 

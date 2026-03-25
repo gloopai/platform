@@ -28,27 +28,17 @@ func NewRoutingSummaryStore(db *gorm.DB) *RoutingSummaryStore {
 
 func (s *RoutingSummaryStore) Get(ctx context.Context) (RoutingSummary, error) {
 	var out RoutingSummary
-	err := s.db.WithContext(ctx).Raw(`
+	if err := s.db.WithContext(ctx).Raw(`
 SELECT
-  (SELECT COUNT(*) FROM payin_products WHERE enabled = 1),
-  (SELECT COUNT(*) FROM payout_products WHERE enabled = 1),
-  (SELECT COUNT(*) FROM channels WHERE enabled = 1),
-  (SELECT COUNT(*) FROM payin_product_channels WHERE enabled = 1),
-  (SELECT COUNT(*) FROM payout_product_channels WHERE enabled = 1),
-  (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payin_products WHERE enabled = 1),
-  (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payout_products WHERE enabled = 1),
-  (SELECT COUNT(*) FROM channels WHERE enabled = 1 AND fuse_enabled = 1)
-`).Row().Scan(
-		&out.EnabledPayinProducts,
-		&out.EnabledPayoutProducts,
-		&out.EnabledChannels,
-		&out.ActiveBindings,
-		&out.ActivePayoutBindings,
-		&out.MerchantsWithPayinWhitelist,
-		&out.MerchantsWithPayoutWhitelist,
-		&out.FusedChannels,
-	)
-	if err != nil {
+  (SELECT COUNT(*) FROM payin_products WHERE enabled = 1) AS enabled_payin_products,
+  (SELECT COUNT(*) FROM payout_products WHERE enabled = 1) AS enabled_payout_products,
+  (SELECT COUNT(*) FROM channels WHERE enabled = 1) AS enabled_channels,
+  (SELECT COUNT(*) FROM payin_product_channels WHERE enabled = 1) AS active_bindings,
+  (SELECT COUNT(*) FROM payout_product_channels WHERE enabled = 1) AS active_payout_bindings,
+  (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payin_products WHERE enabled = 1) AS merchants_with_payin_whitelist,
+  (SELECT COUNT(DISTINCT merchant_id) FROM merchant_payout_products WHERE enabled = 1) AS merchants_with_payout_whitelist,
+  (SELECT COUNT(*) FROM channels WHERE enabled = 1 AND fuse_enabled = 1) AS fused_channels
+`).Scan(&out).Error; err != nil {
 		return RoutingSummary{}, err
 	}
 	return out, nil

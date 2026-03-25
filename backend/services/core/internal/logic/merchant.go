@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
+	"errors"
 	"strings"
 
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
@@ -13,6 +13,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type CreateMerchantLogic struct {
@@ -83,7 +84,7 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 
 	created, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.Internal, "merchant create failed")
 		}
 		return nil, err
@@ -144,7 +145,7 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 
 	existing, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "merchant not found")
 		}
 		return nil, err
@@ -206,7 +207,7 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 	}
 	m, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "merchant not found")
 		}
 		return nil, err
@@ -241,7 +242,7 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 	}
 	m, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "merchant not found")
 		}
 		return nil, err
@@ -347,7 +348,7 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		WithdrawnAmount:      m.WithdrawnAmount,
 		NotifyUrl:            m.NotifyUrl,
 		ReturnUrl:            m.ReturnUrl,
-		PayinProductIds:        payProductIds,
+		PayinProductIds:      payProductIds,
 		PayoutProductIds:     payoutProductIds,
 		PayinGrants:          pbCG,
 		PayoutGrants:         pbPG,

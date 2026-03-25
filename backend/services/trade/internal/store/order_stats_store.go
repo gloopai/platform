@@ -70,19 +70,35 @@ func (s *OrderStatsStore) DayOverview(ctx context.Context, day time.Time, mercha
 	}
 
 	var t TodayTotals
+	var tRow struct {
+		OrderCount   int64 `gorm:"column:order_count"`
+		PaidAmount   int64 `gorm:"column:paid_amount"`
+		PaidCount    int64 `gorm:"column:paid_count"`
+		FailedCount  int64 `gorm:"column:failed_count"`
+		PendingCount int64 `gorm:"column:pending_count"`
+		ClosedCount  int64 `gorm:"column:closed_count"`
+	}
 	err := s.db.WithContext(ctx).Raw(`
 SELECT
-  COUNT(*),
-  COALESCE(SUM(CASE WHEN status = 1 THEN COALESCE(paid_amount, amount) ELSE 0 END), 0),
-  COALESCE(SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END), 0),
-  COALESCE(SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END), 0),
-  COALESCE(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END), 0),
-  COALESCE(SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END), 0)
+  COUNT(*) AS order_count,
+  COALESCE(SUM(CASE WHEN status = 1 THEN COALESCE(paid_amount, amount) ELSE 0 END), 0) AS paid_amount,
+  COALESCE(SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END), 0) AS paid_count,
+  COALESCE(SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END), 0) AS failed_count,
+  COALESCE(SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END), 0) AS pending_count,
+  COALESCE(SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END), 0) AS closed_count
 FROM payin_orders
 WHERE `+where+`
-`, whereArgs...).Row().Scan(&t.OrderCount, &t.PaidAmount, &t.PaidCount, &t.FailedCount, &t.PendingCount, &t.ClosedCount)
+`, whereArgs...).Scan(&tRow).Error
 	if err != nil {
 		return TodayTotals{}, nil, nil, err
+	}
+	t = TodayTotals{
+		OrderCount:   tRow.OrderCount,
+		PaidAmount:   tRow.PaidAmount,
+		PaidCount:    tRow.PaidCount,
+		FailedCount:  tRow.FailedCount,
+		PendingCount: tRow.PendingCount,
+		ClosedCount:  tRow.ClosedCount,
 	}
 
 	prodRows, err := s.db.WithContext(ctx).Raw(`

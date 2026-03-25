@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"errors"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type CreateOrderLogic struct {
@@ -46,7 +46,7 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 			Existed: true,
 		}, nil
 	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, status.Error(codes.Internal, "query existing order failed")
 	}
 
@@ -159,7 +159,7 @@ func (l *GetOrderLogic) GetOrder(in *orderpb.GetOrderReq) (*orderpb.GetOrderResp
 		return nil, status.Error(codes.InvalidArgument, "order_no or (merchant_id and merchant_order_no) required")
 	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "order not found")
 		}
 		return nil, status.Error(codes.Internal, "get order failed")

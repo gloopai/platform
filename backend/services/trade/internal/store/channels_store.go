@@ -140,24 +140,36 @@ WHERE enabled = 1
 
 // GetGatewayURLAndPayinType 用于收银台组装跳转/二维码载体。
 func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID int64) (gatewayURL, payinType string, err error) {
-	err = s.db.WithContext(ctx).Raw(`
-SELECT COALESCE(gateway_url,''), COALESCE(payin_type,'')
-FROM channels WHERE id = ? LIMIT 1
-`, channelID).Row().Scan(&gatewayURL, &payinType)
-	return
+	var r struct {
+		GatewayURL string `gorm:"column:gateway_url"`
+		PayinType  string `gorm:"column:payin_type"`
+	}
+	tx := s.db.WithContext(ctx).
+		Table("channels").
+		Select("COALESCE(gateway_url,'') AS gateway_url, COALESCE(payin_type,'') AS payin_type").
+		Where("id = ?", channelID).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		return "", "", tx.Error
+	}
+	return r.GatewayURL, r.PayinType, nil
 }
 
 func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64) (string, error) {
-	var secret string
-	if err := s.db.WithContext(ctx).Raw(`
-SELECT COALESCE(sign_secret,'')
-FROM channels
-WHERE id = ?
-LIMIT 1
-`, channelId).Row().Scan(&secret); err != nil {
-		return "", err
+	var r struct {
+		SignSecret string `gorm:"column:sign_secret"`
 	}
-	return secret, nil
+	tx := s.db.WithContext(ctx).
+		Table("channels").
+		Select("COALESCE(sign_secret,'') AS sign_secret").
+		Where("id = ?", channelId).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		return "", tx.Error
+	}
+	return r.SignSecret, nil
 }
 
 // Channel 管理台 CRUD（与 gateway 原 channels 表结构一致）。
@@ -183,42 +195,43 @@ type Channel struct {
 }
 
 func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*Channel, error) {
-	var c Channel
-	var sc, sp int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
-       COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
-       weight, min_amount, max_amount,
-       supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
-       enabled, fuse_enabled
+	var row struct {
+		Channel
+		SupportsPayinInt  int `gorm:"column:supports_payin"`
+		SupportsPayoutInt int `gorm:"column:supports_payout"`
+	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT id,
+       COALESCE(name,'') AS name,
+       COALESCE(payin_type,'') AS payin_type,
+       COALESCE(gateway_url,'') AS gateway_url,
+       COALESCE(upstream_merchant_no,'') AS upstream_merchant_no,
+       COALESCE(rsa_private_key,'') AS rsa_private_key,
+       COALESCE(sign_secret,'') AS sign_secret,
+       weight,
+       min_amount,
+       max_amount,
+       supports_payin,
+       supports_payout,
+       upstream_payin_rate_bps,
+       upstream_payout_rate_bps,
+       upstream_payout_fee_mode,
+       upstream_payout_fixed_fee,
+       enabled,
+       fuse_enabled
 FROM channels
 WHERE id = ?
 LIMIT 1
-`, id).Row().Scan(
-		&c.ID,
-		&c.Name,
-		&c.PayinType,
-		&c.GatewayUrl,
-		&c.UpstreamMerchantNo,
-		&c.RsaPrivateKey,
-		&c.SignSecret,
-		&c.Weight,
-		&c.MinAmount,
-		&c.MaxAmount,
-		&sc,
-		&sp,
-		&c.UpstreamPayinRateBps,
-		&c.UpstreamPayoutRateBps,
-		&c.UpstreamPayoutFeeMode,
-		&c.UpstreamPayoutFixedFee,
-		&c.Enabled,
-		&c.FuseEnabled,
-	)
-	if err != nil {
-		return nil, err
+`, id).Scan(&row)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
-	c.SupportsPayin = sc == 1
-	c.SupportsPayout = sp == 1
+	if tx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	c := row.Channel
+	c.SupportsPayin = row.SupportsPayinInt == 1
+	c.SupportsPayout = row.SupportsPayoutInt == 1
 	return &c, nil
 }
 
@@ -291,11 +304,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
-	var id int64
-	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID()`).Row().Scan(&id); err != nil {
+	var rid struct {
+		ID int64 `gorm:"column:id"`
+	}
+	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID() AS id`).Scan(&rid).Error; err != nil {
 		return 0, err
 	}
-	return id, nil
+	return rid.ID, nil
 }
 
 func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) error {

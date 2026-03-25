@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"sort"
 	"strings"
@@ -79,34 +78,36 @@ func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merc
 	if merchantID == "" {
 		return nil, nil
 	}
-	rows, err := s.db.WithContext(ctx).Raw(`
+	type row struct {
+		PayoutProductID int64  `gorm:"column:payout_product_id"`
+		FeeMode         int64  `gorm:"column:fee_mode"`
+		MerchantRateBps *int64 `gorm:"column:merchant_rate_bps"`
+		FeeFixedAmount  int64  `gorm:"column:fee_fixed_amount"`
+	}
+	var rowsOut []row
+	if err := s.db.WithContext(ctx).Raw(`
 SELECT payout_product_id, fee_mode, merchant_rate_bps, fee_fixed_amount
 FROM merchant_payout_products
 WHERE merchant_id = ? AND enabled = 1
 ORDER BY sort_order ASC, payout_product_id ASC
-`, merchantID).Rows()
-	if err != nil {
+`, merchantID).Scan(&rowsOut).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var out []PayoutGrant
-	for rows.Next() {
-		var g PayoutGrant
-		var rate sql.NullInt64
-		if err := rows.Scan(&g.PayoutProductID, &g.FeeMode, &rate, &g.FixedFeeAmount); err != nil {
-			return nil, err
+	out := make([]PayoutGrant, 0, len(rowsOut))
+	for _, r := range rowsOut {
+		feeMode := r.FeeMode
+		if feeMode < 1 || feeMode > 3 {
+			feeMode = 1
 		}
-		if g.FeeMode < 1 || g.FeeMode > 3 {
-			g.FeeMode = 1
-		}
-		if rate.Valid {
-			v := rate.Int64
-			g.RateBps = &v
-		}
-		out = append(out, g)
+		out = append(out, PayoutGrant{
+			PayoutProductID: r.PayoutProductID,
+			FeeMode:         feeMode,
+			RateBps:         r.MerchantRateBps,
+			FixedFeeAmount:  r.FeeFixedAmount,
+		})
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
 func (s *MerchantPayoutProductsStore) ListPayoutProductIDs(ctx context.Context, merchantID string) ([]int64, error) {

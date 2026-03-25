@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
@@ -57,16 +56,23 @@ SELECT id, code, name, sort_order, enabled FROM payout_products ORDER BY sort_or
 }
 
 func (s *PayoutProductsStore) AdminGetPayoutProduct(ctx context.Context, id int64) (*PayoutProductAdmin, error) {
-	var p PayoutProductAdmin
-	var en int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled FROM payout_products WHERE id = ? LIMIT 1
-`, id).Row().Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en)
-	if err != nil {
-		return nil, err
+	var r struct {
+		ID        int64  `gorm:"column:id"`
+		Code      string `gorm:"column:code"`
+		Name      string `gorm:"column:name"`
+		SortOrder int64  `gorm:"column:sort_order"`
+		Enabled   int    `gorm:"column:enabled"`
 	}
-	p.Enabled = en == 1
-	return &p, nil
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT id, code, name, sort_order, enabled FROM payout_products WHERE id = ? LIMIT 1
+`, id).Scan(&r)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &PayoutProductAdmin{ID: r.ID, Code: r.Code, Name: r.Name, SortOrder: r.SortOrder, Enabled: r.Enabled == 1}, nil
 }
 
 func (s *PayoutProductsStore) AdminCreatePayoutProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
@@ -80,11 +86,13 @@ INSERT INTO payout_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
-	var id int64
-	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID()`).Row().Scan(&id); err != nil {
+	var rid struct {
+		ID int64 `gorm:"column:id"`
+	}
+	if err := s.db.WithContext(ctx).Raw(`SELECT LAST_INSERT_ID() AS id`).Scan(&rid).Error; err != nil {
 		return 0, err
 	}
-	return id, nil
+	return rid.ID, nil
 }
 
 func (s *PayoutProductsStore) AdminUpdatePayoutProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
@@ -99,7 +107,7 @@ UPDATE payout_products SET code = ?, name = ?, sort_order = ?, enabled = ?, upda
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
@@ -145,12 +153,19 @@ ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled), upda
 		return 0, err
 	}
 	var bid int64
-	err := s.db.WithContext(ctx).Raw(`
-SELECT id FROM payout_product_channels WHERE payout_product_id = ? AND channel_id = ? LIMIT 1
-`, payoutProductID, channelID).Row().Scan(&bid)
-	if err != nil {
-		return 0, fmt.Errorf("load binding id: %w", err)
+	var r struct {
+		ID int64 `gorm:"column:id"`
 	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT id FROM payout_product_channels WHERE payout_product_id = ? AND channel_id = ? LIMIT 1
+`, payoutProductID, channelID).Scan(&r)
+	if tx.Error != nil {
+		return 0, fmt.Errorf("load binding id: %w", tx.Error)
+	}
+	if tx.RowsAffected == 0 {
+		return 0, fmt.Errorf("load binding id: %w", gorm.ErrRecordNotFound)
+	}
+	bid = r.ID
 	return bid, nil
 }
 
@@ -169,25 +184,45 @@ UPDATE payout_product_channels SET weight = ?, enabled = ?, updated_at = NOW() W
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
 
 func (s *PayoutProductsStore) AdminGetPayoutBindingByID(ctx context.Context, bindingID int64) (*PayoutProductBindingAdmin, error) {
-	var b PayoutProductBindingAdmin
-	var en int
-	err := s.db.WithContext(ctx).Raw(`
-SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
+	var r struct {
+		ID              int64  `gorm:"column:id"`
+		PayoutProductID int64  `gorm:"column:payout_product_id"`
+		ChannelID       int64  `gorm:"column:channel_id"`
+		ChannelName     string `gorm:"column:channel_name"`
+		Weight          int64  `gorm:"column:weight"`
+		Enabled         int    `gorm:"column:enabled"`
+	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT ppc.id,
+       ppc.payout_product_id,
+       ppc.channel_id,
+       COALESCE(c.name,'') AS channel_name,
+       ppc.weight,
+       ppc.enabled
 FROM payout_product_channels ppc
 LEFT JOIN channels c ON c.id = ppc.channel_id
 WHERE ppc.id = ? LIMIT 1
-`, bindingID).Row().Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en)
-	if err != nil {
-		return nil, err
+`, bindingID).Scan(&r)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
-	b.Enabled = en == 1
-	return &b, nil
+	if tx.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return &PayoutProductBindingAdmin{
+		ID:              r.ID,
+		PayoutProductID: r.PayoutProductID,
+		ChannelID:       r.ChannelID,
+		ChannelName:     r.ChannelName,
+		Weight:          r.Weight,
+		Enabled:         r.Enabled == 1,
+	}, nil
 }
 
 func (s *PayoutProductsStore) AdminDeletePayoutBinding(ctx context.Context, bindingID int64) error {
@@ -196,19 +231,26 @@ func (s *PayoutProductsStore) AdminDeletePayoutBinding(ctx context.Context, bind
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
 
 func (s *PayoutProductsStore) AdminChannelSupportsPayout(ctx context.Context, channelID int64) (bool, error) {
-	var sp int
-	err := s.db.WithContext(ctx).Raw(`SELECT supports_payout FROM channels WHERE id = ? LIMIT 1`, channelID).Row().Scan(&sp)
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, nil
+	var r struct {
+		SupportsPayout int `gorm:"column:supports_payout"`
 	}
-	if err != nil {
-		return false, err
+	tx := s.db.WithContext(ctx).
+		Table("channels").
+		Select("supports_payout").
+		Where("id = ?", channelID).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		if tx.Error == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, tx.Error
 	}
-	return sp == 1, nil
+	return r.SupportsPayout == 1, nil
 }

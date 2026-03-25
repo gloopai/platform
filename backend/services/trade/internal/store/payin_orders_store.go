@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
@@ -25,7 +24,7 @@ func (s *PayinOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId
 		Limit(1).
 		Take(&rec)
 	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		return nil, sql.ErrNoRows
+		return nil, gorm.ErrRecordNotFound
 	}
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -41,7 +40,7 @@ func (s *PayinOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*
 		Limit(1).
 		Take(&rec)
 	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		return nil, sql.ErrNoRows
+		return nil, gorm.ErrRecordNotFound
 	}
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -146,33 +145,34 @@ WHERE order_no = ? AND status = ?
 		return tx.Error
 	}
 	if tx.RowsAffected == 0 {
-		return sql.ErrNoRows
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
 
 func (s *PayinOrdersStore) TodaySummary(ctx context.Context, merchantId string) (int64, int64, int64, error) {
-	var (
-		totalAmount  int64
-		totalCount   int64
-		successCount int64
-	)
-
+	var a struct {
+		TotalAmount int64 `gorm:"column:total_amount"`
+		TotalCount  int64 `gorm:"column:total_count"`
+	}
 	if err := s.db.WithContext(ctx).Raw(`
-SELECT COALESCE(SUM(amount), 0), COUNT(*)
+SELECT COALESCE(SUM(amount), 0) AS total_amount, COUNT(*) AS total_count
 FROM payin_orders
 WHERE merchant_id = ? AND created_at >= CURDATE()
-`, merchantId).Row().Scan(&totalAmount, &totalCount); err != nil {
+`, merchantId).Scan(&a).Error; err != nil {
 		return 0, 0, 0, err
 	}
 
+	var b struct {
+		SuccessCount int64 `gorm:"column:success_count"`
+	}
 	if err := s.db.WithContext(ctx).Raw(`
-SELECT COUNT(*)
+SELECT COUNT(*) AS success_count
 FROM payin_orders
 WHERE merchant_id = ? AND created_at >= CURDATE() AND status = ?
-`, merchantId, OrderStatusPaid).Row().Scan(&successCount); err != nil {
+`, merchantId, OrderStatusPaid).Scan(&b).Error; err != nil {
 		return 0, 0, 0, err
 	}
 
-	return totalAmount, totalCount, successCount, nil
+	return a.TotalAmount, a.TotalCount, b.SuccessCount, nil
 }

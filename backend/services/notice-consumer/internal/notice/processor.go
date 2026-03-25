@@ -136,27 +136,32 @@ type orderRow struct {
 }
 
 func loadMerchant(ctx context.Context, db *gorm.DB, merchantId string) (string, string, error) {
-	var notifyURL, secret string
-	if err := db.WithContext(ctx).Raw(`
-SELECT COALESCE(notify_url, ''), api_secret
-FROM merchants
-WHERE merchant_id = ? AND status = 1
-LIMIT 1
-`, merchantId).Row().Scan(&notifyURL, &secret); err != nil {
-		return "", "", err
+	var r struct {
+		NotifyURL string `gorm:"column:notify_url"`
+		Secret    string `gorm:"column:api_secret"`
 	}
-	return notifyURL, secret, nil
+	tx := db.WithContext(ctx).
+		Table("merchants").
+		Select("COALESCE(notify_url, '') AS notify_url, api_secret").
+		Where("merchant_id = ? AND status = 1", merchantId).
+		Limit(1).
+		Take(&r)
+	if tx.Error != nil {
+		return "", "", tx.Error
+	}
+	return r.NotifyURL, r.Secret, nil
 }
 
 func loadOrder(ctx context.Context, db *gorm.DB, orderNo string) (*orderRow, error) {
 	var o orderRow
-	if err := db.WithContext(ctx).Raw(`
-SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, COALESCE(upstream_trade_no,''), paid_amount
-FROM orders
-WHERE order_no = ?
-LIMIT 1
-`, orderNo).Row().Scan(&o.OrderNo, &o.MerchantId, &o.MerchantOrderNo, &o.Amount, &o.Currency, &o.Status, &o.ChannelId, &o.UpstreamTradeNo, &o.PaidAmount); err != nil {
-		return nil, err
+	tx := db.WithContext(ctx).
+		Table("orders").
+		Select("order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, COALESCE(upstream_trade_no,'') AS upstream_trade_no, paid_amount").
+		Where("order_no = ?", orderNo).
+		Limit(1).
+		Take(&o)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 	return &o, nil
 }

@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"gorm.io/gorm"
@@ -32,7 +31,7 @@ func (s *AdminUsersStore) FindByUsername(ctx context.Context, username string) (
 		Limit(1).
 		Take(&u)
 	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		return nil, sql.ErrNoRows
+		return nil, gorm.ErrRecordNotFound
 	}
 	if tx.Error != nil {
 		return nil, tx.Error

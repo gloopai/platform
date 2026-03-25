@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
@@ -26,7 +25,7 @@ WHERE merchant_id = ? AND merchant_order_no = ?
 LIMIT 1
 `, merchantId, merchantOrderNo).Scan(&rec)
 	if errors.Is(tx.Error, gorm.ErrRecordNotFound) || tx.RowsAffected == 0 {
-		return nil, sql.ErrNoRows
+		return nil, gorm.ErrRecordNotFound
 	}
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -43,7 +42,7 @@ WHERE order_no = ?
 LIMIT 1
 `, orderNo).Scan(&rec)
 	if errors.Is(tx.Error, gorm.ErrRecordNotFound) || tx.RowsAffected == 0 {
-		return nil, sql.ErrNoRows
+		return nil, gorm.ErrRecordNotFound
 	}
 	if tx.Error != nil {
 		return nil, tx.Error

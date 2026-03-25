@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/gloopai/pay/trade/internal/store"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
@@ -263,7 +263,7 @@ func (s *ChannelServer) AdminUpdatePayinProduct(ctx context.Context, req *channe
 	}
 	err := s.svcCtx.PayinProducts.AdminUpdatePayinProduct(ctx, req.GetId(), code, name, req.GetSortOrder(), req.GetEnabled())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		if strings.Contains(err.Error(), "Duplicate") {
@@ -273,7 +273,7 @@ func (s *ChannelServer) AdminUpdatePayinProduct(ctx context.Context, req *channe
 	}
 	p, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetId())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
@@ -288,7 +288,7 @@ func (s *ChannelServer) AdminListPayinProductBindings(ctx context.Context, req *
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
 	if _, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetPayinProductId()); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
@@ -312,7 +312,7 @@ func (s *ChannelServer) AdminUpsertPayinProductBinding(ctx context.Context, req 
 		return nil, status.Error(codes.InvalidArgument, "weight must be positive")
 	}
 	if _, err := s.svcCtx.PayinProducts.AdminGetPayinProduct(ctx, req.GetPayinProductId()); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "pay product not found")
 		}
 		return nil, err
@@ -348,14 +348,14 @@ func (s *ChannelServer) AdminUpdatePayinProductBinding(ctx context.Context, req 
 	}
 	err := s.svcCtx.PayinProducts.AdminUpdateBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
 	b, err := s.svcCtx.PayinProducts.AdminGetBindingByID(ctx, req.GetId())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
@@ -369,7 +369,7 @@ func (s *ChannelServer) AdminDeletePayinProductBinding(ctx context.Context, req 
 	}
 	err := s.svcCtx.PayinProducts.AdminDeleteBinding(ctx, req.GetId())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
@@ -424,7 +424,7 @@ func (s *ChannelServer) AdminUpdatePayoutProduct(ctx context.Context, req *chann
 	}
 	err := s.svcCtx.PayoutProducts.AdminUpdatePayoutProduct(ctx, req.GetId(), code, name, req.GetSortOrder(), req.GetEnabled())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "payout product not found")
 		}
 		if strings.Contains(err.Error(), "Duplicate") {
@@ -446,7 +446,7 @@ func (s *ChannelServer) AdminListPayoutProductBindings(ctx context.Context, req 
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
 	if _, err := s.svcCtx.PayoutProducts.AdminGetPayoutProduct(ctx, req.GetPayoutProductId()); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "payout product not found")
 		}
 		return nil, err
@@ -470,7 +470,7 @@ func (s *ChannelServer) AdminUpsertPayoutProductBinding(ctx context.Context, req
 		return nil, status.Error(codes.InvalidArgument, "weight must be positive")
 	}
 	if _, err := s.svcCtx.PayoutProducts.AdminGetPayoutProduct(ctx, req.GetPayoutProductId()); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "payout product not found")
 		}
 		return nil, err
@@ -506,7 +506,7 @@ func (s *ChannelServer) AdminUpdatePayoutProductBinding(ctx context.Context, req
 	}
 	err := s.svcCtx.PayoutProducts.AdminUpdatePayoutBinding(ctx, req.GetId(), req.GetWeight(), req.GetEnabled())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
@@ -524,7 +524,7 @@ func (s *ChannelServer) AdminDeletePayoutProductBinding(ctx context.Context, req
 	}
 	err := s.svcCtx.PayoutProducts.AdminDeletePayoutBinding(ctx, req.GetId())
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err

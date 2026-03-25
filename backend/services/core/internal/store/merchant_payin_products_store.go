@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"sort"
 	"strings"
@@ -86,28 +85,22 @@ func (s *MerchantPayinProductsStore) ListPayinGrants(ctx context.Context, mercha
 	if merchantID == "" {
 		return nil, nil
 	}
-	var out []PayinGrant
-	rows, err := s.db.WithContext(ctx).Raw(`
+	type row struct {
+		PayinProductID  int64  `gorm:"column:payin_product_id"`
+		MerchantRateBps *int64 `gorm:"column:merchant_rate_bps"`
+	}
+	var rowsOut []row
+	if err := s.db.WithContext(ctx).Raw(`
 SELECT payin_product_id, merchant_rate_bps
 FROM merchant_payin_products
 WHERE merchant_id = ? AND enabled = 1
 ORDER BY sort_order ASC, payin_product_id ASC
-`, merchantID).Rows()
-	if err != nil {
+`, merchantID).Scan(&rowsOut).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var g PayinGrant
-		var rate sql.NullInt64
-		if err := rows.Scan(&g.PayinProductID, &rate); err != nil {
-			return nil, err
-		}
-		if rate.Valid {
-			v := rate.Int64
-			g.RateBps = &v
-		}
-		out = append(out, g)
+	out := make([]PayinGrant, 0, len(rowsOut))
+	for _, r := range rowsOut {
+		out = append(out, PayinGrant{PayinProductID: r.PayinProductID, RateBps: r.MerchantRateBps})
 	}
-	return out, rows.Err()
+	return out, nil
 }

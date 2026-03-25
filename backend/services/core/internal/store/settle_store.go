@@ -2,11 +2,11 @@ package store
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var ErrInsufficientBalance = errors.New("insufficient balance")
@@ -23,35 +23,45 @@ func (s *SettleStore) Credit(ctx context.Context, merchantId, orderNo string, am
 	var changed bool
 	var payinAfter int64
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var payinBefore int64
-		if err := tx.Raw(`SELECT payin_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Row().Scan(&payinBefore); err != nil {
+		var m struct {
+			PayinBefore int64 `gorm:"column:payin_balance"`
+		}
+		if err := tx.
+			Table("merchants").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("payin_balance").
+			Where("merchant_id = ?", merchantId).
+			Limit(1).
+			Take(&m).Error; err != nil {
 			return err
 		}
 
-		var exists int
-		err := tx.Raw(`
-SELECT 1
-FROM fund_logs
-WHERE order_no = ? AND change_type = 'ORDER_PAID'
-LIMIT 1
-`, orderNo).Row().Scan(&exists)
-		if err == nil {
+		var one struct {
+			One int `gorm:"column:one"`
+		}
+		existsTx := tx.
+			Table("fund_logs").
+			Select("1 AS one").
+			Where("order_no = ? AND change_type = 'ORDER_PAID'", orderNo).
+			Limit(1).
+			Take(&one)
+		if existsTx.Error == nil {
 			changed = false
-			payinAfter = payinBefore
+			payinAfter = m.PayinBefore
 			return nil
 		}
-		if err != sql.ErrNoRows {
-			return err
+		if existsTx.Error != nil && existsTx.Error != gorm.ErrRecordNotFound {
+			return existsTx.Error
 		}
 
-		payinAfter = payinBefore + amount
+		payinAfter = m.PayinBefore + amount
 		if err := tx.Exec(`UPDATE merchants SET payin_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, payinAfter, merchantId).Error; err != nil {
 			return err
 		}
 		if err := tx.Exec(`
 INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
 VALUES (?, ?, 'ORDER_PAID', ?, ?, ?, ?, NOW())
-`, merchantId, orderNo, amount, payinBefore, payinAfter, reason).Error; err != nil {
+`, merchantId, orderNo, amount, m.PayinBefore, payinAfter, reason).Error; err != nil {
 			return err
 		}
 		changed = true
@@ -67,19 +77,27 @@ func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo strin
 	var changed bool
 	var availableAfter int64
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var availableBefore int64
-		if err := tx.Raw(`SELECT available_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Row().Scan(&availableBefore); err != nil {
+		var m struct {
+			AvailableBefore int64 `gorm:"column:available_balance"`
+		}
+		if err := tx.
+			Table("merchants").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("available_balance").
+			Where("merchant_id = ?", merchantId).
+			Limit(1).
+			Take(&m).Error; err != nil {
 			return err
 		}
-		if availableBefore < amount {
+		if m.AvailableBefore < amount {
 			changed = false
-			availableAfter = availableBefore
+			availableAfter = m.AvailableBefore
 			return ErrInsufficientBalance
 		}
 		_ = orderNo
 		_ = reason
 
-		availableAfter = availableBefore - amount
+		availableAfter = m.AvailableBefore - amount
 		if err := tx.Exec(`UPDATE merchants SET available_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, availableAfter, merchantId).Error; err != nil {
 			return err
 		}
@@ -99,18 +117,27 @@ func (s *SettleStore) TransferPayinToPayout(ctx context.Context, merchantId stri
 	var changed bool
 	var payinAfter, availableAfter int64
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var payinBefore, availableBefore int64
-		if err := tx.Raw(`SELECT payin_balance, available_balance FROM merchants WHERE merchant_id = ? FOR UPDATE`, merchantId).Row().Scan(&payinBefore, &availableBefore); err != nil {
+		var m struct {
+			PayinBefore     int64 `gorm:"column:payin_balance"`
+			AvailableBefore int64 `gorm:"column:available_balance"`
+		}
+		if err := tx.
+			Table("merchants").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("payin_balance, available_balance").
+			Where("merchant_id = ?", merchantId).
+			Limit(1).
+			Take(&m).Error; err != nil {
 			return err
 		}
-		if payinBefore < amount {
+		if m.PayinBefore < amount {
 			changed = false
-			payinAfter = payinBefore
-			availableAfter = availableBefore
+			payinAfter = m.PayinBefore
+			availableAfter = m.AvailableBefore
 			return ErrInsufficientBalance
 		}
-		payinAfter = payinBefore - amount
-		availableAfter = availableBefore + amount
+		payinAfter = m.PayinBefore - amount
+		availableAfter = m.AvailableBefore + amount
 		if err := tx.Exec(`
 UPDATE merchants
 SET payin_balance = ?, available_balance = ?, updated_at = NOW()
@@ -122,7 +149,7 @@ WHERE merchant_id = ?
 		if err := tx.Exec(`
 INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
 VALUES (?, ?, 'PAYIN_TO_PAYOUT', ?, ?, ?, ?, NOW())
-`, merchantId, transferNo, amount, payinBefore, payinAfter, reason).Error; err != nil {
+`, merchantId, transferNo, amount, m.PayinBefore, payinAfter, reason).Error; err != nil {
 			return err
 		}
 		changed = true

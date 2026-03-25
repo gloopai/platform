@@ -2,17 +2,17 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"strings"
 
-	"github.com/go-sql-driver/mysql"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/gloopai/pay/trade/internal/svc"
+	"github.com/go-sql-driver/mysql"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type PayoutOrderLogic struct {
@@ -37,7 +37,7 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 	if err == nil {
 		return &orderpb.CreateOrderResp{Order: toOrderInfo(existing), Existed: true}, nil
 	}
-	if !errors.Is(err, sql.ErrNoRows) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, status.Error(codes.Internal, "query existing payout order failed")
 	}
 
@@ -51,22 +51,22 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 	}
 
 	rec := &store.OrderRecord{
-		OrderNo:         orderNo,
-		MerchantId:      in.GetMerchantId(),
-		MerchantOrderNo: in.GetMerchantOrderNo(),
-		Amount:          in.GetAmount(),
-		Currency:        in.GetCurrency(),
-		Status:          store.OrderStatusPending,
-		ChannelId:       in.GetChannelId(),
-		PayinProductId:    in.GetPayoutProductId(),
-		PayinProductCode:  productCode,
-		PaidAmount:      0,
-		FeeMode:         in.GetFeeMode(),
-		FeeRateBps:      in.GetFeeRateBps(),
-		FeeFixedAmount:  in.GetFeeFixedAmount(),
-		FeeAmount:       in.GetFeeAmount(),
-		NetAmount:       in.GetNetAmount(),
-		NotifyUrl:       in.GetNotifyUrl(),
+		OrderNo:          orderNo,
+		MerchantId:       in.GetMerchantId(),
+		MerchantOrderNo:  in.GetMerchantOrderNo(),
+		Amount:           in.GetAmount(),
+		Currency:         in.GetCurrency(),
+		Status:           store.OrderStatusPending,
+		ChannelId:        in.GetChannelId(),
+		PayinProductId:   in.GetPayoutProductId(),
+		PayinProductCode: productCode,
+		PaidAmount:       0,
+		FeeMode:          in.GetFeeMode(),
+		FeeRateBps:       in.GetFeeRateBps(),
+		FeeFixedAmount:   in.GetFeeFixedAmount(),
+		FeeAmount:        in.GetFeeAmount(),
+		NetAmount:        in.GetNetAmount(),
+		NotifyUrl:        in.GetNotifyUrl(),
 	}
 	if rec.Currency == "" {
 		rec.Currency = "CNY"
@@ -123,7 +123,7 @@ func (l *PayoutOrderLogic) GetPayoutOrder(in *orderpb.GetOrderReq) (*orderpb.Get
 		return nil, status.Error(codes.InvalidArgument, "order_no or (merchant_id and merchant_order_no) required")
 	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "payout order not found")
 		}
 		return nil, status.Error(codes.Internal, "get payout order failed")

@@ -2,13 +2,14 @@ package logic
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/trade/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type RouteLogic struct {
@@ -54,7 +55,7 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*cha
 	}
 	secret, err := l.svcCtx.Channels.GetSignSecret(l.ctx, in.GetChannelId())
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "channel not found")
 		}
 		return nil, status.Error(codes.Internal, "query channel failed")
