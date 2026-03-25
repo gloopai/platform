@@ -11,6 +11,7 @@ import (
 
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
+	"github.com/gloopai/pay/common/healthx"
 	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/notice-consumer/internal/config"
 	"github.com/gloopai/pay/notice-consumer/internal/notice"
@@ -59,8 +60,8 @@ func main() {
 	}
 	httpClient := &http.Client{Timeout: timeout}
 
-	// Health endpoint is used for Consul check.
-	healthSrv := startHealthServer(c.Health.ListenOn)
+	// Health endpoint is used for Consul check (and can be used as K8s readiness/liveness).
+	healthSrv := startHealthServer(c.Health.ListenOn, gdb, c.Nsq.NsqdTCPAddr)
 
 	reg, err := consulx.RegisterService(c.Consul.Addr, consulSvc, c.Consul.ID, healthSrv.Addr, c.Consul.Host)
 	if err != nil {
@@ -99,12 +100,12 @@ func main() {
 	_ = healthSrv.Shutdown(context.Background())
 }
 
-func startHealthServer(listenOn string) *http.Server {
+func startHealthServer(listenOn string, gdb *gorm.DB, nsqdTCPAddr string) *http.Server {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
+	mux.Handle("/healthz", healthx.HTTPHandler(
+		healthx.GormPing(gdb),
+		healthx.TCPDial("nsqd_tcp", nsqdTCPAddr, 800*time.Millisecond),
+	))
 
 	// Use a dedicated server with short header timeout to minimize resource usage.
 	srv := &http.Server{

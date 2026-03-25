@@ -3,6 +3,7 @@ package healthx
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -58,3 +59,23 @@ func GRPCHealthCheck(name string, conn *grpc.ClientConn, service string, timeout
 	}
 }
 
+func TCPDial(name, addr string, timeout time.Duration) Check {
+	return Check{
+		Name: name,
+		Fn: func(ctx context.Context) error {
+			if addr == "" {
+				return fmt.Errorf("empty addr")
+			}
+			d := net.Dialer{}
+			if timeout > 0 {
+				d.Timeout = timeout
+			}
+			c, err := d.DialContext(ctx, "tcp", addr)
+			if err != nil {
+				return err
+			}
+			_ = c.Close()
+			return nil
+		},
+	}
+}
