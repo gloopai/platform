@@ -45,6 +45,15 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  "GET",
+				Path:    "/ready",
+				Handler: handler.ReadyHandler(ctx),
+			},
+		},
+	)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 

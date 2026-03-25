@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/healthx"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/common/timex"
@@ -43,6 +44,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+		healthx.RegisterServer(grpcServer)
 		merchantpb.RegisterMerchantServer(grpcServer, server.NewMerchantServer(ctx))
 		settlepb.RegisterSettleServer(grpcServer, server.NewSettleServer(ctx))
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {

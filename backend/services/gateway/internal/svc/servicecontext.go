@@ -20,6 +20,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
+	"google.golang.org/grpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -49,6 +50,12 @@ type ServiceContext struct {
 	RuntimeConfig *consulx.ConfigStore
 
 	Gorm *gorm.DB
+
+	// readiness deps
+	ReplayRedis *redis.Client
+	RateRedis   *redis.Client
+	TradeConn   *grpc.ClientConn
+	CoreConn    *grpc.ClientConn
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -173,5 +180,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		NsqProducer:   producer,
 		RuntimeConfig: runtimeCfg,
 		Gorm:          gdb,
+		ReplayRedis:   replayRedis,
+		RateRedis:     rateRedis,
+		TradeConn:     tradeCli.Conn(),
+		CoreConn:      coreCli.Conn(),
 	}
 }
