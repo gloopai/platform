@@ -51,9 +51,13 @@ type Config struct {
 		ID      string `json:",optional"`
 		Host    string `json:",optional"`
 	}
-	CoreRpc  zrpc.RpcClientConf
-	TradeRpc zrpc.RpcClientConf
-	Nsq      struct {
+	CoreRpc    zrpc.RpcClientConf
+	TradeRpc   zrpc.RpcClientConf
+	OpsMonitor struct {
+		// Extra Consul service names to include on admin ops page, e.g. notice-consumer.
+		Services []string `json:",optional"`
+	}
+	Nsq struct {
 		NsqdTCPAddr string
 		Topic       string
 	}

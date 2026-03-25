@@ -60,3 +60,7 @@ func NewAdminSettlement(ctx context.Context, svcCtx *svc.ServiceContext) *adminl
 func NewAdminRefunds(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRefunds {
 	return adminlogic.NewAdminRefunds(ctx, svcCtx)
 }
+
+func NewAdminOps(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminOps {
+	return adminlogic.NewAdminOps(ctx, svcCtx)
+}

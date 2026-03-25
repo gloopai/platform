@@ -41,6 +41,10 @@ CoreRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.core
   Middlewares:
     Trace: true
+OpsMonitor:
+  # 运维监控页额外纳入的 Consul 服务名（默认也会包含 gateway/trade/core）
+  Services:
+    - payment.worker.notice-consumer
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice

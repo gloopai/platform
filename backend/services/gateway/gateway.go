@@ -14,6 +14,7 @@ import (
 	"github.com/gloopai/pay/common/timex"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/handler"
+	adminhandler "github.com/gloopai/pay/gateway/internal/handler/admin"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 
@@ -53,6 +54,18 @@ func main() {
 				Handler: handler.ReadyHandler(ctx),
 			},
 		},
+	)
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{ctx.AdminAuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  "GET",
+					Path:    "/v1/admin/ops/services",
+					Handler: adminhandler.AdminOpsServicesHandler(ctx),
+				},
+			}...,
+		),
 	)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
