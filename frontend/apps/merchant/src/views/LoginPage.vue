@@ -65,6 +65,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { MERCHANT_API } from '@/api/endpoints'
+import { merchantConsoleUrl } from '@/lib/http'
 import { saveMerchantAuth, saveMerchantSession } from '@/lib/merchantApi'
 import type { MerchantLoginResponse } from '@/types/merchant.api'
 
@@ -78,7 +79,7 @@ async function login() {
   loading.value = true
   error.value = ''
   try {
-    const resp = await fetch(MERCHANT_API.login, {
+    const resp = await fetch(merchantConsoleUrl(MERCHANT_API.login), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ merchant_id: merchantId.value, api_secret: apiSecret.value }),

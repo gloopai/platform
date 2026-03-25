@@ -1,4 +1,5 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { adminApiUrl } from '../lib/adminApi'
 
 const offsetMs = ref(0)
 const nowMs = ref(Date.now())
@@ -7,7 +8,7 @@ let syncTimer: number | null = null
 
 async function syncServerClock() {
   try {
-    const resp = await fetch('/health')
+    const resp = await fetch(adminApiUrl('/health'))
     if (!resp.ok) return
     const j = (await resp.json()) as { timestamp_ms?: number }
     if (typeof j.timestamp_ms === 'number') {

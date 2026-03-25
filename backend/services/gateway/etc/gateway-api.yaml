@@ -1,13 +1,23 @@
-Name: gateway-api
-Host: 0.0.0.0
-Port: 8080
+ServiceName: gateway
+AdminServer:
+  Name: gateway-admin-api
+  Host: 0.0.0.0
+  Port: 8080
+MerchantServer:
+  Name: gateway-merchant-api
+  Host: 0.0.0.0
+  Port: 8088
+OpenAPIServer:
+  Name: gateway-openapi-api
+  Host: 0.0.0.0
+  Port: 8090
 Timezone: Asia/Shanghai
 OpenAPI:
   MaxBodyBytes: 262144
   TrustForwardedFor: false
 Consul:
   Addr: 127.0.0.1:8500
-  Service: gateway-api
+  Service: gateway-admin-api
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
   MaxOpenConns: 50

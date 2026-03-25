@@ -3,6 +3,18 @@ export type AdminSession = {
   expiresAt: number
 }
 
+function trimTrailingSlash(s: string): string {
+  return s.endsWith('/') ? s.slice(0, -1) : s
+}
+
+const ADMIN_API_BASE = trimTrailingSlash(String(import.meta.env.VITE_ADMIN_API_BASE || '').trim())
+
+export function adminApiUrl(path: string): string {
+  if (!path.startsWith('/')) return path
+  if (!ADMIN_API_BASE) return path
+  return `${ADMIN_API_BASE}${path}`
+}
+
 export function loadAdminToken(): string {
   return localStorage.getItem('admin_token') || ''
 }
@@ -44,7 +56,7 @@ export async function adminRequest<T>(path: string, options: AdminRequestOptions
     body = JSON.stringify(options.body)
   }
 
-  const resp = await fetch(path, { method, headers, body })
+  const resp = await fetch(adminApiUrl(path), { method, headers, body })
   if (!resp.ok) {
     throw new Error(String(resp.status))
   }

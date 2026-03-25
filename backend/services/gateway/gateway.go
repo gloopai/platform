@@ -7,7 +7,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/http"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/gloopai/pay/common/consulx"
@@ -41,26 +43,35 @@ func main() {
 	}
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
-	server := rest.MustNewServer(c.RestConf)
-	server.Use(middleware.NewTraceHeaderMiddleware().Handle)
-
 	ctx := svc.NewServiceContext(c)
-	handler.RegisterHandlers(server, ctx)
-	server.AddRoutes(
+	adminServer := rest.MustNewServer(c.AdminServer)
+	merchantServer := rest.MustNewServer(c.MerchantServer)
+	openAPIServer := rest.MustNewServer(c.OpenAPIServer)
+	servers := []*rest.Server{adminServer, merchantServer, openAPIServer}
+	for _, s := range servers {
+		s.Use(middleware.NewTraceHeaderMiddleware().Handle)
+		handler.RegisterCommonHandlers(s, ctx)
+	}
+
+	handler.RegisterAdminHandlers(adminServer, ctx)
+	handler.RegisterMerchantHandlers(merchantServer, ctx)
+	handler.RegisterOpenAPIHandlers(openAPIServer, ctx)
+
+	adminServer.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  "GET",
+				Method:  http.MethodGet,
 				Path:    "/ready",
 				Handler: handler.ReadyHandler(ctx),
 			},
 		},
 	)
-	server.AddRoutes(
+	adminServer.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{ctx.AdminAuthMiddleware},
 			[]rest.Route{
 				{
-					Method:  "GET",
+					Method:  http.MethodGet,
 					Path:    "/v1/admin/ops/services",
 					Handler: adminhandler.AdminOpsServicesHandler(ctx),
 				},
@@ -68,9 +79,15 @@ func main() {
 		),
 	)
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	fmt.Printf("Starting admin API at %s:%d...\n", c.AdminServer.Host, c.AdminServer.Port)
+	fmt.Printf("Starting merchant API at %s:%d...\n", c.MerchantServer.Host, c.MerchantServer.Port)
+	fmt.Printf("Starting openapi API at %s:%d...\n", c.OpenAPIServer.Host, c.OpenAPIServer.Port)
 
-	reg, err := consulx.RegisterService(c.Consul.Addr, c.Consul.Service, c.Consul.ID, fmt.Sprintf("%s:%d", c.Host, c.Port), c.Consul.Host)
+	regService := strings.TrimSpace(c.Consul.Service)
+	if regService == "" {
+		regService = "gateway-admin-api"
+	}
+	reg, err := consulx.RegisterService(c.Consul.Addr, regService, c.Consul.ID, fmt.Sprintf("%s:%d", c.AdminServer.Host, c.AdminServer.Port), c.Consul.Host)
 	if err != nil {
 		panic(err)
 	}
@@ -78,8 +95,12 @@ func main() {
 	signalCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	go server.Start()
+	for _, s := range servers {
+		go s.Start()
+	}
 	<-signalCtx.Done()
 	_ = reg.Deregister()
-	server.Stop()
+	for _, s := range servers {
+		s.Stop()
+	}
 }

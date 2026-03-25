@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { saveAdminSession } from '../lib/adminApi'
+import { adminApiUrl, saveAdminSession } from '../lib/adminApi'
 
 type AdminLoginResp = {
   token: string
@@ -55,7 +55,7 @@ async function login() {
   loading.value = true
   error.value = ''
   try {
-    const resp = await fetch('/v1/admin/login', {
+    const resp = await fetch(adminApiUrl('/v1/admin/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username.value, password: password.value }),

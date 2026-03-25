@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
-      '/v1': {
+      '/v1/terminal': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
       },

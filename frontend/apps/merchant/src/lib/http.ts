@@ -5,6 +5,25 @@
 import { loadMerchantAuth, loadMerchantToken } from './auth'
 import { md5Sign } from './signMd5'
 
+function trimTrailingSlash(s: string): string {
+  return s.endsWith('/') ? s.slice(0, -1) : s
+}
+
+const MERCHANT_API_BASE = trimTrailingSlash(String(import.meta.env.VITE_MERCHANT_API_BASE || '').trim())
+const OPENAPI_BASE = trimTrailingSlash(String(import.meta.env.VITE_OPENAPI_BASE || '').trim())
+
+export function merchantConsoleUrl(path: string): string {
+  if (!path.startsWith('/')) return path
+  if (!MERCHANT_API_BASE) return path
+  return `${MERCHANT_API_BASE}${path}`
+}
+
+export function openAPIUrl(path: string): string {
+  if (!path.startsWith('/')) return path
+  if (!OPENAPI_BASE) return path
+  return `${OPENAPI_BASE}${path}`
+}
+
 export async function merchantConsoleGet<T>(
   path: string,
   params?: Record<string, string | number | boolean | undefined>,
@@ -18,14 +37,14 @@ export async function merchantConsoleGet<T>(
     }
   }
   const url = qs.toString() ? `${path}?${qs.toString()}` : path
-  const resp = await fetch(url, { headers: { 'X-Merchant-Token': tok } })
+  const resp = await fetch(merchantConsoleUrl(url), { headers: { 'X-Merchant-Token': tok } })
   if (!resp.ok) throw new Error(String(resp.status))
   return (await resp.json()) as T
 }
 
 export async function merchantConsolePut<T>(path: string, body?: Record<string, unknown>): Promise<T> {
   const tok = loadMerchantToken()
-  const resp = await fetch(path, {
+  const resp = await fetch(merchantConsoleUrl(path), {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', 'X-Merchant-Token': tok },
     body: JSON.stringify(body || {}),
@@ -36,7 +55,7 @@ export async function merchantConsolePut<T>(path: string, body?: Record<string, 
 
 export async function merchantConsolePost<T>(path: string, body?: Record<string, unknown>): Promise<T> {
   const tok = loadMerchantToken()
-  const resp = await fetch(path, {
+  const resp = await fetch(merchantConsoleUrl(path), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Merchant-Token': tok },
     body: JSON.stringify(body || {}),
@@ -57,7 +76,7 @@ export async function signedGet<T>(
   }
   const sign = md5Sign(p, auth.apiSecret)
   const qs = new URLSearchParams({ ...p, sign })
-  const resp = await fetch(`${path}?${qs.toString()}`)
+  const resp = await fetch(openAPIUrl(`${path}?${qs.toString()}`))
   if (!resp.ok) throw new Error(String(resp.status))
   return (await resp.json()) as T
 }
@@ -73,7 +92,7 @@ export async function signedPost<T>(
     p[k] = String(v)
   }
   const sign = md5Sign(p, auth.apiSecret)
-  const resp = await fetch(path, {
+  const resp = await fetch(openAPIUrl(path), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...p, sign }),

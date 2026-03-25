@@ -152,8 +152,15 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if loginLimit <= 0 {
 		loginLimit = 60
 	}
+	serviceName := strings.TrimSpace(c.ServiceName)
+	if serviceName == "" {
+		serviceName = strings.TrimSpace(c.AdminServer.Name)
+	}
+	if serviceName == "" {
+		serviceName = "gateway"
+	}
 	var runtimeCfg *consulx.ConfigStore
-	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
+	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(serviceName)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
 	}

@@ -9,7 +9,10 @@ import (
 )
 
 type Config struct {
-	rest.RestConf
+	ServiceName string `json:",optional"`
+	AdminServer    rest.RestConf
+	MerchantServer rest.RestConf
+	OpenAPIServer  rest.RestConf
 	Timezone string `json:",optional"`
 	OpenAPI  struct {
 		// MaxBodyBytes caps JSON body size for signed OpenAPI and login param parsing (default 262144).
