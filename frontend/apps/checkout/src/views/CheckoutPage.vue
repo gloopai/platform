@@ -251,6 +251,18 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+function trimTrailingSlash(s: string): string {
+  return s.endsWith('/') ? s.slice(0, -1) : s
+}
+
+const CHECKOUT_API_BASE = trimTrailingSlash(String(import.meta.env.VITE_CHECKOUT_API_BASE || '').trim())
+
+function checkoutApiUrl(path: string): string {
+  if (!path.startsWith('/')) return path
+  if (!CHECKOUT_API_BASE) return path
+  return `${CHECKOUT_API_BASE}${path}`
+}
+
 type OrderInfo = {
   order_no: string
   merchant_id: string
@@ -432,7 +444,7 @@ async function copyOrderNo() {
 
 async function load() {
   if (!orderNo.value) return
-  const res = await fetch(`/v1/terminal/order?order_no=${encodeURIComponent(orderNo.value)}`)
+  const res = await fetch(checkoutApiUrl(`/v1/terminal/order?order_no=${encodeURIComponent(orderNo.value)}`))
   if (!res.ok) {
     throw new Error(await openApiErrorText(res))
   }
@@ -482,7 +494,7 @@ async function payNow() {
   paying.value = true
   error.value = ''
   try {
-    const res = await fetch('/v1/terminal/pay', {
+    const res = await fetch(checkoutApiUrl('/v1/terminal/pay'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

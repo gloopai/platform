@@ -11,6 +11,10 @@ OpenAPIServer:
   Name: gateway-openapi-api
   Host: 0.0.0.0
   Port: 8090
+CheckoutServer:
+  Name: gateway-checkout-api
+  Host: 0.0.0.0
+  Port: 8092
 Timezone: Asia/Shanghai
 OpenAPI:
   MaxBodyBytes: 262144

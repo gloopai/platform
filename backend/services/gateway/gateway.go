@@ -47,7 +47,8 @@ func main() {
 	adminServer := rest.MustNewServer(c.AdminServer)
 	merchantServer := rest.MustNewServer(c.MerchantServer)
 	openAPIServer := rest.MustNewServer(c.OpenAPIServer)
-	servers := []*rest.Server{adminServer, merchantServer, openAPIServer}
+	checkoutServer := rest.MustNewServer(c.CheckoutServer)
+	servers := []*rest.Server{adminServer, merchantServer, openAPIServer, checkoutServer}
 	for _, s := range servers {
 		s.Use(middleware.NewTraceHeaderMiddleware().Handle)
 		handler.RegisterCommonHandlers(s, ctx)
@@ -56,6 +57,7 @@ func main() {
 	handler.RegisterAdminHandlers(adminServer, ctx)
 	handler.RegisterMerchantHandlers(merchantServer, ctx)
 	handler.RegisterOpenAPIHandlers(openAPIServer, ctx)
+	handler.RegisterCheckoutHandlers(checkoutServer, ctx)
 
 	adminServer.AddRoutes(
 		[]rest.Route{
@@ -82,6 +84,7 @@ func main() {
 	fmt.Printf("Starting admin API at %s:%d...\n", c.AdminServer.Host, c.AdminServer.Port)
 	fmt.Printf("Starting merchant API at %s:%d...\n", c.MerchantServer.Host, c.MerchantServer.Port)
 	fmt.Printf("Starting openapi API at %s:%d...\n", c.OpenAPIServer.Host, c.OpenAPIServer.Port)
+	fmt.Printf("Starting checkout API at %s:%d...\n", c.CheckoutServer.Host, c.CheckoutServer.Port)
 
 	regService := strings.TrimSpace(c.Consul.Service)
 	if regService == "" {

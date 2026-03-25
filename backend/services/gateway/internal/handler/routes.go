@@ -19,6 +19,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	RegisterOpenAPIHandlers(server, serverCtx)
 	RegisterMerchantHandlers(server, serverCtx)
 	RegisterAdminHandlers(server, serverCtx)
+	RegisterCheckoutHandlers(server, serverCtx)
 }
 
 func RegisterCommonHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
@@ -158,21 +159,6 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/v1/callback/notify",
 				Handler: checkouthandler.UpstreamNotifyHandler(serverCtx),
-			},
-		},
-	)
-
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/v1/terminal/order",
-				Handler: checkouthandler.TerminalOrderHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/terminal/pay",
-				Handler: checkouthandler.TerminalPayHandler(serverCtx),
 			},
 		},
 	)
@@ -361,5 +347,22 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 			}...,
 		),
+	)
+}
+
+func RegisterCheckoutHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/v1/terminal/order",
+				Handler: checkouthandler.TerminalOrderHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/terminal/pay",
+				Handler: checkouthandler.TerminalPayHandler(serverCtx),
+			},
+		},
 	)
 }

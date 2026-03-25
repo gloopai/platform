@@ -13,6 +13,7 @@ type Config struct {
 	AdminServer    rest.RestConf
 	MerchantServer rest.RestConf
 	OpenAPIServer  rest.RestConf
+	CheckoutServer rest.RestConf
 	Timezone string `json:",optional"`
 	OpenAPI  struct {
 		// MaxBodyBytes caps JSON body size for signed OpenAPI and login param parsing (default 262144).

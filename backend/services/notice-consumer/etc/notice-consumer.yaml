@@ -13,4 +13,4 @@ Consul:
   Addr: 127.0.0.1:8500
   Service: payment.worker.notice-consumer
 Health:
-  ListenOn: 0.0.0.0:8090
+  ListenOn: 0.0.0.0:8096
