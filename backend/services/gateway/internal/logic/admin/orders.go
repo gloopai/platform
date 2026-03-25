@@ -101,7 +101,7 @@ func (a *AdminOrders) AdminMockPayoutSuccess(req *types.AdminMockPayoutSuccessRe
 	if upstreamTradeNo == "" {
 		upstreamTradeNo = fmt.Sprintf("UP-MOCK-%d", time.Now().UnixNano())
 	}
-	changed, err := a.svcCtx.PayoutOrders.MarkSuccess(a.ctx, orderNo, upstreamTradeNo)
+	changed, err := a.svcCtx.ServiceHub.MarkPayoutSuccess(a.ctx, orderNo, upstreamTradeNo)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mock payout success failed")
 	}

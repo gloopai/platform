@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package servicehub;
+option go_package = "github.com/gloopai/pay/common/pb/servicehub;servicehub";
+
+// 平台支撑数据（admin_users / global_settings / payout_orders 辅助更新）
+service ServiceHub {
+  rpc FindAdminUserByUsername(FindAdminUserByUsernameReq) returns (FindAdminUserByUsernameResp);
+  rpc ListAdminUsers(ListAdminUsersReq) returns (ListAdminUsersResp);
+  rpc GetDisplaySettings(GetDisplaySettingsReq) returns (GetDisplaySettingsResp);
+  rpc UpsertDisplaySettings(UpsertDisplaySettingsReq) returns (GetDisplaySettingsResp);
+  rpc MarkPayoutSuccess(MarkPayoutSuccessReq) returns (MarkPayoutResultResp);
+  rpc MarkPayoutFailed(MarkPayoutFailedReq) returns (MarkPayoutResultResp);
+}
+
+message FindAdminUserByUsernameReq {
+  string username = 1;
+}
+
+message FindAdminUserByUsernameResp {
+  AdminUser user = 1;
+}
+
+message AdminUser {
+  int64 id = 1;
+  string username = 2;
+  string password_hash = 3;
+  int64 status = 4;
+}
+
+message AdminUserPublic {
+  int64 id = 1;
+  string username = 2;
+  int64 status = 3;
+}
+
+message ListAdminUsersReq {}
+
+message ListAdminUsersResp {
+  repeated AdminUserPublic users = 1;
+}
+
+message GetDisplaySettingsReq {}
+
+message GetDisplaySettingsResp {
+  string country_code = 1;
+  string currency_code = 2;
+  string currency_symbol = 3;
+}
+
+message UpsertDisplaySettingsReq {
+  string country_code = 1;
+  string currency_code = 2;
+  string currency_symbol = 3;
+}
+
+message MarkPayoutSuccessReq {
+  string order_no = 1;
+  string upstream_trade_no = 2;
+}
+
+message MarkPayoutFailedReq {
+  string order_no = 1;
+}
+
+message MarkPayoutResultResp {
+  bool changed = 1;
+}

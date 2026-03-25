@@ -8,21 +8,18 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/consulx"
-	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
+	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
-	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
@@ -35,10 +32,7 @@ type ServiceContext struct {
 	AdminAuthMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
-	// 仅管理台账号；业务数据经 Trade/Core RPC。
-	AdminUsers     *store.AdminUsersStore
-	GlobalSettings *store.GlobalSettingsStore
-	PayoutOrders   *store.PayoutOrdersStore
+	ServiceHub servicehubclient.ServiceHub
 
 	OrderRpc    orderclient.Order
 	SettleRpc   settleclient.Settle
@@ -49,41 +43,20 @@ type ServiceContext struct {
 
 	RuntimeConfig *consulx.ConfigStore
 
-	Gorm *gorm.DB
-
 	// readiness deps
-	ReplayRedis *redis.Client
-	RateRedis   *redis.Client
-	TradeConn   *grpc.ClientConn
-	CoreConn    *grpc.ClientConn
+	ReplayRedis    *redis.Client
+	RateRedis      *redis.Client
+	TradeConn      *grpc.ClientConn
+	CoreConn       *grpc.ClientConn
+	ServiceHubConn *grpc.ClientConn
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	sqlDB, err := gdb.DB()
-	if err != nil {
-		panic(err)
-	}
-	if v := c.Mysql.MaxOpenConns; v > 0 {
-		sqlDB.SetMaxOpenConns(v)
-	}
-	if v := c.Mysql.MaxIdleConns; v > 0 {
-		sqlDB.SetMaxIdleConns(v)
-	}
-	if sec := c.Mysql.ConnMaxLifetimeSeconds; sec > 0 {
-		sqlDB.SetConnMaxLifetime(time.Duration(sec) * time.Second)
-	}
-	if err := sqlDB.Ping(); err != nil {
-		panic(err)
-	}
-
 	consulx.RegisterResolver()
 
 	tradeCli := zrpc.MustNewClient(c.TradeRpc)
 	coreCli := zrpc.MustNewClient(c.CoreRpc)
+	serviceHubCli := zrpc.MustNewClient(c.ServiceHubRpc)
 
 	producer, err := nsq.NewProducer(c.Nsq.NsqdTCPAddr, nsq.NewConfig())
 	if err != nil {
@@ -93,9 +66,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
-	adminUsersStore := store.NewAdminUsersStore(gdb)
-	globalSettingsStore := store.NewGlobalSettingsStore(gdb)
-	payoutOrdersStore := store.NewPayoutOrdersStore(gdb)
 	replayAddr := strings.TrimSpace(c.ReplayGuard.RedisAddr)
 	if replayAddr == "" {
 		replayAddr = "127.0.0.1:6379"
@@ -175,21 +145,19 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
-		AdminUsers:     adminUsersStore,
-		GlobalSettings: globalSettingsStore,
-		PayoutOrders:   payoutOrdersStore,
+		ServiceHub: servicehubclient.New(serviceHubCli),
 
 		OrderRpc:    orderclient.NewOrder(tradeCli),
 		SettleRpc:   settleclient.NewSettle(coreCli),
 		ChannelRpc:  channelclient.NewChannel(tradeCli),
 		MerchantRpc: merchantclient.NewMerchant(coreCli),
 
-		NsqProducer:   producer,
-		RuntimeConfig: runtimeCfg,
-		Gorm:          gdb,
-		ReplayRedis:   replayRedis,
-		RateRedis:     rateRedis,
-		TradeConn:     tradeCli.Conn(),
-		CoreConn:      coreCli.Conn(),
+		NsqProducer:    producer,
+		RuntimeConfig:  runtimeCfg,
+		ReplayRedis:    replayRedis,
+		RateRedis:      rateRedis,
+		TradeConn:      tradeCli.Conn(),
+		CoreConn:       coreCli.Conn(),
+		ServiceHubConn: serviceHubCli.Conn(),
 	}
 }

@@ -36,15 +36,15 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 		return nil, status.Error(codes.InvalidArgument, "username and password required")
 	}
 
-	u, err := a.svcCtx.AdminUsers.FindByUsername(a.ctx, username)
-	if err != nil || u == nil || u.Status != 1 {
+	u, err := a.svcCtx.ServiceHub.FindAdminUserByUsername(a.ctx, username)
+	if err != nil || u == nil || u.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.GetPasswordHash()), []byte(password)); err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	tok, expiresAt, err := shared.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.ID, 24*time.Hour)
+	tok, expiresAt, err := shared.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.GetId(), 24*time.Hour)
 	if err != nil {
 		return nil, err
 	}

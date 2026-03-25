@@ -38,6 +38,8 @@ func (a *AdminOps) ServicesStatus() (*types.OpsServicesResp, error) {
 	}
 	// default include notice-consumer; can be overridden/extended by OpsMonitor.Services
 	services = append(services, "payment.worker.notice-consumer")
+	// platform DB-backed support RPC (admin users / global settings / payout mark helpers)
+	services = append(services, "payment.rpc.service-hub")
 	for _, s := range c.OpsMonitor.Services {
 		services = append(services, strings.TrimSpace(s))
 	}

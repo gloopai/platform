@@ -9,8 +9,9 @@ import (
 )
 
 func ReadyHandler(ctx *svc.ServiceContext) http.HandlerFunc {
-	checks := []healthx.Check{
-		healthx.GormPing(ctx.Gorm),
+	checks := []healthx.Check{}
+	if ctx.ServiceHubConn != nil {
+		checks = append(checks, healthx.GRPCHealthCheck("service_hub_grpc", ctx.ServiceHubConn, "", 1200*time.Millisecond))
 	}
 	if ctx.ReplayRedis != nil {
 		checks = append(checks, healthx.RedisPing("redis_replay", ctx.ReplayRedis))

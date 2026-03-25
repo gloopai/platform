@@ -98,6 +98,7 @@ fi
 
 start_bg "trade" "${ROOT_DIR}/backend/services/trade" "go run . -f etc/trade.yaml"
 start_bg "core" "${ROOT_DIR}/backend/services/core" "go run . -f etc/core.yaml"
+start_bg "service-hub" "${ROOT_DIR}/backend/services/service-hub" "go run . -f etc/service-hub.yaml"
 start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gateway-api.yaml"
 start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -f etc/notice-consumer.yaml"
 
@@ -119,6 +120,7 @@ fi
 echo "running. logs: ${LOG_DIR}"
 echo "urls:"
 print_url "gateway" "http://127.0.0.1:8080/"
+print_url "service-hub" "grpc://127.0.0.1:8094 (Consul: payment.rpc.service-hub)"
 print_url "portal" "http://127.0.0.1:5173/"
 print_url "checkout" "http://127.0.0.1:5174/?order_no=YOUR_ORDER_NO"
 print_url "merchant" "http://127.0.0.1:5175/"

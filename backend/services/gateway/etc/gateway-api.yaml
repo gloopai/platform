@@ -22,11 +22,6 @@ OpenAPI:
 Consul:
   Addr: 127.0.0.1:8500
   Service: gateway-admin-api
-Mysql:
-  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
-  MaxOpenConns: 50
-  MaxIdleConns: 10
-  ConnMaxLifetimeSeconds: 3600
 ReplayGuard:
   RedisAddr: 127.0.0.1:6379
   RedisPassword: "yourpassword"
@@ -53,6 +48,10 @@ TradeRpc:
     Trace: true
 CoreRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.core
+  Middlewares:
+    Trace: true
+ServiceHubRpc:
+  Target: consul://127.0.0.1:8500/payment.rpc.service-hub
   Middlewares:
     Trace: true
 OpsMonitor:

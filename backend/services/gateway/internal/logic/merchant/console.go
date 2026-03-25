@@ -102,14 +102,14 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 }
 
 func (c *MerchantConsole) MerchantDisplaySettings(req *types.MerchantDisplaySettingsReq) (*types.MerchantDisplaySettingsResp, error) {
-	row, err := c.svcCtx.GlobalSettings.GetDisplaySettings(c.ctx)
+	row, err := c.svcCtx.ServiceHub.GetDisplaySettings(c.ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &types.MerchantDisplaySettingsResp{
-		CountryCode:    row.CountryCode,
-		CurrencyCode:   row.CurrencyCode,
-		CurrencySymbol: row.CurrencySymbol,
+		CountryCode:    row.GetCountryCode(),
+		CurrencyCode:   row.GetCurrencyCode(),
+		CurrencySymbol: row.GetCurrencySymbol(),
 	}, nil
 }
 

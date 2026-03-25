@@ -39,7 +39,6 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 		Find(&rows).Error; err != nil {
 		return nil, err
 	}
-
 	out := &GlobalDisplaySettings{
 		CountryCode:    "CN",
 		CurrencyCode:   "CNY",
@@ -71,3 +70,4 @@ ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 		GlobalSettingCurrencySign, in.CurrencySymbol,
 	).Error
 }
+

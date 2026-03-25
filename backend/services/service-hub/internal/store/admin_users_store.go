@@ -39,14 +39,12 @@ func (s *AdminUsersStore) FindByUsername(ctx context.Context, username string) (
 	return &u, nil
 }
 
-// AdminUserPublic 列表展示用，不含密码。
 type AdminUserPublic struct {
 	ID       int64
 	Username string
 	Status   int64
 }
 
-// List 管理台账号列表（只读）。
 func (s *AdminUsersStore) List(ctx context.Context) ([]AdminUserPublic, error) {
 	var out []AdminUserPublic
 	if err := s.db.WithContext(ctx).
@@ -58,3 +56,4 @@ func (s *AdminUsersStore) List(ctx context.Context) ([]AdminUserPublic, error) {
 	}
 	return out, nil
 }
+

@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/store"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,30 +27,33 @@ func NewAdminSystem(ctx context.Context, svcCtx *svc.ServiceContext) *AdminSyste
 }
 
 func (a *AdminSystem) ListAdminUsers() (*types.AdminUsersResp, error) {
-	rows, err := a.svcCtx.AdminUsers.List(a.ctx)
+	rows, err := a.svcCtx.ServiceHub.ListAdminUsers(a.ctx)
 	if err != nil {
 		return nil, err
 	}
 	out := make([]types.AdminUserRow, 0, len(rows))
 	for _, r := range rows {
+		if r == nil {
+			continue
+		}
 		out = append(out, types.AdminUserRow{
-			ID:       r.ID,
-			Username: r.Username,
-			Status:   r.Status,
+			ID:       r.GetId(),
+			Username: r.GetUsername(),
+			Status:   r.GetStatus(),
 		})
 	}
 	return &types.AdminUsersResp{Users: out}, nil
 }
 
 func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*types.AdminDisplaySettingsResp, error) {
-	row, err := a.svcCtx.GlobalSettings.GetDisplaySettings(a.ctx)
+	row, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &types.AdminDisplaySettingsResp{
-		CountryCode:    row.CountryCode,
-		CurrencyCode:   row.CurrencyCode,
-		CurrencySymbol: row.CurrencySymbol,
+		CountryCode:    row.GetCountryCode(),
+		CurrencyCode:   row.GetCurrencyCode(),
+		CurrencySymbol: row.GetCurrencySymbol(),
 	}, nil
 }
 
@@ -62,11 +64,7 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 	if country == "" || currency == "" || symbol == "" {
 		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol required")
 	}
-	if err := a.svcCtx.GlobalSettings.UpsertDisplaySettings(a.ctx, &store.GlobalDisplaySettings{
-		CountryCode:    country,
-		CurrencyCode:   currency,
-		CurrencySymbol: symbol,
-	}); err != nil {
+	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol); err != nil {
 		return nil, err
 	}
 	return &types.AdminDisplaySettingsResp{

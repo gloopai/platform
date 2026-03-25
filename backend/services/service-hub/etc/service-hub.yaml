@@ -1,0 +1,14 @@
+Name: payment.rpc.service-hub
+ListenOn: 0.0.0.0:8094
+Timezone: Asia/Shanghai
+Middlewares:
+  Trace: true
+  Stat: true
+Consul:
+  Addr: 127.0.0.1:8500
+  Service: payment.rpc.service-hub
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
+  MaxOpenConns: 30
+  MaxIdleConns: 10
+  ConnMaxLifetimeSeconds: 3600

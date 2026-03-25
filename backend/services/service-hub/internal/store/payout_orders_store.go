@@ -6,17 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type PayoutOrderSnapshot struct {
-	OrderNo          string
-	MerchantId       string
-	Status           int32
-	Amount           int64
-	PaidAmount       int64
-	ChannelId        int64
-	UpstreamNo       string
-	AvailableBalance int64
-}
-
 type PayoutOrdersStore struct {
 	db *gorm.DB
 }
@@ -46,3 +35,4 @@ WHERE order_no = ? AND status = 0
 `, orderNo)
 	return tx.RowsAffected > 0, tx.Error
 }
+

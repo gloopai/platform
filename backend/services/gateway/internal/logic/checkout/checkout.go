@@ -267,7 +267,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 			Reason:     "PAYOUT_ORDER_DEBIT",
 		}); derr != nil {
 			// Avoid leaving a pending payout order when any debit step fails.
-			changed, markErr := c.svcCtx.PayoutOrders.MarkFailed(c.ctx, o.GetOrderNo())
+			changed, markErr := c.svcCtx.ServiceHub.MarkPayoutFailed(c.ctx, o.GetOrderNo())
 			if markErr != nil {
 				c.Errorf("request_id=%s action=create_payout_order stage=mark_failed_error merchant_id=%s order_no=%s err=%v", reqID, merchantID, o.GetOrderNo(), markErr)
 			} else {

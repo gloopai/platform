@@ -9,23 +9,17 @@ import (
 )
 
 type Config struct {
-	ServiceName string `json:",optional"`
+	ServiceName    string `json:",optional"`
 	AdminServer    rest.RestConf
 	MerchantServer rest.RestConf
 	OpenAPIServer  rest.RestConf
 	CheckoutServer rest.RestConf
-	Timezone string `json:",optional"`
-	OpenAPI  struct {
+	Timezone       string `json:",optional"`
+	OpenAPI        struct {
 		// MaxBodyBytes caps JSON body size for signed OpenAPI and login param parsing (default 262144).
 		MaxBodyBytes int64 `json:",optional"`
 		// TrustForwardedFor: when true, IP whitelist and rate limits use X-Forwarded-For / X-Real-IP. Only enable behind a trusted reverse proxy.
 		TrustForwardedFor bool `json:",optional"`
-	}
-	Mysql struct {
-		DataSource             string
-		MaxOpenConns           int   `json:",optional"`
-		MaxIdleConns           int   `json:",optional"`
-		ConnMaxLifetimeSeconds int64 `json:",optional"`
 	}
 	ReplayGuard struct {
 		RedisAddr          string `json:",optional"`
@@ -55,9 +49,10 @@ type Config struct {
 		ID      string `json:",optional"`
 		Host    string `json:",optional"`
 	}
-	CoreRpc    zrpc.RpcClientConf
-	TradeRpc   zrpc.RpcClientConf
-	OpsMonitor struct {
+	ServiceHubRpc zrpc.RpcClientConf
+	CoreRpc       zrpc.RpcClientConf
+	TradeRpc      zrpc.RpcClientConf
+	OpsMonitor    struct {
 		// Extra Consul service names to include on admin ops page, e.g. notice-consumer.
 		Services []string `json:",optional"`
 	}
