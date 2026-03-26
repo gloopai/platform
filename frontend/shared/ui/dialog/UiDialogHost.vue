@@ -27,14 +27,14 @@
               <button
                 v-if="!current.options.hideCancel"
                 type="button"
-                class="rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                class="min-w-[72px] rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition duration-150 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-slate-300/60"
                 @click="closeCurrent(false)"
               >
                 {{ current.options.cancelText }}
               </button>
               <button
                 type="button"
-                class="rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition"
+                class="min-w-[78px] rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition duration-150 active:scale-[0.99]"
                 :class="confirmButtonClass(current.options.variant)"
                 @click="closeCurrent(true)"
               >
@@ -57,14 +57,14 @@ function confirmButtonClass(variant: UiDialogVariant) {
   if (variant === 'danger') {
     return 'bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500/40'
   }
-  return 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40'
+  return 'bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400/40'
 }
 
 function iconSvg(variant: UiDialogVariant): string {
   if (variant === 'danger') {
     return `<svg class="h-5 w-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" /></svg>`
   }
-  return `<svg class="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+  return `<svg class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
 }
 </script>
 

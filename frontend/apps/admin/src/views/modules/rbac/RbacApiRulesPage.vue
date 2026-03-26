@@ -235,10 +235,21 @@ async function submitEdit(id: number) {
   saving.value = true
   error.value = ''
   try {
-    await adminPut(`/v1/admin/rbac/api_rules/${id}`, {
-      method: draft.method,
-      path_pattern: draft.path_pattern.trim(),
-      perm_key: draft.perm_key.trim(),
+    const existing = rules.value.find((x) => x.id === id)
+    if (!existing) {
+      throw new Error('规则不存在或已被删除，请刷新后重试')
+    }
+
+    const nextMethod = draft.method.trim().toUpperCase()
+    const nextPath = draft.path_pattern.trim()
+    const nextPermKey = draft.perm_key.trim()
+
+    // 后端未开放 PUT /api_rules/:id，编辑统一走“删旧建新”。
+    await adminDelete(`/v1/admin/rbac/api_rules/${id}`)
+    await adminPost('/v1/admin/rbac/api_rules', {
+      method: nextMethod,
+      path_pattern: nextPath,
+      perm_key: nextPermKey,
       remark: draft.remark.trim(),
       status: draft.status,
     })
