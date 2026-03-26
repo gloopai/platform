@@ -358,6 +358,7 @@ type GetDisplaySettingsResp struct {
 	CountryCode    string                 `protobuf:"bytes,1,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
 	CurrencyCode   string                 `protobuf:"bytes,2,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"`
 	CurrencySymbol string                 `protobuf:"bytes,3,opt,name=currency_symbol,json=currencySymbol,proto3" json:"currency_symbol,omitempty"`
+	FiatToUsdtRate float64                `protobuf:"fixed64,4,opt,name=fiat_to_usdt_rate,json=fiatToUsdtRate,proto3" json:"fiat_to_usdt_rate,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -413,11 +414,19 @@ func (x *GetDisplaySettingsResp) GetCurrencySymbol() string {
 	return ""
 }
 
+func (x *GetDisplaySettingsResp) GetFiatToUsdtRate() float64 {
+	if x != nil {
+		return x.FiatToUsdtRate
+	}
+	return 0
+}
+
 type UpsertDisplaySettingsReq struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	CountryCode    string                 `protobuf:"bytes,1,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
 	CurrencyCode   string                 `protobuf:"bytes,2,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"`
 	CurrencySymbol string                 `protobuf:"bytes,3,opt,name=currency_symbol,json=currencySymbol,proto3" json:"currency_symbol,omitempty"`
+	FiatToUsdtRate float64                `protobuf:"fixed64,4,opt,name=fiat_to_usdt_rate,json=fiatToUsdtRate,proto3" json:"fiat_to_usdt_rate,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -471,6 +480,13 @@ func (x *UpsertDisplaySettingsReq) GetCurrencySymbol() string {
 		return x.CurrencySymbol
 	}
 	return ""
+}
+
+func (x *UpsertDisplaySettingsReq) GetFiatToUsdtRate() float64 {
+	if x != nil {
+		return x.FiatToUsdtRate
+	}
+	return 0
 }
 
 type MarkPayoutSuccessReq struct {
@@ -3252,15 +3268,17 @@ const file_proto_servicehub_proto_rawDesc = "" +
 	"\x11ListAdminUsersReq\"G\n" +
 	"\x12ListAdminUsersResp\x121\n" +
 	"\x05users\x18\x01 \x03(\v2\x1b.servicehub.AdminUserPublicR\x05users\"\x17\n" +
-	"\x15GetDisplaySettingsReq\"\x89\x01\n" +
+	"\x15GetDisplaySettingsReq\"\xb4\x01\n" +
 	"\x16GetDisplaySettingsResp\x12!\n" +
 	"\fcountry_code\x18\x01 \x01(\tR\vcountryCode\x12#\n" +
 	"\rcurrency_code\x18\x02 \x01(\tR\fcurrencyCode\x12'\n" +
-	"\x0fcurrency_symbol\x18\x03 \x01(\tR\x0ecurrencySymbol\"\x8b\x01\n" +
+	"\x0fcurrency_symbol\x18\x03 \x01(\tR\x0ecurrencySymbol\x12)\n" +
+	"\x11fiat_to_usdt_rate\x18\x04 \x01(\x01R\x0efiatToUsdtRate\"\xb6\x01\n" +
 	"\x18UpsertDisplaySettingsReq\x12!\n" +
 	"\fcountry_code\x18\x01 \x01(\tR\vcountryCode\x12#\n" +
 	"\rcurrency_code\x18\x02 \x01(\tR\fcurrencyCode\x12'\n" +
-	"\x0fcurrency_symbol\x18\x03 \x01(\tR\x0ecurrencySymbol\"]\n" +
+	"\x0fcurrency_symbol\x18\x03 \x01(\tR\x0ecurrencySymbol\x12)\n" +
+	"\x11fiat_to_usdt_rate\x18\x04 \x01(\x01R\x0efiatToUsdtRate\"]\n" +
 	"\x14MarkPayoutSuccessReq\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12*\n" +
 	"\x11upstream_trade_no\x18\x02 \x01(\tR\x0fupstreamTradeNo\"0\n" +

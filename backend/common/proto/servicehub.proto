@@ -75,12 +75,14 @@ message GetDisplaySettingsResp {
   string country_code = 1;
   string currency_code = 2;
   string currency_symbol = 3;
+  double fiat_to_usdt_rate = 4;
 }
 
 message UpsertDisplaySettingsReq {
   string country_code = 1;
   string currency_code = 2;
   string currency_symbol = 3;
+  double fiat_to_usdt_rate = 4;
 }
 
 message MarkPayoutSuccessReq {

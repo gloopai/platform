@@ -11,7 +11,7 @@
 
     <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
       <div class="mb-3 text-sm font-semibold text-slate-800">全局展示配置</div>
-      <div class="grid gap-3 sm:grid-cols-3">
+      <div class="grid gap-3 sm:grid-cols-4">
         <label class="grid gap-1 text-sm">
           <span class="text-xs font-medium text-slate-500">国家代码</span>
           <input v-model.trim="countryCode" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
@@ -23,6 +23,10 @@
         <label class="grid gap-1 text-sm">
           <span class="text-xs font-medium text-slate-500">货币符号</span>
           <input v-model.trim="currencySymbol" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
+        </label>
+        <label class="grid gap-1 text-sm">
+          <span class="text-xs font-medium text-slate-500">法币 -> USDT 汇率</span>
+          <input v-model.number="fiatToUsdtRate" type="number" min="0.000001" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
         </label>
       </div>
       <div class="mt-3 flex items-center gap-2">
@@ -67,15 +71,17 @@ const error = ref('')
 const countryCode = ref('CN')
 const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
+const fiatToUsdtRate = ref(7.2)
 
 async function load() {
   loading.value = true
   error.value = ''
   try {
-    const ds = await adminGet<{ country_code: string; currency_code: string; currency_symbol: string }>('/v1/admin/display_settings')
+    const ds = await adminGet<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number }>('/v1/admin/display_settings')
     countryCode.value = ds.country_code || 'CN'
     currencyCode.value = ds.currency_code || 'CNY'
     currencySymbol.value = ds.currency_symbol || '¥'
+    fiatToUsdtRate.value = ds.fiat_to_usdt_rate > 0 ? ds.fiat_to_usdt_rate : 7.2
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     error.value = msg
@@ -90,15 +96,17 @@ async function saveDisplaySettings() {
   saved.value = false
   error.value = ''
   try {
-    const r = await adminPut<{ country_code: string; currency_code: string; currency_symbol: string }>('/v1/admin/display_settings', {
+    const r = await adminPut<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number }>('/v1/admin/display_settings', {
       country_code: countryCode.value.trim().toUpperCase(),
       currency_code: currencyCode.value.trim().toUpperCase(),
       currency_symbol: currencySymbol.value.trim(),
+      fiat_to_usdt_rate: fiatToUsdtRate.value,
     })
     applyAdminDisplaySettings(r)
     countryCode.value = r.country_code
     currencyCode.value = r.currency_code
     currencySymbol.value = r.currency_symbol
+    fiatToUsdtRate.value = r.fiat_to_usdt_rate
     saved.value = true
     toast.success('展示配置已保存')
   } catch (e) {

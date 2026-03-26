@@ -455,6 +455,26 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/v1/admin/settlement/logs",
 					Handler: adminhandler.AdminSettlementLogsHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/settlement/withdrawals",
+					Handler: adminhandler.AdminSettlementWithdrawalsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/settlement/withdrawals",
+					Handler: adminhandler.AdminCreateWithdrawalHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/settlement/withdrawals/:id/review",
+					Handler: adminhandler.AdminReviewWithdrawalHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/settlement/withdrawals/:id/payout",
+					Handler: adminhandler.AdminPayoutWithdrawalHandler(serverCtx),
+				},
 			}...,
 		),
 	)

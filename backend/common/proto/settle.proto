@@ -8,6 +8,10 @@ service Settle {
   rpc DebitPayout(DebitPayoutReq) returns(DebitPayoutResp);
   rpc TransferPayinToPayout(TransferPayinToPayoutReq) returns(TransferPayinToPayoutResp);
   rpc ListFundLogs(ListFundLogsReq) returns(ListFundLogsResp);
+  rpc CreateWithdrawal(CreateWithdrawalReq) returns(CreateWithdrawalResp);
+  rpc ListWithdrawals(ListWithdrawalsReq) returns(ListWithdrawalsResp);
+  rpc ReviewWithdrawal(ReviewWithdrawalReq) returns(ReviewWithdrawalResp);
+  rpc PayoutWithdrawal(PayoutWithdrawalReq) returns(PayoutWithdrawalResp);
 }
 
 message CreditReq {
@@ -65,4 +69,73 @@ message FundLogItem {
 
 message ListFundLogsResp {
   repeated FundLogItem logs = 1;
+}
+
+message WithdrawalItem {
+  int64 id = 1;
+  string withdraw_no = 2;
+  string merchant_id = 3;
+  int64 apply_amount = 4;
+  int64 fee_amount = 5;
+  int64 net_amount = 6;
+  int64 fiat_debit_amount = 20;
+  int32 status = 7;
+  string receive_account = 8;
+  string receive_name = 9;
+  string bank_name = 10;
+  string apply_note = 11;
+  string review_note = 12;
+  string payout_note = 13;
+  string reviewed_by = 14;
+  int64 reviewed_at = 15;
+  string payouted_by = 16;
+  int64 payouted_at = 17;
+  int64 created_at = 18;
+  int64 updated_at = 19;
+}
+
+message CreateWithdrawalReq {
+  string withdraw_no = 1;
+  string merchant_id = 2;
+  int64 apply_amount = 3;
+  int64 fee_amount = 4;
+  int64 fiat_debit_amount = 9;
+  string receive_account = 5;
+  string receive_name = 6;
+  string bank_name = 7;
+  string apply_note = 8;
+}
+
+message CreateWithdrawalResp {
+  WithdrawalItem item = 1;
+}
+
+message ListWithdrawalsReq {
+  string merchant_id = 1;
+  int64 limit = 2;
+}
+
+message ListWithdrawalsResp {
+  repeated WithdrawalItem items = 1;
+}
+
+message ReviewWithdrawalReq {
+  string withdraw_no = 1;
+  bool approved = 2;
+  string review_note = 3;
+  string operator = 4;
+}
+
+message ReviewWithdrawalResp {
+  WithdrawalItem item = 1;
+}
+
+message PayoutWithdrawalReq {
+  string withdraw_no = 1;
+  string payout_note = 2;
+  string operator = 3;
+}
+
+message PayoutWithdrawalResp {
+  WithdrawalItem item = 1;
 }

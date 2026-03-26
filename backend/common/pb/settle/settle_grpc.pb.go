@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: settle.proto
+// source: proto/settle.proto
 
 package settle
 
@@ -23,6 +23,10 @@ const (
 	Settle_DebitPayout_FullMethodName           = "/settle.Settle/DebitPayout"
 	Settle_TransferPayinToPayout_FullMethodName = "/settle.Settle/TransferPayinToPayout"
 	Settle_ListFundLogs_FullMethodName          = "/settle.Settle/ListFundLogs"
+	Settle_CreateWithdrawal_FullMethodName      = "/settle.Settle/CreateWithdrawal"
+	Settle_ListWithdrawals_FullMethodName       = "/settle.Settle/ListWithdrawals"
+	Settle_ReviewWithdrawal_FullMethodName      = "/settle.Settle/ReviewWithdrawal"
+	Settle_PayoutWithdrawal_FullMethodName      = "/settle.Settle/PayoutWithdrawal"
 )
 
 // SettleClient is the client API for Settle service.
@@ -33,6 +37,10 @@ type SettleClient interface {
 	DebitPayout(ctx context.Context, in *DebitPayoutReq, opts ...grpc.CallOption) (*DebitPayoutResp, error)
 	TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error)
 	ListFundLogs(ctx context.Context, in *ListFundLogsReq, opts ...grpc.CallOption) (*ListFundLogsResp, error)
+	CreateWithdrawal(ctx context.Context, in *CreateWithdrawalReq, opts ...grpc.CallOption) (*CreateWithdrawalResp, error)
+	ListWithdrawals(ctx context.Context, in *ListWithdrawalsReq, opts ...grpc.CallOption) (*ListWithdrawalsResp, error)
+	ReviewWithdrawal(ctx context.Context, in *ReviewWithdrawalReq, opts ...grpc.CallOption) (*ReviewWithdrawalResp, error)
+	PayoutWithdrawal(ctx context.Context, in *PayoutWithdrawalReq, opts ...grpc.CallOption) (*PayoutWithdrawalResp, error)
 }
 
 type settleClient struct {
@@ -83,6 +91,46 @@ func (c *settleClient) ListFundLogs(ctx context.Context, in *ListFundLogsReq, op
 	return out, nil
 }
 
+func (c *settleClient) CreateWithdrawal(ctx context.Context, in *CreateWithdrawalReq, opts ...grpc.CallOption) (*CreateWithdrawalResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateWithdrawalResp)
+	err := c.cc.Invoke(ctx, Settle_CreateWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settleClient) ListWithdrawals(ctx context.Context, in *ListWithdrawalsReq, opts ...grpc.CallOption) (*ListWithdrawalsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListWithdrawalsResp)
+	err := c.cc.Invoke(ctx, Settle_ListWithdrawals_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settleClient) ReviewWithdrawal(ctx context.Context, in *ReviewWithdrawalReq, opts ...grpc.CallOption) (*ReviewWithdrawalResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReviewWithdrawalResp)
+	err := c.cc.Invoke(ctx, Settle_ReviewWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settleClient) PayoutWithdrawal(ctx context.Context, in *PayoutWithdrawalReq, opts ...grpc.CallOption) (*PayoutWithdrawalResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PayoutWithdrawalResp)
+	err := c.cc.Invoke(ctx, Settle_PayoutWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SettleServer is the server API for Settle service.
 // All implementations must embed UnimplementedSettleServer
 // for forward compatibility.
@@ -91,6 +139,10 @@ type SettleServer interface {
 	DebitPayout(context.Context, *DebitPayoutReq) (*DebitPayoutResp, error)
 	TransferPayinToPayout(context.Context, *TransferPayinToPayoutReq) (*TransferPayinToPayoutResp, error)
 	ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error)
+	CreateWithdrawal(context.Context, *CreateWithdrawalReq) (*CreateWithdrawalResp, error)
+	ListWithdrawals(context.Context, *ListWithdrawalsReq) (*ListWithdrawalsResp, error)
+	ReviewWithdrawal(context.Context, *ReviewWithdrawalReq) (*ReviewWithdrawalResp, error)
+	PayoutWithdrawal(context.Context, *PayoutWithdrawalReq) (*PayoutWithdrawalResp, error)
 	mustEmbedUnimplementedSettleServer()
 }
 
@@ -112,6 +164,18 @@ func (UnimplementedSettleServer) TransferPayinToPayout(context.Context, *Transfe
 }
 func (UnimplementedSettleServer) ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFundLogs not implemented")
+}
+func (UnimplementedSettleServer) CreateWithdrawal(context.Context, *CreateWithdrawalReq) (*CreateWithdrawalResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateWithdrawal not implemented")
+}
+func (UnimplementedSettleServer) ListWithdrawals(context.Context, *ListWithdrawalsReq) (*ListWithdrawalsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListWithdrawals not implemented")
+}
+func (UnimplementedSettleServer) ReviewWithdrawal(context.Context, *ReviewWithdrawalReq) (*ReviewWithdrawalResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReviewWithdrawal not implemented")
+}
+func (UnimplementedSettleServer) PayoutWithdrawal(context.Context, *PayoutWithdrawalReq) (*PayoutWithdrawalResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayoutWithdrawal not implemented")
 }
 func (UnimplementedSettleServer) mustEmbedUnimplementedSettleServer() {}
 func (UnimplementedSettleServer) testEmbeddedByValue()                {}
@@ -206,6 +270,78 @@ func _Settle_ListFundLogs_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Settle_CreateWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateWithdrawalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).CreateWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_CreateWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).CreateWithdrawal(ctx, req.(*CreateWithdrawalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Settle_ListWithdrawals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListWithdrawalsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).ListWithdrawals(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_ListWithdrawals_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).ListWithdrawals(ctx, req.(*ListWithdrawalsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Settle_ReviewWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReviewWithdrawalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).ReviewWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_ReviewWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).ReviewWithdrawal(ctx, req.(*ReviewWithdrawalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Settle_PayoutWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayoutWithdrawalReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).PayoutWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_PayoutWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).PayoutWithdrawal(ctx, req.(*PayoutWithdrawalReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Settle_ServiceDesc is the grpc.ServiceDesc for Settle service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,7 +365,23 @@ var Settle_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ListFundLogs",
 			Handler:    _Settle_ListFundLogs_Handler,
 		},
+		{
+			MethodName: "CreateWithdrawal",
+			Handler:    _Settle_CreateWithdrawal_Handler,
+		},
+		{
+			MethodName: "ListWithdrawals",
+			Handler:    _Settle_ListWithdrawals_Handler,
+		},
+		{
+			MethodName: "ReviewWithdrawal",
+			Handler:    _Settle_ReviewWithdrawal_Handler,
+		},
+		{
+			MethodName: "PayoutWithdrawal",
+			Handler:    _Settle_PayoutWithdrawal_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "settle.proto",
+	Metadata: "proto/settle.proto",
 }

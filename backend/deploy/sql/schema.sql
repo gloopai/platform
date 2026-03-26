@@ -208,6 +208,34 @@ CREATE TABLE IF NOT EXISTS fund_logs (
   KEY idx_merchant_created (merchant_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 提现申请单（phase2）
+CREATE TABLE IF NOT EXISTS merchant_withdrawals (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  withdraw_no VARCHAR(64) NOT NULL COMMENT '平台提现单号',
+  merchant_id VARCHAR(64) NOT NULL,
+  apply_amount BIGINT NOT NULL COMMENT '申请金额（分）',
+  fee_amount BIGINT NOT NULL DEFAULT 0 COMMENT '手续费（分）',
+  net_amount BIGINT NOT NULL COMMENT '实付金额（分）',
+  fiat_debit_amount BIGINT NOT NULL DEFAULT 0 COMMENT '审核通过时扣减的法币余额（分）',
+  status TINYINT NOT NULL DEFAULT 0 COMMENT '0=待审核 1=已驳回 2=待打款 3=打款中 4=成功 5=失败',
+  receive_account VARCHAR(128) NOT NULL DEFAULT '' COMMENT '收款账号/卡号',
+  receive_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT '收款人',
+  bank_name VARCHAR(128) NOT NULL DEFAULT '' COMMENT '银行/机构名称',
+  apply_note VARCHAR(255) NOT NULL DEFAULT '',
+  review_note VARCHAR(255) NOT NULL DEFAULT '',
+  payout_note VARCHAR(255) NOT NULL DEFAULT '',
+  reviewed_by VARCHAR(64) NOT NULL DEFAULT '',
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  payouted_by VARCHAR(64) NOT NULL DEFAULT '',
+  payouted_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_withdraw_no (withdraw_no),
+  KEY idx_merchant_created (merchant_id, created_at),
+  KEY idx_status_created (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS merchant_notify_logs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   merchant_id VARCHAR(64) NOT NULL,

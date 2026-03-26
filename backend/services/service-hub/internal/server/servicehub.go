@@ -74,6 +74,7 @@ func (s *ServiceHubServer) GetDisplaySettings(ctx context.Context, _ *servicehub
 		CountryCode:    row.CountryCode,
 		CurrencyCode:   row.CurrencyCode,
 		CurrencySymbol: row.CurrencySymbol,
+		FiatToUsdtRate: row.FiatToUsdtRate,
 	}, nil
 }
 
@@ -81,13 +82,15 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 	country := strings.ToUpper(strings.TrimSpace(req.GetCountryCode()))
 	currency := strings.ToUpper(strings.TrimSpace(req.GetCurrencyCode()))
 	symbol := strings.TrimSpace(req.GetCurrencySymbol())
-	if country == "" || currency == "" || symbol == "" {
-		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol required")
+	rate := req.GetFiatToUsdtRate()
+	if country == "" || currency == "" || symbol == "" || rate <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol, fiat_to_usdt_rate required")
 	}
 	if err := s.svcCtx.GlobalSettings.UpsertDisplaySettings(ctx, &store.GlobalDisplaySettings{
 		CountryCode:    country,
 		CurrencyCode:   currency,
 		CurrencySymbol: symbol,
+		FiatToUsdtRate: rate,
 	}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -95,6 +98,7 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 		CountryCode:    country,
 		CurrencyCode:   currency,
 		CurrencySymbol: symbol,
+		FiatToUsdtRate: rate,
 	}, nil
 }
 

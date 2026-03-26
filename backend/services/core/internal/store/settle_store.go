@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -10,6 +11,8 @@ import (
 )
 
 var ErrInsufficientBalance = errors.New("insufficient balance")
+var ErrInvalidWithdrawalStatus = errors.New("invalid withdrawal status")
+var ErrWithdrawalNotFound = errors.New("withdrawal not found")
 
 type SettleStore struct {
 	db *gorm.DB
@@ -94,11 +97,14 @@ func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo strin
 			availableAfter = m.AvailableBefore
 			return ErrInsufficientBalance
 		}
-		_ = orderNo
-		_ = reason
-
 		availableAfter = m.AvailableBefore - amount
 		if err := tx.Exec(`UPDATE merchants SET available_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, availableAfter, merchantId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES (?, ?, 'PAYOUT_DEBIT', ?, ?, ?, ?, NOW())
+`, merchantId, orderNo, -amount, m.AvailableBefore, availableAfter, reason).Error; err != nil {
 			return err
 		}
 		changed = true
@@ -176,6 +182,29 @@ type FundLogRow struct {
 	CreatedAt     time.Time
 }
 
+type WithdrawalRow struct {
+	Id             int64
+	WithdrawNo     string
+	MerchantId     string
+	ApplyAmount    int64
+	FeeAmount      int64
+	NetAmount      int64
+	FiatDebitAmount int64
+	Status         int32
+	ReceiveAccount string
+	ReceiveName    string
+	BankName       string
+	ApplyNote      string
+	ReviewNote     string
+	PayoutNote     string
+	ReviewedBy     string
+	ReviewedAt     *time.Time
+	PayoutedBy     string
+	PayoutedAt     *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 func (s *SettleStore) ListByMerchant(ctx context.Context, merchantId string, limit int64) ([]FundLogRow, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 50
@@ -204,4 +233,181 @@ LIMIT ?
 		return nil, err
 	}
 	return out, nil
+}
+
+func (s *SettleStore) CreateWithdrawal(ctx context.Context, in WithdrawalRow) (WithdrawalRow, error) {
+	out := in
+	out.Status = 0
+	out.NetAmount = in.ApplyAmount - in.FeeAmount
+	if out.NetAmount < 0 || in.FiatDebitAmount <= 0 {
+		return WithdrawalRow{}, fmt.Errorf("invalid amount")
+	}
+	if err := s.db.WithContext(ctx).Exec(`
+INSERT INTO merchant_withdrawals (
+  withdraw_no, merchant_id, apply_amount, fee_amount, net_amount, status,
+  fiat_debit_amount, receive_account, receive_name, bank_name, apply_note
+) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)
+`, in.WithdrawNo, in.MerchantId, in.ApplyAmount, in.FeeAmount, out.NetAmount, in.FiatDebitAmount,
+		in.ReceiveAccount, in.ReceiveName, in.BankName, in.ApplyNote).Error; err != nil {
+		return WithdrawalRow{}, err
+	}
+	return s.GetWithdrawalByNo(ctx, in.WithdrawNo)
+}
+
+func (s *SettleStore) ListWithdrawals(ctx context.Context, merchantId string, limit int64) ([]WithdrawalRow, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	var out []WithdrawalRow
+	q := s.db.WithContext(ctx).Table("merchant_withdrawals")
+	if merchantId != "" {
+		q = q.Where("merchant_id = ?", merchantId)
+	}
+	if err := q.Order("created_at DESC").Limit(int(limit)).Scan(&out).Error; err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s *SettleStore) GetWithdrawalByNo(ctx context.Context, withdrawNo string) (WithdrawalRow, error) {
+	var out WithdrawalRow
+	if err := s.db.WithContext(ctx).
+		Table("merchant_withdrawals").
+		Where("withdraw_no = ?", withdrawNo).
+		Limit(1).
+		Take(&out).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return WithdrawalRow{}, ErrWithdrawalNotFound
+		}
+		return WithdrawalRow{}, err
+	}
+	return out, nil
+}
+
+func (s *SettleStore) ReviewWithdrawal(ctx context.Context, withdrawNo string, approved bool, reviewNote, operator string) (WithdrawalRow, bool, int64, error) {
+	var out WithdrawalRow
+	var changed bool
+	var availableAfter int64
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("merchant_withdrawals").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("withdraw_no = ?", withdrawNo).
+			Limit(1).
+			Take(&out).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return ErrWithdrawalNotFound
+			}
+			return err
+		}
+		if out.Status != 0 {
+			changed = false
+			return nil
+		}
+		if !approved {
+			if err := tx.Exec(`
+UPDATE merchant_withdrawals
+SET status = 1, review_note = ?, reviewed_by = ?, reviewed_at = NOW(), updated_at = NOW()
+WHERE withdraw_no = ?
+`, reviewNote, operator, withdrawNo).Error; err != nil {
+				return err
+			}
+			changed = true
+			return nil
+		}
+
+		ok, after, err := s.debitPayoutInTx(ctx, tx, out.MerchantId, out.WithdrawNo, out.FiatDebitAmount, "WITHDRAW_APPROVE")
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return ErrInvalidWithdrawalStatus
+		}
+		availableAfter = after
+		if err := tx.Exec(`
+UPDATE merchant_withdrawals
+SET status = 2, review_note = ?, reviewed_by = ?, reviewed_at = NOW(), updated_at = NOW()
+WHERE withdraw_no = ?
+`, reviewNote, operator, withdrawNo).Error; err != nil {
+			return err
+		}
+		changed = true
+		return nil
+	})
+	if err != nil {
+		return WithdrawalRow{}, false, 0, err
+	}
+	latest, err := s.GetWithdrawalByNo(ctx, withdrawNo)
+	if err != nil {
+		return WithdrawalRow{}, changed, availableAfter, err
+	}
+	return latest, changed, availableAfter, nil
+}
+
+func (s *SettleStore) MarkWithdrawalPayoutSuccess(ctx context.Context, withdrawNo, payoutNote, operator string) (WithdrawalRow, bool, error) {
+	var out WithdrawalRow
+	changed := false
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("merchant_withdrawals").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("withdraw_no = ?", withdrawNo).
+			Limit(1).
+			Take(&out).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return ErrWithdrawalNotFound
+			}
+			return err
+		}
+		if out.Status == 4 {
+			changed = false
+			return nil
+		}
+		if out.Status != 2 && out.Status != 3 {
+			return ErrInvalidWithdrawalStatus
+		}
+		if err := tx.Exec(`
+UPDATE merchant_withdrawals
+SET status = 4, payout_note = ?, payouted_by = ?, payouted_at = NOW(), updated_at = NOW()
+WHERE withdraw_no = ?
+`, payoutNote, operator, withdrawNo).Error; err != nil {
+			return err
+		}
+		changed = true
+		return nil
+	})
+	if err != nil {
+		return WithdrawalRow{}, false, err
+	}
+	latest, err := s.GetWithdrawalByNo(ctx, withdrawNo)
+	if err != nil {
+		return WithdrawalRow{}, changed, err
+	}
+	return latest, changed, nil
+}
+
+func (s *SettleStore) debitPayoutInTx(ctx context.Context, tx *gorm.DB, merchantId, orderNo string, amount int64, reason string) (bool, int64, error) {
+	var m struct {
+		AvailableBefore int64 `gorm:"column:available_balance"`
+	}
+	if err := tx.WithContext(ctx).Table("merchants").
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Select("available_balance").
+		Where("merchant_id = ?", merchantId).
+		Limit(1).
+		Take(&m).Error; err != nil {
+		return false, 0, err
+	}
+	if m.AvailableBefore < amount {
+		return false, m.AvailableBefore, ErrInsufficientBalance
+	}
+	availableAfter := m.AvailableBefore - amount
+	if err := tx.Exec(`UPDATE merchants SET available_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, availableAfter, merchantId).Error; err != nil {
+		return false, 0, err
+	}
+	if err := tx.Exec(`
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES (?, ?, 'PAYOUT_DEBIT', ?, ?, ?, ?, NOW())
+`, merchantId, orderNo, -amount, m.AvailableBefore, availableAfter, reason).Error; err != nil {
+		return false, 0, err
+	}
+	return true, availableAfter, nil
 }

@@ -5,12 +5,14 @@ export type AdminDisplaySettings = {
   country_code: string
   currency_code: string
   currency_symbol: string
+  fiat_to_usdt_rate: number
 }
 
 const settings = ref<AdminDisplaySettings>({
   country_code: 'CN',
   currency_code: 'CNY',
   currency_symbol: '¥',
+  fiat_to_usdt_rate: 7.2,
 })
 
 export const adminDisplaySettings = computed(() => settings.value)
@@ -21,6 +23,7 @@ export async function loadAdminDisplaySettings() {
     country_code: r.country_code || 'CN',
     currency_code: r.currency_code || 'CNY',
     currency_symbol: r.currency_symbol || '¥',
+    fiat_to_usdt_rate: r.fiat_to_usdt_rate > 0 ? r.fiat_to_usdt_rate : 7.2,
   }
 }
 
@@ -29,6 +32,7 @@ export function applyAdminDisplaySettings(next: AdminDisplaySettings) {
     country_code: next.country_code || 'CN',
     currency_code: next.currency_code || 'CNY',
     currency_symbol: next.currency_symbol || '¥',
+    fiat_to_usdt_rate: next.fiat_to_usdt_rate > 0 ? next.fiat_to_usdt_rate : 7.2,
   }
 }
 

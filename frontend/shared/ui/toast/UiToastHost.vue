@@ -8,25 +8,15 @@
       <div
         v-for="t in toasts"
         :key="t.id"
-        class="pointer-events-auto relative flex items-start gap-3 rounded-xl border bg-white px-4 py-3 shadow-[0_14px_34px_-14px_rgba(15,23,42,0.42)]"
+        class="pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm"
         :class="panelClass(t.variant)"
         role="status"
       >
-        <span
-          class="absolute inset-y-2 left-1.5 w-1 rounded-full"
-          :class="accentClass(t.variant)"
-          aria-hidden="true"
-        />
-        <span
-          class="ml-2 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
-          :class="iconWrapClass(t.variant)"
-          aria-hidden="true"
-          v-html="iconSvg(t.variant)"
-        />
-        <span class="min-w-0 flex-1 text-sm font-medium leading-snug text-slate-700">{{ t.message }}</span>
+        <span class="mt-0.5 shrink-0" aria-hidden="true" v-html="iconSvg(t.variant)" />
+        <span class="min-w-0 flex-1 text-sm font-medium leading-snug">{{ t.message }}</span>
         <button
           type="button"
-          class="shrink-0 rounded-md p-1 text-slate-300 transition hover:bg-slate-100 hover:text-slate-600"
+          class="shrink-0 rounded-md p-1 text-slate-400 transition hover:bg-black/5 hover:text-slate-700"
           aria-label="关闭"
           @click="dismiss(t.id)"
         >
@@ -47,33 +37,11 @@ const { toasts, dismiss } = useUiToast()
 function panelClass(v: UiToastVariant) {
   switch (v) {
     case 'error':
-      return 'border-rose-200'
+      return 'border-rose-200 bg-rose-50/95 text-rose-900 ring-1 ring-rose-100'
     case 'info':
-      return 'border-slate-300'
+      return 'border-slate-200 bg-white/95 text-slate-800 ring-1 ring-slate-100'
     default:
-      return 'border-emerald-200'
-  }
-}
-
-function accentClass(v: UiToastVariant) {
-  switch (v) {
-    case 'error':
-      return 'bg-rose-400'
-    case 'info':
-      return 'bg-slate-400'
-    default:
-      return 'bg-emerald-400'
-  }
-}
-
-function iconWrapClass(v: UiToastVariant) {
-  switch (v) {
-    case 'error':
-      return 'border-rose-100 bg-rose-50/80'
-    case 'info':
-      return 'border-slate-200 bg-slate-50'
-    default:
-      return 'border-emerald-100 bg-emerald-50/80'
+      return 'border-emerald-200 bg-emerald-50/95 text-emerald-900 ring-1 ring-emerald-100'
   }
 }
 

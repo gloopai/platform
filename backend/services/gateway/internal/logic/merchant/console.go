@@ -110,6 +110,7 @@ func (c *MerchantConsole) MerchantDisplaySettings(req *types.MerchantDisplaySett
 		CountryCode:    row.GetCountryCode(),
 		CurrencyCode:   row.GetCurrencyCode(),
 		CurrencySymbol: row.GetCurrencySymbol(),
+		FiatToUsdtRate: row.GetFiatToUsdtRate(),
 	}, nil
 }
 

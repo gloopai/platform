@@ -54,6 +54,7 @@ func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*t
 		CountryCode:    row.GetCountryCode(),
 		CurrencyCode:   row.GetCurrencyCode(),
 		CurrencySymbol: row.GetCurrencySymbol(),
+		FiatToUsdtRate: row.GetFiatToUsdtRate(),
 	}, nil
 }
 
@@ -61,15 +62,17 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 	country := strings.ToUpper(strings.TrimSpace(req.CountryCode))
 	currency := strings.ToUpper(strings.TrimSpace(req.CurrencyCode))
 	symbol := strings.TrimSpace(req.CurrencySymbol)
-	if country == "" || currency == "" || symbol == "" {
-		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol required")
+	rate := req.FiatToUsdtRate
+	if country == "" || currency == "" || symbol == "" || rate <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol, fiat_to_usdt_rate required")
 	}
-	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol); err != nil {
+	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol, rate); err != nil {
 		return nil, err
 	}
 	return &types.AdminDisplaySettingsResp{
 		CountryCode:    country,
 		CurrencyCode:   currency,
 		CurrencySymbol: symbol,
+		FiatToUsdtRate: rate,
 	}, nil
 }

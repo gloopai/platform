@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: settle.proto
+// source: proto/settle.proto
 
 package settle
 
@@ -33,7 +33,7 @@ type CreditReq struct {
 
 func (x *CreditReq) Reset() {
 	*x = CreditReq{}
-	mi := &file_settle_proto_msgTypes[0]
+	mi := &file_proto_settle_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +45,7 @@ func (x *CreditReq) String() string {
 func (*CreditReq) ProtoMessage() {}
 
 func (x *CreditReq) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[0]
+	mi := &file_proto_settle_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *CreditReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreditReq.ProtoReflect.Descriptor instead.
 func (*CreditReq) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{0}
+	return file_proto_settle_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CreditReq) GetMerchantId() string {
@@ -99,7 +99,7 @@ type CreditResp struct {
 
 func (x *CreditResp) Reset() {
 	*x = CreditResp{}
-	mi := &file_settle_proto_msgTypes[1]
+	mi := &file_proto_settle_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -111,7 +111,7 @@ func (x *CreditResp) String() string {
 func (*CreditResp) ProtoMessage() {}
 
 func (x *CreditResp) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[1]
+	mi := &file_proto_settle_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -124,7 +124,7 @@ func (x *CreditResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreditResp.ProtoReflect.Descriptor instead.
 func (*CreditResp) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{1}
+	return file_proto_settle_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreditResp) GetChanged() bool {
@@ -153,7 +153,7 @@ type DebitPayoutReq struct {
 
 func (x *DebitPayoutReq) Reset() {
 	*x = DebitPayoutReq{}
-	mi := &file_settle_proto_msgTypes[2]
+	mi := &file_proto_settle_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -165,7 +165,7 @@ func (x *DebitPayoutReq) String() string {
 func (*DebitPayoutReq) ProtoMessage() {}
 
 func (x *DebitPayoutReq) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[2]
+	mi := &file_proto_settle_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -178,7 +178,7 @@ func (x *DebitPayoutReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebitPayoutReq.ProtoReflect.Descriptor instead.
 func (*DebitPayoutReq) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{2}
+	return file_proto_settle_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DebitPayoutReq) GetMerchantId() string {
@@ -219,7 +219,7 @@ type DebitPayoutResp struct {
 
 func (x *DebitPayoutResp) Reset() {
 	*x = DebitPayoutResp{}
-	mi := &file_settle_proto_msgTypes[3]
+	mi := &file_proto_settle_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -231,7 +231,7 @@ func (x *DebitPayoutResp) String() string {
 func (*DebitPayoutResp) ProtoMessage() {}
 
 func (x *DebitPayoutResp) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[3]
+	mi := &file_proto_settle_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -244,7 +244,7 @@ func (x *DebitPayoutResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebitPayoutResp.ProtoReflect.Descriptor instead.
 func (*DebitPayoutResp) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{3}
+	return file_proto_settle_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DebitPayoutResp) GetChanged() bool {
@@ -272,7 +272,7 @@ type TransferPayinToPayoutReq struct {
 
 func (x *TransferPayinToPayoutReq) Reset() {
 	*x = TransferPayinToPayoutReq{}
-	mi := &file_settle_proto_msgTypes[4]
+	mi := &file_proto_settle_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -284,7 +284,7 @@ func (x *TransferPayinToPayoutReq) String() string {
 func (*TransferPayinToPayoutReq) ProtoMessage() {}
 
 func (x *TransferPayinToPayoutReq) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[4]
+	mi := &file_proto_settle_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +297,7 @@ func (x *TransferPayinToPayoutReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferPayinToPayoutReq.ProtoReflect.Descriptor instead.
 func (*TransferPayinToPayoutReq) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{4}
+	return file_proto_settle_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TransferPayinToPayoutReq) GetMerchantId() string {
@@ -332,7 +332,7 @@ type TransferPayinToPayoutResp struct {
 
 func (x *TransferPayinToPayoutResp) Reset() {
 	*x = TransferPayinToPayoutResp{}
-	mi := &file_settle_proto_msgTypes[5]
+	mi := &file_proto_settle_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -344,7 +344,7 @@ func (x *TransferPayinToPayoutResp) String() string {
 func (*TransferPayinToPayoutResp) ProtoMessage() {}
 
 func (x *TransferPayinToPayoutResp) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[5]
+	mi := &file_proto_settle_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,7 +357,7 @@ func (x *TransferPayinToPayoutResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferPayinToPayoutResp.ProtoReflect.Descriptor instead.
 func (*TransferPayinToPayoutResp) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{5}
+	return file_proto_settle_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *TransferPayinToPayoutResp) GetChanged() bool {
@@ -391,7 +391,7 @@ type ListFundLogsReq struct {
 
 func (x *ListFundLogsReq) Reset() {
 	*x = ListFundLogsReq{}
-	mi := &file_settle_proto_msgTypes[6]
+	mi := &file_proto_settle_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -403,7 +403,7 @@ func (x *ListFundLogsReq) String() string {
 func (*ListFundLogsReq) ProtoMessage() {}
 
 func (x *ListFundLogsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[6]
+	mi := &file_proto_settle_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -416,7 +416,7 @@ func (x *ListFundLogsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFundLogsReq.ProtoReflect.Descriptor instead.
 func (*ListFundLogsReq) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{6}
+	return file_proto_settle_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListFundLogsReq) GetMerchantId() string {
@@ -450,7 +450,7 @@ type FundLogItem struct {
 
 func (x *FundLogItem) Reset() {
 	*x = FundLogItem{}
-	mi := &file_settle_proto_msgTypes[7]
+	mi := &file_proto_settle_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +462,7 @@ func (x *FundLogItem) String() string {
 func (*FundLogItem) ProtoMessage() {}
 
 func (x *FundLogItem) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[7]
+	mi := &file_proto_settle_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +475,7 @@ func (x *FundLogItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FundLogItem.ProtoReflect.Descriptor instead.
 func (*FundLogItem) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{7}
+	return file_proto_settle_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *FundLogItem) GetId() int64 {
@@ -550,7 +550,7 @@ type ListFundLogsResp struct {
 
 func (x *ListFundLogsResp) Reset() {
 	*x = ListFundLogsResp{}
-	mi := &file_settle_proto_msgTypes[8]
+	mi := &file_proto_settle_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -562,7 +562,7 @@ func (x *ListFundLogsResp) String() string {
 func (*ListFundLogsResp) ProtoMessage() {}
 
 func (x *ListFundLogsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_settle_proto_msgTypes[8]
+	mi := &file_proto_settle_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +575,7 @@ func (x *ListFundLogsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFundLogsResp.ProtoReflect.Descriptor instead.
 func (*ListFundLogsResp) Descriptor() ([]byte, []int) {
-	return file_settle_proto_rawDescGZIP(), []int{8}
+	return file_proto_settle_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListFundLogsResp) GetLogs() []*FundLogItem {
@@ -585,11 +585,671 @@ func (x *ListFundLogsResp) GetLogs() []*FundLogItem {
 	return nil
 }
 
-var File_settle_proto protoreflect.FileDescriptor
+type WithdrawalItem struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	WithdrawNo      string                 `protobuf:"bytes,2,opt,name=withdraw_no,json=withdrawNo,proto3" json:"withdraw_no,omitempty"`
+	MerchantId      string                 `protobuf:"bytes,3,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	ApplyAmount     int64                  `protobuf:"varint,4,opt,name=apply_amount,json=applyAmount,proto3" json:"apply_amount,omitempty"`
+	FeeAmount       int64                  `protobuf:"varint,5,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount       int64                  `protobuf:"varint,6,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
+	FiatDebitAmount int64                  `protobuf:"varint,20,opt,name=fiat_debit_amount,json=fiatDebitAmount,proto3" json:"fiat_debit_amount,omitempty"`
+	Status          int32                  `protobuf:"varint,7,opt,name=status,proto3" json:"status,omitempty"`
+	ReceiveAccount  string                 `protobuf:"bytes,8,opt,name=receive_account,json=receiveAccount,proto3" json:"receive_account,omitempty"`
+	ReceiveName     string                 `protobuf:"bytes,9,opt,name=receive_name,json=receiveName,proto3" json:"receive_name,omitempty"`
+	BankName        string                 `protobuf:"bytes,10,opt,name=bank_name,json=bankName,proto3" json:"bank_name,omitempty"`
+	ApplyNote       string                 `protobuf:"bytes,11,opt,name=apply_note,json=applyNote,proto3" json:"apply_note,omitempty"`
+	ReviewNote      string                 `protobuf:"bytes,12,opt,name=review_note,json=reviewNote,proto3" json:"review_note,omitempty"`
+	PayoutNote      string                 `protobuf:"bytes,13,opt,name=payout_note,json=payoutNote,proto3" json:"payout_note,omitempty"`
+	ReviewedBy      string                 `protobuf:"bytes,14,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`
+	ReviewedAt      int64                  `protobuf:"varint,15,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`
+	PayoutedBy      string                 `protobuf:"bytes,16,opt,name=payouted_by,json=payoutedBy,proto3" json:"payouted_by,omitempty"`
+	PayoutedAt      int64                  `protobuf:"varint,17,opt,name=payouted_at,json=payoutedAt,proto3" json:"payouted_at,omitempty"`
+	CreatedAt       int64                  `protobuf:"varint,18,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       int64                  `protobuf:"varint,19,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
 
-const file_settle_proto_rawDesc = "" +
+func (x *WithdrawalItem) Reset() {
+	*x = WithdrawalItem{}
+	mi := &file_proto_settle_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawalItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawalItem) ProtoMessage() {}
+
+func (x *WithdrawalItem) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawalItem.ProtoReflect.Descriptor instead.
+func (*WithdrawalItem) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *WithdrawalItem) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetWithdrawNo() string {
+	if x != nil {
+		return x.WithdrawNo
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetApplyAmount() int64 {
+	if x != nil {
+		return x.ApplyAmount
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetFeeAmount() int64 {
+	if x != nil {
+		return x.FeeAmount
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetNetAmount() int64 {
+	if x != nil {
+		return x.NetAmount
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetFiatDebitAmount() int64 {
+	if x != nil {
+		return x.FiatDebitAmount
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetReceiveAccount() string {
+	if x != nil {
+		return x.ReceiveAccount
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetReceiveName() string {
+	if x != nil {
+		return x.ReceiveName
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetBankName() string {
+	if x != nil {
+		return x.BankName
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetApplyNote() string {
+	if x != nil {
+		return x.ApplyNote
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetReviewNote() string {
+	if x != nil {
+		return x.ReviewNote
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetPayoutNote() string {
+	if x != nil {
+		return x.PayoutNote
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetReviewedBy() string {
+	if x != nil {
+		return x.ReviewedBy
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetReviewedAt() int64 {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetPayoutedBy() string {
+	if x != nil {
+		return x.PayoutedBy
+	}
+	return ""
+}
+
+func (x *WithdrawalItem) GetPayoutedAt() int64 {
+	if x != nil {
+		return x.PayoutedAt
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+func (x *WithdrawalItem) GetUpdatedAt() int64 {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return 0
+}
+
+type CreateWithdrawalReq struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	WithdrawNo      string                 `protobuf:"bytes,1,opt,name=withdraw_no,json=withdrawNo,proto3" json:"withdraw_no,omitempty"`
+	MerchantId      string                 `protobuf:"bytes,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	ApplyAmount     int64                  `protobuf:"varint,3,opt,name=apply_amount,json=applyAmount,proto3" json:"apply_amount,omitempty"`
+	FeeAmount       int64                  `protobuf:"varint,4,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	FiatDebitAmount int64                  `protobuf:"varint,9,opt,name=fiat_debit_amount,json=fiatDebitAmount,proto3" json:"fiat_debit_amount,omitempty"`
+	ReceiveAccount  string                 `protobuf:"bytes,5,opt,name=receive_account,json=receiveAccount,proto3" json:"receive_account,omitempty"`
+	ReceiveName     string                 `protobuf:"bytes,6,opt,name=receive_name,json=receiveName,proto3" json:"receive_name,omitempty"`
+	BankName        string                 `protobuf:"bytes,7,opt,name=bank_name,json=bankName,proto3" json:"bank_name,omitempty"`
+	ApplyNote       string                 `protobuf:"bytes,8,opt,name=apply_note,json=applyNote,proto3" json:"apply_note,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateWithdrawalReq) Reset() {
+	*x = CreateWithdrawalReq{}
+	mi := &file_proto_settle_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWithdrawalReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWithdrawalReq) ProtoMessage() {}
+
+func (x *CreateWithdrawalReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWithdrawalReq.ProtoReflect.Descriptor instead.
+func (*CreateWithdrawalReq) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CreateWithdrawalReq) GetWithdrawNo() string {
+	if x != nil {
+		return x.WithdrawNo
+	}
+	return ""
+}
+
+func (x *CreateWithdrawalReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *CreateWithdrawalReq) GetApplyAmount() int64 {
+	if x != nil {
+		return x.ApplyAmount
+	}
+	return 0
+}
+
+func (x *CreateWithdrawalReq) GetFeeAmount() int64 {
+	if x != nil {
+		return x.FeeAmount
+	}
+	return 0
+}
+
+func (x *CreateWithdrawalReq) GetFiatDebitAmount() int64 {
+	if x != nil {
+		return x.FiatDebitAmount
+	}
+	return 0
+}
+
+func (x *CreateWithdrawalReq) GetReceiveAccount() string {
+	if x != nil {
+		return x.ReceiveAccount
+	}
+	return ""
+}
+
+func (x *CreateWithdrawalReq) GetReceiveName() string {
+	if x != nil {
+		return x.ReceiveName
+	}
+	return ""
+}
+
+func (x *CreateWithdrawalReq) GetBankName() string {
+	if x != nil {
+		return x.BankName
+	}
+	return ""
+}
+
+func (x *CreateWithdrawalReq) GetApplyNote() string {
+	if x != nil {
+		return x.ApplyNote
+	}
+	return ""
+}
+
+type CreateWithdrawalResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *WithdrawalItem        `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateWithdrawalResp) Reset() {
+	*x = CreateWithdrawalResp{}
+	mi := &file_proto_settle_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateWithdrawalResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateWithdrawalResp) ProtoMessage() {}
+
+func (x *CreateWithdrawalResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateWithdrawalResp.ProtoReflect.Descriptor instead.
+func (*CreateWithdrawalResp) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CreateWithdrawalResp) GetItem() *WithdrawalItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type ListWithdrawalsReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Limit         int64                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWithdrawalsReq) Reset() {
+	*x = ListWithdrawalsReq{}
+	mi := &file_proto_settle_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWithdrawalsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWithdrawalsReq) ProtoMessage() {}
+
+func (x *ListWithdrawalsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWithdrawalsReq.ProtoReflect.Descriptor instead.
+func (*ListWithdrawalsReq) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListWithdrawalsReq) GetMerchantId() string {
+	if x != nil {
+		return x.MerchantId
+	}
+	return ""
+}
+
+func (x *ListWithdrawalsReq) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type ListWithdrawalsResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*WithdrawalItem      `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWithdrawalsResp) Reset() {
+	*x = ListWithdrawalsResp{}
+	mi := &file_proto_settle_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWithdrawalsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWithdrawalsResp) ProtoMessage() {}
+
+func (x *ListWithdrawalsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWithdrawalsResp.ProtoReflect.Descriptor instead.
+func (*ListWithdrawalsResp) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListWithdrawalsResp) GetItems() []*WithdrawalItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type ReviewWithdrawalReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WithdrawNo    string                 `protobuf:"bytes,1,opt,name=withdraw_no,json=withdrawNo,proto3" json:"withdraw_no,omitempty"`
+	Approved      bool                   `protobuf:"varint,2,opt,name=approved,proto3" json:"approved,omitempty"`
+	ReviewNote    string                 `protobuf:"bytes,3,opt,name=review_note,json=reviewNote,proto3" json:"review_note,omitempty"`
+	Operator      string                 `protobuf:"bytes,4,opt,name=operator,proto3" json:"operator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewWithdrawalReq) Reset() {
+	*x = ReviewWithdrawalReq{}
+	mi := &file_proto_settle_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewWithdrawalReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewWithdrawalReq) ProtoMessage() {}
+
+func (x *ReviewWithdrawalReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewWithdrawalReq.ProtoReflect.Descriptor instead.
+func (*ReviewWithdrawalReq) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ReviewWithdrawalReq) GetWithdrawNo() string {
+	if x != nil {
+		return x.WithdrawNo
+	}
+	return ""
+}
+
+func (x *ReviewWithdrawalReq) GetApproved() bool {
+	if x != nil {
+		return x.Approved
+	}
+	return false
+}
+
+func (x *ReviewWithdrawalReq) GetReviewNote() string {
+	if x != nil {
+		return x.ReviewNote
+	}
+	return ""
+}
+
+func (x *ReviewWithdrawalReq) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+type ReviewWithdrawalResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *WithdrawalItem        `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewWithdrawalResp) Reset() {
+	*x = ReviewWithdrawalResp{}
+	mi := &file_proto_settle_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewWithdrawalResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewWithdrawalResp) ProtoMessage() {}
+
+func (x *ReviewWithdrawalResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewWithdrawalResp.ProtoReflect.Descriptor instead.
+func (*ReviewWithdrawalResp) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ReviewWithdrawalResp) GetItem() *WithdrawalItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+type PayoutWithdrawalReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WithdrawNo    string                 `protobuf:"bytes,1,opt,name=withdraw_no,json=withdrawNo,proto3" json:"withdraw_no,omitempty"`
+	PayoutNote    string                 `protobuf:"bytes,2,opt,name=payout_note,json=payoutNote,proto3" json:"payout_note,omitempty"`
+	Operator      string                 `protobuf:"bytes,3,opt,name=operator,proto3" json:"operator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PayoutWithdrawalReq) Reset() {
+	*x = PayoutWithdrawalReq{}
+	mi := &file_proto_settle_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PayoutWithdrawalReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PayoutWithdrawalReq) ProtoMessage() {}
+
+func (x *PayoutWithdrawalReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PayoutWithdrawalReq.ProtoReflect.Descriptor instead.
+func (*PayoutWithdrawalReq) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *PayoutWithdrawalReq) GetWithdrawNo() string {
+	if x != nil {
+		return x.WithdrawNo
+	}
+	return ""
+}
+
+func (x *PayoutWithdrawalReq) GetPayoutNote() string {
+	if x != nil {
+		return x.PayoutNote
+	}
+	return ""
+}
+
+func (x *PayoutWithdrawalReq) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+type PayoutWithdrawalResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Item          *WithdrawalItem        `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PayoutWithdrawalResp) Reset() {
+	*x = PayoutWithdrawalResp{}
+	mi := &file_proto_settle_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PayoutWithdrawalResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PayoutWithdrawalResp) ProtoMessage() {}
+
+func (x *PayoutWithdrawalResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_settle_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PayoutWithdrawalResp.ProtoReflect.Descriptor instead.
+func (*PayoutWithdrawalResp) Descriptor() ([]byte, []int) {
+	return file_proto_settle_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *PayoutWithdrawalResp) GetItem() *WithdrawalItem {
+	if x != nil {
+		return x.Item
+	}
+	return nil
+}
+
+var File_proto_settle_proto protoreflect.FileDescriptor
+
+const file_proto_settle_proto_rawDesc = "" +
 	"\n" +
-	"\fsettle.proto\x12\x06settle\"w\n" +
+	"\x12proto/settle.proto\x12\x06settle\"w\n" +
 	"\tCreditReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x19\n" +
@@ -636,27 +1296,105 @@ const file_settle_proto_rawDesc = "" +
 	"\vmerchant_id\x18\t \x01(\tR\n" +
 	"merchantId\";\n" +
 	"\x10ListFundLogsResp\x12'\n" +
-	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs2\x9a\x02\n" +
+	"\x04logs\x18\x01 \x03(\v2\x13.settle.FundLogItemR\x04logs\"\x93\x05\n" +
+	"\x0eWithdrawalItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1f\n" +
+	"\vwithdraw_no\x18\x02 \x01(\tR\n" +
+	"withdrawNo\x12\x1f\n" +
+	"\vmerchant_id\x18\x03 \x01(\tR\n" +
+	"merchantId\x12!\n" +
+	"\fapply_amount\x18\x04 \x01(\x03R\vapplyAmount\x12\x1d\n" +
+	"\n" +
+	"fee_amount\x18\x05 \x01(\x03R\tfeeAmount\x12\x1d\n" +
+	"\n" +
+	"net_amount\x18\x06 \x01(\x03R\tnetAmount\x12*\n" +
+	"\x11fiat_debit_amount\x18\x14 \x01(\x03R\x0ffiatDebitAmount\x12\x16\n" +
+	"\x06status\x18\a \x01(\x05R\x06status\x12'\n" +
+	"\x0freceive_account\x18\b \x01(\tR\x0ereceiveAccount\x12!\n" +
+	"\freceive_name\x18\t \x01(\tR\vreceiveName\x12\x1b\n" +
+	"\tbank_name\x18\n" +
+	" \x01(\tR\bbankName\x12\x1d\n" +
+	"\n" +
+	"apply_note\x18\v \x01(\tR\tapplyNote\x12\x1f\n" +
+	"\vreview_note\x18\f \x01(\tR\n" +
+	"reviewNote\x12\x1f\n" +
+	"\vpayout_note\x18\r \x01(\tR\n" +
+	"payoutNote\x12\x1f\n" +
+	"\vreviewed_by\x18\x0e \x01(\tR\n" +
+	"reviewedBy\x12\x1f\n" +
+	"\vreviewed_at\x18\x0f \x01(\x03R\n" +
+	"reviewedAt\x12\x1f\n" +
+	"\vpayouted_by\x18\x10 \x01(\tR\n" +
+	"payoutedBy\x12\x1f\n" +
+	"\vpayouted_at\x18\x11 \x01(\x03R\n" +
+	"payoutedAt\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x12 \x01(\x03R\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x13 \x01(\x03R\tupdatedAt\"\xcd\x02\n" +
+	"\x13CreateWithdrawalReq\x12\x1f\n" +
+	"\vwithdraw_no\x18\x01 \x01(\tR\n" +
+	"withdrawNo\x12\x1f\n" +
+	"\vmerchant_id\x18\x02 \x01(\tR\n" +
+	"merchantId\x12!\n" +
+	"\fapply_amount\x18\x03 \x01(\x03R\vapplyAmount\x12\x1d\n" +
+	"\n" +
+	"fee_amount\x18\x04 \x01(\x03R\tfeeAmount\x12*\n" +
+	"\x11fiat_debit_amount\x18\t \x01(\x03R\x0ffiatDebitAmount\x12'\n" +
+	"\x0freceive_account\x18\x05 \x01(\tR\x0ereceiveAccount\x12!\n" +
+	"\freceive_name\x18\x06 \x01(\tR\vreceiveName\x12\x1b\n" +
+	"\tbank_name\x18\a \x01(\tR\bbankName\x12\x1d\n" +
+	"\n" +
+	"apply_note\x18\b \x01(\tR\tapplyNote\"B\n" +
+	"\x14CreateWithdrawalResp\x12*\n" +
+	"\x04item\x18\x01 \x01(\v2\x16.settle.WithdrawalItemR\x04item\"K\n" +
+	"\x12ListWithdrawalsReq\x12\x1f\n" +
+	"\vmerchant_id\x18\x01 \x01(\tR\n" +
+	"merchantId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x03R\x05limit\"C\n" +
+	"\x13ListWithdrawalsResp\x12,\n" +
+	"\x05items\x18\x01 \x03(\v2\x16.settle.WithdrawalItemR\x05items\"\x8f\x01\n" +
+	"\x13ReviewWithdrawalReq\x12\x1f\n" +
+	"\vwithdraw_no\x18\x01 \x01(\tR\n" +
+	"withdrawNo\x12\x1a\n" +
+	"\bapproved\x18\x02 \x01(\bR\bapproved\x12\x1f\n" +
+	"\vreview_note\x18\x03 \x01(\tR\n" +
+	"reviewNote\x12\x1a\n" +
+	"\boperator\x18\x04 \x01(\tR\boperator\"B\n" +
+	"\x14ReviewWithdrawalResp\x12*\n" +
+	"\x04item\x18\x01 \x01(\v2\x16.settle.WithdrawalItemR\x04item\"s\n" +
+	"\x13PayoutWithdrawalReq\x12\x1f\n" +
+	"\vwithdraw_no\x18\x01 \x01(\tR\n" +
+	"withdrawNo\x12\x1f\n" +
+	"\vpayout_note\x18\x02 \x01(\tR\n" +
+	"payoutNote\x12\x1a\n" +
+	"\boperator\x18\x03 \x01(\tR\boperator\"B\n" +
+	"\x14PayoutWithdrawalResp\x12*\n" +
+	"\x04item\x18\x01 \x01(\v2\x16.settle.WithdrawalItemR\x04item2\xd3\x04\n" +
 	"\x06Settle\x12/\n" +
 	"\x06Credit\x12\x11.settle.CreditReq\x1a\x12.settle.CreditResp\x12>\n" +
 	"\vDebitPayout\x12\x16.settle.DebitPayoutReq\x1a\x17.settle.DebitPayoutResp\x12\\\n" +
 	"\x15TransferPayinToPayout\x12 .settle.TransferPayinToPayoutReq\x1a!.settle.TransferPayinToPayoutResp\x12A\n" +
-	"\fListFundLogs\x12\x17.settle.ListFundLogsReq\x1a\x18.settle.ListFundLogsRespB0Z.github.com/gloopai/pay/common/pb/settle;settleb\x06proto3"
+	"\fListFundLogs\x12\x17.settle.ListFundLogsReq\x1a\x18.settle.ListFundLogsResp\x12M\n" +
+	"\x10CreateWithdrawal\x12\x1b.settle.CreateWithdrawalReq\x1a\x1c.settle.CreateWithdrawalResp\x12J\n" +
+	"\x0fListWithdrawals\x12\x1a.settle.ListWithdrawalsReq\x1a\x1b.settle.ListWithdrawalsResp\x12M\n" +
+	"\x10ReviewWithdrawal\x12\x1b.settle.ReviewWithdrawalReq\x1a\x1c.settle.ReviewWithdrawalResp\x12M\n" +
+	"\x10PayoutWithdrawal\x12\x1b.settle.PayoutWithdrawalReq\x1a\x1c.settle.PayoutWithdrawalRespB0Z.github.com/gloopai/pay/common/pb/settle;settleb\x06proto3"
 
 var (
-	file_settle_proto_rawDescOnce sync.Once
-	file_settle_proto_rawDescData []byte
+	file_proto_settle_proto_rawDescOnce sync.Once
+	file_proto_settle_proto_rawDescData []byte
 )
 
-func file_settle_proto_rawDescGZIP() []byte {
-	file_settle_proto_rawDescOnce.Do(func() {
-		file_settle_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_settle_proto_rawDesc), len(file_settle_proto_rawDesc)))
+func file_proto_settle_proto_rawDescGZIP() []byte {
+	file_proto_settle_proto_rawDescOnce.Do(func() {
+		file_proto_settle_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_settle_proto_rawDesc), len(file_proto_settle_proto_rawDesc)))
 	})
-	return file_settle_proto_rawDescData
+	return file_proto_settle_proto_rawDescData
 }
 
-var file_settle_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_settle_proto_goTypes = []any{
+var file_proto_settle_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_proto_settle_proto_goTypes = []any{
 	(*CreditReq)(nil),                 // 0: settle.CreditReq
 	(*CreditResp)(nil),                // 1: settle.CreditResp
 	(*DebitPayoutReq)(nil),            // 2: settle.DebitPayoutReq
@@ -666,44 +1404,65 @@ var file_settle_proto_goTypes = []any{
 	(*ListFundLogsReq)(nil),           // 6: settle.ListFundLogsReq
 	(*FundLogItem)(nil),               // 7: settle.FundLogItem
 	(*ListFundLogsResp)(nil),          // 8: settle.ListFundLogsResp
+	(*WithdrawalItem)(nil),            // 9: settle.WithdrawalItem
+	(*CreateWithdrawalReq)(nil),       // 10: settle.CreateWithdrawalReq
+	(*CreateWithdrawalResp)(nil),      // 11: settle.CreateWithdrawalResp
+	(*ListWithdrawalsReq)(nil),        // 12: settle.ListWithdrawalsReq
+	(*ListWithdrawalsResp)(nil),       // 13: settle.ListWithdrawalsResp
+	(*ReviewWithdrawalReq)(nil),       // 14: settle.ReviewWithdrawalReq
+	(*ReviewWithdrawalResp)(nil),      // 15: settle.ReviewWithdrawalResp
+	(*PayoutWithdrawalReq)(nil),       // 16: settle.PayoutWithdrawalReq
+	(*PayoutWithdrawalResp)(nil),      // 17: settle.PayoutWithdrawalResp
 }
-var file_settle_proto_depIdxs = []int32{
-	7, // 0: settle.ListFundLogsResp.logs:type_name -> settle.FundLogItem
-	0, // 1: settle.Settle.Credit:input_type -> settle.CreditReq
-	2, // 2: settle.Settle.DebitPayout:input_type -> settle.DebitPayoutReq
-	4, // 3: settle.Settle.TransferPayinToPayout:input_type -> settle.TransferPayinToPayoutReq
-	6, // 4: settle.Settle.ListFundLogs:input_type -> settle.ListFundLogsReq
-	1, // 5: settle.Settle.Credit:output_type -> settle.CreditResp
-	3, // 6: settle.Settle.DebitPayout:output_type -> settle.DebitPayoutResp
-	5, // 7: settle.Settle.TransferPayinToPayout:output_type -> settle.TransferPayinToPayoutResp
-	8, // 8: settle.Settle.ListFundLogs:output_type -> settle.ListFundLogsResp
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+var file_proto_settle_proto_depIdxs = []int32{
+	7,  // 0: settle.ListFundLogsResp.logs:type_name -> settle.FundLogItem
+	9,  // 1: settle.CreateWithdrawalResp.item:type_name -> settle.WithdrawalItem
+	9,  // 2: settle.ListWithdrawalsResp.items:type_name -> settle.WithdrawalItem
+	9,  // 3: settle.ReviewWithdrawalResp.item:type_name -> settle.WithdrawalItem
+	9,  // 4: settle.PayoutWithdrawalResp.item:type_name -> settle.WithdrawalItem
+	0,  // 5: settle.Settle.Credit:input_type -> settle.CreditReq
+	2,  // 6: settle.Settle.DebitPayout:input_type -> settle.DebitPayoutReq
+	4,  // 7: settle.Settle.TransferPayinToPayout:input_type -> settle.TransferPayinToPayoutReq
+	6,  // 8: settle.Settle.ListFundLogs:input_type -> settle.ListFundLogsReq
+	10, // 9: settle.Settle.CreateWithdrawal:input_type -> settle.CreateWithdrawalReq
+	12, // 10: settle.Settle.ListWithdrawals:input_type -> settle.ListWithdrawalsReq
+	14, // 11: settle.Settle.ReviewWithdrawal:input_type -> settle.ReviewWithdrawalReq
+	16, // 12: settle.Settle.PayoutWithdrawal:input_type -> settle.PayoutWithdrawalReq
+	1,  // 13: settle.Settle.Credit:output_type -> settle.CreditResp
+	3,  // 14: settle.Settle.DebitPayout:output_type -> settle.DebitPayoutResp
+	5,  // 15: settle.Settle.TransferPayinToPayout:output_type -> settle.TransferPayinToPayoutResp
+	8,  // 16: settle.Settle.ListFundLogs:output_type -> settle.ListFundLogsResp
+	11, // 17: settle.Settle.CreateWithdrawal:output_type -> settle.CreateWithdrawalResp
+	13, // 18: settle.Settle.ListWithdrawals:output_type -> settle.ListWithdrawalsResp
+	15, // 19: settle.Settle.ReviewWithdrawal:output_type -> settle.ReviewWithdrawalResp
+	17, // 20: settle.Settle.PayoutWithdrawal:output_type -> settle.PayoutWithdrawalResp
+	13, // [13:21] is the sub-list for method output_type
+	5,  // [5:13] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_settle_proto_init() }
-func file_settle_proto_init() {
-	if File_settle_proto != nil {
+func init() { file_proto_settle_proto_init() }
+func file_proto_settle_proto_init() {
+	if File_proto_settle_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_settle_proto_rawDesc), len(file_settle_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_settle_proto_rawDesc), len(file_proto_settle_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_settle_proto_goTypes,
-		DependencyIndexes: file_settle_proto_depIdxs,
-		MessageInfos:      file_settle_proto_msgTypes,
+		GoTypes:           file_proto_settle_proto_goTypes,
+		DependencyIndexes: file_proto_settle_proto_depIdxs,
+		MessageInfos:      file_proto_settle_proto_msgTypes,
 	}.Build()
-	File_settle_proto = out.File
-	file_settle_proto_goTypes = nil
-	file_settle_proto_depIdxs = nil
+	File_proto_settle_proto = out.File
+	file_proto_settle_proto_goTypes = nil
+	file_proto_settle_proto_depIdxs = nil
 }

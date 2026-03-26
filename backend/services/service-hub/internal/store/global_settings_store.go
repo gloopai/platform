@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -10,12 +11,14 @@ const (
 	GlobalSettingCountryCode  = "country_code"
 	GlobalSettingCurrencyCode = "currency_code"
 	GlobalSettingCurrencySign = "currency_symbol"
+	GlobalSettingFiatToUsdtRate = "fiat_to_usdt_rate"
 )
 
 type GlobalDisplaySettings struct {
 	CountryCode    string
 	CurrencyCode   string
 	CurrencySymbol string
+	FiatToUsdtRate float64
 }
 
 type GlobalSettingsStore struct {
@@ -35,7 +38,7 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 	if err := s.db.WithContext(ctx).
 		Table("global_settings").
 		Select("setting_key, setting_value").
-		Where("setting_key IN ?", []string{GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign}).
+		Where("setting_key IN ?", []string{GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign, GlobalSettingFiatToUsdtRate}).
 		Find(&rows).Error; err != nil {
 		return nil, err
 	}
@@ -43,6 +46,7 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 		CountryCode:    "CN",
 		CurrencyCode:   "CNY",
 		CurrencySymbol: "¥",
+		FiatToUsdtRate: 7.2,
 	}
 	for _, r := range rows {
 		switch r.K {
@@ -52,6 +56,10 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 			out.CurrencyCode = r.V
 		case GlobalSettingCurrencySign:
 			out.CurrencySymbol = r.V
+		case GlobalSettingFiatToUsdtRate:
+			if v, err := strconv.ParseFloat(r.V, 64); err == nil && v > 0 {
+				out.FiatToUsdtRate = v
+			}
 		}
 	}
 	return out, nil
@@ -62,12 +70,14 @@ func (s *GlobalSettingsStore) UpsertDisplaySettings(ctx context.Context, in *Glo
 INSERT INTO global_settings (setting_key, setting_value) VALUES
   (?, ?),
   (?, ?),
+  (?, ?),
   (?, ?)
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 `,
 		GlobalSettingCountryCode, in.CountryCode,
 		GlobalSettingCurrencyCode, in.CurrencyCode,
 		GlobalSettingCurrencySign, in.CurrencySymbol,
+		GlobalSettingFiatToUsdtRate, strconv.FormatFloat(in.FiatToUsdtRate, 'f', 6, 64),
 	).Error
 }
 
