@@ -81,7 +81,7 @@
       />
     </div>
 
-    <AdminDrawer
+    <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
       :subtitle="headerSubtitle"
@@ -144,15 +144,15 @@
           </button>
         </div>
       </template>
-    </AdminDrawer>
+    </UiDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { UiDrawer } from '../../../components/ui'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { useUiDialog } from '../../../composables/ui'
@@ -386,6 +386,7 @@ async function saveProduct() {
     form.value = { ...p }
     savedProduct.value = true
     await loadBindings(p.id)
+    closeDrawer()
     toast.success(creating ? '产品已创建' : '编辑已保存')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)

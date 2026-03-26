@@ -63,9 +63,14 @@ func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]Merchant, err
 	}
 	var out []Merchant
 	if err := s.db.WithContext(ctx).Raw(`
-SELECT id, merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps, COALESCE(ip_whitelist,''),
-       COALESCE(payin_balance, 0), COALESCE(available_balance, 0), COALESCE(frozen_balance, 0), COALESCE(withdrawn_amount, 0),
-       COALESCE(notify_url,''), COALESCE(return_url,'')
+SELECT id, merchant_id, api_secret, status, default_payin_rate_bps, default_payout_rate_bps,
+       COALESCE(ip_whitelist,'') AS ip_whitelist,
+       COALESCE(payin_balance, 0) AS payin_balance,
+       COALESCE(available_balance, 0) AS available_balance,
+       COALESCE(frozen_balance, 0) AS frozen_balance,
+       COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
+       COALESCE(notify_url,'') AS notify_url,
+       COALESCE(return_url,'') AS return_url
 FROM merchants
 ORDER BY id DESC
 LIMIT ?

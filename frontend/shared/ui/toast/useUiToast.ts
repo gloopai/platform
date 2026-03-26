@@ -8,22 +8,38 @@ export type UiToastItem = {
   variant: UiToastVariant
 }
 
-const toasts = ref<UiToastItem[]>([])
-let nextId = 1
+type UiToastStore = {
+  toasts: ReturnType<typeof ref<UiToastItem[]>>
+  nextId: number
+}
+
+const GLOBAL_TOAST_STORE_KEY = '__gloop_shared_ui_toast_store__'
+const globalScope = globalThis as typeof globalThis & {
+  [GLOBAL_TOAST_STORE_KEY]?: UiToastStore
+}
+
+if (!globalScope[GLOBAL_TOAST_STORE_KEY]) {
+  globalScope[GLOBAL_TOAST_STORE_KEY] = {
+    toasts: ref<UiToastItem[]>([]),
+    nextId: 1,
+  }
+}
+
+const store = globalScope[GLOBAL_TOAST_STORE_KEY]!
 
 export function useUiToast() {
   function dismiss(id: number) {
-    toasts.value = toasts.value.filter((t) => t.id !== id)
+    store.toasts.value = store.toasts.value.filter((t) => t.id !== id)
   }
 
   function show(
     message: string,
     opts?: { variant?: UiToastVariant; duration?: number },
   ): number {
-    const id = nextId++
+    const id = store.nextId++
     const variant = opts?.variant ?? 'success'
     const duration = opts?.duration ?? 3200
-    toasts.value = [...toasts.value, { id, message, variant }]
+    store.toasts.value = [...store.toasts.value, { id, message, variant }]
     window.setTimeout(() => dismiss(id), duration)
     return id
   }
@@ -40,5 +56,5 @@ export function useUiToast() {
     return show(message, { variant: 'info', duration })
   }
 
-  return { toasts, show, dismiss, success, error, info }
+  return { toasts: store.toasts, show, dismiss, success, error, info }
 }

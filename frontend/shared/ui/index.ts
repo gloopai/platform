@@ -5,4 +5,6 @@ export type { UiDialogOptions, UiDialogVariant } from './dialog/useUiDialog'
 
 export { default as UiToastHost } from './toast/UiToastHost.vue'
 export { default as UiDialogHost } from './dialog/UiDialogHost.vue'
+export { default as UiDialog } from './dialog/UiDialog.vue'
 export { default as UiTooltip } from './tooltip/UiTooltip.vue'
+export { default as UiDrawer } from './drawer/UiDrawer.vue'

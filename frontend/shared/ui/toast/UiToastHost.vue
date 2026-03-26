@@ -1,34 +1,32 @@
 <template>
-  <Teleport to="body">
-    <div
-      class="pointer-events-none fixed inset-x-0 top-4 z-[500] flex flex-col items-center gap-2 px-4 sm:top-5"
-      aria-live="polite"
-      aria-relevant="additions"
-    >
-      <TransitionGroup name="ui-toast" tag="div" class="flex w-full max-w-md flex-col gap-2">
-        <div
-          v-for="t in toasts"
-          :key="t.id"
-          class="pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm"
-          :class="panelClass(t.variant)"
-          role="status"
+  <div
+    class="pointer-events-none fixed inset-x-0 top-4 z-[2147483600] flex flex-col items-center gap-2 px-4 sm:top-5"
+    aria-live="polite"
+    aria-relevant="additions"
+  >
+    <div class="flex w-full max-w-md flex-col gap-2">
+      <div
+        v-for="t in toasts"
+        :key="t.id"
+        class="pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur-sm"
+        :class="panelClass(t.variant)"
+        role="status"
+      >
+        <span class="mt-0.5 shrink-0 text-sm" aria-hidden="true">{{ iconText(t.variant) }}</span>
+        <span class="min-w-0 flex-1 text-sm font-medium leading-snug">{{ t.message }}</span>
+        <button
+          type="button"
+          class="shrink-0 rounded-md p-1 text-slate-400 transition hover:bg-black/5 hover:text-slate-700"
+          aria-label="关闭"
+          @click="dismiss(t.id)"
         >
-          <span class="mt-0.5 shrink-0" aria-hidden="true" v-html="iconSvg(t.variant)" />
-          <span class="min-w-0 flex-1 text-sm font-medium leading-snug">{{ t.message }}</span>
-          <button
-            type="button"
-            class="shrink-0 rounded-md p-1 text-slate-400 transition hover:bg-black/5 hover:text-slate-700"
-            aria-label="关闭"
-            @click="dismiss(t.id)"
-          >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </TransitionGroup>
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
-  </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -47,33 +45,9 @@ function panelClass(v: UiToastVariant) {
   }
 }
 
-function iconSvg(v: UiToastVariant): string {
-  if (v === 'error') {
-    return `<svg class="h-5 w-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
-  }
-  if (v === 'info') {
-    return `<svg class="h-5 w-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
-  }
-  return `<svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+function iconText(v: UiToastVariant) {
+  if (v === 'error') return '!'
+  if (v === 'info') return 'i'
+  return 'ok'
 }
 </script>
-
-<style scoped>
-.ui-toast-enter-active,
-.ui-toast-leave-active {
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-}
-.ui-toast-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-.ui-toast-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-.ui-toast-move {
-  transition: transform 0.2s ease;
-}
-</style>

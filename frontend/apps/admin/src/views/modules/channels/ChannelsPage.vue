@@ -103,7 +103,7 @@
       />
     </div>
 
-    <AdminDrawer
+    <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
       subtitle="保存后路由与绑定校验将按通道能力生效。"
@@ -148,15 +148,15 @@
           </button>
         </div>
       </template>
-    </AdminDrawer>
+    </UiDrawer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { UiDrawer } from '../../../components/ui'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
@@ -281,6 +281,7 @@ async function save() {
     selectedId.value = ch.id
     form.value = { ...ch }
     saved.value = true
+    closeDrawer()
     toast.success(creating ? '通道已创建' : '编辑已保存')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)

@@ -86,7 +86,7 @@
       />
     </div>
 
-    <AdminDrawer
+    <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
       subtitle="保存后生效；代收/代付产品授权在下方分栏配置。"
@@ -195,7 +195,7 @@
           </button>
         </div>
       </template>
-    </AdminDrawer>
+    </UiDrawer>
 
     <div v-if="transferDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
@@ -226,7 +226,7 @@
           <button
             type="button"
             class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
-            :disabled="transferLoading || transferAmount <= 0 || !transferTargetMerchant"
+            :disabled="transferLoading || transferAmount <= 0 || !transferTargetMerchant || transferInsufficient"
             @click="submitTransfer"
           >
             {{ transferLoading ? '划转中...' : '确认划转' }}
@@ -240,8 +240,8 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
-import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
+import { UiDrawer } from '../../../components/ui'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useUiDialog } from '../../../composables/ui'
 import { useClientPagination } from '../../../composables/useClientPagination'
@@ -300,6 +300,12 @@ const transferTargetMerchant = computed(() => {
   const id = transferTargetMerchantId.value
   if (!id) return null
   return merchants.value.find((m) => m.merchant_id === id) ?? null
+})
+const transferInsufficient = computed(() => {
+  const m = transferTargetMerchant.value
+  if (!m) return true
+  const amountCent = Math.floor(transferAmount.value) * 100
+  return amountCent <= 0 || amountCent > (m.payin_balance ?? 0)
 })
 
 const drawerTitle = computed(() =>
@@ -481,6 +487,7 @@ async function saveForm() {
       form.value = merchantToForm(row)
     }
     saved.value = true
+    closeDrawer()
     toast.success(creating ? '商户创建成功' : '编辑已保存')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
@@ -707,10 +714,15 @@ function closeTransferDialog() {
 async function submitTransfer() {
   const m = transferTargetMerchant.value
   if (!m || transferAmount.value <= 0) return
+  const amountCent = Math.floor(transferAmount.value) * 100
+  if (amountCent > (m.payin_balance ?? 0)) {
+    transferMsg.value = '划转金额不能超过当前代收余额'
+    toast.error('划转金额超过代收余额')
+    return
+  }
   transferLoading.value = true
   transferMsg.value = ''
   try {
-    const amountCent = Math.floor(transferAmount.value) * 100
     const resp = await adminPost<{ ok: boolean; payin_balance: number; available_balance: number }>(
       `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}/transfer_payin_to_payout`,
       { amount: amountCent, reason: 'ADMIN_QUICK_TRANSFER' },
