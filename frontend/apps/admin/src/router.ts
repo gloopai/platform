@@ -21,6 +21,8 @@ import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
 import MenuManagementPage from './views/modules/rbac/menu-management/MenuManagementPage.vue'
 import RbacRolesPage from './views/modules/rbac/RbacRolesPage.vue'
 import RbacAdminUsersPage from './views/modules/rbac/RbacAdminUsersPage.vue'
+import RbacFeaturePointsPage from './views/modules/rbac/RbacFeaturePointsPage.vue'
+import RbacApiRulesPage from './views/modules/rbac/RbacApiRulesPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -53,10 +55,10 @@ export const router = createRouter({
             { path: 'overview', component: RbacOverviewPage },
             { path: 'menus', component: MenuManagementPage },
             { path: 'roles', component: RbacRolesPage },
-            { path: 'features', redirect: to => ({ path: '/rbac/menus', query: { ...to.query, tab: 'other' } }) },
+            { path: 'features', component: RbacFeaturePointsPage },
+            { path: 'api-rules', component: RbacApiRulesPage },
             { path: 'admin-users', component: RbacAdminUsersPage },
-            { path: 'permissions', redirect: '/rbac/menus?tab=other' },
-            { path: 'api-rules', redirect: '/rbac/menus?tab=other' },
+            { path: 'permissions', redirect: '/rbac/features' },
           ],
         },
       ],
@@ -74,6 +76,12 @@ router.beforeEach((to) => {
     if (raw) {
       const allowed = JSON.parse(raw) as string[]
       if (Array.isArray(allowed) && allowed.length) {
+        if (
+          (to.path === '/rbac/features' || to.path === '/rbac/api-rules') &&
+          allowed.includes('/rbac/menus')
+        ) {
+          return true
+        }
         if (!allowed.includes(to.path)) return allowed[0]
       }
     }

@@ -106,6 +106,8 @@ export const adminPathTitle: Record<string, string> = {
   '/rbac': '权限与安全',
   '/rbac/overview': '配置总览',
   '/rbac/menus': '菜单管理',
+  '/rbac/features': '功能点',
+  '/rbac/api-rules': '接口规则',
   '/rbac/roles': '角色与授权',
   '/rbac/admin-users': '后台用户',
 }

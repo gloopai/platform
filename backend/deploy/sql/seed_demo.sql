@@ -134,8 +134,6 @@ ON DUPLICATE KEY UPDATE
 -- 分组子菜单
 DELETE FROM admin_menus WHERE menu_key = 'menu.rbac';
 DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_permissions';
-DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_api_rules';
-DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_features';
 
 SET @gid_merchant := (SELECT id FROM admin_menus WHERE menu_key = 'group.merchant' LIMIT 1);
 SET @gid_channel := (SELECT id FROM admin_menus WHERE menu_key = 'group.channel' LIMIT 1);
@@ -160,8 +158,10 @@ INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_orde
 
   (@gid_rbac, 'menu.rbac_overview', '配置总览', '', 1, '/rbac/overview', 10),
   (@gid_rbac, 'menu.rbac_menus', '菜单管理', '', 1, '/rbac/menus', 15),
-  (@gid_rbac, 'menu.rbac_roles', '角色与授权', '', 1, '/rbac/roles', 20),
-  (@gid_rbac, 'menu.rbac_admin_users', '后台用户', '', 1, '/rbac/admin-users', 22),
+  (@gid_rbac, 'menu.rbac_features', '功能点', '', 1, '/rbac/features', 20),
+  (@gid_rbac, 'menu.rbac_api_rules', '接口规则', '', 1, '/rbac/api-rules', 25),
+  (@gid_rbac, 'menu.rbac_roles', '角色与授权', '', 1, '/rbac/roles', 30),
+  (@gid_rbac, 'menu.rbac_admin_users', '后台用户', '', 1, '/rbac/admin-users', 35),
 
   (@gid_system, 'menu.system', '系统管理', '', 1, '/system', 10),
   (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20)
@@ -300,6 +300,7 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('PUT', '/v1/admin/rbac/roles/:id/perm_keys', 'admin.rbac.manage', 1, ''),
   ('GET', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
   ('POST', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, ''),
   ('DELETE', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, '')
 ON DUPLICATE KEY UPDATE
   perm_key = VALUES(perm_key),

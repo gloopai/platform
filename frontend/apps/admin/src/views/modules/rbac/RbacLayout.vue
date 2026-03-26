@@ -35,6 +35,8 @@ const route = useRoute()
 const tabs = [
   { to: '/rbac/overview', label: '配置总览' },
   { to: '/rbac/menus', label: '菜单管理' },
+  { to: '/rbac/features', label: '功能点' },
+  { to: '/rbac/api-rules', label: '接口规则' },
   { to: '/rbac/roles', label: '角色与授权' },
   { to: '/rbac/admin-users', label: '后台用户' },
 ]
