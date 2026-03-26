@@ -18,9 +18,9 @@ import StatsPage from './views/modules/stats/StatsPage.vue'
 import SystemPage from './views/modules/system/SystemPage.vue'
 import RbacLayout from './views/modules/rbac/RbacLayout.vue'
 import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
+import MenuManagementPage from './views/modules/rbac/menu-management/MenuManagementPage.vue'
 import RbacRolesPage from './views/modules/rbac/RbacRolesPage.vue'
-import RbacPermissionsPage from './views/modules/rbac/RbacPermissionsPage.vue'
-import RbacApiRulesPage from './views/modules/rbac/RbacApiRulesPage.vue'
+import RbacAdminUsersPage from './views/modules/rbac/RbacAdminUsersPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -51,9 +51,12 @@ export const router = createRouter({
           redirect: '/rbac/overview',
           children: [
             { path: 'overview', component: RbacOverviewPage },
+            { path: 'menus', component: MenuManagementPage },
             { path: 'roles', component: RbacRolesPage },
-            { path: 'permissions', component: RbacPermissionsPage },
-            { path: 'api-rules', component: RbacApiRulesPage },
+            { path: 'features', redirect: to => ({ path: '/rbac/menus', query: { ...to.query, tab: 'other' } }) },
+            { path: 'admin-users', component: RbacAdminUsersPage },
+            { path: 'permissions', redirect: '/rbac/menus?tab=other' },
+            { path: 'api-rules', redirect: '/rbac/menus?tab=other' },
           ],
         },
       ],

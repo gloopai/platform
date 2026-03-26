@@ -356,6 +356,21 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: adminhandler.AdminListRbacMenusHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/rbac/menus",
+					Handler: adminhandler.AdminCreateRbacMenuHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/menus/:id",
+					Handler: adminhandler.AdminUpdateRbacMenuHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/rbac/menus/:id",
+					Handler: adminhandler.AdminDeleteRbacMenuHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/rbac/roles/:id/menus",
 					Handler: adminhandler.AdminGetRbacRoleMenusHandler(serverCtx),

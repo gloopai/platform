@@ -214,6 +214,20 @@
                     <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
                     <div class="text-[10px] text-slate-500">已登录 · 总管理台</div>
                   </div>
+                  <RouterLink
+                    v-for="a in avatarLinks"
+                    :key="a.to"
+                    :to="a.to"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    @click="userMenuOpen = false"
+                  >
+                    <span
+                      v-if="icons[a.icon]"
+                      class="shrink-0 text-slate-400 [&_svg]:h-4 [&_svg]:w-4"
+                      v-html="icons[a.icon]"
+                    />
+                    <span class="truncate">{{ a.label }}</span>
+                  </RouterLink>
                   <button
                     type="button"
                     class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -290,6 +304,9 @@ const adminToken = ref(loadAdminToken())
 const { serverTimeText } = useServerClock()
 
 const menu = ref<AdminMenuEntry[]>(defaultAdminMenu)
+
+type AvatarLink = { to: string; label: string; icon: string }
+const avatarLinks = ref<AvatarLink[]>([])
 
 const refreshFns = ref<RefreshFn[]>([])
 provide('adminToken', adminToken)
@@ -516,22 +533,36 @@ onBeforeUnmount(() => {
   clearGroupTimer()
 })
 
-function allowedPathsFromMenu(entries: AdminMenuEntry[]): string[] {
+function allowedPathsFromMenu(entries: AdminMenuEntry[], extra: { to: string }[]): string[] {
   const out: string[] = []
   for (const e of entries) {
     if (e.kind === 'leaf') out.push(e.to)
     else out.push(...e.children.map((c) => c.to))
+  }
+  for (const x of extra) {
+    const p = (x.to || '').trim()
+    if (p && !out.includes(p)) out.push(p)
   }
   return out
 }
 
 async function loadMenu() {
   try {
-    const m = await adminGet<AdminMenuEntry[]>('/v1/admin/rbac/my_menu')
-    if (Array.isArray(m) && m.length) {
-      menu.value = m
+    const raw = await adminGet<unknown>('/v1/admin/rbac/my_menu')
+    let sidebar: AdminMenuEntry[] | null = null
+    let av: AvatarLink[] = []
+    if (Array.isArray(raw)) {
+      sidebar = raw as AdminMenuEntry[]
+    } else if (raw && typeof raw === 'object' && raw !== null && 'sidebar' in raw) {
+      const o = raw as { sidebar?: AdminMenuEntry[]; avatar_links?: AvatarLink[] }
+      sidebar = o.sidebar ?? null
+      av = Array.isArray(o.avatar_links) ? o.avatar_links : []
+    }
+    if (sidebar && sidebar.length) {
+      menu.value = sidebar
+      avatarLinks.value = av
       syncOpenGroups()
-      const allowed = allowedPathsFromMenu(menu.value)
+      const allowed = allowedPathsFromMenu(menu.value, avatarLinks.value)
       try {
         localStorage.setItem('admin_allowed_paths', JSON.stringify(allowed))
       } catch {

@@ -27,6 +27,7 @@ type AdminMenu struct {
 	Kind      int64
 	Path      string
 	SortOrder int64
+	Placement string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -43,7 +44,7 @@ func (s *AdminRbacStore) ListMenus(ctx context.Context) ([]AdminMenu, error) {
 	var out []AdminMenu
 	if err := s.db.WithContext(ctx).
 		Table("admin_menus").
-		Select("id, parent_id, menu_key, label, icon, kind, path, sort_order").
+		Select("id, parent_id, menu_key, label, icon, kind, path, sort_order, placement").
 		Order("parent_id ASC, sort_order ASC, id ASC").
 		Find(&out).Error; err != nil {
 		return nil, err
@@ -256,7 +257,7 @@ func (s *AdminRbacStore) ListMenusByUser(ctx context.Context, adminUserID int64)
 		Table("admin_role_menus rm").
 		Joins("JOIN admin_menus m ON m.id = rm.menu_id").
 		Where("rm.role_id IN ?", roleIDs).
-		Select("DISTINCT m.id, m.parent_id, m.menu_key, m.label, m.icon, m.kind, m.path, m.sort_order").
+		Select("DISTINCT m.id, m.parent_id, m.menu_key, m.label, m.icon, m.kind, m.path, m.sort_order, m.placement").
 		Order("m.parent_id ASC, m.sort_order ASC, m.id ASC").
 		Find(&out).Error; err != nil {
 		return nil, err
@@ -301,4 +302,176 @@ func (s *AdminRbacStore) ListPermKeysByUser(ctx context.Context, adminUserID int
 		out = append(out, r.PermKey)
 	}
 	return false, out, nil
+}
+
+func normalizeMenuPlacement(kind int64, placement string) (string, error) {
+	if kind == 2 {
+		return "left", nil
+	}
+	p := strings.TrimSpace(strings.ToLower(placement))
+	if p == "" {
+		p = "left"
+	}
+	if p != "left" && p != "avatar" {
+		return "", errors.New("placement must be left or avatar")
+	}
+	return p, nil
+}
+
+func (s *AdminRbacStore) menuChildCount(ctx context.Context, id int64) (int64, error) {
+	var cnt int64
+	if err := s.db.WithContext(ctx).Table("admin_menus").Where("parent_id = ?", id).Count(&cnt).Error; err != nil {
+		return 0, err
+	}
+	return cnt, nil
+}
+
+func (s *AdminRbacStore) CreateMenu(ctx context.Context, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error) {
+	menuKey = strings.TrimSpace(menuKey)
+	label = strings.TrimSpace(label)
+	icon = strings.TrimSpace(icon)
+	path = strings.TrimSpace(path)
+	if menuKey == "" || label == "" {
+		return nil, errors.New("menu_key and label required")
+	}
+	if kind != 1 && kind != 2 {
+		return nil, errors.New("kind must be 1 (page) or 2 (group)")
+	}
+	if parentID > 0 {
+		var cnt int64
+		if err := s.db.WithContext(ctx).Table("admin_menus").Where("id = ?", parentID).Count(&cnt).Error; err != nil {
+			return nil, err
+		}
+		if cnt == 0 {
+			return nil, errors.New("parent menu not found")
+		}
+	}
+	var exists int64
+	if err := s.db.WithContext(ctx).Table("admin_menus").Where("menu_key = ?", menuKey).Count(&exists).Error; err != nil {
+		return nil, err
+	}
+	if exists > 0 {
+		return nil, errors.New("menu_key already exists")
+	}
+	pl, err := normalizeMenuPlacement(kind, placement)
+	if err != nil {
+		return nil, err
+	}
+	if pl == "avatar" {
+		if parentID != 0 {
+			return nil, errors.New("avatar menu items must be top-level (parent_id=0)")
+		}
+		if kind != 1 {
+			return nil, errors.New("avatar placement only supports page items (kind=1)")
+		}
+		if strings.TrimSpace(path) == "" {
+			return nil, errors.New("avatar menu requires path")
+		}
+	}
+	m := AdminMenu{
+		ParentID:  parentID,
+		MenuKey:   menuKey,
+		Label:     label,
+		Icon:      icon,
+		Kind:      kind,
+		Path:      path,
+		SortOrder: sortOrder,
+		Placement: pl,
+	}
+	if err := s.db.WithContext(ctx).Table("admin_menus").Create(&m).Error; err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (s *AdminRbacStore) UpdateMenu(ctx context.Context, id int64, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error) {
+	if id <= 0 {
+		return nil, errors.New("id required")
+	}
+	menuKey = strings.TrimSpace(menuKey)
+	label = strings.TrimSpace(label)
+	icon = strings.TrimSpace(icon)
+	path = strings.TrimSpace(path)
+	if menuKey == "" || label == "" {
+		return nil, errors.New("menu_key and label required")
+	}
+	if kind != 1 && kind != 2 {
+		return nil, errors.New("kind must be 1 (page) or 2 (group)")
+	}
+	if parentID == id {
+		return nil, errors.New("invalid parent")
+	}
+	if parentID > 0 {
+		var cnt int64
+		if err := s.db.WithContext(ctx).Table("admin_menus").Where("id = ?", parentID).Count(&cnt).Error; err != nil {
+			return nil, err
+		}
+		if cnt == 0 {
+			return nil, errors.New("parent menu not found")
+		}
+	}
+	var dup int64
+	if err := s.db.WithContext(ctx).Table("admin_menus").Where("menu_key = ? AND id <> ?", menuKey, id).Count(&dup).Error; err != nil {
+		return nil, err
+	}
+	if dup > 0 {
+		return nil, errors.New("menu_key already exists")
+	}
+	pl, err := normalizeMenuPlacement(kind, placement)
+	if err != nil {
+		return nil, err
+	}
+	if pl == "avatar" {
+		if parentID != 0 {
+			return nil, errors.New("avatar menu items must be top-level (parent_id=0)")
+		}
+		if kind != 1 {
+			return nil, errors.New("avatar placement only supports page items (kind=1)")
+		}
+		if strings.TrimSpace(path) == "" {
+			return nil, errors.New("avatar menu requires path")
+		}
+		n, cerr := s.menuChildCount(ctx, id)
+		if cerr != nil {
+			return nil, cerr
+		}
+		if n > 0 {
+			return nil, errors.New("cannot set avatar placement while menu has children")
+		}
+	}
+	if err := s.db.WithContext(ctx).Table("admin_menus").Where("id = ?", id).Updates(map[string]any{
+		"parent_id":  parentID,
+		"menu_key":   menuKey,
+		"label":      label,
+		"icon":       icon,
+		"kind":       kind,
+		"path":       path,
+		"sort_order": sortOrder,
+		"placement":  pl,
+	}).Error; err != nil {
+		return nil, err
+	}
+	var out AdminMenu
+	if err := s.db.WithContext(ctx).
+		Table("admin_menus").
+		Select("id, parent_id, menu_key, label, icon, kind, path, sort_order, placement").
+		Where("id = ?", id).
+		Take(&out).Error; err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (s *AdminRbacStore) DeleteMenu(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return errors.New("id required")
+	}
+	var children int64
+	if err := s.db.WithContext(ctx).Table("admin_menus").Where("parent_id = ?", id).Count(&children).Error; err != nil {
+		return err
+	}
+	if children > 0 {
+		return errors.New("请先删除或移动子菜单")
+	}
+	return s.db.WithContext(ctx).Table("admin_menus").Where("id = ?", id).Delete(&struct{}{}).Error
 }

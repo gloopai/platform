@@ -40,8 +40,29 @@ type AdminMenuChildLink struct {
 	Label string `json:"label"`
 }
 
-// MyMenu 返回当前登录管理员可见菜单（先做到导航菜单级）。
-func (a *AdminRbac) MyMenu() ([]AdminMenuEntry, error) {
+// AvatarMenuLink 头像下拉中的入口（仅一级页面）。
+type AvatarMenuLink struct {
+	To    string `json:"to"`
+	Label string `json:"label"`
+	Icon  string `json:"icon"`
+}
+
+// MyMenuResp 当前登录管理员可见：侧栏结构 + 头像菜单链接。
+type MyMenuResp struct {
+	Sidebar     []AdminMenuEntry `json:"sidebar"`
+	AvatarLinks []AvatarMenuLink `json:"avatar_links"`
+}
+
+func menuPlacementStr(placement string) string {
+	p := strings.TrimSpace(strings.ToLower(placement))
+	if p == "avatar" {
+		return "avatar"
+	}
+	return "left"
+}
+
+// MyMenu 返回当前登录管理员可见菜单（侧栏 + 头像下拉）。
+func (a *AdminRbac) MyMenu() (*MyMenuResp, error) {
 	adminID := middleware.AdminIdFromContext(a.ctx)
 	if adminID <= 0 {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
@@ -51,7 +72,6 @@ func (a *AdminRbac) MyMenu() ([]AdminMenuEntry, error) {
 		return nil, err
 	}
 
-	// Build group -> children
 	type menuRow struct {
 		ID        int64
 		ParentID  int64
@@ -61,6 +81,7 @@ func (a *AdminRbac) MyMenu() ([]AdminMenuEntry, error) {
 		Kind      int64
 		Path      string
 		SortOrder int64
+		Placement string
 	}
 
 	all := make([]menuRow, 0, len(rows))
@@ -77,14 +98,36 @@ func (a *AdminRbac) MyMenu() ([]AdminMenuEntry, error) {
 			Kind:      m.GetKind(),
 			Path:      strings.TrimSpace(m.GetPath()),
 			SortOrder: m.GetSortOrder(),
+			Placement: m.GetPlacement(),
 		})
 	}
 
-	byID := make(map[int64]menuRow, len(all))
+	avatarRows := make([]menuRow, 0)
+	leftRows := make([]menuRow, 0, len(all))
+	for _, r := range all {
+		if menuPlacementStr(r.Placement) == "avatar" {
+			if r.Kind == 1 && r.Path != "" {
+				avatarRows = append(avatarRows, r)
+			}
+			continue
+		}
+		leftRows = append(leftRows, r)
+	}
+
+	sort.Slice(avatarRows, func(i, j int) bool {
+		if avatarRows[i].SortOrder != avatarRows[j].SortOrder {
+			return avatarRows[i].SortOrder < avatarRows[j].SortOrder
+		}
+		return avatarRows[i].ID < avatarRows[j].ID
+	})
+	avatarLinks := make([]AvatarMenuLink, 0, len(avatarRows))
+	for _, r := range avatarRows {
+		avatarLinks = append(avatarLinks, AvatarMenuLink{To: r.Path, Label: r.Label, Icon: r.Icon})
+	}
+
 	children := make(map[int64][]menuRow)
 	roots := make([]menuRow, 0)
-	for _, r := range all {
-		byID[r.ID] = r
+	for _, r := range leftRows {
 		if r.ParentID == 0 {
 			roots = append(roots, r)
 		} else {
@@ -145,5 +188,5 @@ func (a *AdminRbac) MyMenu() ([]AdminMenuEntry, error) {
 			Children: links,
 		})
 	}
-	return out, nil
+	return &MyMenuResp{Sidebar: out, AvatarLinks: avatarLinks}, nil
 }

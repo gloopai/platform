@@ -69,10 +69,10 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
     label: '权限与安全',
     icon: 'shield',
     children: [
-      { to: '/rbac/overview', label: '概览' },
+      { to: '/rbac/overview', label: '配置总览' },
+      { to: '/rbac/menus', label: '菜单管理' },
       { to: '/rbac/roles', label: '角色与授权' },
-      { to: '/rbac/permissions', label: '权限点' },
-      { to: '/rbac/api-rules', label: '接口规则' },
+      { to: '/rbac/admin-users', label: '后台用户' },
     ],
   },
   {
@@ -104,10 +104,10 @@ export const adminPathTitle: Record<string, string> = {
   '/system': '系统管理',
   '/ops': '运维监控',
   '/rbac': '权限与安全',
-  '/rbac/overview': '权限概览',
+  '/rbac/overview': '配置总览',
+  '/rbac/menus': '菜单管理',
   '/rbac/roles': '角色与授权',
-  '/rbac/permissions': '权限点',
-  '/rbac/api-rules': '接口规则',
+  '/rbac/admin-users': '后台用户',
 }
 
 /** 占位页文案（路径 -> 说明）；当前无路由使用通用占位页，保留结构供后续模块。 */

@@ -143,6 +143,7 @@ func (s *ServiceHubServer) GetAdminRbacMyMenus(ctx context.Context, req *service
 			Kind:      m.Kind,
 			Path:      m.Path,
 			SortOrder: m.SortOrder,
+			Placement: m.Placement,
 		})
 	}
 	return &servicehub.GetAdminRbacMyMenusResp{Menus: out}, nil
@@ -214,9 +215,65 @@ func (s *ServiceHubServer) ListAdminMenus(ctx context.Context, _ *servicehub.Lis
 			Kind:      m.Kind,
 			Path:      m.Path,
 			SortOrder: m.SortOrder,
+			Placement: m.Placement,
 		})
 	}
 	return &servicehub.ListAdminMenusResp{Menus: out}, nil
+}
+
+func (s *ServiceHubServer) CreateAdminMenu(ctx context.Context, req *servicehub.CreateAdminMenuReq) (*servicehub.CreateAdminMenuResp, error) {
+	p := req.GetParentId()
+	if p < 0 {
+		p = 0
+	}
+	m, err := s.svcCtx.AdminRbac.CreateMenu(ctx, p, req.GetMenuKey(), req.GetLabel(), req.GetIcon(), req.GetKind(), req.GetPath(), req.GetSortOrder(), req.GetPlacement())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.CreateAdminMenuResp{
+		Menu: &servicehub.AdminMenu{
+			Id:        m.ID,
+			ParentId:  m.ParentID,
+			MenuKey:   m.MenuKey,
+			Label:     m.Label,
+			Icon:      m.Icon,
+			Kind:      m.Kind,
+			Path:      m.Path,
+			SortOrder: m.SortOrder,
+			Placement: m.Placement,
+		},
+	}, nil
+}
+
+func (s *ServiceHubServer) UpdateAdminMenu(ctx context.Context, req *servicehub.UpdateAdminMenuReq) (*servicehub.UpdateAdminMenuResp, error) {
+	p := req.GetParentId()
+	if p < 0 {
+		p = 0
+	}
+	m, err := s.svcCtx.AdminRbac.UpdateMenu(ctx, req.GetId(), p, req.GetMenuKey(), req.GetLabel(), req.GetIcon(), req.GetKind(), req.GetPath(), req.GetSortOrder(), req.GetPlacement())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.UpdateAdminMenuResp{
+		Menu: &servicehub.AdminMenu{
+			Id:        m.ID,
+			ParentId:  m.ParentID,
+			MenuKey:   m.MenuKey,
+			Label:     m.Label,
+			Icon:      m.Icon,
+			Kind:      m.Kind,
+			Path:      m.Path,
+			SortOrder: m.SortOrder,
+			Placement: m.Placement,
+		},
+	}, nil
+}
+
+func (s *ServiceHubServer) DeleteAdminMenu(ctx context.Context, req *servicehub.DeleteAdminMenuReq) (*servicehub.DeleteAdminMenuResp, error) {
+	if err := s.svcCtx.AdminRbac.DeleteMenu(ctx, req.GetId()); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.DeleteAdminMenuResp{Ok: true}, nil
 }
 
 func (s *ServiceHubServer) GetAdminRoleMenus(ctx context.Context, req *servicehub.GetAdminRoleMenusReq) (*servicehub.GetAdminRoleMenusResp, error) {
@@ -273,6 +330,7 @@ func (s *ServiceHubServer) ListAdminPermissions(ctx context.Context, _ *serviceh
 			PermKey:  p.PermKey,
 			Label:    p.Label,
 			Category: p.Category,
+			MenuKey:  p.MenuKey,
 			Status:   p.Status,
 		})
 	}
@@ -280,22 +338,22 @@ func (s *ServiceHubServer) ListAdminPermissions(ctx context.Context, _ *serviceh
 }
 
 func (s *ServiceHubServer) CreateAdminPermission(ctx context.Context, req *servicehub.CreateAdminPermissionReq) (*servicehub.CreateAdminPermissionResp, error) {
-	p, err := s.svcCtx.AdminRbacCfg.CreatePermission(ctx, req.GetPermKey(), req.GetLabel(), req.GetCategory(), req.GetStatus())
+	p, err := s.svcCtx.AdminRbacCfg.CreatePermission(ctx, req.GetPermKey(), req.GetLabel(), req.GetCategory(), req.GetMenuKey(), req.GetStatus())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	return &servicehub.CreateAdminPermissionResp{
-		Permission: &servicehub.AdminPermission{Id: p.ID, PermKey: p.PermKey, Label: p.Label, Category: p.Category, Status: p.Status},
+		Permission: &servicehub.AdminPermission{Id: p.ID, PermKey: p.PermKey, Label: p.Label, Category: p.Category, MenuKey: p.MenuKey, Status: p.Status},
 	}, nil
 }
 
 func (s *ServiceHubServer) UpdateAdminPermission(ctx context.Context, req *servicehub.UpdateAdminPermissionReq) (*servicehub.UpdateAdminPermissionResp, error) {
-	p, err := s.svcCtx.AdminRbacCfg.UpdatePermission(ctx, req.GetId(), req.GetLabel(), req.GetCategory(), req.GetStatus())
+	p, err := s.svcCtx.AdminRbacCfg.UpdatePermission(ctx, req.GetId(), req.GetLabel(), req.GetCategory(), req.GetMenuKey(), req.GetStatus())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	return &servicehub.UpdateAdminPermissionResp{
-		Permission: &servicehub.AdminPermission{Id: p.ID, PermKey: p.PermKey, Label: p.Label, Category: p.Category, Status: p.Status},
+		Permission: &servicehub.AdminPermission{Id: p.ID, PermKey: p.PermKey, Label: p.Label, Category: p.Category, MenuKey: p.MenuKey, Status: p.Status},
 	}, nil
 }
 

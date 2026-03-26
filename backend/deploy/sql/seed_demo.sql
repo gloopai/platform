@@ -133,6 +133,9 @@ ON DUPLICATE KEY UPDATE
 
 -- 分组子菜单
 DELETE FROM admin_menus WHERE menu_key = 'menu.rbac';
+DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_permissions';
+DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_api_rules';
+DELETE FROM admin_menus WHERE menu_key = 'menu.rbac_features';
 
 SET @gid_merchant := (SELECT id FROM admin_menus WHERE menu_key = 'group.merchant' LIMIT 1);
 SET @gid_channel := (SELECT id FROM admin_menus WHERE menu_key = 'group.channel' LIMIT 1);
@@ -155,10 +158,10 @@ INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_orde
   (@gid_trade, 'menu.reconcile', '对账中心', '', 1, '/reconcile', 40),
   (@gid_trade, 'menu.settlement', '结算与提现', '', 1, '/settlement', 50),
 
-  (@gid_rbac, 'menu.rbac_overview', '概览', '', 1, '/rbac/overview', 10),
+  (@gid_rbac, 'menu.rbac_overview', '配置总览', '', 1, '/rbac/overview', 10),
+  (@gid_rbac, 'menu.rbac_menus', '菜单管理', '', 1, '/rbac/menus', 15),
   (@gid_rbac, 'menu.rbac_roles', '角色与授权', '', 1, '/rbac/roles', 20),
-  (@gid_rbac, 'menu.rbac_permissions', '权限点', '', 1, '/rbac/permissions', 30),
-  (@gid_rbac, 'menu.rbac_api_rules', '接口规则', '', 1, '/rbac/api-rules', 40),
+  (@gid_rbac, 'menu.rbac_admin_users', '后台用户', '', 1, '/rbac/admin-users', 22),
 
   (@gid_system, 'menu.system', '系统管理', '', 1, '/system', 10),
   (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20)
@@ -185,41 +188,43 @@ JOIN admin_menus am
 WHERE ar.code = 'super_admin'
 ON DUPLICATE KEY UPDATE menu_id = VALUES(menu_id);
 
--- ---- 管理台操作权限点（接口/按钮级）----
-INSERT INTO admin_permissions (perm_key, label, category, status) VALUES
-  ('admin.auth.logout', '退出登录', 'auth', 1),
-  ('admin.ops.read', '运维监控-读取', 'ops', 1),
+-- ---- 管理台操作权限点（接口/按钮级）；menu_key 对应侧栏项，便于按页面做配置总览 ----
+INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALUES
+  ('admin.auth.logout', '退出登录', 'auth', 'menu.system', 1),
+  ('admin.ops.read', '运维监控-读取', 'ops', 'menu.ops', 1),
 
-  ('admin.channels.read', '通道管理-读取', 'channels', 1),
-  ('admin.channels.write', '通道管理-写入', 'channels', 1),
+  ('admin.channels.read', '通道管理-读取', 'channels', 'menu.channels', 1),
+  ('admin.channels.write', '通道管理-写入', 'channels', 'menu.channels', 1),
 
-  ('admin.merchants.read', '商户管理-读取', 'merchants', 1),
-  ('admin.merchants.write', '商户管理-写入', 'merchants', 1),
-  ('admin.merchants.transfer', '商户划转', 'merchants', 1),
+  ('admin.merchants.read', '商户管理-读取', 'merchants', 'menu.merchants', 1),
+  ('admin.merchants.write', '商户管理-写入', 'merchants', 'menu.merchants', 1),
+  ('admin.merchants.transfer', '商户划转', 'merchants', 'menu.merchants', 1),
 
-  ('admin.payin_products.read', '代收产品-读取', 'products', 1),
-  ('admin.payin_products.write', '代收产品-写入', 'products', 1),
-  ('admin.payout_products.read', '代付产品-读取', 'products', 1),
-  ('admin.payout_products.write', '代付产品-写入', 'products', 1),
+  ('admin.payin_products.read', '代收产品-读取', 'products', 'menu.merchant_payin_products', 1),
+  ('admin.payin_products.write', '代收产品-写入', 'products', 'menu.merchant_payin_products', 1),
+  ('admin.payout_products.read', '代付产品-读取', 'products', 'menu.merchant_payout_products', 1),
+  ('admin.payout_products.write', '代付产品-写入', 'products', 'menu.merchant_payout_products', 1),
 
-  ('admin.routing.read', '路由策略-读取', 'routing', 1),
-  ('admin.stats.read', '系统概览-读取', 'stats', 1),
+  ('admin.routing.read', '路由策略-读取', 'routing', 'menu.routing', 1),
+  ('admin.stats.read', '系统概览-读取', 'stats', 'menu.stats', 1),
 
-  ('admin.orders.read', '订单-读取', 'orders', 1),
-  ('admin.orders.mock', '订单-模拟回调/打款', 'orders', 1),
-  ('admin.refunds.read', '退款与差错-读取', 'refunds', 1),
-  ('admin.reconcile.read', '对账-读取', 'reconcile', 1),
-  ('admin.settlement.read', '结算-读取', 'settlement', 1),
+  ('admin.orders.read', '订单-读取（代收/代付订单列表）', 'orders', '', 1),
+  ('admin.orders.mock', '订单-模拟打款成功', 'orders', 'menu.payout_orders', 1),
+  ('admin.refunds.read', '退款与差错-读取', 'refunds', 'menu.refunds', 1),
+  ('admin.reconcile.read', '对账-读取', 'reconcile', 'menu.reconcile', 1),
+  ('admin.settlement.read', '结算-读取', 'settlement', 'menu.settlement', 1),
 
-  ('admin.system.read_users', '系统管理-管理员列表', 'system', 1),
-  ('admin.system.read_settings', '系统管理-展示配置读取', 'system', 1),
-  ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 1),
+  ('admin.system.read_settings', '系统管理-展示配置读取', 'system', 'menu.system', 1),
+  ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 'menu.system', 1),
 
-  ('admin.rbac.my_menu', 'RBAC-读取我的菜单', 'rbac', 1),
-  ('admin.rbac.manage', 'RBAC-角色/授权管理', 'rbac', 1)
+  ('admin.admin_users.manage', '后台用户-查看列表与分配角色', 'admin_users', 'menu.rbac_admin_users', 1),
+
+  ('admin.rbac.my_menu', 'RBAC-读取我的菜单', 'rbac', 'menu.rbac_overview', 1),
+  ('admin.rbac.manage', 'RBAC-配置管理（菜单/角色/权限/接口）', 'rbac', 'menu.rbac_roles', 1)
 ON DUPLICATE KEY UPDATE
   label = VALUES(label),
   category = VALUES(category),
+  menu_key = VALUES(menu_key),
   status = VALUES(status);
 
 -- 默认超级管理员拥有全部权限点
@@ -270,7 +275,7 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('GET', '/v1/admin/reconcile/day', 'admin.reconcile.read', 1, ''),
   ('GET', '/v1/admin/settlement/logs', 'admin.settlement.read', 1, ''),
 
-  ('GET', '/v1/admin/admin_users', 'admin.system.read_users', 1, ''),
+  ('GET', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),
   ('GET', '/v1/admin/display_settings', 'admin.system.read_settings', 1, ''),
   ('PUT', '/v1/admin/display_settings', 'admin.system.write_settings', 1, ''),
 
@@ -280,10 +285,13 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('PUT', '/v1/admin/rbac/roles/:id', 'admin.rbac.manage', 1, ''),
   ('DELETE', '/v1/admin/rbac/roles/:id', 'admin.rbac.manage', 1, ''),
   ('GET', '/v1/admin/rbac/menus', 'admin.rbac.manage', 1, ''),
+  ('POST', '/v1/admin/rbac/menus', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/menus/:id', 'admin.rbac.manage', 1, ''),
+  ('DELETE', '/v1/admin/rbac/menus/:id', 'admin.rbac.manage', 1, ''),
   ('GET', '/v1/admin/rbac/roles/:id/menus', 'admin.rbac.manage', 1, ''),
   ('PUT', '/v1/admin/rbac/roles/:id/menus', 'admin.rbac.manage', 1, ''),
-  ('GET', '/v1/admin/rbac/admin_users/:id/roles', 'admin.rbac.manage', 1, ''),
-  ('PUT', '/v1/admin/rbac/admin_users/:id/roles', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/admin_users/:id/roles', 'admin.admin_users.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/admin_users/:id/roles', 'admin.admin_users.manage', 1, ''),
   ('GET', '/v1/admin/rbac/permissions', 'admin.rbac.manage', 1, ''),
   ('POST', '/v1/admin/rbac/permissions', 'admin.rbac.manage', 1, ''),
   ('PUT', '/v1/admin/rbac/permissions/:id', 'admin.rbac.manage', 1, ''),

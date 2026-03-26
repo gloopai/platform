@@ -45,6 +45,9 @@ type ServiceHub interface {
 	UpdateAdminRole(ctx context.Context, id int64, name string, status int64) (*AdminRole, error)
 	DeleteAdminRole(ctx context.Context, id int64) (bool, error)
 	ListAdminMenus(ctx context.Context) ([]*AdminMenu, error)
+	CreateAdminMenu(ctx context.Context, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error)
+	UpdateAdminMenu(ctx context.Context, id int64, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error)
+	DeleteAdminMenu(ctx context.Context, id int64) (bool, error)
 	GetAdminRoleMenus(ctx context.Context, roleID int64) ([]int64, error)
 	SetAdminRoleMenus(ctx context.Context, roleID int64, menuIDs []int64) (bool, error)
 	GetAdminUserRoles(ctx context.Context, adminUserID int64) ([]int64, error)
@@ -55,8 +58,8 @@ type ServiceHub interface {
 
 	// config
 	ListAdminPermissions(ctx context.Context) ([]*AdminPermission, error)
-	CreateAdminPermission(ctx context.Context, permKey, label, category string, status int64) (*AdminPermission, error)
-	UpdateAdminPermission(ctx context.Context, id int64, label, category string, status int64) (*AdminPermission, error)
+	CreateAdminPermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error)
+	UpdateAdminPermission(ctx context.Context, id int64, label, category, menuKey string, status int64) (*AdminPermission, error)
 	DeleteAdminPermission(ctx context.Context, id int64) (bool, error)
 	GetAdminRolePermKeys(ctx context.Context, roleID int64) ([]string, error)
 	SetAdminRolePermKeys(ctx context.Context, roleID int64, permKeys []string) (bool, error)
@@ -202,6 +205,43 @@ func (d *defaultClient) ListAdminMenus(ctx context.Context) ([]*AdminMenu, error
 	return r.Menus, nil
 }
 
+func (d *defaultClient) CreateAdminMenu(ctx context.Context, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error) {
+	r, err := d.cli.CreateAdminMenu(ctx, &servicehub.CreateAdminMenuReq{
+		ParentId: parentID, MenuKey: menuKey, Label: label, Icon: icon, Kind: kind, Path: path, SortOrder: sortOrder, Placement: placement,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Menu, nil
+}
+
+func (d *defaultClient) UpdateAdminMenu(ctx context.Context, id int64, parentID int64, menuKey, label, icon string, kind int64, path string, sortOrder int64, placement string) (*AdminMenu, error) {
+	r, err := d.cli.UpdateAdminMenu(ctx, &servicehub.UpdateAdminMenuReq{
+		Id: id, ParentId: parentID, MenuKey: menuKey, Label: label, Icon: icon, Kind: kind, Path: path, SortOrder: sortOrder, Placement: placement,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Menu, nil
+}
+
+func (d *defaultClient) DeleteAdminMenu(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.DeleteAdminMenu(ctx, &servicehub.DeleteAdminMenuReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
 func (d *defaultClient) GetAdminRoleMenus(ctx context.Context, roleID int64) ([]int64, error) {
 	r, err := d.cli.GetAdminRoleMenus(ctx, &servicehub.GetAdminRoleMenusReq{RoleId: roleID})
 	if err != nil {
@@ -268,8 +308,8 @@ func (d *defaultClient) ListAdminPermissions(ctx context.Context) ([]*AdminPermi
 	return r.Permissions, nil
 }
 
-func (d *defaultClient) CreateAdminPermission(ctx context.Context, permKey, label, category string, status int64) (*AdminPermission, error) {
-	r, err := d.cli.CreateAdminPermission(ctx, &servicehub.CreateAdminPermissionReq{PermKey: permKey, Label: label, Category: category, Status: status})
+func (d *defaultClient) CreateAdminPermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error) {
+	r, err := d.cli.CreateAdminPermission(ctx, &servicehub.CreateAdminPermissionReq{PermKey: permKey, Label: label, Category: category, MenuKey: menuKey, Status: status})
 	if err != nil {
 		return nil, err
 	}
@@ -279,8 +319,8 @@ func (d *defaultClient) CreateAdminPermission(ctx context.Context, permKey, labe
 	return r.Permission, nil
 }
 
-func (d *defaultClient) UpdateAdminPermission(ctx context.Context, id int64, label, category string, status int64) (*AdminPermission, error) {
-	r, err := d.cli.UpdateAdminPermission(ctx, &servicehub.UpdateAdminPermissionReq{Id: id, Label: label, Category: category, Status: status})
+func (d *defaultClient) UpdateAdminPermission(ctx context.Context, id int64, label, category, menuKey string, status int64) (*AdminPermission, error) {
+	r, err := d.cli.UpdateAdminPermission(ctx, &servicehub.UpdateAdminPermissionReq{Id: id, Label: label, Category: category, MenuKey: menuKey, Status: status})
 	if err != nil {
 		return nil, err
 	}

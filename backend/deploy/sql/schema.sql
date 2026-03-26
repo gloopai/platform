@@ -262,6 +262,7 @@ CREATE TABLE IF NOT EXISTS admin_menus (
   kind TINYINT NOT NULL DEFAULT 1 COMMENT '1=leaf 2=group',
   path VARCHAR(128) NULL COMMENT 'leaf 路由路径，形如 /stats',
   sort_order INT NOT NULL DEFAULT 0,
+  placement VARCHAR(16) NOT NULL DEFAULT 'left' COMMENT 'left=左侧导航 avatar=头像下拉',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -295,12 +296,14 @@ CREATE TABLE IF NOT EXISTS admin_permissions (
   perm_key VARCHAR(128) NOT NULL,
   label VARCHAR(128) NOT NULL,
   category VARCHAR(64) NOT NULL DEFAULT '',
+  menu_key VARCHAR(64) NOT NULL DEFAULT '' COMMENT '对应 admin_menus.menu_key',
   status TINYINT NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uk_admin_perm_key (perm_key),
-  KEY idx_category (category, status, id)
+  KEY idx_category (category, status, id),
+  KEY idx_perm_menu_key (menu_key, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_role_permissions (

@@ -154,6 +154,90 @@ func AdminListRbacMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+type createMenuReq struct {
+	ParentID  int64  `json:"parent_id"`
+	MenuKey   string `json:"menu_key"`
+	Label     string `json:"label"`
+	Icon      string `json:"icon"`
+	Kind      int64  `json:"kind"`
+	Path      string `json:"path"`
+	SortOrder int64  `json:"sort_order"`
+	Placement string `json:"placement"`
+}
+
+func AdminCreateRbacMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !requireRbacManage(svcCtx, w, r) {
+			return
+		}
+		var req createMenuReq
+		if err := httpx.Parse(r, &req); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+		m, err := svcCtx.ServiceHub.CreateAdminMenu(r.Context(), req.ParentID, req.MenuKey, req.Label, req.Icon, req.Kind, req.Path, req.SortOrder, req.Placement)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+			return
+		}
+		httpx.OkJsonCtx(r.Context(), w, map[string]any{"menu": m})
+	}
+}
+
+type updateMenuReq struct {
+	ParentID  int64  `json:"parent_id"`
+	MenuKey   string `json:"menu_key"`
+	Label     string `json:"label"`
+	Icon      string `json:"icon"`
+	Kind      int64  `json:"kind"`
+	Path      string `json:"path"`
+	SortOrder int64  `json:"sort_order"`
+	Placement string `json:"placement"`
+}
+
+func AdminUpdateRbacMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !requireRbacManage(svcCtx, w, r) {
+			return
+		}
+		var p idPath
+		if err := httpx.Parse(r, &p); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+		var req updateMenuReq
+		if err := httpx.Parse(r, &req); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+		m, err := svcCtx.ServiceHub.UpdateAdminMenu(r.Context(), p.ID, req.ParentID, req.MenuKey, req.Label, req.Icon, req.Kind, req.Path, req.SortOrder, req.Placement)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+			return
+		}
+		httpx.OkJsonCtx(r.Context(), w, map[string]any{"menu": m})
+	}
+}
+
+func AdminDeleteRbacMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !requireRbacManage(svcCtx, w, r) {
+			return
+		}
+		var p idPath
+		if err := httpx.Parse(r, &p); err != nil {
+			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			return
+		}
+		ok, err := svcCtx.ServiceHub.DeleteAdminMenu(r.Context(), p.ID)
+		if err != nil {
+			openapi.WriteFromErr(w, err)
+			return
+		}
+		httpx.OkJsonCtx(r.Context(), w, map[string]any{"ok": ok})
+	}
+}
+
 func AdminGetRbacRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !requireRbacManage(svcCtx, w, r) {
@@ -203,9 +287,6 @@ func AdminSetRbacRoleMenusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func AdminGetRbacUserRolesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !requireRbacManage(svcCtx, w, r) {
-			return
-		}
 		var p idPath
 		if err := httpx.Parse(r, &p); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -226,9 +307,6 @@ type setUserRolesReq struct {
 
 func AdminSetRbacUserRolesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !requireRbacManage(svcCtx, w, r) {
-			return
-		}
 		var p idPath
 		if err := httpx.Parse(r, &p); err != nil {
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
@@ -268,6 +346,7 @@ type createPermReq struct {
 	PermKey  string `json:"perm_key"`
 	Label    string `json:"label"`
 	Category string `json:"category"`
+	MenuKey  string `json:"menu_key"`
 	Status   int64  `json:"status"`
 }
 
@@ -281,7 +360,7 @@ func AdminCreateRbacPermissionHandler(svcCtx *svc.ServiceContext) http.HandlerFu
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
 			return
 		}
-		p, err := svcCtx.ServiceHub.CreateAdminPermission(r.Context(), req.PermKey, req.Label, req.Category, req.Status)
+		p, err := svcCtx.ServiceHub.CreateAdminPermission(r.Context(), req.PermKey, req.Label, req.Category, req.MenuKey, req.Status)
 		if err != nil {
 			openapi.WriteFromErr(w, err)
 			return
@@ -293,6 +372,7 @@ func AdminCreateRbacPermissionHandler(svcCtx *svc.ServiceContext) http.HandlerFu
 type updatePermReq struct {
 	Label    string `json:"label"`
 	Category string `json:"category"`
+	MenuKey  string `json:"menu_key"`
 	Status   int64  `json:"status"`
 }
 
@@ -311,7 +391,7 @@ func AdminUpdateRbacPermissionHandler(svcCtx *svc.ServiceContext) http.HandlerFu
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
 			return
 		}
-		p, err := svcCtx.ServiceHub.UpdateAdminPermission(r.Context(), pth.ID, req.Label, req.Category, req.Status)
+		p, err := svcCtx.ServiceHub.UpdateAdminPermission(r.Context(), pth.ID, req.Label, req.Category, req.MenuKey, req.Status)
 		if err != nil {
 			openapi.WriteFromErr(w, err)
 			return

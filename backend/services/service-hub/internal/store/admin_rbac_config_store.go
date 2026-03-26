@@ -14,6 +14,7 @@ type AdminPermission struct {
 	PermKey  string
 	Label    string
 	Category string
+	MenuKey  string
 	Status   int64
 }
 
@@ -40,47 +41,49 @@ func (s *AdminRbacConfigStore) ListPermissions(ctx context.Context) ([]AdminPerm
 	var out []AdminPermission
 	if err := s.db.WithContext(ctx).
 		Table("admin_permissions").
-		Select("id, perm_key, label, category, status").
-		Order("category ASC, perm_key ASC").
+		Select("id, perm_key, label, category, menu_key, status").
+		Order("menu_key ASC, category ASC, perm_key ASC").
 		Find(&out).Error; err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (s *AdminRbacConfigStore) CreatePermission(ctx context.Context, permKey, label, category string, status int64) (*AdminPermission, error) {
+func (s *AdminRbacConfigStore) CreatePermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error) {
 	permKey = strings.TrimSpace(permKey)
 	label = strings.TrimSpace(label)
 	category = strings.TrimSpace(category)
+	menuKey = strings.TrimSpace(menuKey)
 	if permKey == "" || label == "" {
 		return nil, errors.New("perm_key and label required")
 	}
 	if status == 0 {
 		status = 1
 	}
-	p := &AdminPermission{PermKey: permKey, Label: label, Category: category, Status: status}
+	p := &AdminPermission{PermKey: permKey, Label: label, Category: category, MenuKey: menuKey, Status: status}
 	if err := s.db.WithContext(ctx).Table("admin_permissions").Create(p).Error; err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-func (s *AdminRbacConfigStore) UpdatePermission(ctx context.Context, id int64, label, category string, status int64) (*AdminPermission, error) {
+func (s *AdminRbacConfigStore) UpdatePermission(ctx context.Context, id int64, label, category, menuKey string, status int64) (*AdminPermission, error) {
 	label = strings.TrimSpace(label)
 	category = strings.TrimSpace(category)
+	menuKey = strings.TrimSpace(menuKey)
 	if id <= 0 || label == "" {
 		return nil, errors.New("id and label required")
 	}
 	if err := s.db.WithContext(ctx).
 		Table("admin_permissions").
 		Where("id = ?", id).
-		Updates(map[string]any{"label": label, "category": category, "status": status}).Error; err != nil {
+		Updates(map[string]any{"label": label, "category": category, "menu_key": menuKey, "status": status}).Error; err != nil {
 		return nil, err
 	}
 	var out AdminPermission
 	if err := s.db.WithContext(ctx).
 		Table("admin_permissions").
-		Select("id, perm_key, label, category, status").
+		Select("id, perm_key, label, category, menu_key, status").
 		Where("id = ?", id).
 		Limit(1).
 		Take(&out).Error; err != nil {

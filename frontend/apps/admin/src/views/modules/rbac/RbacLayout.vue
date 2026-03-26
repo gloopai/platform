@@ -3,7 +3,7 @@
     <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm">
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">权限与安全</h1>
       <p class="mt-1 max-w-3xl text-sm leading-relaxed text-slate-600">
-        分步配置：<strong>角色</strong>绑定<strong>菜单</strong>（能进哪些页）与<strong>权限点</strong>（能调哪些接口）；<strong>接口规则</strong>把网关路径映射到权限点，上线新接口后只需在此维护规则，无需改代码。
+        用「页面」把能力串起来：<strong>菜单管理</strong>（侧栏 / 头像菜单 / 其它功能）决定入口与能力清单；再给<strong>角色</strong>勾选菜单与权限即可。
       </p>
     </div>
 
@@ -33,10 +33,10 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 
 const tabs = [
-  { to: '/rbac/overview', label: '概览' },
+  { to: '/rbac/overview', label: '配置总览' },
+  { to: '/rbac/menus', label: '菜单管理' },
   { to: '/rbac/roles', label: '角色与授权' },
-  { to: '/rbac/permissions', label: '权限点' },
-  { to: '/rbac/api-rules', label: '接口规则' },
+  { to: '/rbac/admin-users', label: '后台用户' },
 ]
 
 function isActive(to: string) {

@@ -19,6 +19,9 @@ service ServiceHub {
   rpc UpdateAdminRole(UpdateAdminRoleReq) returns (UpdateAdminRoleResp);
   rpc DeleteAdminRole(DeleteAdminRoleReq) returns (DeleteAdminRoleResp);
   rpc ListAdminMenus(ListAdminMenusReq) returns (ListAdminMenusResp);
+  rpc CreateAdminMenu(CreateAdminMenuReq) returns (CreateAdminMenuResp);
+  rpc UpdateAdminMenu(UpdateAdminMenuReq) returns (UpdateAdminMenuResp);
+  rpc DeleteAdminMenu(DeleteAdminMenuReq) returns (DeleteAdminMenuResp);
   rpc GetAdminRoleMenus(GetAdminRoleMenusReq) returns (GetAdminRoleMenusResp);
   rpc SetAdminRoleMenus(SetAdminRoleMenusReq) returns (SetAdminRoleMenusResp);
   rpc GetAdminUserRoles(GetAdminUserRolesReq) returns (GetAdminUserRolesResp);
@@ -108,6 +111,7 @@ message AdminMenu {
   int64 kind = 6; // 1=leaf 2=group
   string path = 7; // leaf only; vue-router path like "/stats"
   int64 sort_order = 8;
+  string placement = 9; // "left" | "avatar"
 }
 
 message GetAdminRbacMyMenusResp {
@@ -161,6 +165,45 @@ message ListAdminMenusResp {
   repeated AdminMenu menus = 1;
 }
 
+message CreateAdminMenuReq {
+  int64 parent_id = 1;
+  string menu_key = 2;
+  string label = 3;
+  string icon = 4;
+  int64 kind = 5;
+  string path = 6;
+  int64 sort_order = 7;
+  string placement = 8;
+}
+
+message CreateAdminMenuResp {
+  AdminMenu menu = 1;
+}
+
+message UpdateAdminMenuReq {
+  int64 id = 1;
+  int64 parent_id = 2;
+  string menu_key = 3;
+  string label = 4;
+  string icon = 5;
+  int64 kind = 6;
+  string path = 7;
+  int64 sort_order = 8;
+  string placement = 9;
+}
+
+message UpdateAdminMenuResp {
+  AdminMenu menu = 1;
+}
+
+message DeleteAdminMenuReq {
+  int64 id = 1;
+}
+
+message DeleteAdminMenuResp {
+  bool ok = 1;
+}
+
 message GetAdminRoleMenusReq {
   int64 role_id = 1;
 }
@@ -210,6 +253,8 @@ message AdminPermission {
   string label = 3;
   string category = 4;
   int64 status = 5;
+  // 对应侧栏菜单项 menu_key，便于按「页面」归类能力；空表示未绑定具体菜单。
+  string menu_key = 6;
 }
 
 message ListAdminPermissionsReq {}
@@ -220,6 +265,7 @@ message CreateAdminPermissionReq {
   string label = 2;
   string category = 3;
   int64 status = 4;
+  string menu_key = 5;
 }
 message CreateAdminPermissionResp { AdminPermission permission = 1; }
 
@@ -228,6 +274,7 @@ message UpdateAdminPermissionReq {
   string label = 2;
   string category = 3;
   int64 status = 4;
+  string menu_key = 5;
 }
 message UpdateAdminPermissionResp { AdminPermission permission = 1; }
 

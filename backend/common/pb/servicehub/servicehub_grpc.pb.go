@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: servicehub.proto
+// source: proto/servicehub.proto
 
 package servicehub
 
@@ -31,6 +31,9 @@ const (
 	ServiceHub_UpdateAdminRole_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminRole"
 	ServiceHub_DeleteAdminRole_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminRole"
 	ServiceHub_ListAdminMenus_FullMethodName          = "/servicehub.ServiceHub/ListAdminMenus"
+	ServiceHub_CreateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/CreateAdminMenu"
+	ServiceHub_UpdateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminMenu"
+	ServiceHub_DeleteAdminMenu_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminMenu"
 	ServiceHub_GetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRoleMenus"
 	ServiceHub_SetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/SetAdminRoleMenus"
 	ServiceHub_GetAdminUserRoles_FullMethodName       = "/servicehub.ServiceHub/GetAdminUserRoles"
@@ -66,6 +69,9 @@ type ServiceHubClient interface {
 	UpdateAdminRole(ctx context.Context, in *UpdateAdminRoleReq, opts ...grpc.CallOption) (*UpdateAdminRoleResp, error)
 	DeleteAdminRole(ctx context.Context, in *DeleteAdminRoleReq, opts ...grpc.CallOption) (*DeleteAdminRoleResp, error)
 	ListAdminMenus(ctx context.Context, in *ListAdminMenusReq, opts ...grpc.CallOption) (*ListAdminMenusResp, error)
+	CreateAdminMenu(ctx context.Context, in *CreateAdminMenuReq, opts ...grpc.CallOption) (*CreateAdminMenuResp, error)
+	UpdateAdminMenu(ctx context.Context, in *UpdateAdminMenuReq, opts ...grpc.CallOption) (*UpdateAdminMenuResp, error)
+	DeleteAdminMenu(ctx context.Context, in *DeleteAdminMenuReq, opts ...grpc.CallOption) (*DeleteAdminMenuResp, error)
 	GetAdminRoleMenus(ctx context.Context, in *GetAdminRoleMenusReq, opts ...grpc.CallOption) (*GetAdminRoleMenusResp, error)
 	SetAdminRoleMenus(ctx context.Context, in *SetAdminRoleMenusReq, opts ...grpc.CallOption) (*SetAdminRoleMenusResp, error)
 	GetAdminUserRoles(ctx context.Context, in *GetAdminUserRolesReq, opts ...grpc.CallOption) (*GetAdminUserRolesResp, error)
@@ -206,6 +212,36 @@ func (c *serviceHubClient) ListAdminMenus(ctx context.Context, in *ListAdminMenu
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListAdminMenusResp)
 	err := c.cc.Invoke(ctx, ServiceHub_ListAdminMenus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) CreateAdminMenu(ctx context.Context, in *CreateAdminMenuReq, opts ...grpc.CallOption) (*CreateAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminMenu(ctx context.Context, in *UpdateAdminMenuReq, opts ...grpc.CallOption) (*UpdateAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminMenu(ctx context.Context, in *DeleteAdminMenuReq, opts ...grpc.CallOption) (*DeleteAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,6 +407,9 @@ type ServiceHubServer interface {
 	UpdateAdminRole(context.Context, *UpdateAdminRoleReq) (*UpdateAdminRoleResp, error)
 	DeleteAdminRole(context.Context, *DeleteAdminRoleReq) (*DeleteAdminRoleResp, error)
 	ListAdminMenus(context.Context, *ListAdminMenusReq) (*ListAdminMenusResp, error)
+	CreateAdminMenu(context.Context, *CreateAdminMenuReq) (*CreateAdminMenuResp, error)
+	UpdateAdminMenu(context.Context, *UpdateAdminMenuReq) (*UpdateAdminMenuResp, error)
+	DeleteAdminMenu(context.Context, *DeleteAdminMenuReq) (*DeleteAdminMenuResp, error)
 	GetAdminRoleMenus(context.Context, *GetAdminRoleMenusReq) (*GetAdminRoleMenusResp, error)
 	SetAdminRoleMenus(context.Context, *SetAdminRoleMenusReq) (*SetAdminRoleMenusResp, error)
 	GetAdminUserRoles(context.Context, *GetAdminUserRolesReq) (*GetAdminUserRolesResp, error)
@@ -432,6 +471,15 @@ func (UnimplementedServiceHubServer) DeleteAdminRole(context.Context, *DeleteAdm
 }
 func (UnimplementedServiceHubServer) ListAdminMenus(context.Context, *ListAdminMenusReq) (*ListAdminMenusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdminMenus not implemented")
+}
+func (UnimplementedServiceHubServer) CreateAdminMenu(context.Context, *CreateAdminMenuReq) (*CreateAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminMenu not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminMenu(context.Context, *UpdateAdminMenuReq) (*UpdateAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminMenu not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminMenu(context.Context, *DeleteAdminMenuReq) (*DeleteAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminMenu not implemented")
 }
 func (UnimplementedServiceHubServer) GetAdminRoleMenus(context.Context, *GetAdminRoleMenusReq) (*GetAdminRoleMenusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdminRoleMenus not implemented")
@@ -708,6 +756,60 @@ func _ServiceHub_ListAdminMenus_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceHubServer).ListAdminMenus(ctx, req.(*ListAdminMenusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_CreateAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminMenu(ctx, req.(*CreateAdminMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminMenu(ctx, req.(*UpdateAdminMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminMenu(ctx, req.(*DeleteAdminMenuReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1020,6 +1122,18 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServiceHub_ListAdminMenus_Handler,
 		},
 		{
+			MethodName: "CreateAdminMenu",
+			Handler:    _ServiceHub_CreateAdminMenu_Handler,
+		},
+		{
+			MethodName: "UpdateAdminMenu",
+			Handler:    _ServiceHub_UpdateAdminMenu_Handler,
+		},
+		{
+			MethodName: "DeleteAdminMenu",
+			Handler:    _ServiceHub_DeleteAdminMenu_Handler,
+		},
+		{
 			MethodName: "GetAdminRoleMenus",
 			Handler:    _ServiceHub_GetAdminRoleMenus_Handler,
 		},
@@ -1077,5 +1191,5 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "servicehub.proto",
+	Metadata: "proto/servicehub.proto",
 }

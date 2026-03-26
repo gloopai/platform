@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: servicehub.proto
+// source: proto/servicehub.proto
 
 package servicehub
 
@@ -30,7 +30,7 @@ type FindAdminUserByUsernameReq struct {
 
 func (x *FindAdminUserByUsernameReq) Reset() {
 	*x = FindAdminUserByUsernameReq{}
-	mi := &file_servicehub_proto_msgTypes[0]
+	mi := &file_proto_servicehub_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *FindAdminUserByUsernameReq) String() string {
 func (*FindAdminUserByUsernameReq) ProtoMessage() {}
 
 func (x *FindAdminUserByUsernameReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[0]
+	mi := &file_proto_servicehub_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *FindAdminUserByUsernameReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindAdminUserByUsernameReq.ProtoReflect.Descriptor instead.
 func (*FindAdminUserByUsernameReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{0}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *FindAdminUserByUsernameReq) GetUsername() string {
@@ -74,7 +74,7 @@ type FindAdminUserByUsernameResp struct {
 
 func (x *FindAdminUserByUsernameResp) Reset() {
 	*x = FindAdminUserByUsernameResp{}
-	mi := &file_servicehub_proto_msgTypes[1]
+	mi := &file_proto_servicehub_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +86,7 @@ func (x *FindAdminUserByUsernameResp) String() string {
 func (*FindAdminUserByUsernameResp) ProtoMessage() {}
 
 func (x *FindAdminUserByUsernameResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[1]
+	mi := &file_proto_servicehub_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,7 +99,7 @@ func (x *FindAdminUserByUsernameResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindAdminUserByUsernameResp.ProtoReflect.Descriptor instead.
 func (*FindAdminUserByUsernameResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{1}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *FindAdminUserByUsernameResp) GetUser() *AdminUser {
@@ -121,7 +121,7 @@ type AdminUser struct {
 
 func (x *AdminUser) Reset() {
 	*x = AdminUser{}
-	mi := &file_servicehub_proto_msgTypes[2]
+	mi := &file_proto_servicehub_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -133,7 +133,7 @@ func (x *AdminUser) String() string {
 func (*AdminUser) ProtoMessage() {}
 
 func (x *AdminUser) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[2]
+	mi := &file_proto_servicehub_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -146,7 +146,7 @@ func (x *AdminUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUser.ProtoReflect.Descriptor instead.
 func (*AdminUser) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{2}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AdminUser) GetId() int64 {
@@ -188,7 +188,7 @@ type AdminUserPublic struct {
 
 func (x *AdminUserPublic) Reset() {
 	*x = AdminUserPublic{}
-	mi := &file_servicehub_proto_msgTypes[3]
+	mi := &file_proto_servicehub_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +200,7 @@ func (x *AdminUserPublic) String() string {
 func (*AdminUserPublic) ProtoMessage() {}
 
 func (x *AdminUserPublic) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[3]
+	mi := &file_proto_servicehub_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +213,7 @@ func (x *AdminUserPublic) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUserPublic.ProtoReflect.Descriptor instead.
 func (*AdminUserPublic) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{3}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AdminUserPublic) GetId() int64 {
@@ -245,7 +245,7 @@ type ListAdminUsersReq struct {
 
 func (x *ListAdminUsersReq) Reset() {
 	*x = ListAdminUsersReq{}
-	mi := &file_servicehub_proto_msgTypes[4]
+	mi := &file_proto_servicehub_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +257,7 @@ func (x *ListAdminUsersReq) String() string {
 func (*ListAdminUsersReq) ProtoMessage() {}
 
 func (x *ListAdminUsersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[4]
+	mi := &file_proto_servicehub_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +270,7 @@ func (x *ListAdminUsersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminUsersReq.ProtoReflect.Descriptor instead.
 func (*ListAdminUsersReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{4}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{4}
 }
 
 type ListAdminUsersResp struct {
@@ -282,7 +282,7 @@ type ListAdminUsersResp struct {
 
 func (x *ListAdminUsersResp) Reset() {
 	*x = ListAdminUsersResp{}
-	mi := &file_servicehub_proto_msgTypes[5]
+	mi := &file_proto_servicehub_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -294,7 +294,7 @@ func (x *ListAdminUsersResp) String() string {
 func (*ListAdminUsersResp) ProtoMessage() {}
 
 func (x *ListAdminUsersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[5]
+	mi := &file_proto_servicehub_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -307,7 +307,7 @@ func (x *ListAdminUsersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminUsersResp.ProtoReflect.Descriptor instead.
 func (*ListAdminUsersResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{5}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListAdminUsersResp) GetUsers() []*AdminUserPublic {
@@ -325,7 +325,7 @@ type GetDisplaySettingsReq struct {
 
 func (x *GetDisplaySettingsReq) Reset() {
 	*x = GetDisplaySettingsReq{}
-	mi := &file_servicehub_proto_msgTypes[6]
+	mi := &file_proto_servicehub_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -337,7 +337,7 @@ func (x *GetDisplaySettingsReq) String() string {
 func (*GetDisplaySettingsReq) ProtoMessage() {}
 
 func (x *GetDisplaySettingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[6]
+	mi := &file_proto_servicehub_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -350,7 +350,7 @@ func (x *GetDisplaySettingsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDisplaySettingsReq.ProtoReflect.Descriptor instead.
 func (*GetDisplaySettingsReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{6}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{6}
 }
 
 type GetDisplaySettingsResp struct {
@@ -364,7 +364,7 @@ type GetDisplaySettingsResp struct {
 
 func (x *GetDisplaySettingsResp) Reset() {
 	*x = GetDisplaySettingsResp{}
-	mi := &file_servicehub_proto_msgTypes[7]
+	mi := &file_proto_servicehub_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -376,7 +376,7 @@ func (x *GetDisplaySettingsResp) String() string {
 func (*GetDisplaySettingsResp) ProtoMessage() {}
 
 func (x *GetDisplaySettingsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[7]
+	mi := &file_proto_servicehub_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -389,7 +389,7 @@ func (x *GetDisplaySettingsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDisplaySettingsResp.ProtoReflect.Descriptor instead.
 func (*GetDisplaySettingsResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{7}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetDisplaySettingsResp) GetCountryCode() string {
@@ -424,7 +424,7 @@ type UpsertDisplaySettingsReq struct {
 
 func (x *UpsertDisplaySettingsReq) Reset() {
 	*x = UpsertDisplaySettingsReq{}
-	mi := &file_servicehub_proto_msgTypes[8]
+	mi := &file_proto_servicehub_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -436,7 +436,7 @@ func (x *UpsertDisplaySettingsReq) String() string {
 func (*UpsertDisplaySettingsReq) ProtoMessage() {}
 
 func (x *UpsertDisplaySettingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[8]
+	mi := &file_proto_servicehub_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,7 +449,7 @@ func (x *UpsertDisplaySettingsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDisplaySettingsReq.ProtoReflect.Descriptor instead.
 func (*UpsertDisplaySettingsReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{8}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpsertDisplaySettingsReq) GetCountryCode() string {
@@ -483,7 +483,7 @@ type MarkPayoutSuccessReq struct {
 
 func (x *MarkPayoutSuccessReq) Reset() {
 	*x = MarkPayoutSuccessReq{}
-	mi := &file_servicehub_proto_msgTypes[9]
+	mi := &file_proto_servicehub_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +495,7 @@ func (x *MarkPayoutSuccessReq) String() string {
 func (*MarkPayoutSuccessReq) ProtoMessage() {}
 
 func (x *MarkPayoutSuccessReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[9]
+	mi := &file_proto_servicehub_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -508,7 +508,7 @@ func (x *MarkPayoutSuccessReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkPayoutSuccessReq.ProtoReflect.Descriptor instead.
 func (*MarkPayoutSuccessReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{9}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MarkPayoutSuccessReq) GetOrderNo() string {
@@ -534,7 +534,7 @@ type MarkPayoutFailedReq struct {
 
 func (x *MarkPayoutFailedReq) Reset() {
 	*x = MarkPayoutFailedReq{}
-	mi := &file_servicehub_proto_msgTypes[10]
+	mi := &file_proto_servicehub_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -546,7 +546,7 @@ func (x *MarkPayoutFailedReq) String() string {
 func (*MarkPayoutFailedReq) ProtoMessage() {}
 
 func (x *MarkPayoutFailedReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[10]
+	mi := &file_proto_servicehub_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -559,7 +559,7 @@ func (x *MarkPayoutFailedReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkPayoutFailedReq.ProtoReflect.Descriptor instead.
 func (*MarkPayoutFailedReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{10}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MarkPayoutFailedReq) GetOrderNo() string {
@@ -578,7 +578,7 @@ type MarkPayoutResultResp struct {
 
 func (x *MarkPayoutResultResp) Reset() {
 	*x = MarkPayoutResultResp{}
-	mi := &file_servicehub_proto_msgTypes[11]
+	mi := &file_proto_servicehub_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +590,7 @@ func (x *MarkPayoutResultResp) String() string {
 func (*MarkPayoutResultResp) ProtoMessage() {}
 
 func (x *MarkPayoutResultResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[11]
+	mi := &file_proto_servicehub_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +603,7 @@ func (x *MarkPayoutResultResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkPayoutResultResp.ProtoReflect.Descriptor instead.
 func (*MarkPayoutResultResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{11}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MarkPayoutResultResp) GetChanged() bool {
@@ -622,7 +622,7 @@ type GetAdminRbacMyMenusReq struct {
 
 func (x *GetAdminRbacMyMenusReq) Reset() {
 	*x = GetAdminRbacMyMenusReq{}
-	mi := &file_servicehub_proto_msgTypes[12]
+	mi := &file_proto_servicehub_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -634,7 +634,7 @@ func (x *GetAdminRbacMyMenusReq) String() string {
 func (*GetAdminRbacMyMenusReq) ProtoMessage() {}
 
 func (x *GetAdminRbacMyMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[12]
+	mi := &file_proto_servicehub_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,7 +647,7 @@ func (x *GetAdminRbacMyMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyMenusReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyMenusReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{12}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetAdminRbacMyMenusReq) GetAdminUserId() int64 {
@@ -667,13 +667,14 @@ type AdminMenu struct {
 	Kind          int64                  `protobuf:"varint,6,opt,name=kind,proto3" json:"kind,omitempty"` // 1=leaf 2=group
 	Path          string                 `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`  // leaf only; vue-router path like "/stats"
 	SortOrder     int64                  `protobuf:"varint,8,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Placement     string                 `protobuf:"bytes,9,opt,name=placement,proto3" json:"placement,omitempty"` // "left" | "avatar"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdminMenu) Reset() {
 	*x = AdminMenu{}
-	mi := &file_servicehub_proto_msgTypes[13]
+	mi := &file_proto_servicehub_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -685,7 +686,7 @@ func (x *AdminMenu) String() string {
 func (*AdminMenu) ProtoMessage() {}
 
 func (x *AdminMenu) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[13]
+	mi := &file_proto_servicehub_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -698,7 +699,7 @@ func (x *AdminMenu) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminMenu.ProtoReflect.Descriptor instead.
 func (*AdminMenu) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{13}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AdminMenu) GetId() int64 {
@@ -757,6 +758,13 @@ func (x *AdminMenu) GetSortOrder() int64 {
 	return 0
 }
 
+func (x *AdminMenu) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
 type GetAdminRbacMyMenusResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Menus         []*AdminMenu           `protobuf:"bytes,1,rep,name=menus,proto3" json:"menus,omitempty"`
@@ -766,7 +774,7 @@ type GetAdminRbacMyMenusResp struct {
 
 func (x *GetAdminRbacMyMenusResp) Reset() {
 	*x = GetAdminRbacMyMenusResp{}
-	mi := &file_servicehub_proto_msgTypes[14]
+	mi := &file_proto_servicehub_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -778,7 +786,7 @@ func (x *GetAdminRbacMyMenusResp) String() string {
 func (*GetAdminRbacMyMenusResp) ProtoMessage() {}
 
 func (x *GetAdminRbacMyMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[14]
+	mi := &file_proto_servicehub_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -791,7 +799,7 @@ func (x *GetAdminRbacMyMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyMenusResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyMenusResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{14}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetAdminRbacMyMenusResp) GetMenus() []*AdminMenu {
@@ -809,7 +817,7 @@ type ListAdminRolesReq struct {
 
 func (x *ListAdminRolesReq) Reset() {
 	*x = ListAdminRolesReq{}
-	mi := &file_servicehub_proto_msgTypes[15]
+	mi := &file_proto_servicehub_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -821,7 +829,7 @@ func (x *ListAdminRolesReq) String() string {
 func (*ListAdminRolesReq) ProtoMessage() {}
 
 func (x *ListAdminRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[15]
+	mi := &file_proto_servicehub_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +842,7 @@ func (x *ListAdminRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminRolesReq.ProtoReflect.Descriptor instead.
 func (*ListAdminRolesReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{15}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{15}
 }
 
 type AdminRole struct {
@@ -849,7 +857,7 @@ type AdminRole struct {
 
 func (x *AdminRole) Reset() {
 	*x = AdminRole{}
-	mi := &file_servicehub_proto_msgTypes[16]
+	mi := &file_proto_servicehub_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -861,7 +869,7 @@ func (x *AdminRole) String() string {
 func (*AdminRole) ProtoMessage() {}
 
 func (x *AdminRole) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[16]
+	mi := &file_proto_servicehub_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -874,7 +882,7 @@ func (x *AdminRole) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminRole.ProtoReflect.Descriptor instead.
 func (*AdminRole) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{16}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AdminRole) GetId() int64 {
@@ -914,7 +922,7 @@ type ListAdminRolesResp struct {
 
 func (x *ListAdminRolesResp) Reset() {
 	*x = ListAdminRolesResp{}
-	mi := &file_servicehub_proto_msgTypes[17]
+	mi := &file_proto_servicehub_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -926,7 +934,7 @@ func (x *ListAdminRolesResp) String() string {
 func (*ListAdminRolesResp) ProtoMessage() {}
 
 func (x *ListAdminRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[17]
+	mi := &file_proto_servicehub_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -939,7 +947,7 @@ func (x *ListAdminRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminRolesResp.ProtoReflect.Descriptor instead.
 func (*ListAdminRolesResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{17}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListAdminRolesResp) GetRoles() []*AdminRole {
@@ -960,7 +968,7 @@ type CreateAdminRoleReq struct {
 
 func (x *CreateAdminRoleReq) Reset() {
 	*x = CreateAdminRoleReq{}
-	mi := &file_servicehub_proto_msgTypes[18]
+	mi := &file_proto_servicehub_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -972,7 +980,7 @@ func (x *CreateAdminRoleReq) String() string {
 func (*CreateAdminRoleReq) ProtoMessage() {}
 
 func (x *CreateAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[18]
+	mi := &file_proto_servicehub_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -985,7 +993,7 @@ func (x *CreateAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{18}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateAdminRoleReq) GetCode() string {
@@ -1018,7 +1026,7 @@ type CreateAdminRoleResp struct {
 
 func (x *CreateAdminRoleResp) Reset() {
 	*x = CreateAdminRoleResp{}
-	mi := &file_servicehub_proto_msgTypes[19]
+	mi := &file_proto_servicehub_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1030,7 +1038,7 @@ func (x *CreateAdminRoleResp) String() string {
 func (*CreateAdminRoleResp) ProtoMessage() {}
 
 func (x *CreateAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[19]
+	mi := &file_proto_servicehub_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1043,7 +1051,7 @@ func (x *CreateAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{19}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CreateAdminRoleResp) GetRole() *AdminRole {
@@ -1064,7 +1072,7 @@ type UpdateAdminRoleReq struct {
 
 func (x *UpdateAdminRoleReq) Reset() {
 	*x = UpdateAdminRoleReq{}
-	mi := &file_servicehub_proto_msgTypes[20]
+	mi := &file_proto_servicehub_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1076,7 +1084,7 @@ func (x *UpdateAdminRoleReq) String() string {
 func (*UpdateAdminRoleReq) ProtoMessage() {}
 
 func (x *UpdateAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[20]
+	mi := &file_proto_servicehub_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1089,7 +1097,7 @@ func (x *UpdateAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{20}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateAdminRoleReq) GetId() int64 {
@@ -1122,7 +1130,7 @@ type UpdateAdminRoleResp struct {
 
 func (x *UpdateAdminRoleResp) Reset() {
 	*x = UpdateAdminRoleResp{}
-	mi := &file_servicehub_proto_msgTypes[21]
+	mi := &file_proto_servicehub_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1134,7 +1142,7 @@ func (x *UpdateAdminRoleResp) String() string {
 func (*UpdateAdminRoleResp) ProtoMessage() {}
 
 func (x *UpdateAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[21]
+	mi := &file_proto_servicehub_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1147,7 +1155,7 @@ func (x *UpdateAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{21}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *UpdateAdminRoleResp) GetRole() *AdminRole {
@@ -1166,7 +1174,7 @@ type DeleteAdminRoleReq struct {
 
 func (x *DeleteAdminRoleReq) Reset() {
 	*x = DeleteAdminRoleReq{}
-	mi := &file_servicehub_proto_msgTypes[22]
+	mi := &file_proto_servicehub_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1178,7 +1186,7 @@ func (x *DeleteAdminRoleReq) String() string {
 func (*DeleteAdminRoleReq) ProtoMessage() {}
 
 func (x *DeleteAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[22]
+	mi := &file_proto_servicehub_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1191,7 +1199,7 @@ func (x *DeleteAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{22}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DeleteAdminRoleReq) GetId() int64 {
@@ -1210,7 +1218,7 @@ type DeleteAdminRoleResp struct {
 
 func (x *DeleteAdminRoleResp) Reset() {
 	*x = DeleteAdminRoleResp{}
-	mi := &file_servicehub_proto_msgTypes[23]
+	mi := &file_proto_servicehub_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1222,7 +1230,7 @@ func (x *DeleteAdminRoleResp) String() string {
 func (*DeleteAdminRoleResp) ProtoMessage() {}
 
 func (x *DeleteAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[23]
+	mi := &file_proto_servicehub_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1235,7 +1243,7 @@ func (x *DeleteAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{23}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeleteAdminRoleResp) GetOk() bool {
@@ -1253,7 +1261,7 @@ type ListAdminMenusReq struct {
 
 func (x *ListAdminMenusReq) Reset() {
 	*x = ListAdminMenusReq{}
-	mi := &file_servicehub_proto_msgTypes[24]
+	mi := &file_proto_servicehub_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +1273,7 @@ func (x *ListAdminMenusReq) String() string {
 func (*ListAdminMenusReq) ProtoMessage() {}
 
 func (x *ListAdminMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[24]
+	mi := &file_proto_servicehub_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +1286,7 @@ func (x *ListAdminMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminMenusReq.ProtoReflect.Descriptor instead.
 func (*ListAdminMenusReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{24}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{24}
 }
 
 type ListAdminMenusResp struct {
@@ -1290,7 +1298,7 @@ type ListAdminMenusResp struct {
 
 func (x *ListAdminMenusResp) Reset() {
 	*x = ListAdminMenusResp{}
-	mi := &file_servicehub_proto_msgTypes[25]
+	mi := &file_proto_servicehub_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1302,7 +1310,7 @@ func (x *ListAdminMenusResp) String() string {
 func (*ListAdminMenusResp) ProtoMessage() {}
 
 func (x *ListAdminMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[25]
+	mi := &file_proto_servicehub_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1315,7 +1323,7 @@ func (x *ListAdminMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminMenusResp.ProtoReflect.Descriptor instead.
 func (*ListAdminMenusResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{25}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListAdminMenusResp) GetMenus() []*AdminMenu {
@@ -1323,6 +1331,390 @@ func (x *ListAdminMenusResp) GetMenus() []*AdminMenu {
 		return x.Menus
 	}
 	return nil
+}
+
+type CreateAdminMenuReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ParentId      int64                  `protobuf:"varint,1,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	MenuKey       string                 `protobuf:"bytes,2,opt,name=menu_key,json=menuKey,proto3" json:"menu_key,omitempty"`
+	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
+	Icon          string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`
+	Kind          int64                  `protobuf:"varint,5,opt,name=kind,proto3" json:"kind,omitempty"`
+	Path          string                 `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty"`
+	SortOrder     int64                  `protobuf:"varint,7,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Placement     string                 `protobuf:"bytes,8,opt,name=placement,proto3" json:"placement,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateAdminMenuReq) Reset() {
+	*x = CreateAdminMenuReq{}
+	mi := &file_proto_servicehub_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateAdminMenuReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateAdminMenuReq) ProtoMessage() {}
+
+func (x *CreateAdminMenuReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateAdminMenuReq.ProtoReflect.Descriptor instead.
+func (*CreateAdminMenuReq) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *CreateAdminMenuReq) GetParentId() int64 {
+	if x != nil {
+		return x.ParentId
+	}
+	return 0
+}
+
+func (x *CreateAdminMenuReq) GetMenuKey() string {
+	if x != nil {
+		return x.MenuKey
+	}
+	return ""
+}
+
+func (x *CreateAdminMenuReq) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *CreateAdminMenuReq) GetIcon() string {
+	if x != nil {
+		return x.Icon
+	}
+	return ""
+}
+
+func (x *CreateAdminMenuReq) GetKind() int64 {
+	if x != nil {
+		return x.Kind
+	}
+	return 0
+}
+
+func (x *CreateAdminMenuReq) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *CreateAdminMenuReq) GetSortOrder() int64 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *CreateAdminMenuReq) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
+type CreateAdminMenuResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Menu          *AdminMenu             `protobuf:"bytes,1,opt,name=menu,proto3" json:"menu,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateAdminMenuResp) Reset() {
+	*x = CreateAdminMenuResp{}
+	mi := &file_proto_servicehub_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateAdminMenuResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateAdminMenuResp) ProtoMessage() {}
+
+func (x *CreateAdminMenuResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateAdminMenuResp.ProtoReflect.Descriptor instead.
+func (*CreateAdminMenuResp) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *CreateAdminMenuResp) GetMenu() *AdminMenu {
+	if x != nil {
+		return x.Menu
+	}
+	return nil
+}
+
+type UpdateAdminMenuReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	MenuKey       string                 `protobuf:"bytes,3,opt,name=menu_key,json=menuKey,proto3" json:"menu_key,omitempty"`
+	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`
+	Icon          string                 `protobuf:"bytes,5,opt,name=icon,proto3" json:"icon,omitempty"`
+	Kind          int64                  `protobuf:"varint,6,opt,name=kind,proto3" json:"kind,omitempty"`
+	Path          string                 `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`
+	SortOrder     int64                  `protobuf:"varint,8,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Placement     string                 `protobuf:"bytes,9,opt,name=placement,proto3" json:"placement,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAdminMenuReq) Reset() {
+	*x = UpdateAdminMenuReq{}
+	mi := &file_proto_servicehub_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAdminMenuReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAdminMenuReq) ProtoMessage() {}
+
+func (x *UpdateAdminMenuReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAdminMenuReq.ProtoReflect.Descriptor instead.
+func (*UpdateAdminMenuReq) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *UpdateAdminMenuReq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdateAdminMenuReq) GetParentId() int64 {
+	if x != nil {
+		return x.ParentId
+	}
+	return 0
+}
+
+func (x *UpdateAdminMenuReq) GetMenuKey() string {
+	if x != nil {
+		return x.MenuKey
+	}
+	return ""
+}
+
+func (x *UpdateAdminMenuReq) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *UpdateAdminMenuReq) GetIcon() string {
+	if x != nil {
+		return x.Icon
+	}
+	return ""
+}
+
+func (x *UpdateAdminMenuReq) GetKind() int64 {
+	if x != nil {
+		return x.Kind
+	}
+	return 0
+}
+
+func (x *UpdateAdminMenuReq) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *UpdateAdminMenuReq) GetSortOrder() int64 {
+	if x != nil {
+		return x.SortOrder
+	}
+	return 0
+}
+
+func (x *UpdateAdminMenuReq) GetPlacement() string {
+	if x != nil {
+		return x.Placement
+	}
+	return ""
+}
+
+type UpdateAdminMenuResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Menu          *AdminMenu             `protobuf:"bytes,1,opt,name=menu,proto3" json:"menu,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAdminMenuResp) Reset() {
+	*x = UpdateAdminMenuResp{}
+	mi := &file_proto_servicehub_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAdminMenuResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAdminMenuResp) ProtoMessage() {}
+
+func (x *UpdateAdminMenuResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAdminMenuResp.ProtoReflect.Descriptor instead.
+func (*UpdateAdminMenuResp) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *UpdateAdminMenuResp) GetMenu() *AdminMenu {
+	if x != nil {
+		return x.Menu
+	}
+	return nil
+}
+
+type DeleteAdminMenuReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAdminMenuReq) Reset() {
+	*x = DeleteAdminMenuReq{}
+	mi := &file_proto_servicehub_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAdminMenuReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAdminMenuReq) ProtoMessage() {}
+
+func (x *DeleteAdminMenuReq) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAdminMenuReq.ProtoReflect.Descriptor instead.
+func (*DeleteAdminMenuReq) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *DeleteAdminMenuReq) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type DeleteAdminMenuResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAdminMenuResp) Reset() {
+	*x = DeleteAdminMenuResp{}
+	mi := &file_proto_servicehub_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAdminMenuResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAdminMenuResp) ProtoMessage() {}
+
+func (x *DeleteAdminMenuResp) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_servicehub_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAdminMenuResp.ProtoReflect.Descriptor instead.
+func (*DeleteAdminMenuResp) Descriptor() ([]byte, []int) {
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *DeleteAdminMenuResp) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
 }
 
 type GetAdminRoleMenusReq struct {
@@ -1334,7 +1726,7 @@ type GetAdminRoleMenusReq struct {
 
 func (x *GetAdminRoleMenusReq) Reset() {
 	*x = GetAdminRoleMenusReq{}
-	mi := &file_servicehub_proto_msgTypes[26]
+	mi := &file_proto_servicehub_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1346,7 +1738,7 @@ func (x *GetAdminRoleMenusReq) String() string {
 func (*GetAdminRoleMenusReq) ProtoMessage() {}
 
 func (x *GetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[26]
+	mi := &file_proto_servicehub_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1359,7 +1751,7 @@ func (x *GetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRoleMenusReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRoleMenusReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{26}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetAdminRoleMenusReq) GetRoleId() int64 {
@@ -1378,7 +1770,7 @@ type GetAdminRoleMenusResp struct {
 
 func (x *GetAdminRoleMenusResp) Reset() {
 	*x = GetAdminRoleMenusResp{}
-	mi := &file_servicehub_proto_msgTypes[27]
+	mi := &file_proto_servicehub_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1390,7 +1782,7 @@ func (x *GetAdminRoleMenusResp) String() string {
 func (*GetAdminRoleMenusResp) ProtoMessage() {}
 
 func (x *GetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[27]
+	mi := &file_proto_servicehub_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1403,7 +1795,7 @@ func (x *GetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRoleMenusResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRoleMenusResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{27}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetAdminRoleMenusResp) GetMenuIds() []int64 {
@@ -1423,7 +1815,7 @@ type SetAdminRoleMenusReq struct {
 
 func (x *SetAdminRoleMenusReq) Reset() {
 	*x = SetAdminRoleMenusReq{}
-	mi := &file_servicehub_proto_msgTypes[28]
+	mi := &file_proto_servicehub_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1435,7 +1827,7 @@ func (x *SetAdminRoleMenusReq) String() string {
 func (*SetAdminRoleMenusReq) ProtoMessage() {}
 
 func (x *SetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[28]
+	mi := &file_proto_servicehub_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1448,7 +1840,7 @@ func (x *SetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRoleMenusReq.ProtoReflect.Descriptor instead.
 func (*SetAdminRoleMenusReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{28}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *SetAdminRoleMenusReq) GetRoleId() int64 {
@@ -1474,7 +1866,7 @@ type SetAdminRoleMenusResp struct {
 
 func (x *SetAdminRoleMenusResp) Reset() {
 	*x = SetAdminRoleMenusResp{}
-	mi := &file_servicehub_proto_msgTypes[29]
+	mi := &file_proto_servicehub_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1878,7 @@ func (x *SetAdminRoleMenusResp) String() string {
 func (*SetAdminRoleMenusResp) ProtoMessage() {}
 
 func (x *SetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[29]
+	mi := &file_proto_servicehub_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1891,7 @@ func (x *SetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRoleMenusResp.ProtoReflect.Descriptor instead.
 func (*SetAdminRoleMenusResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{29}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SetAdminRoleMenusResp) GetOk() bool {
@@ -1518,7 +1910,7 @@ type GetAdminUserRolesReq struct {
 
 func (x *GetAdminUserRolesReq) Reset() {
 	*x = GetAdminUserRolesReq{}
-	mi := &file_servicehub_proto_msgTypes[30]
+	mi := &file_proto_servicehub_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1530,7 +1922,7 @@ func (x *GetAdminUserRolesReq) String() string {
 func (*GetAdminUserRolesReq) ProtoMessage() {}
 
 func (x *GetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[30]
+	mi := &file_proto_servicehub_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1543,7 +1935,7 @@ func (x *GetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserRolesReq.ProtoReflect.Descriptor instead.
 func (*GetAdminUserRolesReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{30}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetAdminUserRolesReq) GetAdminUserId() int64 {
@@ -1562,7 +1954,7 @@ type GetAdminUserRolesResp struct {
 
 func (x *GetAdminUserRolesResp) Reset() {
 	*x = GetAdminUserRolesResp{}
-	mi := &file_servicehub_proto_msgTypes[31]
+	mi := &file_proto_servicehub_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1574,7 +1966,7 @@ func (x *GetAdminUserRolesResp) String() string {
 func (*GetAdminUserRolesResp) ProtoMessage() {}
 
 func (x *GetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[31]
+	mi := &file_proto_servicehub_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1587,7 +1979,7 @@ func (x *GetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserRolesResp.ProtoReflect.Descriptor instead.
 func (*GetAdminUserRolesResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{31}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetAdminUserRolesResp) GetRoleIds() []int64 {
@@ -1607,7 +1999,7 @@ type SetAdminUserRolesReq struct {
 
 func (x *SetAdminUserRolesReq) Reset() {
 	*x = SetAdminUserRolesReq{}
-	mi := &file_servicehub_proto_msgTypes[32]
+	mi := &file_proto_servicehub_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1619,7 +2011,7 @@ func (x *SetAdminUserRolesReq) String() string {
 func (*SetAdminUserRolesReq) ProtoMessage() {}
 
 func (x *SetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[32]
+	mi := &file_proto_servicehub_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1632,7 +2024,7 @@ func (x *SetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminUserRolesReq.ProtoReflect.Descriptor instead.
 func (*SetAdminUserRolesReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{32}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *SetAdminUserRolesReq) GetAdminUserId() int64 {
@@ -1658,7 +2050,7 @@ type SetAdminUserRolesResp struct {
 
 func (x *SetAdminUserRolesResp) Reset() {
 	*x = SetAdminUserRolesResp{}
-	mi := &file_servicehub_proto_msgTypes[33]
+	mi := &file_proto_servicehub_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1670,7 +2062,7 @@ func (x *SetAdminUserRolesResp) String() string {
 func (*SetAdminUserRolesResp) ProtoMessage() {}
 
 func (x *SetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[33]
+	mi := &file_proto_servicehub_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1683,7 +2075,7 @@ func (x *SetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminUserRolesResp.ProtoReflect.Descriptor instead.
 func (*SetAdminUserRolesResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{33}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SetAdminUserRolesResp) GetOk() bool {
@@ -1702,7 +2094,7 @@ type GetAdminRbacMyPermsReq struct {
 
 func (x *GetAdminRbacMyPermsReq) Reset() {
 	*x = GetAdminRbacMyPermsReq{}
-	mi := &file_servicehub_proto_msgTypes[34]
+	mi := &file_proto_servicehub_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1714,7 +2106,7 @@ func (x *GetAdminRbacMyPermsReq) String() string {
 func (*GetAdminRbacMyPermsReq) ProtoMessage() {}
 
 func (x *GetAdminRbacMyPermsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[34]
+	mi := &file_proto_servicehub_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1727,7 +2119,7 @@ func (x *GetAdminRbacMyPermsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyPermsReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyPermsReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{34}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetAdminRbacMyPermsReq) GetAdminUserId() int64 {
@@ -1747,7 +2139,7 @@ type GetAdminRbacMyPermsResp struct {
 
 func (x *GetAdminRbacMyPermsResp) Reset() {
 	*x = GetAdminRbacMyPermsResp{}
-	mi := &file_servicehub_proto_msgTypes[35]
+	mi := &file_proto_servicehub_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1759,7 +2151,7 @@ func (x *GetAdminRbacMyPermsResp) String() string {
 func (*GetAdminRbacMyPermsResp) ProtoMessage() {}
 
 func (x *GetAdminRbacMyPermsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[35]
+	mi := &file_proto_servicehub_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1772,7 +2164,7 @@ func (x *GetAdminRbacMyPermsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyPermsResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyPermsResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{35}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GetAdminRbacMyPermsResp) GetIsSuperAdmin() bool {
@@ -1790,19 +2182,21 @@ func (x *GetAdminRbacMyPermsResp) GetPermKeys() []string {
 }
 
 type AdminPermission struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	PermKey       string                 `protobuf:"bytes,2,opt,name=perm_key,json=permKey,proto3" json:"perm_key,omitempty"`
-	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
-	Category      string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
-	Status        int64                  `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Id       int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	PermKey  string                 `protobuf:"bytes,2,opt,name=perm_key,json=permKey,proto3" json:"perm_key,omitempty"`
+	Label    string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
+	Category string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
+	Status   int64                  `protobuf:"varint,5,opt,name=status,proto3" json:"status,omitempty"`
+	// 对应侧栏菜单项 menu_key，便于按「页面」归类能力；空表示未绑定具体菜单。
+	MenuKey       string `protobuf:"bytes,6,opt,name=menu_key,json=menuKey,proto3" json:"menu_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdminPermission) Reset() {
 	*x = AdminPermission{}
-	mi := &file_servicehub_proto_msgTypes[36]
+	mi := &file_proto_servicehub_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1814,7 +2208,7 @@ func (x *AdminPermission) String() string {
 func (*AdminPermission) ProtoMessage() {}
 
 func (x *AdminPermission) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[36]
+	mi := &file_proto_servicehub_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +2221,7 @@ func (x *AdminPermission) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPermission.ProtoReflect.Descriptor instead.
 func (*AdminPermission) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{36}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AdminPermission) GetId() int64 {
@@ -1865,6 +2259,13 @@ func (x *AdminPermission) GetStatus() int64 {
 	return 0
 }
 
+func (x *AdminPermission) GetMenuKey() string {
+	if x != nil {
+		return x.MenuKey
+	}
+	return ""
+}
+
 type ListAdminPermissionsReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1873,7 +2274,7 @@ type ListAdminPermissionsReq struct {
 
 func (x *ListAdminPermissionsReq) Reset() {
 	*x = ListAdminPermissionsReq{}
-	mi := &file_servicehub_proto_msgTypes[37]
+	mi := &file_proto_servicehub_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1885,7 +2286,7 @@ func (x *ListAdminPermissionsReq) String() string {
 func (*ListAdminPermissionsReq) ProtoMessage() {}
 
 func (x *ListAdminPermissionsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[37]
+	mi := &file_proto_servicehub_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1898,7 +2299,7 @@ func (x *ListAdminPermissionsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminPermissionsReq.ProtoReflect.Descriptor instead.
 func (*ListAdminPermissionsReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{37}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{43}
 }
 
 type ListAdminPermissionsResp struct {
@@ -1910,7 +2311,7 @@ type ListAdminPermissionsResp struct {
 
 func (x *ListAdminPermissionsResp) Reset() {
 	*x = ListAdminPermissionsResp{}
-	mi := &file_servicehub_proto_msgTypes[38]
+	mi := &file_proto_servicehub_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1922,7 +2323,7 @@ func (x *ListAdminPermissionsResp) String() string {
 func (*ListAdminPermissionsResp) ProtoMessage() {}
 
 func (x *ListAdminPermissionsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[38]
+	mi := &file_proto_servicehub_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1935,7 +2336,7 @@ func (x *ListAdminPermissionsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminPermissionsResp.ProtoReflect.Descriptor instead.
 func (*ListAdminPermissionsResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{38}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ListAdminPermissionsResp) GetPermissions() []*AdminPermission {
@@ -1951,13 +2352,14 @@ type CreateAdminPermissionReq struct {
 	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
 	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
 	Status        int64                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
+	MenuKey       string                 `protobuf:"bytes,5,opt,name=menu_key,json=menuKey,proto3" json:"menu_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateAdminPermissionReq) Reset() {
 	*x = CreateAdminPermissionReq{}
-	mi := &file_servicehub_proto_msgTypes[39]
+	mi := &file_proto_servicehub_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1969,7 +2371,7 @@ func (x *CreateAdminPermissionReq) String() string {
 func (*CreateAdminPermissionReq) ProtoMessage() {}
 
 func (x *CreateAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[39]
+	mi := &file_proto_servicehub_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1982,7 +2384,7 @@ func (x *CreateAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{39}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *CreateAdminPermissionReq) GetPermKey() string {
@@ -2013,6 +2415,13 @@ func (x *CreateAdminPermissionReq) GetStatus() int64 {
 	return 0
 }
 
+func (x *CreateAdminPermissionReq) GetMenuKey() string {
+	if x != nil {
+		return x.MenuKey
+	}
+	return ""
+}
+
 type CreateAdminPermissionResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Permission    *AdminPermission       `protobuf:"bytes,1,opt,name=permission,proto3" json:"permission,omitempty"`
@@ -2022,7 +2431,7 @@ type CreateAdminPermissionResp struct {
 
 func (x *CreateAdminPermissionResp) Reset() {
 	*x = CreateAdminPermissionResp{}
-	mi := &file_servicehub_proto_msgTypes[40]
+	mi := &file_proto_servicehub_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2034,7 +2443,7 @@ func (x *CreateAdminPermissionResp) String() string {
 func (*CreateAdminPermissionResp) ProtoMessage() {}
 
 func (x *CreateAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[40]
+	mi := &file_proto_servicehub_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2047,7 +2456,7 @@ func (x *CreateAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{40}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *CreateAdminPermissionResp) GetPermission() *AdminPermission {
@@ -2063,13 +2472,14 @@ type UpdateAdminPermissionReq struct {
 	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
 	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
 	Status        int64                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
+	MenuKey       string                 `protobuf:"bytes,5,opt,name=menu_key,json=menuKey,proto3" json:"menu_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateAdminPermissionReq) Reset() {
 	*x = UpdateAdminPermissionReq{}
-	mi := &file_servicehub_proto_msgTypes[41]
+	mi := &file_proto_servicehub_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2081,7 +2491,7 @@ func (x *UpdateAdminPermissionReq) String() string {
 func (*UpdateAdminPermissionReq) ProtoMessage() {}
 
 func (x *UpdateAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[41]
+	mi := &file_proto_servicehub_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2094,7 +2504,7 @@ func (x *UpdateAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{41}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *UpdateAdminPermissionReq) GetId() int64 {
@@ -2125,6 +2535,13 @@ func (x *UpdateAdminPermissionReq) GetStatus() int64 {
 	return 0
 }
 
+func (x *UpdateAdminPermissionReq) GetMenuKey() string {
+	if x != nil {
+		return x.MenuKey
+	}
+	return ""
+}
+
 type UpdateAdminPermissionResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Permission    *AdminPermission       `protobuf:"bytes,1,opt,name=permission,proto3" json:"permission,omitempty"`
@@ -2134,7 +2551,7 @@ type UpdateAdminPermissionResp struct {
 
 func (x *UpdateAdminPermissionResp) Reset() {
 	*x = UpdateAdminPermissionResp{}
-	mi := &file_servicehub_proto_msgTypes[42]
+	mi := &file_proto_servicehub_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2146,7 +2563,7 @@ func (x *UpdateAdminPermissionResp) String() string {
 func (*UpdateAdminPermissionResp) ProtoMessage() {}
 
 func (x *UpdateAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[42]
+	mi := &file_proto_servicehub_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2159,7 +2576,7 @@ func (x *UpdateAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{42}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *UpdateAdminPermissionResp) GetPermission() *AdminPermission {
@@ -2178,7 +2595,7 @@ type DeleteAdminPermissionReq struct {
 
 func (x *DeleteAdminPermissionReq) Reset() {
 	*x = DeleteAdminPermissionReq{}
-	mi := &file_servicehub_proto_msgTypes[43]
+	mi := &file_proto_servicehub_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2190,7 +2607,7 @@ func (x *DeleteAdminPermissionReq) String() string {
 func (*DeleteAdminPermissionReq) ProtoMessage() {}
 
 func (x *DeleteAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[43]
+	mi := &file_proto_servicehub_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2203,7 +2620,7 @@ func (x *DeleteAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{43}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *DeleteAdminPermissionReq) GetId() int64 {
@@ -2222,7 +2639,7 @@ type DeleteAdminPermissionResp struct {
 
 func (x *DeleteAdminPermissionResp) Reset() {
 	*x = DeleteAdminPermissionResp{}
-	mi := &file_servicehub_proto_msgTypes[44]
+	mi := &file_proto_servicehub_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2234,7 +2651,7 @@ func (x *DeleteAdminPermissionResp) String() string {
 func (*DeleteAdminPermissionResp) ProtoMessage() {}
 
 func (x *DeleteAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[44]
+	mi := &file_proto_servicehub_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2247,7 +2664,7 @@ func (x *DeleteAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{44}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *DeleteAdminPermissionResp) GetOk() bool {
@@ -2266,7 +2683,7 @@ type GetAdminRolePermKeysReq struct {
 
 func (x *GetAdminRolePermKeysReq) Reset() {
 	*x = GetAdminRolePermKeysReq{}
-	mi := &file_servicehub_proto_msgTypes[45]
+	mi := &file_proto_servicehub_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2278,7 +2695,7 @@ func (x *GetAdminRolePermKeysReq) String() string {
 func (*GetAdminRolePermKeysReq) ProtoMessage() {}
 
 func (x *GetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[45]
+	mi := &file_proto_servicehub_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2291,7 +2708,7 @@ func (x *GetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRolePermKeysReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRolePermKeysReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{45}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetAdminRolePermKeysReq) GetRoleId() int64 {
@@ -2310,7 +2727,7 @@ type GetAdminRolePermKeysResp struct {
 
 func (x *GetAdminRolePermKeysResp) Reset() {
 	*x = GetAdminRolePermKeysResp{}
-	mi := &file_servicehub_proto_msgTypes[46]
+	mi := &file_proto_servicehub_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2322,7 +2739,7 @@ func (x *GetAdminRolePermKeysResp) String() string {
 func (*GetAdminRolePermKeysResp) ProtoMessage() {}
 
 func (x *GetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[46]
+	mi := &file_proto_servicehub_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2335,7 +2752,7 @@ func (x *GetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRolePermKeysResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRolePermKeysResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{46}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetAdminRolePermKeysResp) GetPermKeys() []string {
@@ -2355,7 +2772,7 @@ type SetAdminRolePermKeysReq struct {
 
 func (x *SetAdminRolePermKeysReq) Reset() {
 	*x = SetAdminRolePermKeysReq{}
-	mi := &file_servicehub_proto_msgTypes[47]
+	mi := &file_proto_servicehub_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2367,7 +2784,7 @@ func (x *SetAdminRolePermKeysReq) String() string {
 func (*SetAdminRolePermKeysReq) ProtoMessage() {}
 
 func (x *SetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[47]
+	mi := &file_proto_servicehub_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2380,7 +2797,7 @@ func (x *SetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRolePermKeysReq.ProtoReflect.Descriptor instead.
 func (*SetAdminRolePermKeysReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{47}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *SetAdminRolePermKeysReq) GetRoleId() int64 {
@@ -2406,7 +2823,7 @@ type SetAdminRolePermKeysResp struct {
 
 func (x *SetAdminRolePermKeysResp) Reset() {
 	*x = SetAdminRolePermKeysResp{}
-	mi := &file_servicehub_proto_msgTypes[48]
+	mi := &file_proto_servicehub_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2418,7 +2835,7 @@ func (x *SetAdminRolePermKeysResp) String() string {
 func (*SetAdminRolePermKeysResp) ProtoMessage() {}
 
 func (x *SetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[48]
+	mi := &file_proto_servicehub_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2431,7 +2848,7 @@ func (x *SetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRolePermKeysResp.ProtoReflect.Descriptor instead.
 func (*SetAdminRolePermKeysResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{48}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *SetAdminRolePermKeysResp) GetOk() bool {
@@ -2455,7 +2872,7 @@ type AdminApiRule struct {
 
 func (x *AdminApiRule) Reset() {
 	*x = AdminApiRule{}
-	mi := &file_servicehub_proto_msgTypes[49]
+	mi := &file_proto_servicehub_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2467,7 +2884,7 @@ func (x *AdminApiRule) String() string {
 func (*AdminApiRule) ProtoMessage() {}
 
 func (x *AdminApiRule) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[49]
+	mi := &file_proto_servicehub_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2480,7 +2897,7 @@ func (x *AdminApiRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminApiRule.ProtoReflect.Descriptor instead.
 func (*AdminApiRule) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{49}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *AdminApiRule) GetId() int64 {
@@ -2533,7 +2950,7 @@ type ListAdminApiRulesReq struct {
 
 func (x *ListAdminApiRulesReq) Reset() {
 	*x = ListAdminApiRulesReq{}
-	mi := &file_servicehub_proto_msgTypes[50]
+	mi := &file_proto_servicehub_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2545,7 +2962,7 @@ func (x *ListAdminApiRulesReq) String() string {
 func (*ListAdminApiRulesReq) ProtoMessage() {}
 
 func (x *ListAdminApiRulesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[50]
+	mi := &file_proto_servicehub_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2558,7 +2975,7 @@ func (x *ListAdminApiRulesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminApiRulesReq.ProtoReflect.Descriptor instead.
 func (*ListAdminApiRulesReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{50}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{56}
 }
 
 type ListAdminApiRulesResp struct {
@@ -2570,7 +2987,7 @@ type ListAdminApiRulesResp struct {
 
 func (x *ListAdminApiRulesResp) Reset() {
 	*x = ListAdminApiRulesResp{}
-	mi := &file_servicehub_proto_msgTypes[51]
+	mi := &file_proto_servicehub_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2582,7 +2999,7 @@ func (x *ListAdminApiRulesResp) String() string {
 func (*ListAdminApiRulesResp) ProtoMessage() {}
 
 func (x *ListAdminApiRulesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[51]
+	mi := &file_proto_servicehub_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2595,7 +3012,7 @@ func (x *ListAdminApiRulesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminApiRulesResp.ProtoReflect.Descriptor instead.
 func (*ListAdminApiRulesResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{51}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *ListAdminApiRulesResp) GetRules() []*AdminApiRule {
@@ -2618,7 +3035,7 @@ type UpsertAdminApiRuleReq struct {
 
 func (x *UpsertAdminApiRuleReq) Reset() {
 	*x = UpsertAdminApiRuleReq{}
-	mi := &file_servicehub_proto_msgTypes[52]
+	mi := &file_proto_servicehub_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2630,7 +3047,7 @@ func (x *UpsertAdminApiRuleReq) String() string {
 func (*UpsertAdminApiRuleReq) ProtoMessage() {}
 
 func (x *UpsertAdminApiRuleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[52]
+	mi := &file_proto_servicehub_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2643,7 +3060,7 @@ func (x *UpsertAdminApiRuleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertAdminApiRuleReq.ProtoReflect.Descriptor instead.
 func (*UpsertAdminApiRuleReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{52}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *UpsertAdminApiRuleReq) GetMethod() string {
@@ -2690,7 +3107,7 @@ type UpsertAdminApiRuleResp struct {
 
 func (x *UpsertAdminApiRuleResp) Reset() {
 	*x = UpsertAdminApiRuleResp{}
-	mi := &file_servicehub_proto_msgTypes[53]
+	mi := &file_proto_servicehub_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2702,7 +3119,7 @@ func (x *UpsertAdminApiRuleResp) String() string {
 func (*UpsertAdminApiRuleResp) ProtoMessage() {}
 
 func (x *UpsertAdminApiRuleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[53]
+	mi := &file_proto_servicehub_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2715,7 +3132,7 @@ func (x *UpsertAdminApiRuleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertAdminApiRuleResp.ProtoReflect.Descriptor instead.
 func (*UpsertAdminApiRuleResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{53}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *UpsertAdminApiRuleResp) GetRule() *AdminApiRule {
@@ -2734,7 +3151,7 @@ type DeleteAdminApiRuleReq struct {
 
 func (x *DeleteAdminApiRuleReq) Reset() {
 	*x = DeleteAdminApiRuleReq{}
-	mi := &file_servicehub_proto_msgTypes[54]
+	mi := &file_proto_servicehub_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2746,7 +3163,7 @@ func (x *DeleteAdminApiRuleReq) String() string {
 func (*DeleteAdminApiRuleReq) ProtoMessage() {}
 
 func (x *DeleteAdminApiRuleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[54]
+	mi := &file_proto_servicehub_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2759,7 +3176,7 @@ func (x *DeleteAdminApiRuleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminApiRuleReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminApiRuleReq) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{54}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *DeleteAdminApiRuleReq) GetId() int64 {
@@ -2778,7 +3195,7 @@ type DeleteAdminApiRuleResp struct {
 
 func (x *DeleteAdminApiRuleResp) Reset() {
 	*x = DeleteAdminApiRuleResp{}
-	mi := &file_servicehub_proto_msgTypes[55]
+	mi := &file_proto_servicehub_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2790,7 +3207,7 @@ func (x *DeleteAdminApiRuleResp) String() string {
 func (*DeleteAdminApiRuleResp) ProtoMessage() {}
 
 func (x *DeleteAdminApiRuleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_servicehub_proto_msgTypes[55]
+	mi := &file_proto_servicehub_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2803,7 +3220,7 @@ func (x *DeleteAdminApiRuleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminApiRuleResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminApiRuleResp) Descriptor() ([]byte, []int) {
-	return file_servicehub_proto_rawDescGZIP(), []int{55}
+	return file_proto_servicehub_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *DeleteAdminApiRuleResp) GetOk() bool {
@@ -2813,11 +3230,11 @@ func (x *DeleteAdminApiRuleResp) GetOk() bool {
 	return false
 }
 
-var File_servicehub_proto protoreflect.FileDescriptor
+var File_proto_servicehub_proto protoreflect.FileDescriptor
 
-const file_servicehub_proto_rawDesc = "" +
+const file_proto_servicehub_proto_rawDesc = "" +
 	"\n" +
-	"\x10servicehub.proto\x12\n" +
+	"\x16proto/servicehub.proto\x12\n" +
 	"servicehub\"8\n" +
 	"\x1aFindAdminUserByUsernameReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\"H\n" +
@@ -2852,7 +3269,7 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x14MarkPayoutResultResp\x12\x18\n" +
 	"\achanged\x18\x01 \x01(\bR\achanged\"<\n" +
 	"\x16GetAdminRbacMyMenusReq\x12\"\n" +
-	"\radmin_user_id\x18\x01 \x01(\x03R\vadminUserId\"\xc4\x01\n" +
+	"\radmin_user_id\x18\x01 \x01(\x03R\vadminUserId\"\xe2\x01\n" +
 	"\tAdminMenu\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
 	"\tparent_id\x18\x02 \x01(\x03R\bparentId\x12\x19\n" +
@@ -2862,7 +3279,8 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x04kind\x18\x06 \x01(\x03R\x04kind\x12\x12\n" +
 	"\x04path\x18\a \x01(\tR\x04path\x12\x1d\n" +
 	"\n" +
-	"sort_order\x18\b \x01(\x03R\tsortOrder\"F\n" +
+	"sort_order\x18\b \x01(\x03R\tsortOrder\x12\x1c\n" +
+	"\tplacement\x18\t \x01(\tR\tplacement\"F\n" +
 	"\x17GetAdminRbacMyMenusResp\x12+\n" +
 	"\x05menus\x18\x01 \x03(\v2\x15.servicehub.AdminMenuR\x05menus\"\x13\n" +
 	"\x11ListAdminRolesReq\"[\n" +
@@ -2891,7 +3309,36 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x02ok\x18\x01 \x01(\bR\x02ok\"\x13\n" +
 	"\x11ListAdminMenusReq\"A\n" +
 	"\x12ListAdminMenusResp\x12+\n" +
-	"\x05menus\x18\x01 \x03(\v2\x15.servicehub.AdminMenuR\x05menus\"/\n" +
+	"\x05menus\x18\x01 \x03(\v2\x15.servicehub.AdminMenuR\x05menus\"\xdb\x01\n" +
+	"\x12CreateAdminMenuReq\x12\x1b\n" +
+	"\tparent_id\x18\x01 \x01(\x03R\bparentId\x12\x19\n" +
+	"\bmenu_key\x18\x02 \x01(\tR\amenuKey\x12\x14\n" +
+	"\x05label\x18\x03 \x01(\tR\x05label\x12\x12\n" +
+	"\x04icon\x18\x04 \x01(\tR\x04icon\x12\x12\n" +
+	"\x04kind\x18\x05 \x01(\x03R\x04kind\x12\x12\n" +
+	"\x04path\x18\x06 \x01(\tR\x04path\x12\x1d\n" +
+	"\n" +
+	"sort_order\x18\a \x01(\x03R\tsortOrder\x12\x1c\n" +
+	"\tplacement\x18\b \x01(\tR\tplacement\"@\n" +
+	"\x13CreateAdminMenuResp\x12)\n" +
+	"\x04menu\x18\x01 \x01(\v2\x15.servicehub.AdminMenuR\x04menu\"\xeb\x01\n" +
+	"\x12UpdateAdminMenuReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
+	"\tparent_id\x18\x02 \x01(\x03R\bparentId\x12\x19\n" +
+	"\bmenu_key\x18\x03 \x01(\tR\amenuKey\x12\x14\n" +
+	"\x05label\x18\x04 \x01(\tR\x05label\x12\x12\n" +
+	"\x04icon\x18\x05 \x01(\tR\x04icon\x12\x12\n" +
+	"\x04kind\x18\x06 \x01(\x03R\x04kind\x12\x12\n" +
+	"\x04path\x18\a \x01(\tR\x04path\x12\x1d\n" +
+	"\n" +
+	"sort_order\x18\b \x01(\x03R\tsortOrder\x12\x1c\n" +
+	"\tplacement\x18\t \x01(\tR\tplacement\"@\n" +
+	"\x13UpdateAdminMenuResp\x12)\n" +
+	"\x04menu\x18\x01 \x01(\v2\x15.servicehub.AdminMenuR\x04menu\"$\n" +
+	"\x12DeleteAdminMenuReq\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"%\n" +
+	"\x13DeleteAdminMenuResp\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\"/\n" +
 	"\x14GetAdminRoleMenusReq\x12\x17\n" +
 	"\arole_id\x18\x01 \x01(\x03R\x06roleId\"2\n" +
 	"\x15GetAdminRoleMenusResp\x12\x19\n" +
@@ -2914,30 +3361,33 @@ const file_servicehub_proto_rawDesc = "" +
 	"\radmin_user_id\x18\x01 \x01(\x03R\vadminUserId\"\\\n" +
 	"\x17GetAdminRbacMyPermsResp\x12$\n" +
 	"\x0eis_super_admin\x18\x01 \x01(\bR\fisSuperAdmin\x12\x1b\n" +
-	"\tperm_keys\x18\x02 \x03(\tR\bpermKeys\"\x86\x01\n" +
+	"\tperm_keys\x18\x02 \x03(\tR\bpermKeys\"\xa1\x01\n" +
 	"\x0fAdminPermission\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
 	"\bperm_key\x18\x02 \x01(\tR\apermKey\x12\x14\n" +
 	"\x05label\x18\x03 \x01(\tR\x05label\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\x03R\x06status\"\x19\n" +
+	"\x06status\x18\x05 \x01(\x03R\x06status\x12\x19\n" +
+	"\bmenu_key\x18\x06 \x01(\tR\amenuKey\"\x19\n" +
 	"\x17ListAdminPermissionsReq\"Y\n" +
 	"\x18ListAdminPermissionsResp\x12=\n" +
-	"\vpermissions\x18\x01 \x03(\v2\x1b.servicehub.AdminPermissionR\vpermissions\"\x7f\n" +
+	"\vpermissions\x18\x01 \x03(\v2\x1b.servicehub.AdminPermissionR\vpermissions\"\x9a\x01\n" +
 	"\x18CreateAdminPermissionReq\x12\x19\n" +
 	"\bperm_key\x18\x01 \x01(\tR\apermKey\x12\x14\n" +
 	"\x05label\x18\x02 \x01(\tR\x05label\x12\x1a\n" +
 	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\x03R\x06status\"X\n" +
+	"\x06status\x18\x04 \x01(\x03R\x06status\x12\x19\n" +
+	"\bmenu_key\x18\x05 \x01(\tR\amenuKey\"X\n" +
 	"\x19CreateAdminPermissionResp\x12;\n" +
 	"\n" +
 	"permission\x18\x01 \x01(\v2\x1b.servicehub.AdminPermissionR\n" +
-	"permission\"t\n" +
+	"permission\"\x8f\x01\n" +
 	"\x18UpdateAdminPermissionReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05label\x18\x02 \x01(\tR\x05label\x12\x1a\n" +
 	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\x03R\x06status\"X\n" +
+	"\x06status\x18\x04 \x01(\x03R\x06status\x12\x19\n" +
+	"\bmenu_key\x18\x05 \x01(\tR\amenuKey\"X\n" +
 	"\x19UpdateAdminPermissionResp\x12;\n" +
 	"\n" +
 	"permission\x18\x01 \x01(\v2\x1b.servicehub.AdminPermissionR\n" +
@@ -2976,7 +3426,7 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x15DeleteAdminApiRuleReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"(\n" +
 	"\x16DeleteAdminApiRuleResp\x12\x0e\n" +
-	"\x02ok\x18\x01 \x01(\bR\x02ok2\xee\x12\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok2\xea\x14\n" +
 	"\n" +
 	"ServiceHub\x12j\n" +
 	"\x17FindAdminUserByUsername\x12&.servicehub.FindAdminUserByUsernameReq\x1a'.servicehub.FindAdminUserByUsernameResp\x12O\n" +
@@ -2990,7 +3440,10 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x0fCreateAdminRole\x12\x1e.servicehub.CreateAdminRoleReq\x1a\x1f.servicehub.CreateAdminRoleResp\x12R\n" +
 	"\x0fUpdateAdminRole\x12\x1e.servicehub.UpdateAdminRoleReq\x1a\x1f.servicehub.UpdateAdminRoleResp\x12R\n" +
 	"\x0fDeleteAdminRole\x12\x1e.servicehub.DeleteAdminRoleReq\x1a\x1f.servicehub.DeleteAdminRoleResp\x12O\n" +
-	"\x0eListAdminMenus\x12\x1d.servicehub.ListAdminMenusReq\x1a\x1e.servicehub.ListAdminMenusResp\x12X\n" +
+	"\x0eListAdminMenus\x12\x1d.servicehub.ListAdminMenusReq\x1a\x1e.servicehub.ListAdminMenusResp\x12R\n" +
+	"\x0fCreateAdminMenu\x12\x1e.servicehub.CreateAdminMenuReq\x1a\x1f.servicehub.CreateAdminMenuResp\x12R\n" +
+	"\x0fUpdateAdminMenu\x12\x1e.servicehub.UpdateAdminMenuReq\x1a\x1f.servicehub.UpdateAdminMenuResp\x12R\n" +
+	"\x0fDeleteAdminMenu\x12\x1e.servicehub.DeleteAdminMenuReq\x1a\x1f.servicehub.DeleteAdminMenuResp\x12X\n" +
 	"\x11GetAdminRoleMenus\x12 .servicehub.GetAdminRoleMenusReq\x1a!.servicehub.GetAdminRoleMenusResp\x12X\n" +
 	"\x11SetAdminRoleMenus\x12 .servicehub.SetAdminRoleMenusReq\x1a!.servicehub.SetAdminRoleMenusResp\x12X\n" +
 	"\x11GetAdminUserRoles\x12 .servicehub.GetAdminUserRolesReq\x1a!.servicehub.GetAdminUserRolesResp\x12X\n" +
@@ -3007,19 +3460,19 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x12DeleteAdminApiRule\x12!.servicehub.DeleteAdminApiRuleReq\x1a\".servicehub.DeleteAdminApiRuleRespB8Z6github.com/gloopai/pay/common/pb/servicehub;servicehubb\x06proto3"
 
 var (
-	file_servicehub_proto_rawDescOnce sync.Once
-	file_servicehub_proto_rawDescData []byte
+	file_proto_servicehub_proto_rawDescOnce sync.Once
+	file_proto_servicehub_proto_rawDescData []byte
 )
 
-func file_servicehub_proto_rawDescGZIP() []byte {
-	file_servicehub_proto_rawDescOnce.Do(func() {
-		file_servicehub_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)))
+func file_proto_servicehub_proto_rawDescGZIP() []byte {
+	file_proto_servicehub_proto_rawDescOnce.Do(func() {
+		file_proto_servicehub_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_servicehub_proto_rawDesc), len(file_proto_servicehub_proto_rawDesc)))
 	})
-	return file_servicehub_proto_rawDescData
+	return file_proto_servicehub_proto_rawDescData
 }
 
-var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
-var file_servicehub_proto_goTypes = []any{
+var file_proto_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 62)
+var file_proto_servicehub_proto_goTypes = []any{
 	(*FindAdminUserByUsernameReq)(nil),  // 0: servicehub.FindAdminUserByUsernameReq
 	(*FindAdminUserByUsernameResp)(nil), // 1: servicehub.FindAdminUserByUsernameResp
 	(*AdminUser)(nil),                   // 2: servicehub.AdminUser
@@ -3046,38 +3499,44 @@ var file_servicehub_proto_goTypes = []any{
 	(*DeleteAdminRoleResp)(nil),         // 23: servicehub.DeleteAdminRoleResp
 	(*ListAdminMenusReq)(nil),           // 24: servicehub.ListAdminMenusReq
 	(*ListAdminMenusResp)(nil),          // 25: servicehub.ListAdminMenusResp
-	(*GetAdminRoleMenusReq)(nil),        // 26: servicehub.GetAdminRoleMenusReq
-	(*GetAdminRoleMenusResp)(nil),       // 27: servicehub.GetAdminRoleMenusResp
-	(*SetAdminRoleMenusReq)(nil),        // 28: servicehub.SetAdminRoleMenusReq
-	(*SetAdminRoleMenusResp)(nil),       // 29: servicehub.SetAdminRoleMenusResp
-	(*GetAdminUserRolesReq)(nil),        // 30: servicehub.GetAdminUserRolesReq
-	(*GetAdminUserRolesResp)(nil),       // 31: servicehub.GetAdminUserRolesResp
-	(*SetAdminUserRolesReq)(nil),        // 32: servicehub.SetAdminUserRolesReq
-	(*SetAdminUserRolesResp)(nil),       // 33: servicehub.SetAdminUserRolesResp
-	(*GetAdminRbacMyPermsReq)(nil),      // 34: servicehub.GetAdminRbacMyPermsReq
-	(*GetAdminRbacMyPermsResp)(nil),     // 35: servicehub.GetAdminRbacMyPermsResp
-	(*AdminPermission)(nil),             // 36: servicehub.AdminPermission
-	(*ListAdminPermissionsReq)(nil),     // 37: servicehub.ListAdminPermissionsReq
-	(*ListAdminPermissionsResp)(nil),    // 38: servicehub.ListAdminPermissionsResp
-	(*CreateAdminPermissionReq)(nil),    // 39: servicehub.CreateAdminPermissionReq
-	(*CreateAdminPermissionResp)(nil),   // 40: servicehub.CreateAdminPermissionResp
-	(*UpdateAdminPermissionReq)(nil),    // 41: servicehub.UpdateAdminPermissionReq
-	(*UpdateAdminPermissionResp)(nil),   // 42: servicehub.UpdateAdminPermissionResp
-	(*DeleteAdminPermissionReq)(nil),    // 43: servicehub.DeleteAdminPermissionReq
-	(*DeleteAdminPermissionResp)(nil),   // 44: servicehub.DeleteAdminPermissionResp
-	(*GetAdminRolePermKeysReq)(nil),     // 45: servicehub.GetAdminRolePermKeysReq
-	(*GetAdminRolePermKeysResp)(nil),    // 46: servicehub.GetAdminRolePermKeysResp
-	(*SetAdminRolePermKeysReq)(nil),     // 47: servicehub.SetAdminRolePermKeysReq
-	(*SetAdminRolePermKeysResp)(nil),    // 48: servicehub.SetAdminRolePermKeysResp
-	(*AdminApiRule)(nil),                // 49: servicehub.AdminApiRule
-	(*ListAdminApiRulesReq)(nil),        // 50: servicehub.ListAdminApiRulesReq
-	(*ListAdminApiRulesResp)(nil),       // 51: servicehub.ListAdminApiRulesResp
-	(*UpsertAdminApiRuleReq)(nil),       // 52: servicehub.UpsertAdminApiRuleReq
-	(*UpsertAdminApiRuleResp)(nil),      // 53: servicehub.UpsertAdminApiRuleResp
-	(*DeleteAdminApiRuleReq)(nil),       // 54: servicehub.DeleteAdminApiRuleReq
-	(*DeleteAdminApiRuleResp)(nil),      // 55: servicehub.DeleteAdminApiRuleResp
+	(*CreateAdminMenuReq)(nil),          // 26: servicehub.CreateAdminMenuReq
+	(*CreateAdminMenuResp)(nil),         // 27: servicehub.CreateAdminMenuResp
+	(*UpdateAdminMenuReq)(nil),          // 28: servicehub.UpdateAdminMenuReq
+	(*UpdateAdminMenuResp)(nil),         // 29: servicehub.UpdateAdminMenuResp
+	(*DeleteAdminMenuReq)(nil),          // 30: servicehub.DeleteAdminMenuReq
+	(*DeleteAdminMenuResp)(nil),         // 31: servicehub.DeleteAdminMenuResp
+	(*GetAdminRoleMenusReq)(nil),        // 32: servicehub.GetAdminRoleMenusReq
+	(*GetAdminRoleMenusResp)(nil),       // 33: servicehub.GetAdminRoleMenusResp
+	(*SetAdminRoleMenusReq)(nil),        // 34: servicehub.SetAdminRoleMenusReq
+	(*SetAdminRoleMenusResp)(nil),       // 35: servicehub.SetAdminRoleMenusResp
+	(*GetAdminUserRolesReq)(nil),        // 36: servicehub.GetAdminUserRolesReq
+	(*GetAdminUserRolesResp)(nil),       // 37: servicehub.GetAdminUserRolesResp
+	(*SetAdminUserRolesReq)(nil),        // 38: servicehub.SetAdminUserRolesReq
+	(*SetAdminUserRolesResp)(nil),       // 39: servicehub.SetAdminUserRolesResp
+	(*GetAdminRbacMyPermsReq)(nil),      // 40: servicehub.GetAdminRbacMyPermsReq
+	(*GetAdminRbacMyPermsResp)(nil),     // 41: servicehub.GetAdminRbacMyPermsResp
+	(*AdminPermission)(nil),             // 42: servicehub.AdminPermission
+	(*ListAdminPermissionsReq)(nil),     // 43: servicehub.ListAdminPermissionsReq
+	(*ListAdminPermissionsResp)(nil),    // 44: servicehub.ListAdminPermissionsResp
+	(*CreateAdminPermissionReq)(nil),    // 45: servicehub.CreateAdminPermissionReq
+	(*CreateAdminPermissionResp)(nil),   // 46: servicehub.CreateAdminPermissionResp
+	(*UpdateAdminPermissionReq)(nil),    // 47: servicehub.UpdateAdminPermissionReq
+	(*UpdateAdminPermissionResp)(nil),   // 48: servicehub.UpdateAdminPermissionResp
+	(*DeleteAdminPermissionReq)(nil),    // 49: servicehub.DeleteAdminPermissionReq
+	(*DeleteAdminPermissionResp)(nil),   // 50: servicehub.DeleteAdminPermissionResp
+	(*GetAdminRolePermKeysReq)(nil),     // 51: servicehub.GetAdminRolePermKeysReq
+	(*GetAdminRolePermKeysResp)(nil),    // 52: servicehub.GetAdminRolePermKeysResp
+	(*SetAdminRolePermKeysReq)(nil),     // 53: servicehub.SetAdminRolePermKeysReq
+	(*SetAdminRolePermKeysResp)(nil),    // 54: servicehub.SetAdminRolePermKeysResp
+	(*AdminApiRule)(nil),                // 55: servicehub.AdminApiRule
+	(*ListAdminApiRulesReq)(nil),        // 56: servicehub.ListAdminApiRulesReq
+	(*ListAdminApiRulesResp)(nil),       // 57: servicehub.ListAdminApiRulesResp
+	(*UpsertAdminApiRuleReq)(nil),       // 58: servicehub.UpsertAdminApiRuleReq
+	(*UpsertAdminApiRuleResp)(nil),      // 59: servicehub.UpsertAdminApiRuleResp
+	(*DeleteAdminApiRuleReq)(nil),       // 60: servicehub.DeleteAdminApiRuleReq
+	(*DeleteAdminApiRuleResp)(nil),      // 61: servicehub.DeleteAdminApiRuleResp
 }
-var file_servicehub_proto_depIdxs = []int32{
+var file_proto_servicehub_proto_depIdxs = []int32{
 	2,  // 0: servicehub.FindAdminUserByUsernameResp.user:type_name -> servicehub.AdminUser
 	3,  // 1: servicehub.ListAdminUsersResp.users:type_name -> servicehub.AdminUserPublic
 	13, // 2: servicehub.GetAdminRbacMyMenusResp.menus:type_name -> servicehub.AdminMenu
@@ -3085,90 +3544,98 @@ var file_servicehub_proto_depIdxs = []int32{
 	16, // 4: servicehub.CreateAdminRoleResp.role:type_name -> servicehub.AdminRole
 	16, // 5: servicehub.UpdateAdminRoleResp.role:type_name -> servicehub.AdminRole
 	13, // 6: servicehub.ListAdminMenusResp.menus:type_name -> servicehub.AdminMenu
-	36, // 7: servicehub.ListAdminPermissionsResp.permissions:type_name -> servicehub.AdminPermission
-	36, // 8: servicehub.CreateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
-	36, // 9: servicehub.UpdateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
-	49, // 10: servicehub.ListAdminApiRulesResp.rules:type_name -> servicehub.AdminApiRule
-	49, // 11: servicehub.UpsertAdminApiRuleResp.rule:type_name -> servicehub.AdminApiRule
-	0,  // 12: servicehub.ServiceHub.FindAdminUserByUsername:input_type -> servicehub.FindAdminUserByUsernameReq
-	4,  // 13: servicehub.ServiceHub.ListAdminUsers:input_type -> servicehub.ListAdminUsersReq
-	6,  // 14: servicehub.ServiceHub.GetDisplaySettings:input_type -> servicehub.GetDisplaySettingsReq
-	8,  // 15: servicehub.ServiceHub.UpsertDisplaySettings:input_type -> servicehub.UpsertDisplaySettingsReq
-	9,  // 16: servicehub.ServiceHub.MarkPayoutSuccess:input_type -> servicehub.MarkPayoutSuccessReq
-	10, // 17: servicehub.ServiceHub.MarkPayoutFailed:input_type -> servicehub.MarkPayoutFailedReq
-	12, // 18: servicehub.ServiceHub.GetAdminRbacMyMenus:input_type -> servicehub.GetAdminRbacMyMenusReq
-	15, // 19: servicehub.ServiceHub.ListAdminRoles:input_type -> servicehub.ListAdminRolesReq
-	18, // 20: servicehub.ServiceHub.CreateAdminRole:input_type -> servicehub.CreateAdminRoleReq
-	20, // 21: servicehub.ServiceHub.UpdateAdminRole:input_type -> servicehub.UpdateAdminRoleReq
-	22, // 22: servicehub.ServiceHub.DeleteAdminRole:input_type -> servicehub.DeleteAdminRoleReq
-	24, // 23: servicehub.ServiceHub.ListAdminMenus:input_type -> servicehub.ListAdminMenusReq
-	26, // 24: servicehub.ServiceHub.GetAdminRoleMenus:input_type -> servicehub.GetAdminRoleMenusReq
-	28, // 25: servicehub.ServiceHub.SetAdminRoleMenus:input_type -> servicehub.SetAdminRoleMenusReq
-	30, // 26: servicehub.ServiceHub.GetAdminUserRoles:input_type -> servicehub.GetAdminUserRolesReq
-	32, // 27: servicehub.ServiceHub.SetAdminUserRoles:input_type -> servicehub.SetAdminUserRolesReq
-	34, // 28: servicehub.ServiceHub.GetAdminRbacMyPerms:input_type -> servicehub.GetAdminRbacMyPermsReq
-	37, // 29: servicehub.ServiceHub.ListAdminPermissions:input_type -> servicehub.ListAdminPermissionsReq
-	39, // 30: servicehub.ServiceHub.CreateAdminPermission:input_type -> servicehub.CreateAdminPermissionReq
-	41, // 31: servicehub.ServiceHub.UpdateAdminPermission:input_type -> servicehub.UpdateAdminPermissionReq
-	43, // 32: servicehub.ServiceHub.DeleteAdminPermission:input_type -> servicehub.DeleteAdminPermissionReq
-	45, // 33: servicehub.ServiceHub.GetAdminRolePermKeys:input_type -> servicehub.GetAdminRolePermKeysReq
-	47, // 34: servicehub.ServiceHub.SetAdminRolePermKeys:input_type -> servicehub.SetAdminRolePermKeysReq
-	50, // 35: servicehub.ServiceHub.ListAdminApiRules:input_type -> servicehub.ListAdminApiRulesReq
-	52, // 36: servicehub.ServiceHub.UpsertAdminApiRule:input_type -> servicehub.UpsertAdminApiRuleReq
-	54, // 37: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
-	1,  // 38: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
-	5,  // 39: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
-	7,  // 40: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	7,  // 41: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	11, // 42: servicehub.ServiceHub.MarkPayoutSuccess:output_type -> servicehub.MarkPayoutResultResp
-	11, // 43: servicehub.ServiceHub.MarkPayoutFailed:output_type -> servicehub.MarkPayoutResultResp
-	14, // 44: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
-	17, // 45: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
-	19, // 46: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
-	21, // 47: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
-	23, // 48: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
-	25, // 49: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
-	27, // 50: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
-	29, // 51: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
-	31, // 52: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
-	33, // 53: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
-	35, // 54: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
-	38, // 55: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
-	40, // 56: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
-	42, // 57: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
-	44, // 58: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
-	46, // 59: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
-	48, // 60: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
-	51, // 61: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
-	53, // 62: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
-	55, // 63: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
-	38, // [38:64] is the sub-list for method output_type
-	12, // [12:38] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	13, // 7: servicehub.CreateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
+	13, // 8: servicehub.UpdateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
+	42, // 9: servicehub.ListAdminPermissionsResp.permissions:type_name -> servicehub.AdminPermission
+	42, // 10: servicehub.CreateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
+	42, // 11: servicehub.UpdateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
+	55, // 12: servicehub.ListAdminApiRulesResp.rules:type_name -> servicehub.AdminApiRule
+	55, // 13: servicehub.UpsertAdminApiRuleResp.rule:type_name -> servicehub.AdminApiRule
+	0,  // 14: servicehub.ServiceHub.FindAdminUserByUsername:input_type -> servicehub.FindAdminUserByUsernameReq
+	4,  // 15: servicehub.ServiceHub.ListAdminUsers:input_type -> servicehub.ListAdminUsersReq
+	6,  // 16: servicehub.ServiceHub.GetDisplaySettings:input_type -> servicehub.GetDisplaySettingsReq
+	8,  // 17: servicehub.ServiceHub.UpsertDisplaySettings:input_type -> servicehub.UpsertDisplaySettingsReq
+	9,  // 18: servicehub.ServiceHub.MarkPayoutSuccess:input_type -> servicehub.MarkPayoutSuccessReq
+	10, // 19: servicehub.ServiceHub.MarkPayoutFailed:input_type -> servicehub.MarkPayoutFailedReq
+	12, // 20: servicehub.ServiceHub.GetAdminRbacMyMenus:input_type -> servicehub.GetAdminRbacMyMenusReq
+	15, // 21: servicehub.ServiceHub.ListAdminRoles:input_type -> servicehub.ListAdminRolesReq
+	18, // 22: servicehub.ServiceHub.CreateAdminRole:input_type -> servicehub.CreateAdminRoleReq
+	20, // 23: servicehub.ServiceHub.UpdateAdminRole:input_type -> servicehub.UpdateAdminRoleReq
+	22, // 24: servicehub.ServiceHub.DeleteAdminRole:input_type -> servicehub.DeleteAdminRoleReq
+	24, // 25: servicehub.ServiceHub.ListAdminMenus:input_type -> servicehub.ListAdminMenusReq
+	26, // 26: servicehub.ServiceHub.CreateAdminMenu:input_type -> servicehub.CreateAdminMenuReq
+	28, // 27: servicehub.ServiceHub.UpdateAdminMenu:input_type -> servicehub.UpdateAdminMenuReq
+	30, // 28: servicehub.ServiceHub.DeleteAdminMenu:input_type -> servicehub.DeleteAdminMenuReq
+	32, // 29: servicehub.ServiceHub.GetAdminRoleMenus:input_type -> servicehub.GetAdminRoleMenusReq
+	34, // 30: servicehub.ServiceHub.SetAdminRoleMenus:input_type -> servicehub.SetAdminRoleMenusReq
+	36, // 31: servicehub.ServiceHub.GetAdminUserRoles:input_type -> servicehub.GetAdminUserRolesReq
+	38, // 32: servicehub.ServiceHub.SetAdminUserRoles:input_type -> servicehub.SetAdminUserRolesReq
+	40, // 33: servicehub.ServiceHub.GetAdminRbacMyPerms:input_type -> servicehub.GetAdminRbacMyPermsReq
+	43, // 34: servicehub.ServiceHub.ListAdminPermissions:input_type -> servicehub.ListAdminPermissionsReq
+	45, // 35: servicehub.ServiceHub.CreateAdminPermission:input_type -> servicehub.CreateAdminPermissionReq
+	47, // 36: servicehub.ServiceHub.UpdateAdminPermission:input_type -> servicehub.UpdateAdminPermissionReq
+	49, // 37: servicehub.ServiceHub.DeleteAdminPermission:input_type -> servicehub.DeleteAdminPermissionReq
+	51, // 38: servicehub.ServiceHub.GetAdminRolePermKeys:input_type -> servicehub.GetAdminRolePermKeysReq
+	53, // 39: servicehub.ServiceHub.SetAdminRolePermKeys:input_type -> servicehub.SetAdminRolePermKeysReq
+	56, // 40: servicehub.ServiceHub.ListAdminApiRules:input_type -> servicehub.ListAdminApiRulesReq
+	58, // 41: servicehub.ServiceHub.UpsertAdminApiRule:input_type -> servicehub.UpsertAdminApiRuleReq
+	60, // 42: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
+	1,  // 43: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
+	5,  // 44: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
+	7,  // 45: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	7,  // 46: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	11, // 47: servicehub.ServiceHub.MarkPayoutSuccess:output_type -> servicehub.MarkPayoutResultResp
+	11, // 48: servicehub.ServiceHub.MarkPayoutFailed:output_type -> servicehub.MarkPayoutResultResp
+	14, // 49: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
+	17, // 50: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
+	19, // 51: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
+	21, // 52: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
+	23, // 53: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
+	25, // 54: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
+	27, // 55: servicehub.ServiceHub.CreateAdminMenu:output_type -> servicehub.CreateAdminMenuResp
+	29, // 56: servicehub.ServiceHub.UpdateAdminMenu:output_type -> servicehub.UpdateAdminMenuResp
+	31, // 57: servicehub.ServiceHub.DeleteAdminMenu:output_type -> servicehub.DeleteAdminMenuResp
+	33, // 58: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
+	35, // 59: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
+	37, // 60: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
+	39, // 61: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
+	41, // 62: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
+	44, // 63: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
+	46, // 64: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
+	48, // 65: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
+	50, // 66: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
+	52, // 67: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
+	54, // 68: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
+	57, // 69: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
+	59, // 70: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
+	61, // 71: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
+	43, // [43:72] is the sub-list for method output_type
+	14, // [14:43] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_servicehub_proto_init() }
-func file_servicehub_proto_init() {
-	if File_servicehub_proto != nil {
+func init() { file_proto_servicehub_proto_init() }
+func file_proto_servicehub_proto_init() {
+	if File_proto_servicehub_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_servicehub_proto_rawDesc), len(file_proto_servicehub_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   56,
+			NumMessages:   62,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_servicehub_proto_goTypes,
-		DependencyIndexes: file_servicehub_proto_depIdxs,
-		MessageInfos:      file_servicehub_proto_msgTypes,
+		GoTypes:           file_proto_servicehub_proto_goTypes,
+		DependencyIndexes: file_proto_servicehub_proto_depIdxs,
+		MessageInfos:      file_proto_servicehub_proto_msgTypes,
 	}.Build()
-	File_servicehub_proto = out.File
-	file_servicehub_proto_goTypes = nil
-	file_servicehub_proto_depIdxs = nil
+	File_proto_servicehub_proto = out.File
+	file_proto_servicehub_proto_goTypes = nil
+	file_proto_servicehub_proto_depIdxs = nil
 }
