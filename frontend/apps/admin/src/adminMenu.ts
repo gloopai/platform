@@ -21,7 +21,7 @@ export type AdminMenuGroup = {
 export type AdminMenuEntry = AdminMenuLeaf | AdminMenuGroup
 
 /** 侧栏顺序：单页 + 多级分组 */
-export const adminMenu: AdminMenuEntry[] = [
+export const defaultAdminMenu: AdminMenuEntry[] = [
   {
     kind: 'leaf',
     to: '/stats',
@@ -65,6 +65,18 @@ export const adminMenu: AdminMenuEntry[] = [
   },
   {
     kind: 'group',
+    key: 'rbac',
+    label: '权限与安全',
+    icon: 'shield',
+    children: [
+      { to: '/rbac/overview', label: '概览' },
+      { to: '/rbac/roles', label: '角色与授权' },
+      { to: '/rbac/permissions', label: '权限点' },
+      { to: '/rbac/api-rules', label: '接口规则' },
+    ],
+  },
+  {
+    kind: 'group',
     key: 'system',
     label: '系统与运维',
     icon: 'cog',
@@ -91,6 +103,11 @@ export const adminPathTitle: Record<string, string> = {
   '/settlement': '结算与提现',
   '/system': '系统管理',
   '/ops': '运维监控',
+  '/rbac': '权限与安全',
+  '/rbac/overview': '权限概览',
+  '/rbac/roles': '角色与授权',
+  '/rbac/permissions': '权限点',
+  '/rbac/api-rules': '接口规则',
 }
 
 /** 占位页文案（路径 -> 说明）；当前无路由使用通用占位页，保留结构供后续模块。 */
@@ -107,8 +124,8 @@ export function pathBelongsToGroup(path: string, group: AdminMenuGroup): boolean
   return group.children.some((c) => c.to === path)
 }
 
-export function findGroupKeyForPath(path: string): string | null {
-  for (const e of adminMenu) {
+export function findGroupKeyForPath(path: string, menu: AdminMenuEntry[] = defaultAdminMenu): string | null {
+  for (const e of menu) {
     if (e.kind === 'group' && pathBelongsToGroup(path, e)) return e.key
   }
   return null

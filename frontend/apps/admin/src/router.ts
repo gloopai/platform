@@ -16,6 +16,11 @@ import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
 import SettlementPage from './views/modules/settlement/SettlementPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
 import SystemPage from './views/modules/system/SystemPage.vue'
+import RbacLayout from './views/modules/rbac/RbacLayout.vue'
+import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
+import RbacRolesPage from './views/modules/rbac/RbacRolesPage.vue'
+import RbacPermissionsPage from './views/modules/rbac/RbacPermissionsPage.vue'
+import RbacApiRulesPage from './views/modules/rbac/RbacApiRulesPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -40,6 +45,17 @@ export const router = createRouter({
         { path: 'settlement', component: SettlementPage },
         { path: 'system', component: SystemPage },
         { path: 'ops', component: OpsPage },
+        {
+          path: 'rbac',
+          component: RbacLayout,
+          redirect: '/rbac/overview',
+          children: [
+            { path: 'overview', component: RbacOverviewPage },
+            { path: 'roles', component: RbacRolesPage },
+            { path: 'permissions', component: RbacPermissionsPage },
+            { path: 'api-rules', component: RbacApiRulesPage },
+          ],
+        },
       ],
     },
   ],
@@ -49,5 +65,16 @@ router.beforeEach((to) => {
   if (to.path === '/login') return true
   const tok = localStorage.getItem('admin_token')
   if (!tok) return '/login'
+
+  try {
+    const raw = localStorage.getItem('admin_allowed_paths')
+    if (raw) {
+      const allowed = JSON.parse(raw) as string[]
+      if (Array.isArray(allowed) && allowed.length) {
+        if (!allowed.includes(to.path)) return allowed[0]
+      }
+    }
+  } catch {
+  }
   return true
 })

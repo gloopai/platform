@@ -240,3 +240,90 @@ CREATE TABLE IF NOT EXISTS global_settings (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 管理台 RBAC：角色/菜单（当前只做到菜单粒度；操作权限预留）
+CREATE TABLE IF NOT EXISTS admin_roles (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  code VARCHAR(64) NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_role_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS admin_menus (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  parent_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  menu_key VARCHAR(64) NOT NULL,
+  label VARCHAR(64) NOT NULL,
+  icon VARCHAR(32) NOT NULL DEFAULT '',
+  kind TINYINT NOT NULL DEFAULT 1 COMMENT '1=leaf 2=group',
+  path VARCHAR(128) NULL COMMENT 'leaf 路由路径，形如 /stats',
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_menu_key (menu_key),
+  KEY idx_parent_sort (parent_id, sort_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS admin_user_roles (
+  admin_user_id BIGINT UNSIGNED NOT NULL,
+  role_id BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (admin_user_id, role_id),
+  KEY idx_role (role_id),
+  CONSTRAINT fk_admin_user_roles_user FOREIGN KEY (admin_user_id) REFERENCES admin_users (id) ON DELETE CASCADE,
+  CONSTRAINT fk_admin_user_roles_role FOREIGN KEY (role_id) REFERENCES admin_roles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS admin_role_menus (
+  role_id BIGINT UNSIGNED NOT NULL,
+  menu_id BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (role_id, menu_id),
+  KEY idx_menu (menu_id),
+  CONSTRAINT fk_admin_role_menus_role FOREIGN KEY (role_id) REFERENCES admin_roles (id) ON DELETE CASCADE,
+  CONSTRAINT fk_admin_role_menus_menu FOREIGN KEY (menu_id) REFERENCES admin_menus (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 管理台 RBAC：操作权限点（接口/按钮级）
+CREATE TABLE IF NOT EXISTS admin_permissions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  perm_key VARCHAR(128) NOT NULL,
+  label VARCHAR(128) NOT NULL,
+  category VARCHAR(64) NOT NULL DEFAULT '',
+  status TINYINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_perm_key (perm_key),
+  KEY idx_category (category, status, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS admin_role_permissions (
+  role_id BIGINT UNSIGNED NOT NULL,
+  perm_id BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (role_id, perm_id),
+  KEY idx_perm (perm_id),
+  CONSTRAINT fk_admin_role_perms_role FOREIGN KEY (role_id) REFERENCES admin_roles (id) ON DELETE CASCADE,
+  CONSTRAINT fk_admin_role_perms_perm FOREIGN KEY (perm_id) REFERENCES admin_permissions (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 管理台 RBAC：接口规则（方法 + path pattern -> perm_key），用于免改代码配置权限映射
+CREATE TABLE IF NOT EXISTS admin_api_rules (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  method VARCHAR(16) NOT NULL,
+  path_pattern VARCHAR(255) NOT NULL COMMENT '支持 :param 段，如 /v1/admin/merchants/:merchant_id',
+  perm_key VARCHAR(128) NOT NULL,
+  status TINYINT NOT NULL DEFAULT 1,
+  remark VARCHAR(255) NOT NULL DEFAULT '',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_method_path (method, path_pattern),
+  KEY idx_perm (perm_key, status, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

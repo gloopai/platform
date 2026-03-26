@@ -178,7 +178,7 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AdminAuthMiddleware},
+			[]rest.Middleware{serverCtx.AdminAuthMiddleware, serverCtx.AdminRBACMiddleware},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
@@ -324,6 +324,101 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/reconcile/day",
 					Handler: adminhandler.AdminReconcileDayHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/my_menu",
+					Handler: adminhandler.AdminMyMenuHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/roles",
+					Handler: adminhandler.AdminListRbacRolesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/rbac/roles",
+					Handler: adminhandler.AdminCreateRbacRoleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/roles/:id",
+					Handler: adminhandler.AdminUpdateRbacRoleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/rbac/roles/:id",
+					Handler: adminhandler.AdminDeleteRbacRoleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/menus",
+					Handler: adminhandler.AdminListRbacMenusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/roles/:id/menus",
+					Handler: adminhandler.AdminGetRbacRoleMenusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/roles/:id/menus",
+					Handler: adminhandler.AdminSetRbacRoleMenusHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/admin_users/:id/roles",
+					Handler: adminhandler.AdminGetRbacUserRolesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/admin_users/:id/roles",
+					Handler: adminhandler.AdminSetRbacUserRolesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/permissions",
+					Handler: adminhandler.AdminListRbacPermissionsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/rbac/permissions",
+					Handler: adminhandler.AdminCreateRbacPermissionHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/permissions/:id",
+					Handler: adminhandler.AdminUpdateRbacPermissionHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/rbac/permissions/:id",
+					Handler: adminhandler.AdminDeleteRbacPermissionHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/roles/:id/perm_keys",
+					Handler: adminhandler.AdminGetRbacRolePermKeysHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/rbac/roles/:id/perm_keys",
+					Handler: adminhandler.AdminSetRbacRolePermKeysHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/rbac/api_rules",
+					Handler: adminhandler.AdminListRbacApiRulesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/rbac/api_rules",
+					Handler: adminhandler.AdminUpsertRbacApiRuleHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/rbac/api_rules/:id",
+					Handler: adminhandler.AdminDeleteRbacApiRuleHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,

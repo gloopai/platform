@@ -30,6 +30,7 @@ type ServiceContext struct {
 	OpenAPIRateLimitMiddleware    rest.Middleware
 	LoginRateLimitMiddleware      rest.Middleware
 	AdminAuthMiddleware           rest.Middleware
+	AdminRBACMiddleware           rest.Middleware
 	MerchantConsoleAuthMiddleware rest.Middleware
 
 	ServiceHub servicehubclient.ServiceHub
@@ -143,6 +144,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		OpenAPIRateLimitMiddleware:    middleware.NewOpenAPIRateLimitMiddleware(rateLimiter, ratePrefix, openAPILimit, openAPIWindow, trustForwarded).Handle,
 		LoginRateLimitMiddleware:      middleware.NewLoginRateLimitMiddleware(rateLimiter, ratePrefix, loginLimit, loginWindow, trustForwarded).Handle,
 		AdminAuthMiddleware:           middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
+		AdminRBACMiddleware:           middleware.NewAdminRBACMiddleware(servicehubclient.New(serviceHubCli), 10*time.Second).Handle,
 		MerchantConsoleAuthMiddleware: middleware.NewMerchantConsoleAuthMiddleware(c.JwtSecret, merchantclient.NewMerchant(coreCli)).Handle,
 
 		ServiceHub: servicehubclient.New(serviceHubCli),

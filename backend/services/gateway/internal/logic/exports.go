@@ -64,3 +64,7 @@ func NewAdminRefunds(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogi
 func NewAdminOps(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminOps {
 	return adminlogic.NewAdminOps(ctx, svcCtx)
 }
+
+func NewAdminRbac(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRbac {
+	return adminlogic.NewAdminRbac(ctx, svcCtx)
+}

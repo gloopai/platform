@@ -111,6 +111,208 @@ INSERT INTO admin_users (username, password_hash, status)
 VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1)
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);
 
+-- ---- 管理台 RBAC 初始化（菜单级）----
+INSERT INTO admin_roles (code, name, status)
+VALUES ('super_admin', '超级管理员', 1)
+ON DUPLICATE KEY UPDATE name = VALUES(name), status = VALUES(status);
+
+-- 顶层菜单：单页 + 分组
+INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
+  (0, 'menu.stats', '系统概览', 'chart', 1, '/stats', 10),
+  (0, 'group.merchant', '商户与接入', 'briefcase', 2, NULL, 20),
+  (0, 'group.channel', '通道与路由', 'layers', 2, NULL, 30),
+  (0, 'group.trade', '交易与资金', 'credit', 2, NULL, 40),
+  (0, 'group.rbac', '权限与安全', 'shield', 2, NULL, 45),
+  (0, 'group.system', '系统与运维', 'cog', 2, NULL, 50)
+ON DUPLICATE KEY UPDATE
+  label = VALUES(label),
+  icon = VALUES(icon),
+  kind = VALUES(kind),
+  path = VALUES(path),
+  sort_order = VALUES(sort_order);
+
+-- 分组子菜单
+DELETE FROM admin_menus WHERE menu_key = 'menu.rbac';
+
+SET @gid_merchant := (SELECT id FROM admin_menus WHERE menu_key = 'group.merchant' LIMIT 1);
+SET @gid_channel := (SELECT id FROM admin_menus WHERE menu_key = 'group.channel' LIMIT 1);
+SET @gid_trade := (SELECT id FROM admin_menus WHERE menu_key = 'group.trade' LIMIT 1);
+SET @gid_rbac := (SELECT id FROM admin_menus WHERE menu_key = 'group.rbac' LIMIT 1);
+SET @gid_system := (SELECT id FROM admin_menus WHERE menu_key = 'group.system' LIMIT 1);
+
+INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
+  (@gid_merchant, 'menu.merchants', '商户管理', '', 1, '/merchants', 10),
+  (@gid_merchant, 'menu.merchant_payin_products', '代收产品', '', 1, '/merchant-payin-products', 20),
+  (@gid_merchant, 'menu.merchant_payout_products', '代付产品', '', 1, '/merchant-payout-products', 30),
+
+  (@gid_channel, 'menu.channels', '通道管理', '', 1, '/channels', 10),
+  (@gid_channel, 'menu.routing', '路由策略', '', 1, '/routing', 20),
+  (@gid_channel, 'menu.channel_health', '通道监控', '', 1, '/channel-health', 30),
+
+  (@gid_trade, 'menu.payin_orders', '代收订单', '', 1, '/payin-orders', 10),
+  (@gid_trade, 'menu.payout_orders', '代付订单', '', 1, '/payout-orders', 20),
+  (@gid_trade, 'menu.refunds', '退款与差错', '', 1, '/refunds', 30),
+  (@gid_trade, 'menu.reconcile', '对账中心', '', 1, '/reconcile', 40),
+  (@gid_trade, 'menu.settlement', '结算与提现', '', 1, '/settlement', 50),
+
+  (@gid_rbac, 'menu.rbac_overview', '概览', '', 1, '/rbac/overview', 10),
+  (@gid_rbac, 'menu.rbac_roles', '角色与授权', '', 1, '/rbac/roles', 20),
+  (@gid_rbac, 'menu.rbac_permissions', '权限点', '', 1, '/rbac/permissions', 30),
+  (@gid_rbac, 'menu.rbac_api_rules', '接口规则', '', 1, '/rbac/api-rules', 40),
+
+  (@gid_system, 'menu.system', '系统管理', '', 1, '/system', 10),
+  (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20)
+ON DUPLICATE KEY UPDATE
+  parent_id = VALUES(parent_id),
+  label = VALUES(label),
+  icon = VALUES(icon),
+  kind = VALUES(kind),
+  path = VALUES(path),
+  sort_order = VALUES(sort_order);
+
+-- 默认把 demo admin 绑定为超级管理员，并授予全部菜单
+INSERT INTO admin_user_roles (admin_user_id, role_id)
+SELECT au.id, ar.id
+FROM admin_users au
+JOIN admin_roles ar ON ar.code = 'super_admin'
+WHERE au.username = 'admin'
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id);
+
+INSERT INTO admin_role_menus (role_id, menu_id)
+SELECT ar.id, am.id
+FROM admin_roles ar
+JOIN admin_menus am
+WHERE ar.code = 'super_admin'
+ON DUPLICATE KEY UPDATE menu_id = VALUES(menu_id);
+
+-- ---- 管理台操作权限点（接口/按钮级）----
+INSERT INTO admin_permissions (perm_key, label, category, status) VALUES
+  ('admin.auth.logout', '退出登录', 'auth', 1),
+  ('admin.ops.read', '运维监控-读取', 'ops', 1),
+
+  ('admin.channels.read', '通道管理-读取', 'channels', 1),
+  ('admin.channels.write', '通道管理-写入', 'channels', 1),
+
+  ('admin.merchants.read', '商户管理-读取', 'merchants', 1),
+  ('admin.merchants.write', '商户管理-写入', 'merchants', 1),
+  ('admin.merchants.transfer', '商户划转', 'merchants', 1),
+
+  ('admin.payin_products.read', '代收产品-读取', 'products', 1),
+  ('admin.payin_products.write', '代收产品-写入', 'products', 1),
+  ('admin.payout_products.read', '代付产品-读取', 'products', 1),
+  ('admin.payout_products.write', '代付产品-写入', 'products', 1),
+
+  ('admin.routing.read', '路由策略-读取', 'routing', 1),
+  ('admin.stats.read', '系统概览-读取', 'stats', 1),
+
+  ('admin.orders.read', '订单-读取', 'orders', 1),
+  ('admin.orders.mock', '订单-模拟回调/打款', 'orders', 1),
+  ('admin.refunds.read', '退款与差错-读取', 'refunds', 1),
+  ('admin.reconcile.read', '对账-读取', 'reconcile', 1),
+  ('admin.settlement.read', '结算-读取', 'settlement', 1),
+
+  ('admin.system.read_users', '系统管理-管理员列表', 'system', 1),
+  ('admin.system.read_settings', '系统管理-展示配置读取', 'system', 1),
+  ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 1),
+
+  ('admin.rbac.my_menu', 'RBAC-读取我的菜单', 'rbac', 1),
+  ('admin.rbac.manage', 'RBAC-角色/授权管理', 'rbac', 1)
+ON DUPLICATE KEY UPDATE
+  label = VALUES(label),
+  category = VALUES(category),
+  status = VALUES(status);
+
+-- 默认超级管理员拥有全部权限点
+INSERT INTO admin_role_permissions (role_id, perm_id)
+SELECT ar.id, ap.id
+FROM admin_roles ar
+JOIN admin_permissions ap
+WHERE ar.code = 'super_admin'
+ON DUPLICATE KEY UPDATE perm_id = VALUES(perm_id);
+
+-- ---- 接口规则：把 admin 接口映射到权限点（可在后台界面维护）----
+INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VALUES
+  ('POST', '/v1/admin/logout', 'admin.auth.logout', 1, ''),
+
+  ('GET', '/v1/admin/ops/services', 'admin.ops.read', 1, ''),
+
+  ('GET', '/v1/admin/channels', 'admin.channels.read', 1, ''),
+  ('POST', '/v1/admin/channels', 'admin.channels.write', 1, ''),
+  ('PUT', '/v1/admin/channels/:id', 'admin.channels.write', 1, ''),
+
+  ('GET', '/v1/admin/merchants', 'admin.merchants.read', 1, ''),
+  ('POST', '/v1/admin/merchants', 'admin.merchants.write', 1, ''),
+  ('PUT', '/v1/admin/merchants/:merchant_id', 'admin.merchants.write', 1, ''),
+  ('POST', '/v1/admin/merchants/:merchant_id/transfer_payin_to_payout', 'admin.merchants.transfer', 1, ''),
+
+  ('GET', '/v1/admin/payin_products', 'admin.payin_products.read', 1, ''),
+  ('POST', '/v1/admin/payin_products', 'admin.payin_products.write', 1, ''),
+  ('PUT', '/v1/admin/payin_products/:id', 'admin.payin_products.write', 1, ''),
+  ('GET', '/v1/admin/payin_products/:id/bindings', 'admin.payin_products.read', 1, ''),
+  ('POST', '/v1/admin/payin_products/:id/bindings', 'admin.payin_products.write', 1, ''),
+  ('PUT', '/v1/admin/payin_product_bindings/:id', 'admin.payin_products.write', 1, ''),
+  ('DELETE', '/v1/admin/payin_product_bindings/:id', 'admin.payin_products.write', 1, ''),
+
+  ('GET', '/v1/admin/payout_products', 'admin.payout_products.read', 1, ''),
+  ('POST', '/v1/admin/payout_products', 'admin.payout_products.write', 1, ''),
+  ('PUT', '/v1/admin/payout_products/:id', 'admin.payout_products.write', 1, ''),
+  ('GET', '/v1/admin/payout_products/:id/bindings', 'admin.payout_products.read', 1, ''),
+  ('POST', '/v1/admin/payout_products/:id/bindings', 'admin.payout_products.write', 1, ''),
+  ('PUT', '/v1/admin/payout_product_bindings/:id', 'admin.payout_products.write', 1, ''),
+  ('DELETE', '/v1/admin/payout_product_bindings/:id', 'admin.payout_products.write', 1, ''),
+
+  ('GET', '/v1/admin/routing/summary', 'admin.routing.read', 1, ''),
+  ('GET', '/v1/admin/stats/overview', 'admin.stats.read', 1, ''),
+  ('GET', '/v1/admin/payin_orders', 'admin.orders.read', 1, ''),
+  ('GET', '/v1/admin/payout_orders', 'admin.orders.read', 1, ''),
+  ('POST', '/v1/admin/payout_orders/:order_no/mock_success', 'admin.orders.mock', 1, ''),
+  ('GET', '/v1/admin/refunds', 'admin.refunds.read', 1, ''),
+  ('GET', '/v1/admin/reconcile/day', 'admin.reconcile.read', 1, ''),
+  ('GET', '/v1/admin/settlement/logs', 'admin.settlement.read', 1, ''),
+
+  ('GET', '/v1/admin/admin_users', 'admin.system.read_users', 1, ''),
+  ('GET', '/v1/admin/display_settings', 'admin.system.read_settings', 1, ''),
+  ('PUT', '/v1/admin/display_settings', 'admin.system.write_settings', 1, ''),
+
+  ('GET', '/v1/admin/rbac/my_menu', 'admin.rbac.my_menu', 1, ''),
+  ('GET', '/v1/admin/rbac/roles', 'admin.rbac.manage', 1, ''),
+  ('POST', '/v1/admin/rbac/roles', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/roles/:id', 'admin.rbac.manage', 1, ''),
+  ('DELETE', '/v1/admin/rbac/roles/:id', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/menus', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/roles/:id/menus', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/roles/:id/menus', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/admin_users/:id/roles', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/admin_users/:id/roles', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/permissions', 'admin.rbac.manage', 1, ''),
+  ('POST', '/v1/admin/rbac/permissions', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/permissions/:id', 'admin.rbac.manage', 1, ''),
+  ('DELETE', '/v1/admin/rbac/permissions/:id', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/roles/:id/perm_keys', 'admin.rbac.manage', 1, ''),
+  ('PUT', '/v1/admin/rbac/roles/:id/perm_keys', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
+  ('POST', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
+  ('DELETE', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, '')
+ON DUPLICATE KEY UPDATE
+  perm_key = VALUES(perm_key),
+  status = VALUES(status),
+  remark = VALUES(remark);
+
+-- 幂等兜底：确保 demo 管理员绑定 super_admin 并拥有全部权限点（避免部分语句未执行或历史数据导致无角色/无权限）
+INSERT INTO admin_user_roles (admin_user_id, role_id)
+SELECT u.id, r.id
+FROM admin_users u
+CROSS JOIN admin_roles r
+WHERE u.username = 'admin' AND r.code = 'super_admin' AND r.status = 1
+ON DUPLICATE KEY UPDATE role_id = VALUES(role_id);
+
+INSERT INTO admin_role_permissions (role_id, perm_id)
+SELECT ar.id, ap.id
+FROM admin_roles ar
+JOIN admin_permissions ap
+WHERE ar.code = 'super_admin'
+ON DUPLICATE KEY UPDATE perm_id = VALUES(perm_id);
+
 INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('country_code', 'CN'),
   ('currency_code', 'CNY'),

@@ -49,7 +49,7 @@
         </div>
 
         <nav ref="navScrollRef" class="admin-nav-scroll flex-1 space-y-1 overflow-y-auto px-2 py-3">
-          <template v-for="entry in adminMenu" :key="entry.kind === 'leaf' ? entry.to : entry.key">
+          <template v-for="entry in menu" :key="entry.kind === 'leaf' ? entry.to : entry.key">
             <!-- 单页 -->
             <div
               v-if="entry.kind === 'leaf'"
@@ -275,8 +275,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
 import AdminToastHost from '../components/AdminToastHost.vue'
-import { adminMenu, adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuGroup } from '../adminMenu'
-import { adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
+import { adminPathTitle, defaultAdminMenu, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
+import { adminGet, adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'
 import { useServerClock } from '../composables/useServerClock'
 
@@ -288,6 +288,8 @@ const router = useRouter()
 const route = useRoute()
 const adminToken = ref(loadAdminToken())
 const { serverTimeText } = useServerClock()
+
+const menu = ref<AdminMenuEntry[]>(defaultAdminMenu)
 
 const refreshFns = ref<RefreshFn[]>([])
 provide('adminToken', adminToken)
@@ -304,9 +306,14 @@ const userMenuRoot = ref<HTMLElement | null>(null)
 const sidebarCollapsed = ref(typeof localStorage !== 'undefined' && localStorage.getItem(SIDEBAR_KEY) === '1')
 
 const openGroups = reactive<Record<string, boolean>>({})
-for (const e of adminMenu) {
-  if (e.kind === 'group') openGroups[e.key] = true
+
+function syncOpenGroups() {
+  for (const k of Object.keys(openGroups)) delete openGroups[k]
+  for (const e of menu.value) {
+    if (e.kind === 'group') openGroups[e.key] = true
+  }
 }
+syncOpenGroups()
 
 const flyoutKey = ref<string | null>(null)
 const leafTooltip = ref<string | null>(null)
@@ -430,7 +437,7 @@ const pageTitle = computed(() => adminPathTitle[route.path] ?? '管理台')
 const flyoutGroup = computed((): AdminMenuGroup | null => {
   const k = flyoutKey.value
   if (!k) return null
-  const e = adminMenu.find((x) => x.kind === 'group' && x.key === k)
+  const e = menu.value.find((x) => x.kind === 'group' && x.key === k)
   return e && e.kind === 'group' ? e : null
 })
 
@@ -461,7 +468,7 @@ function onDocClick(e: MouseEvent) {
 watch(
   () => route.path,
   (p) => {
-    const gk = findGroupKeyForPath(p)
+    const gk = findGroupKeyForPath(p, menu.value)
     if (gk) openGroups[gk] = true
   },
   { immediate: true },
@@ -496,6 +503,7 @@ function onWindowResizeOrScroll() {
 
 onMounted(() => {
   void loadAdminDisplaySettings()
+  void loadMenu()
   document.addEventListener('click', onDocClick)
   window.addEventListener('resize', onWindowResizeOrScroll)
 })
@@ -507,6 +515,35 @@ onBeforeUnmount(() => {
   clearLeafTimer()
   clearGroupTimer()
 })
+
+function allowedPathsFromMenu(entries: AdminMenuEntry[]): string[] {
+  const out: string[] = []
+  for (const e of entries) {
+    if (e.kind === 'leaf') out.push(e.to)
+    else out.push(...e.children.map((c) => c.to))
+  }
+  return out
+}
+
+async function loadMenu() {
+  try {
+    const m = await adminGet<AdminMenuEntry[]>('/v1/admin/rbac/my_menu')
+    if (Array.isArray(m) && m.length) {
+      menu.value = m
+      syncOpenGroups()
+      const allowed = allowedPathsFromMenu(menu.value)
+      try {
+        localStorage.setItem('admin_allowed_paths', JSON.stringify(allowed))
+      } catch {
+      }
+      if (allowed.length && !allowed.includes(route.path)) {
+        await router.replace(allowed[0])
+      }
+    }
+  } catch {
+    // ignore: fallback to default menu
+  }
+}
 </script>
 
 <style scoped>

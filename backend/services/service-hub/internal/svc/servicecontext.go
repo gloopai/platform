@@ -13,6 +13,8 @@ import (
 type ServiceContext struct {
 	Config         config.Config
 	AdminUsers     *store.AdminUsersStore
+	AdminRbac      *store.AdminRbacStore
+	AdminRbacCfg   *store.AdminRbacConfigStore
 	GlobalSettings *store.GlobalSettingsStore
 	PayoutOrders   *store.PayoutOrdersStore
 }
@@ -41,8 +43,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:         c,
 		AdminUsers:     store.NewAdminUsersStore(gdb),
+		AdminRbac:      store.NewAdminRbacStore(gdb),
+		AdminRbacCfg:   store.NewAdminRbacConfigStore(gdb),
 		GlobalSettings: store.NewGlobalSettingsStore(gdb),
 		PayoutOrders:   store.NewPayoutOrdersStore(gdb),
 	}
 }
-

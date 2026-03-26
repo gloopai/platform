@@ -11,6 +11,32 @@ service ServiceHub {
   rpc UpsertDisplaySettings(UpsertDisplaySettingsReq) returns (GetDisplaySettingsResp);
   rpc MarkPayoutSuccess(MarkPayoutSuccessReq) returns (MarkPayoutResultResp);
   rpc MarkPayoutFailed(MarkPayoutFailedReq) returns (MarkPayoutResultResp);
+
+  // ---- Admin RBAC (menu-level now; action-level reserved) ----
+  rpc GetAdminRbacMyMenus(GetAdminRbacMyMenusReq) returns (GetAdminRbacMyMenusResp);
+  rpc ListAdminRoles(ListAdminRolesReq) returns (ListAdminRolesResp);
+  rpc CreateAdminRole(CreateAdminRoleReq) returns (CreateAdminRoleResp);
+  rpc UpdateAdminRole(UpdateAdminRoleReq) returns (UpdateAdminRoleResp);
+  rpc DeleteAdminRole(DeleteAdminRoleReq) returns (DeleteAdminRoleResp);
+  rpc ListAdminMenus(ListAdminMenusReq) returns (ListAdminMenusResp);
+  rpc GetAdminRoleMenus(GetAdminRoleMenusReq) returns (GetAdminRoleMenusResp);
+  rpc SetAdminRoleMenus(SetAdminRoleMenusReq) returns (SetAdminRoleMenusResp);
+  rpc GetAdminUserRoles(GetAdminUserRolesReq) returns (GetAdminUserRolesResp);
+  rpc SetAdminUserRoles(SetAdminUserRolesReq) returns (SetAdminUserRolesResp);
+
+  // ---- Admin RBAC permissions (action-level) ----
+  rpc GetAdminRbacMyPerms(GetAdminRbacMyPermsReq) returns (GetAdminRbacMyPermsResp);
+
+  // ---- Admin RBAC config (UI-managed) ----
+  rpc ListAdminPermissions(ListAdminPermissionsReq) returns (ListAdminPermissionsResp);
+  rpc CreateAdminPermission(CreateAdminPermissionReq) returns (CreateAdminPermissionResp);
+  rpc UpdateAdminPermission(UpdateAdminPermissionReq) returns (UpdateAdminPermissionResp);
+  rpc DeleteAdminPermission(DeleteAdminPermissionReq) returns (DeleteAdminPermissionResp);
+  rpc GetAdminRolePermKeys(GetAdminRolePermKeysReq) returns (GetAdminRolePermKeysResp);
+  rpc SetAdminRolePermKeys(SetAdminRolePermKeysReq) returns (SetAdminRolePermKeysResp);
+  rpc ListAdminApiRules(ListAdminApiRulesReq) returns (ListAdminApiRulesResp);
+  rpc UpsertAdminApiRule(UpsertAdminApiRuleReq) returns (UpsertAdminApiRuleResp);
+  rpc DeleteAdminApiRule(DeleteAdminApiRuleReq) returns (DeleteAdminApiRuleResp);
 }
 
 message FindAdminUserByUsernameReq {
@@ -66,3 +92,170 @@ message MarkPayoutFailedReq {
 message MarkPayoutResultResp {
   bool changed = 1;
 }
+
+// ---------------- RBAC messages ----------------
+
+message GetAdminRbacMyMenusReq {
+  int64 admin_user_id = 1;
+}
+
+message AdminMenu {
+  int64 id = 1;
+  int64 parent_id = 2;
+  string menu_key = 3;
+  string label = 4;
+  string icon = 5;
+  int64 kind = 6; // 1=leaf 2=group
+  string path = 7; // leaf only; vue-router path like "/stats"
+  int64 sort_order = 8;
+}
+
+message GetAdminRbacMyMenusResp {
+  repeated AdminMenu menus = 1;
+}
+
+message ListAdminRolesReq {}
+
+message AdminRole {
+  int64 id = 1;
+  string code = 2;
+  string name = 3;
+  int64 status = 4;
+}
+
+message ListAdminRolesResp {
+  repeated AdminRole roles = 1;
+}
+
+message CreateAdminRoleReq {
+  string code = 1;
+  string name = 2;
+  int64 status = 3;
+}
+
+message CreateAdminRoleResp {
+  AdminRole role = 1;
+}
+
+message UpdateAdminRoleReq {
+  int64 id = 1;
+  string name = 2;
+  int64 status = 3;
+}
+
+message UpdateAdminRoleResp {
+  AdminRole role = 1;
+}
+
+message DeleteAdminRoleReq {
+  int64 id = 1;
+}
+
+message DeleteAdminRoleResp {
+  bool ok = 1;
+}
+
+message ListAdminMenusReq {}
+
+message ListAdminMenusResp {
+  repeated AdminMenu menus = 1;
+}
+
+message GetAdminRoleMenusReq {
+  int64 role_id = 1;
+}
+
+message GetAdminRoleMenusResp {
+  repeated int64 menu_ids = 1;
+}
+
+message SetAdminRoleMenusReq {
+  int64 role_id = 1;
+  repeated int64 menu_ids = 2;
+}
+
+message SetAdminRoleMenusResp {
+  bool ok = 1;
+}
+
+message GetAdminUserRolesReq {
+  int64 admin_user_id = 1;
+}
+
+message GetAdminUserRolesResp {
+  repeated int64 role_ids = 1;
+}
+
+message SetAdminUserRolesReq {
+  int64 admin_user_id = 1;
+  repeated int64 role_ids = 2;
+}
+
+message SetAdminUserRolesResp {
+  bool ok = 1;
+}
+
+message GetAdminRbacMyPermsReq {
+  int64 admin_user_id = 1;
+}
+
+message GetAdminRbacMyPermsResp {
+  bool is_super_admin = 1;
+  repeated string perm_keys = 2;
+}
+
+message AdminPermission {
+  int64 id = 1;
+  string perm_key = 2;
+  string label = 3;
+  string category = 4;
+  int64 status = 5;
+}
+
+message ListAdminPermissionsReq {}
+message ListAdminPermissionsResp { repeated AdminPermission permissions = 1; }
+
+message CreateAdminPermissionReq {
+  string perm_key = 1;
+  string label = 2;
+  string category = 3;
+  int64 status = 4;
+}
+message CreateAdminPermissionResp { AdminPermission permission = 1; }
+
+message UpdateAdminPermissionReq {
+  int64 id = 1;
+  string label = 2;
+  string category = 3;
+  int64 status = 4;
+}
+message UpdateAdminPermissionResp { AdminPermission permission = 1; }
+
+message DeleteAdminPermissionReq { int64 id = 1; }
+message DeleteAdminPermissionResp { bool ok = 1; }
+
+message GetAdminRolePermKeysReq { int64 role_id = 1; }
+message GetAdminRolePermKeysResp { repeated string perm_keys = 1; }
+message SetAdminRolePermKeysReq { int64 role_id = 1; repeated string perm_keys = 2; }
+message SetAdminRolePermKeysResp { bool ok = 1; }
+
+message AdminApiRule {
+  int64 id = 1;
+  string method = 2;
+  string path_pattern = 3;
+  string perm_key = 4;
+  int64 status = 5;
+  string remark = 6;
+}
+message ListAdminApiRulesReq {}
+message ListAdminApiRulesResp { repeated AdminApiRule rules = 1; }
+message UpsertAdminApiRuleReq {
+  string method = 1;
+  string path_pattern = 2;
+  string perm_key = 3;
+  int64 status = 4;
+  string remark = 5;
+}
+message UpsertAdminApiRuleResp { AdminApiRule rule = 1; }
+message DeleteAdminApiRuleReq { int64 id = 1; }
+message DeleteAdminApiRuleResp { bool ok = 1; }

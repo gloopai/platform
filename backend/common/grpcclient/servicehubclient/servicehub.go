@@ -22,6 +22,11 @@ type (
 	MarkPayoutResultResp        = servicehub.MarkPayoutResultResp
 	AdminUser                   = servicehub.AdminUser
 	AdminUserPublic             = servicehub.AdminUserPublic
+
+	AdminMenu       = servicehub.AdminMenu
+	AdminRole       = servicehub.AdminRole
+	AdminPermission = servicehub.AdminPermission
+	AdminApiRule    = servicehub.AdminApiRule
 )
 
 // ServiceHub 平台支撑数据 RPC（admin_users / global_settings / payout_orders 辅助）
@@ -32,6 +37,32 @@ type ServiceHub interface {
 	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string) error
 	MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error)
 	MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error)
+
+	// RBAC
+	GetAdminRbacMyMenus(ctx context.Context, adminUserID int64) ([]*AdminMenu, error)
+	ListAdminRoles(ctx context.Context) ([]*AdminRole, error)
+	CreateAdminRole(ctx context.Context, code, name string, status int64) (*AdminRole, error)
+	UpdateAdminRole(ctx context.Context, id int64, name string, status int64) (*AdminRole, error)
+	DeleteAdminRole(ctx context.Context, id int64) (bool, error)
+	ListAdminMenus(ctx context.Context) ([]*AdminMenu, error)
+	GetAdminRoleMenus(ctx context.Context, roleID int64) ([]int64, error)
+	SetAdminRoleMenus(ctx context.Context, roleID int64, menuIDs []int64) (bool, error)
+	GetAdminUserRoles(ctx context.Context, adminUserID int64) ([]int64, error)
+	SetAdminUserRoles(ctx context.Context, adminUserID int64, roleIDs []int64) (bool, error)
+
+	// permissions
+	GetAdminRbacMyPerms(ctx context.Context, adminUserID int64) (isSuper bool, permKeys []string, err error)
+
+	// config
+	ListAdminPermissions(ctx context.Context) ([]*AdminPermission, error)
+	CreateAdminPermission(ctx context.Context, permKey, label, category string, status int64) (*AdminPermission, error)
+	UpdateAdminPermission(ctx context.Context, id int64, label, category string, status int64) (*AdminPermission, error)
+	DeleteAdminPermission(ctx context.Context, id int64) (bool, error)
+	GetAdminRolePermKeys(ctx context.Context, roleID int64) ([]string, error)
+	SetAdminRolePermKeys(ctx context.Context, roleID int64, permKeys []string) (bool, error)
+	ListAdminApiRules(ctx context.Context) ([]*AdminApiRule, error)
+	UpsertAdminApiRule(ctx context.Context, method, pathPattern, permKey, remark string, status int64) (*AdminApiRule, error)
+	DeleteAdminApiRule(ctx context.Context, id int64) (bool, error)
 }
 
 type defaultClient struct {
@@ -103,4 +134,224 @@ func (d *defaultClient) MarkPayoutFailed(ctx context.Context, orderNo string) (b
 		return false, nil
 	}
 	return r.Changed, nil
+}
+
+func (d *defaultClient) GetAdminRbacMyMenus(ctx context.Context, adminUserID int64) ([]*AdminMenu, error) {
+	r, err := d.cli.GetAdminRbacMyMenus(ctx, &servicehub.GetAdminRbacMyMenusReq{AdminUserId: adminUserID})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Menus, nil
+}
+
+func (d *defaultClient) ListAdminRoles(ctx context.Context) ([]*AdminRole, error) {
+	r, err := d.cli.ListAdminRoles(ctx, &servicehub.ListAdminRolesReq{})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Roles, nil
+}
+
+func (d *defaultClient) CreateAdminRole(ctx context.Context, code, name string, status int64) (*AdminRole, error) {
+	r, err := d.cli.CreateAdminRole(ctx, &servicehub.CreateAdminRoleReq{Code: code, Name: name, Status: status})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Role, nil
+}
+
+func (d *defaultClient) UpdateAdminRole(ctx context.Context, id int64, name string, status int64) (*AdminRole, error) {
+	r, err := d.cli.UpdateAdminRole(ctx, &servicehub.UpdateAdminRoleReq{Id: id, Name: name, Status: status})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Role, nil
+}
+
+func (d *defaultClient) DeleteAdminRole(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.DeleteAdminRole(ctx, &servicehub.DeleteAdminRoleReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) ListAdminMenus(ctx context.Context) ([]*AdminMenu, error) {
+	r, err := d.cli.ListAdminMenus(ctx, &servicehub.ListAdminMenusReq{})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Menus, nil
+}
+
+func (d *defaultClient) GetAdminRoleMenus(ctx context.Context, roleID int64) ([]int64, error) {
+	r, err := d.cli.GetAdminRoleMenus(ctx, &servicehub.GetAdminRoleMenusReq{RoleId: roleID})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.MenuIds, nil
+}
+
+func (d *defaultClient) SetAdminRoleMenus(ctx context.Context, roleID int64, menuIDs []int64) (bool, error) {
+	r, err := d.cli.SetAdminRoleMenus(ctx, &servicehub.SetAdminRoleMenusReq{RoleId: roleID, MenuIds: menuIDs})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) GetAdminUserRoles(ctx context.Context, adminUserID int64) ([]int64, error) {
+	r, err := d.cli.GetAdminUserRoles(ctx, &servicehub.GetAdminUserRolesReq{AdminUserId: adminUserID})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.RoleIds, nil
+}
+
+func (d *defaultClient) SetAdminUserRoles(ctx context.Context, adminUserID int64, roleIDs []int64) (bool, error) {
+	r, err := d.cli.SetAdminUserRoles(ctx, &servicehub.SetAdminUserRolesReq{AdminUserId: adminUserID, RoleIds: roleIDs})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) GetAdminRbacMyPerms(ctx context.Context, adminUserID int64) (bool, []string, error) {
+	r, err := d.cli.GetAdminRbacMyPerms(ctx, &servicehub.GetAdminRbacMyPermsReq{AdminUserId: adminUserID})
+	if err != nil {
+		return false, nil, err
+	}
+	if r == nil {
+		return false, nil, nil
+	}
+	return r.IsSuperAdmin, r.PermKeys, nil
+}
+
+func (d *defaultClient) ListAdminPermissions(ctx context.Context) ([]*AdminPermission, error) {
+	r, err := d.cli.ListAdminPermissions(ctx, &servicehub.ListAdminPermissionsReq{})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Permissions, nil
+}
+
+func (d *defaultClient) CreateAdminPermission(ctx context.Context, permKey, label, category string, status int64) (*AdminPermission, error) {
+	r, err := d.cli.CreateAdminPermission(ctx, &servicehub.CreateAdminPermissionReq{PermKey: permKey, Label: label, Category: category, Status: status})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Permission, nil
+}
+
+func (d *defaultClient) UpdateAdminPermission(ctx context.Context, id int64, label, category string, status int64) (*AdminPermission, error) {
+	r, err := d.cli.UpdateAdminPermission(ctx, &servicehub.UpdateAdminPermissionReq{Id: id, Label: label, Category: category, Status: status})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Permission, nil
+}
+
+func (d *defaultClient) DeleteAdminPermission(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.DeleteAdminPermission(ctx, &servicehub.DeleteAdminPermissionReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) GetAdminRolePermKeys(ctx context.Context, roleID int64) ([]string, error) {
+	r, err := d.cli.GetAdminRolePermKeys(ctx, &servicehub.GetAdminRolePermKeysReq{RoleId: roleID})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.PermKeys, nil
+}
+
+func (d *defaultClient) SetAdminRolePermKeys(ctx context.Context, roleID int64, permKeys []string) (bool, error) {
+	r, err := d.cli.SetAdminRolePermKeys(ctx, &servicehub.SetAdminRolePermKeysReq{RoleId: roleID, PermKeys: permKeys})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) ListAdminApiRules(ctx context.Context) ([]*AdminApiRule, error) {
+	r, err := d.cli.ListAdminApiRules(ctx, &servicehub.ListAdminApiRulesReq{})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Rules, nil
+}
+
+func (d *defaultClient) UpsertAdminApiRule(ctx context.Context, method, pathPattern, permKey, remark string, status int64) (*AdminApiRule, error) {
+	r, err := d.cli.UpsertAdminApiRule(ctx, &servicehub.UpsertAdminApiRuleReq{Method: method, PathPattern: pathPattern, PermKey: permKey, Status: status, Remark: remark})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Rule, nil
+}
+
+func (d *defaultClient) DeleteAdminApiRule(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.DeleteAdminApiRule(ctx, &servicehub.DeleteAdminApiRuleReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
 }
