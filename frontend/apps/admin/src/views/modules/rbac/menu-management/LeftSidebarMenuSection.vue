@@ -130,6 +130,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
+import { useUiDialog } from '../../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import MenuPermRulesPanel from './MenuPermRulesPanel.vue'
 import { collectScopeMenuKeys } from './menuScopeKeys'
@@ -138,6 +139,7 @@ import type { AdminPermission, ApiRule, RbacAdminMenu } from './types'
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const dialog = useUiDialog()
 const menus = ref<RbacAdminMenu[]>([])
 const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
@@ -301,7 +303,9 @@ async function saveMenu() {
 }
 
 async function removeMenu() {
-  if (!form.id || !confirm('确定删除？须先删掉子菜单。')) return
+  if (!form.id) return
+  const ok = await dialog.confirm('确定删除？须先删掉子菜单。')
+  if (!ok) return
   saving.value = true
   error.value = ''
   const removeId = form.id

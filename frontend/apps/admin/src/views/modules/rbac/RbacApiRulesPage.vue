@@ -129,9 +129,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { useUiDialog } from '../../../composables/ui'
 import type { AdminPermission, ApiRule } from './menu-management/types'
 
 const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+const dialog = useUiDialog()
 
 const saving = ref(false)
 const error = ref('')
@@ -246,7 +248,8 @@ async function submitEdit(id: number) {
 }
 
 async function removeRule(id: number) {
-  if (!confirm('删除该接口规则？')) return
+  const ok = await dialog.confirm('删除该接口规则？')
+  if (!ok) return
   saving.value = true
   error.value = ''
   try {

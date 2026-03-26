@@ -253,6 +253,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 
+import { useUiDialog } from '../../../../composables/ui'
 import { adminDelete, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 
@@ -268,6 +269,7 @@ const emit = defineEmits<{
 
 const saving = ref(false)
 const error = ref('')
+const dialog = useUiDialog()
 const selectedPerm = ref<AdminPermission | null>(null)
 const permCreateOpen = ref(false)
 const permEditId = ref(0)
@@ -504,7 +506,8 @@ async function submitRuleEdit(r: ApiRule) {
 }
 
 async function removePerm(p: AdminPermission) {
-  if (!confirm('删除该权限点？')) return
+  const ok = await dialog.confirm('删除该权限点？')
+  if (!ok) return
   error.value = ''
   saving.value = true
   try {
@@ -519,7 +522,8 @@ async function removePerm(p: AdminPermission) {
 }
 
 async function removeRule(id: number) {
-  if (!confirm('删除该规则？')) return
+  const ok = await dialog.confirm('删除该规则？')
+  if (!ok) return
   error.value = ''
   saving.value = true
   try {

@@ -84,6 +84,15 @@
               </button>
               <button
                 type="button"
+                class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 disabled:opacity-40"
+                :disabled="!selectedRoleId || saving || isSelectedSuperAdmin"
+                :title="isSelectedSuperAdmin ? '超管角色不可删除' : ''"
+                @click="deleteRole"
+              >
+                删除角色
+              </button>
+              <button
+                type="button"
                 class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
                 :disabled="!selectedRoleId || saving"
                 @click="saveRoleGrants"
@@ -235,7 +244,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
-import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { useUiDialog } from '../../../composables/ui'
 
 type AdminRole = { id: number; code: string; name: string; status: number }
 type AdminMenu = {
@@ -270,6 +280,7 @@ function permBucket(p: AdminPermission, menus: AdminMenu[]): 'left' | 'avatar' |
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const dialog = useUiDialog()
 
 const roles = ref<AdminRole[]>([])
 const menus = ref<AdminMenu[]>([])
@@ -282,6 +293,7 @@ const newRoleCode = ref('')
 const newRoleName = ref('')
 
 const selectedRole = computed(() => roles.value.find((r) => r.id === selectedRoleId.value) || null)
+const isSelectedSuperAdmin = computed(() => (selectedRole.value?.code || '').trim().toLowerCase() === 'super_admin')
 
 type MenuGrantRow = { menu: AdminMenu; depth: number; perms: AdminPermission[]; pathText: string }
 
@@ -362,7 +374,9 @@ async function load() {
     menus.value = mr.menus || []
     const pr = await adminGet<{ permissions: AdminPermission[] }>('/v1/admin/rbac/permissions')
     permissions.value = pr.permissions || []
-    if (!selectedRoleId.value && roles.value.length) selectedRoleId.value = roles.value[0].id
+    if (!roles.value.some((r) => r.id === selectedRoleId.value)) {
+      selectedRoleId.value = roles.value[0]?.id || 0
+    }
     if (selectedRoleId.value) {
       await reloadRoleMenus()
       await reloadRolePerms()
@@ -457,6 +471,29 @@ async function createRole() {
     await adminPost('/v1/admin/rbac/roles', { code, name, status: 1 })
     newRoleCode.value = ''
     newRoleName.value = ''
+    await load()
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function deleteRole() {
+  if (!selectedRole.value) return
+  if ((selectedRole.value.code || '').trim().toLowerCase() === 'super_admin') {
+    error.value = '超管角色不可删除'
+    return
+  }
+  const ok = await dialog.confirm(`确认删除角色「${selectedRole.value.name}」？此操作不可恢复。`, '删除角色')
+  if (!ok) return
+  saving.value = true
+  error.value = ''
+  try {
+    await adminDelete(`/v1/admin/rbac/roles/${selectedRole.value.id}`)
+    selectedRoleId.value = 0
+    selectedMenuIds.value = []
+    selectedPermKeys.value = []
     await load()
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)

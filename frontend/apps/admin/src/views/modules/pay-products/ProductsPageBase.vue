@@ -155,6 +155,7 @@ import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useAdminToast } from '../../../composables/useAdminToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
+import { useUiDialog } from '../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
 import ProductBindingsCard from './ProductBindingsCard.vue'
@@ -175,6 +176,7 @@ const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => 
 const adminTokenValue = computed(() => adminToken?.value || '')
 
 const toast = useAdminToast()
+const dialog = useUiDialog()
 const loadingProducts = ref(false)
 const loadingBindings = ref(false)
 const savingProduct = ref(false)
@@ -428,7 +430,8 @@ async function updateBinding(bindingId: number, weight: number, enabled: boolean
 }
 
 async function removeBinding(bindingId: number) {
-  if (!confirm('确定删除该通道绑定？')) return
+  const ok = await dialog.confirm('确定删除该通道绑定？')
+  if (!ok) return
   bindingError.value = ''
   try {
     await adminDelete(apiBindingRow(bindingId))

@@ -161,12 +161,14 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
+import { useUiDialog } from '../../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const dialog = useUiDialog()
 const q = ref('')
 const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
@@ -279,7 +281,9 @@ async function savePerm() {
 }
 
 async function removePerm() {
-  if (!selected.value || !confirm('确定删除？将先解除角色绑定。')) return
+  if (!selected.value) return
+  const ok = await dialog.confirm('确定删除？将先解除角色绑定。')
+  if (!ok) return
   saving.value = true
   error.value = ''
   try {
@@ -317,7 +321,8 @@ async function saveRule() {
 }
 
 async function deleteRule(id: number) {
-  if (!confirm('删除该接口规则？')) return
+  const ok = await dialog.confirm('删除该接口规则？')
+  if (!ok) return
   saving.value = true
   error.value = ''
   try {

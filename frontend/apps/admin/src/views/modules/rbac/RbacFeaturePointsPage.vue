@@ -122,9 +122,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { useUiDialog } from '../../../composables/ui'
 import type { AdminPermission, RbacAdminMenu } from './menu-management/types'
 
 const saving = ref(false)
+const dialog = useUiDialog()
 const error = ref('')
 const q = ref('')
 const menuFilter = ref('')
@@ -248,7 +250,8 @@ async function submitEdit(id: number) {
 }
 
 async function removePerm(id: number) {
-  if (!confirm('删除该功能点？')) return
+  const ok = await dialog.confirm('删除该功能点？')
+  if (!ok) return
   saving.value = true
   error.value = ''
   try {
