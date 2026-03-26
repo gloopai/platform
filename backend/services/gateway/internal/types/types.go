@@ -4,7 +4,8 @@
 package types
 
 type CreateOrderReq struct {
-	MerchantId      string `json:"merchant_id"`
+	AppId           string `json:"app_id"`
+	MerchantId      string `json:"merchant_id,optional"`
 	MerchantOrderNo string `json:"merchant_order_no"`
 	Amount          int64  `json:"amount"`
 	Currency        string `json:"currency,optional"`
@@ -19,7 +20,8 @@ type CreateOrderReq struct {
 }
 
 type CreatePayinOrderReq struct {
-	MerchantId        string `json:"merchant_id"`
+	AppId             string `json:"app_id"`
+	MerchantId        string `json:"merchant_id,optional"`
 	MerchantOrderNo   string `json:"merchant_order_no"`
 	Amount            int64  `json:"amount"`
 	Currency          string `json:"currency,optional"`
@@ -77,7 +79,8 @@ type PayinProductItem struct {
 }
 
 type QueryOrderReq struct {
-	MerchantId      string `form:"merchant_id"`
+	AppId           string `form:"app_id"`
+	MerchantId      string `form:"merchant_id,optional"`
 	OrderNo         string `form:"order_no,optional"`
 	MerchantOrderNo string `form:"merchant_order_no,optional"`
 	Timestamp       int64  `form:"timestamp,optional"`
@@ -90,7 +93,8 @@ type QueryOrderResp struct {
 }
 
 type MerchantBalanceQueryReq struct {
-	MerchantId string `form:"merchant_id"`
+	AppId      string `form:"app_id"`
+	MerchantId string `form:"merchant_id,optional"`
 	Timestamp  int64  `form:"timestamp,optional"`
 	Nonce      string `form:"nonce,optional"`
 	Sign       string `form:"sign"`
@@ -199,7 +203,9 @@ type MerchantSummaryResp struct {
 	PayinBalance     int64   `json:"payin_balance"`
 	AvailableBalance int64   `json:"available_balance"`
 	MerchantId       string  `json:"merchant_id"`
-	ApiSecret        string  `json:"api_secret"`
+	AppId            string  `json:"app_id"`
+	Email            string  `json:"email"`
+	AppSecret        string  `json:"app_secret"`
 	NotifyUrl        string  `json:"notify_url"`
 	IpWhitelist      string  `json:"ip_whitelist"`
 }
@@ -211,7 +217,9 @@ type MerchantUpdateConfigReq struct {
 
 type MerchantUpdateConfigResp struct {
 	MerchantId  string `json:"merchant_id"`
-	ApiSecret   string `json:"api_secret"`
+	AppId       string `json:"app_id"`
+	Email       string `json:"email"`
+	AppSecret   string `json:"app_secret"`
 	NotifyUrl   string `json:"notify_url"`
 	IpWhitelist string `json:"ip_whitelist"`
 }
@@ -220,9 +228,9 @@ type MerchantDisplaySettingsReq struct {
 }
 
 type MerchantDisplaySettingsResp struct {
-	CountryCode    string `json:"country_code"`
-	CurrencyCode   string `json:"currency_code"`
-	CurrencySymbol string `json:"currency_symbol"`
+	CountryCode    string  `json:"country_code"`
+	CurrencyCode   string  `json:"currency_code"`
+	CurrencySymbol string  `json:"currency_symbol"`
 	FiatToUsdtRate float64 `json:"fiat_to_usdt_rate"`
 }
 
@@ -349,14 +357,15 @@ type AdminLogoutResp struct {
 }
 
 type MerchantLoginReq struct {
-	MerchantId string `json:"merchant_id"`
-	ApiSecret  string `json:"api_secret"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type MerchantLoginResp struct {
 	Token      string `json:"token"`
 	ExpiresAt  int64  `json:"expires_at"`
 	MerchantId string `json:"merchant_id"`
+	AppId      string `json:"app_id"`
 }
 
 type MerchantLogoutResp struct {
@@ -377,7 +386,9 @@ type MerchantPayoutGrant struct {
 
 type AdminMerchantInfo struct {
 	MerchantId           string                `json:"merchant_id"`
-	ApiSecret            string                `json:"api_secret"`
+	AppId                string                `json:"app_id"`
+	Email                string                `json:"email"`
+	AppSecret            string                `json:"app_secret"`
 	Status               int64                 `json:"status"`
 	DefaultPayinRateBps  int64                 `json:"default_payin_rate_bps"`
 	DefaultPayoutRateBps int64                 `json:"default_payout_rate_bps"`
@@ -398,7 +409,7 @@ type AdminListMerchantsResp struct {
 
 type AdminCreateMerchantReq struct {
 	MerchantId           string  `json:"merchant_id"`
-	ApiSecret            string  `json:"api_secret,optional"`
+	Email                string  `json:"email"`
 	DefaultPayinRateBps  int64   `json:"default_payin_rate_bps,optional"`
 	DefaultPayoutRateBps int64   `json:"default_payout_rate_bps,optional"`
 	NotifyUrl            string  `json:"notify_url,optional"`
@@ -417,6 +428,7 @@ type AdminUpdateMerchantReq struct {
 	ReturnUrl            string                `json:"return_url,optional"`
 	IpWhitelist          string                `json:"ip_whitelist,optional"`
 	ResetSecret          bool                  `json:"reset_secret,optional"`
+	ResetPassword        bool                  `json:"reset_password,optional"`
 	PayinProductIds      []int64               `json:"payin_product_ids,optional"`
 	PayoutProductIds     []int64               `json:"payout_product_ids,optional"`
 	PayinGrants          []MerchantPayinGrant  `json:"payin_grants,optional"`  // 若提供则覆盖代收白名单（含空数组）
@@ -424,7 +436,8 @@ type AdminUpdateMerchantReq struct {
 }
 
 type AdminUpsertMerchantResp struct {
-	Merchant AdminMerchantInfo `json:"merchant"`
+	Merchant          AdminMerchantInfo `json:"merchant"`
+	GeneratedPassword string            `json:"generated_password,omitempty"`
 }
 
 type AdminTransferPayinToPayoutReq struct {
@@ -757,32 +770,32 @@ type AdminDisplaySettingsReq struct {
 }
 
 type AdminDisplaySettingsUpdateReq struct {
-	CountryCode    string `json:"country_code"`
-	CurrencyCode   string `json:"currency_code"`
-	CurrencySymbol string `json:"currency_symbol"`
-	FiatToUsdtRate float64 `json:"fiat_to_usdt_rate"`
-	AdminMfaEnabled int64 `json:"admin_mfa_enabled,optional"`
+	CountryCode     string  `json:"country_code"`
+	CurrencyCode    string  `json:"currency_code"`
+	CurrencySymbol  string  `json:"currency_symbol"`
+	FiatToUsdtRate  float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled int64   `json:"admin_mfa_enabled,optional"`
 }
 
 type AdminDisplaySettingsResp struct {
-	CountryCode    string `json:"country_code"`
-	CurrencyCode   string `json:"currency_code"`
-	CurrencySymbol string `json:"currency_symbol"`
-	FiatToUsdtRate float64 `json:"fiat_to_usdt_rate"`
-	AdminMfaEnabled int64 `json:"admin_mfa_enabled"`
+	CountryCode     string  `json:"country_code"`
+	CurrencyCode    string  `json:"currency_code"`
+	CurrencySymbol  string  `json:"currency_symbol"`
+	FiatToUsdtRate  float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled int64   `json:"admin_mfa_enabled"`
 }
 
 type AdminCreateUserReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Status   int64  `json:"status,optional"`
+	Username string  `json:"username"`
+	Password string  `json:"password"`
+	Status   int64   `json:"status,optional"`
 	RoleIds  []int64 `json:"role_ids,optional"`
 }
 
 type AdminUpdateUserReq struct {
-	Id       int64  `path:"id"`
-	Status   int64  `json:"status"`
-	RoleIds  []int64 `json:"role_ids,optional"`
+	Id      int64   `path:"id"`
+	Status  int64   `json:"status"`
+	RoleIds []int64 `json:"role_ids,optional"`
 }
 
 type AdminResetUserPasswordReq struct {
@@ -799,9 +812,9 @@ type AdminMfaSetupReq struct {
 }
 
 type AdminMfaSetupResp struct {
-	Secret    string `json:"secret"`
+	Secret     string `json:"secret"`
 	OtpAuthUrl string `json:"otpauth_url"`
-	QrDataUrl string `json:"qr_data_url"`
+	QrDataUrl  string `json:"qr_data_url"`
 }
 
 type AdminMfaConfirmReq struct {
@@ -837,23 +850,23 @@ type AdminSettlementLogsResp struct {
 }
 
 type AdminWithdrawalItem struct {
-	WithdrawNo     string `json:"withdraw_no"`
-	MerchantId     string `json:"merchant_id"`
-	ApplyAmount    int64  `json:"apply_amount"`
-	FeeAmount      int64  `json:"fee_amount"`
-	NetAmount      int64  `json:"net_amount"`
-	FiatDebitAmount int64 `json:"fiat_debit_amount"`
-	Status         int32  `json:"status"`
-	Currency       string `json:"currency"`
-	ReceiveAccount string `json:"receive_account"`
-	ReceiveName    string `json:"receive_name"`
-	BankName       string `json:"bank_name"`
-	ApplyNote      string `json:"apply_note"`
-	ReviewNote     string `json:"review_note"`
-	PayoutNote     string `json:"payout_note"`
-	CreatedAt      int64  `json:"created_at"`
-	ReviewedAt     int64  `json:"reviewed_at"`
-	PayoutedAt     int64  `json:"payouted_at"`
+	WithdrawNo      string `json:"withdraw_no"`
+	MerchantId      string `json:"merchant_id"`
+	ApplyAmount     int64  `json:"apply_amount"`
+	FeeAmount       int64  `json:"fee_amount"`
+	NetAmount       int64  `json:"net_amount"`
+	FiatDebitAmount int64  `json:"fiat_debit_amount"`
+	Status          int32  `json:"status"`
+	Currency        string `json:"currency"`
+	ReceiveAccount  string `json:"receive_account"`
+	ReceiveName     string `json:"receive_name"`
+	BankName        string `json:"bank_name"`
+	ApplyNote       string `json:"apply_note"`
+	ReviewNote      string `json:"review_note"`
+	PayoutNote      string `json:"payout_note"`
+	CreatedAt       int64  `json:"created_at"`
+	ReviewedAt      int64  `json:"reviewed_at"`
+	PayoutedAt      int64  `json:"payouted_at"`
 }
 
 type AdminSettlementWithdrawalsReq struct {

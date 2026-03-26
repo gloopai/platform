@@ -35,8 +35,20 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
+	appId := strings.TrimSpace(in.GetAppId())
+	if appId == "" {
+		appId = merchantId
+	}
+	email := strings.TrimSpace(strings.ToLower(in.GetEmail()))
+	if email == "" {
+		return nil, status.Error(codes.InvalidArgument, "email required")
+	}
+	passwordHash := strings.TrimSpace(in.GetPasswordHash())
+	if passwordHash == "" {
+		return nil, status.Error(codes.InvalidArgument, "password_hash required")
+	}
 
-	secret := strings.TrimSpace(in.GetApiSecret())
+	secret := strings.TrimSpace(in.GetAppSecret())
 	if secret == "" {
 		v, err := newSecret()
 		if err != nil {
@@ -52,7 +64,10 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 
 	rec := &store.Merchant{
 		MerchantId:           merchantId,
-		ApiSecret:            secret,
+		AppId:                appId,
+		Email:                email,
+		AppSecret:            secret,
+		PasswordHash:         passwordHash,
 		Status:               statusVal,
 		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
 		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
@@ -151,9 +166,13 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 		return nil, err
 	}
 
-	secret := strings.TrimSpace(in.GetApiSecret())
+	secret := strings.TrimSpace(in.GetAppSecret())
 	if secret == "" {
-		secret = existing.ApiSecret
+		secret = existing.AppSecret
+	}
+	passwordHash := strings.TrimSpace(in.GetPasswordHash())
+	if passwordHash == "" {
+		passwordHash = existing.PasswordHash
 	}
 
 	statusVal := in.GetStatus()
@@ -163,7 +182,10 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 
 	rec := &store.Merchant{
 		MerchantId:           merchantId,
-		ApiSecret:            secret,
+		AppId:                existing.AppId,
+		Email:                existing.Email,
+		AppSecret:            secret,
+		PasswordHash:         passwordHash,
 		Status:               statusVal,
 		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
 		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
@@ -237,10 +259,22 @@ func NewGetAuthInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetAu
 
 func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchantpb.GetAuthInfoResp, error) {
 	merchantId := strings.TrimSpace(in.GetMerchantId())
-	if merchantId == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	appId := strings.TrimSpace(in.GetAppId())
+	email := strings.TrimSpace(strings.ToLower(in.GetEmail()))
+	var (
+		m   *store.Merchant
+		err error
+	)
+	switch {
+	case merchantId != "":
+		m, err = l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
+	case appId != "":
+		m, err = l.svcCtx.Merchants.GetByAppId(l.ctx, appId)
+	case email != "":
+		m, err = l.svcCtx.Merchants.GetByEmail(l.ctx, email)
+	default:
+		return nil, status.Error(codes.InvalidArgument, "merchant_id or app_id or email required")
 	}
-	m, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "merchant not found")
@@ -248,7 +282,7 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		return nil, err
 	}
 	return &merchantpb.GetAuthInfoResp{
-		ApiSecret:            m.ApiSecret,
+		AppSecret:            m.AppSecret,
 		Status:               m.Status,
 		IpWhitelist:          m.IpWhitelist,
 		NotifyUrl:            m.NotifyUrl,
@@ -257,6 +291,10 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		AvailableBalance:     m.AvailableBalance,
 		DefaultPayinRateBps:  m.DefaultPayinRateBps,
 		DefaultPayoutRateBps: m.DefaultPayoutRateBps,
+		MerchantId:           m.MerchantId,
+		AppId:                m.AppId,
+		Email:                m.Email,
+		PasswordHash:         m.PasswordHash,
 	}, nil
 }
 
@@ -337,7 +375,9 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 	}
 	return &merchantpb.MerchantInfo{
 		MerchantId:           m.MerchantId,
-		ApiSecret:            m.ApiSecret,
+		AppId:                m.AppId,
+		Email:                m.Email,
+		AppSecret:            m.AppSecret,
 		Status:               m.Status,
 		DefaultPayinRateBps:  m.DefaultPayinRateBps,
 		DefaultPayoutRateBps: m.DefaultPayoutRateBps,

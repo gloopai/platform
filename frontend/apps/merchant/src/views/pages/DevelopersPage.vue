@@ -45,7 +45,7 @@ import { loadMerchantAuth, saveMerchantAuth } from '@/lib/merchantApi'
 import { fetchMerchantSummary, updateMerchantConfig } from '@/api/console'
 
 const auth = loadMerchantAuth()
-const merchantId = ref(auth.merchantId)
+const merchantId = ref(auth.appId)
 const apiSecret = ref(auth.apiSecret)
 const ipWhitelist = ref('')
 const notifyUrl = ref('')
@@ -61,14 +61,14 @@ const tabs = [
 const activeTab = ref<(typeof tabs)[number]['key']>('config')
 
 watch([merchantId, apiSecret], () => {
-  saveMerchantAuth({ merchantId: merchantId.value, apiSecret: apiSecret.value })
+  saveMerchantAuth({ appId: merchantId.value, apiSecret: apiSecret.value })
 })
 
 onMounted(async () => {
   try {
     const s = await fetchMerchantSummary()
-    merchantId.value = s.merchant_id || merchantId.value
-    apiSecret.value = s.api_secret || apiSecret.value
+    merchantId.value = s.app_id || s.merchant_id || merchantId.value
+    apiSecret.value = s.app_secret || apiSecret.value
     notifyUrl.value = s.notify_url || ''
     ipWhitelist.value = s.ip_whitelist || ''
   } catch {
@@ -87,8 +87,8 @@ async function saveConfig() {
     })
     notifyUrl.value = resp.notify_url || ''
     ipWhitelist.value = resp.ip_whitelist || ''
-    merchantId.value = resp.merchant_id || merchantId.value
-    apiSecret.value = resp.api_secret || apiSecret.value
+    merchantId.value = (resp as { app_id?: string }).app_id || resp.merchant_id || merchantId.value
+    apiSecret.value = resp.app_secret || apiSecret.value
     configSaveSuccess.value = '保存成功'
     setTimeout(() => {
       configSaveSuccess.value = ''

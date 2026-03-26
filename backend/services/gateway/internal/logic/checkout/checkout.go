@@ -38,7 +38,10 @@ func NewCheckout(ctx context.Context, svcCtx *svc.ServiceContext) *Checkout {
 }
 
 func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
-	merchantID := strings.TrimSpace(req.MerchantId)
+	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
+	if err != nil {
+		return nil, err
+	}
 	payinType := strings.TrimSpace(req.PayinType)
 	channelID := req.ChannelId
 
@@ -97,7 +100,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 	}
 
 	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{
-		MerchantId:       req.MerchantId,
+		MerchantId:       merchantID,
 		MerchantOrderNo:  req.MerchantOrderNo,
 		Amount:           req.Amount,
 		Currency:         req.Currency,
@@ -139,8 +142,12 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 }
 
 func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderResp, err error) {
+	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
+	if err != nil {
+		return nil, err
+	}
 	r, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
-		MerchantId:      req.MerchantId,
+		MerchantId:      merchantID,
 		OrderNo:         req.OrderNo,
 		MerchantOrderNo: req.MerchantOrderNo,
 	})
@@ -176,9 +183,9 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 
 func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.CreateOrderResp, error) {
 	reqID := requestx.FromContext(c.ctx)
-	merchantID := strings.TrimSpace(req.MerchantId)
-	if merchantID == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
+	if err != nil {
+		return nil, err
 	}
 	payoutCode := strings.TrimSpace(req.PayoutProductCode)
 	if payoutCode == "" {
@@ -340,8 +347,12 @@ func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductID int64, am
 }
 
 func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrderResp, error) {
+	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
+	if err != nil {
+		return nil, err
+	}
 	r, err := c.svcCtx.OrderRpc.GetPayoutOrder(c.ctx, &orderclient.GetOrderReq{
-		MerchantId:      req.MerchantId,
+		MerchantId:      merchantID,
 		OrderNo:         req.OrderNo,
 		MerchantOrderNo: req.MerchantOrderNo,
 	})
@@ -373,19 +384,39 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 }
 
 func (c *Checkout) QueryMerchantBalance(req *types.MerchantBalanceQueryReq) (*types.MerchantBalanceQueryResp, error) {
-	merchantID := strings.TrimSpace(req.MerchantId)
-	if merchantID == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
+	if err != nil {
+		return nil, err
 	}
 	auth, err := c.svcCtx.MerchantRpc.GetAuthInfo(c.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantID})
 	if err != nil {
 		return nil, err
 	}
 	return &types.MerchantBalanceQueryResp{
-		MerchantId:    merchantID,
-		PayinBalance:  auth.GetPayinBalance(),
+		MerchantId:       merchantID,
+		PayinBalance:     auth.GetPayinBalance(),
 		AvailableBalance: auth.GetAvailableBalance(),
 	}, nil
+}
+
+func (c *Checkout) resolveMerchantID(appID string, merchantID string) (string, error) {
+	merchantID = strings.TrimSpace(merchantID)
+	if merchantID != "" {
+		return merchantID, nil
+	}
+	appID = strings.TrimSpace(appID)
+	if appID == "" {
+		return "", status.Error(codes.InvalidArgument, "app_id required")
+	}
+	auth, err := c.svcCtx.MerchantRpc.GetAuthInfo(c.ctx, &merchantclient.GetAuthInfoReq{AppId: appID})
+	if err != nil {
+		return "", err
+	}
+	resolved := strings.TrimSpace(auth.GetMerchantId())
+	if resolved == "" {
+		return "", status.Error(codes.NotFound, "merchant not found")
+	}
+	return resolved, nil
 }
 
 func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.TerminalOrderResp, err error) {

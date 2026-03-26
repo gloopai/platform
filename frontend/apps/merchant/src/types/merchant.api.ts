@@ -6,6 +6,7 @@ export type MerchantLoginResponse = {
   token: string
   expires_at: number
   merchant_id: string
+  app_id: string
 }
 
 export type MerchantSummary = {
@@ -15,7 +16,9 @@ export type MerchantSummary = {
   payin_balance: number
   available_balance: number
   merchant_id: string
-  api_secret: string
+  app_id?: string
+  email?: string
+  app_secret: string
   notify_url: string
   ip_whitelist: string
 }
@@ -27,7 +30,9 @@ export type MerchantUpdateConfigReq = {
 
 export type MerchantUpdateConfigResp = {
   merchant_id: string
-  api_secret: string
+  app_id?: string
+  email?: string
+  app_secret: string
   notify_url: string
   ip_whitelist: string
 }

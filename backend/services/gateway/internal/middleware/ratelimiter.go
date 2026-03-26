@@ -57,12 +57,15 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
 			return
 		}
-		merchantID := strings.TrimSpace(params["merchant_id"])
-		if merchantID == "" {
-			merchantID = "unknown"
+		account := strings.TrimSpace(params["app_id"])
+		if account == "" {
+			account = strings.TrimSpace(params["merchant_id"])
+		}
+		if account == "" {
+			account = "unknown"
 		}
 		ip := ClientHost(r, m.trustForwardedForIPs)
-		key := m.keyPrefix + ":openapi:" + ip + ":" + merchantID
+		key := m.keyPrefix + ":openapi:" + ip + ":" + account
 		ok, err := m.limiter.Allow(r.Context(), key, m.limit, m.window)
 		if err != nil {
 			openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "rate limiter unavailable")
@@ -101,7 +104,10 @@ func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFun
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
 			return
 		}
-		account := strings.TrimSpace(params["merchant_id"])
+		account := strings.TrimSpace(params["email"])
+		if account == "" {
+			account = strings.TrimSpace(params["merchant_id"])
+		}
 		if account == "" {
 			account = strings.TrimSpace(params["username"])
 		}

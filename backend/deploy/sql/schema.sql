@@ -1,7 +1,10 @@
 CREATE TABLE IF NOT EXISTS merchants (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   merchant_id VARCHAR(64) NOT NULL,
+  app_id VARCHAR(64) NOT NULL,
+  email VARCHAR(128) NOT NULL,
   api_secret VARCHAR(128) NOT NULL,
+  password_hash VARCHAR(128) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   default_payin_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收：未单独配置产品费率时使用',
   default_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：未单独配置产品费率时使用',
@@ -15,7 +18,9 @@ CREATE TABLE IF NOT EXISTS merchants (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_merchant_id (merchant_id)
+  UNIQUE KEY uk_merchant_id (merchant_id),
+  UNIQUE KEY uk_app_id (app_id),
+  UNIQUE KEY uk_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 上游通道：可单独开通代收/代付能力；平台相对上游的费率在通道级配置

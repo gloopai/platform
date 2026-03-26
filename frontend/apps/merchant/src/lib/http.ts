@@ -69,7 +69,7 @@ export async function signedGet<T>(
   params: Record<string, string | number | boolean | undefined>,
 ): Promise<T> {
   const auth = loadMerchantAuth()
-  const p: Record<string, string> = { merchant_id: auth.merchantId }
+  const p: Record<string, string> = { app_id: auth.appId }
   for (const [k, v] of Object.entries(params)) {
     if (v === undefined || v === null) continue
     p[k] = String(v)
@@ -86,7 +86,7 @@ export async function signedPost<T>(
   body: Record<string, string | number | boolean | undefined>,
 ): Promise<T> {
   const auth = loadMerchantAuth()
-  const p: Record<string, string> = { merchant_id: auth.merchantId }
+  const p: Record<string, string> = { app_id: auth.appId }
   for (const [k, v] of Object.entries(body)) {
     if (v === undefined || v === null) continue
     p[k] = String(v)

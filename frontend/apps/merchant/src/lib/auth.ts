@@ -1,5 +1,5 @@
 export type MerchantAuth = {
-  merchantId: string
+  appId: string
   apiSecret: string
 }
 
@@ -13,13 +13,13 @@ const MERCHANT_DISPLAY_NAME_KEY = 'merchant_display_name'
 
 export function loadMerchantAuth(): MerchantAuth {
   return {
-    merchantId: localStorage.getItem('merchant_id') || 'm_demo',
+    appId: localStorage.getItem('merchant_app_id') || 'app_demo',
     apiSecret: localStorage.getItem('merchant_secret') || 'demo_secret',
   }
 }
 
 export function saveMerchantAuth(auth: MerchantAuth) {
-  localStorage.setItem('merchant_id', auth.merchantId)
+  localStorage.setItem('merchant_app_id', auth.appId)
   localStorage.setItem('merchant_secret', auth.apiSecret)
 }
 

@@ -11,7 +11,7 @@
 
     <div class="mt-6 grid grid-cols-12 gap-4">
       <label class="col-span-12 grid gap-1.5 md:col-span-6">
-        <span class="text-xs font-medium text-slate-600">AppID（merchant_id）</span>
+        <span class="text-xs font-medium text-slate-600">AppID</span>
         <input :value="merchantId" class="input-merchant bg-slate-50" disabled />
       </label>
       <label class="col-span-12 grid gap-1.5 md:col-span-6">

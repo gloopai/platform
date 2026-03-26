@@ -17,17 +17,17 @@
       <div class="w-full max-w-md rounded-3xl border border-white/80 bg-white/90 p-8 shadow-2xl shadow-slate-200/60 backdrop-blur-sm">
         <div class="grid gap-4">
           <label class="grid gap-1.5">
-            <span class="text-xs font-medium text-slate-600">商户号 merchant_id</span>
+            <span class="text-xs font-medium text-slate-600">邮箱 email</span>
             <input
-              v-model.trim="merchantId"
+              v-model.trim="email"
               class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/25"
               autocomplete="username"
             />
           </label>
           <label class="grid gap-1.5">
-            <span class="text-xs font-medium text-slate-600">API 密钥 api_secret</span>
+            <span class="text-xs font-medium text-slate-600">登录密码</span>
             <input
-              v-model.trim="apiSecret"
+              v-model.trim="password"
               class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-inner transition focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/25"
               type="password"
               autocomplete="current-password"
@@ -36,7 +36,7 @@
           <button
             type="button"
             class="mt-2 flex w-full items-center justify-center rounded-xl bg-slate-800 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500/40 disabled:cursor-not-allowed disabled:opacity-40"
-            :disabled="loading || !merchantId || !apiSecret"
+            :disabled="loading || !email || !password"
             @click="login"
           >
             {{ loading ? '登录中…' : '进入商户中心' }}
@@ -51,12 +51,12 @@
         </div>
 
         <div class="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-center text-xs text-slate-600">
-          体验账号：<span class="font-mono font-medium text-slate-800">m_demo</span> /
-          <span class="font-mono font-medium text-slate-800">demo_secret</span>
+          体验账号：<span class="font-mono font-medium text-slate-800">demo@gloop.local</span> /
+          <span class="font-mono font-medium text-slate-800">demo123456</span>
         </div>
       </div>
 
-      <p class="mt-8 text-center text-xs text-slate-500">安全提示：请勿在公共设备保存密钥，定期轮换 api_secret。</p>
+      <p class="mt-8 text-center text-xs text-slate-500">安全提示：请勿在公共设备保存密钥，定期轮换 app_secret。</p>
     </div>
   </div>
 </template>
@@ -70,8 +70,8 @@ import { saveMerchantAuth, saveMerchantSession } from '@/lib/merchantApi'
 import type { MerchantLoginResponse } from '@/types/merchant.api'
 
 const router = useRouter()
-const merchantId = ref(localStorage.getItem('merchant_id') || 'm_demo')
-const apiSecret = ref(localStorage.getItem('merchant_secret') || 'demo_secret')
+const email = ref(localStorage.getItem('merchant_email') || 'demo@gloop.local')
+const password = ref('')
 const loading = ref(false)
 const error = ref('')
 
@@ -82,14 +82,15 @@ async function login() {
     const resp = await fetch(merchantConsoleUrl(MERCHANT_API.login), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ merchant_id: merchantId.value, api_secret: apiSecret.value }),
+      body: JSON.stringify({ email: email.value, password: password.value }),
     })
     if (!resp.ok) {
       error.value = `登录失败（${resp.status}）`
       return
     }
     const data = (await resp.json()) as MerchantLoginResponse
-    saveMerchantAuth({ merchantId: merchantId.value, apiSecret: apiSecret.value })
+    localStorage.setItem('merchant_email', email.value)
+    saveMerchantAuth({ appId: data.app_id || '', apiSecret: localStorage.getItem('merchant_secret') || '' })
     saveMerchantSession({ token: data.token, expiresAt: data.expires_at, merchantId: data.merchant_id })
     await router.replace('/console')
   } catch {

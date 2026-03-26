@@ -29,7 +29,7 @@ message MerchantPayoutGrant {
 
 message MerchantInfo {
   string merchant_id = 1;
-  string api_secret = 2;
+  string app_secret = 2;
   int64 status = 3;
   int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
@@ -45,6 +45,8 @@ message MerchantInfo {
   repeated int64 payout_product_ids = 13;
   repeated MerchantPayinGrant payin_grants = 14;
   repeated MerchantPayoutGrant payout_grants = 15;
+  string app_id = 18;
+  string email = 19;
 }
 
 message GetMerchantReq {
@@ -57,10 +59,12 @@ message GetMerchantResp {
 
 message GetAuthInfoReq {
   string merchant_id = 1;
+  string app_id = 2;
+  string email = 3;
 }
 
 message GetAuthInfoResp {
-  string api_secret = 1;
+  string app_secret = 1;
   int64 status = 2;
   string ip_whitelist = 3;
   string notify_url = 4;
@@ -70,6 +74,10 @@ message GetAuthInfoResp {
   int64 default_payout_rate_bps = 8;
   int64 payin_balance = 9;
   int64 available_balance = 10;
+  string merchant_id = 11;
+  string app_id = 12;
+  string email = 13;
+  string password_hash = 14;
 }
 
 message ListMerchantsReq {
@@ -82,7 +90,7 @@ message ListMerchantsResp {
 
 message CreateMerchantReq {
   string merchant_id = 1;
-  string api_secret = 2;
+  string app_secret = 2;
   int64 status = 3;
   int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
@@ -91,17 +99,21 @@ message CreateMerchantReq {
   string ip_whitelist = 8;
   repeated int64 payin_product_ids = 9;
   repeated int64 payout_product_ids = 10;
+  string app_id = 11;
+  string email = 12;
+  string password_hash = 13;
 }
 
 message UpdateMerchantReq {
   string merchant_id = 1;
-  string api_secret = 2;
+  string app_secret = 2;
   int64 status = 3;
   int64 default_payin_rate_bps = 4;
   int64 default_payout_rate_bps = 5;
   string notify_url = 6;
   string return_url = 7;
   string ip_whitelist = 8;
+  string password_hash = 9;
 }
 
 message UpsertMerchantResp {

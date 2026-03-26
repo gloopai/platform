@@ -146,7 +146,7 @@ const { serverTimeText } = useServerClock()
 
 const merchantIdDisplay = computed(() => {
   try {
-    return loadMerchantAuth().merchantId || ''
+    return loadMerchantAuth().appId || ''
   } catch {
     return ''
   }

@@ -42,9 +42,9 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
 			return
 		}
-		merchantId := params["merchant_id"]
-		if merchantId == "" {
-			openapi.Write(w, http.StatusBadRequest, "MERCHANT_ID_REQUIRED", "merchant_id required")
+		appID := params["app_id"]
+		if appID == "" {
+			openapi.Write(w, http.StatusBadRequest, "APP_ID_REQUIRED", "app_id required")
 			return
 		}
 		sign := params["sign"]
@@ -73,7 +73,7 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 			return
 		}
 
-		auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+		auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{AppId: appID})
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
 				openapi.Write(w, http.StatusUnauthorized, "MERCHANT_NOT_FOUND", "merchant not found")
@@ -92,13 +92,20 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 			return
 		}
 
-		expect := Md5Sign(params, auth.GetApiSecret())
+		expect := Md5Sign(params, auth.GetAppSecret())
 		if !strings.EqualFold(expect, sign) {
 			openapi.Write(w, http.StatusUnauthorized, "INVALID_SIGN", "invalid sign")
 			return
 		}
+		merchantID := auth.GetMerchantId()
+		if merchantID == "" {
+			openapi.Write(w, http.StatusUnauthorized, "MERCHANT_NOT_FOUND", "merchant not found")
+			return
+		}
+		// Downstream business仍使用 merchant_id，因此在验签通过后写回参数集。
+		params["merchant_id"] = merchantID
 		if m.replayGuard != nil {
-			ok, err := m.replayGuard.MarkSeen(r.Context(), merchantId, nonce, ts)
+			ok, err := m.replayGuard.MarkSeen(r.Context(), merchantID, nonce, ts)
 			if err != nil {
 				openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "replay guard unavailable")
 				return

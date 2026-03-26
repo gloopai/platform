@@ -23,6 +23,9 @@
           <thead class="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               <th class="whitespace-nowrap px-4 py-3">商户 ID</th>
+              <th class="whitespace-nowrap px-4 py-3">邮箱</th>
+              <th class="whitespace-nowrap px-4 py-3">AppID</th>
+              <th class="whitespace-nowrap px-4 py-3">密钥</th>
               <th class="whitespace-nowrap px-4 py-3">代收余额</th>
               <th class="whitespace-nowrap px-4 py-3">可用余额</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
@@ -31,10 +34,10 @@
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="5" class="px-4 py-8 text-center text-slate-500">加载中...</td>
+              <td colspan="8" class="px-4 py-8 text-center text-slate-500">加载中...</td>
             </tr>
             <tr v-else-if="!filteredMerchants.length">
-              <td colspan="5" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
+              <td colspan="8" class="px-4 py-8 text-center text-slate-500">暂无数据</td>
             </tr>
             <tr
               v-for="m in pagedMerchants"
@@ -43,6 +46,24 @@
               class="border-b border-slate-100 transition hover:bg-slate-50/80"
             >
               <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-slate-700">{{ m.email || '-' }}</span>
+                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.email, '邮箱')">复制</button>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-slate-700">{{ m.app_id || '-' }}</span>
+                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.app_id, 'AppID')">复制</button>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-slate-700">{{ maskedSecret(m.app_secret) }}</span>
+                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.app_secret, '密钥')">复制</button>
+                </div>
+              </td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payin_balance) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.available_balance ?? 0) }}</td>
               <td class="px-4 py-3">
@@ -127,6 +148,7 @@
             @reset="resetForm"
             @toggle-lock="toggleLock"
             @reset-secret="resetSecret"
+            @reset-password="resetPassword"
           />
         </div>
 
@@ -313,7 +335,7 @@ const drawerTitle = computed(() =>
 )
 
 const canSaveForm = computed(() => {
-  if (isNew.value) return !!form.value.merchant_id?.trim()
+  if (isNew.value) return !!form.value.merchant_id?.trim() && !!form.value.email?.trim()
   return true
 })
 const transferCurrencyCode = computed(() => adminDisplaySettings.value.currency_code || 'CNY')
@@ -322,8 +344,32 @@ const filteredMerchants = computed(() => {
   const s = searchQuery.value.trim().toLowerCase()
   const list = merchants.value
   if (!s) return list
-  return list.filter((m) => (m.merchant_id || '').toLowerCase().includes(s))
+  return list.filter((m) =>
+    (m.merchant_id || '').toLowerCase().includes(s) ||
+    (m.email || '').toLowerCase().includes(s) ||
+    (m.app_id || '').toLowerCase().includes(s),
+  )
 })
+function maskedSecret(secret: string) {
+  const s = String(secret || '')
+  if (s.length <= 8) return s || '-'
+  return `${s.slice(0, 4)}****${s.slice(-4)}`
+}
+
+async function copyValue(value: string, label: string) {
+  const text = String(value || '').trim()
+  if (!text) {
+    toast.error(`${label}为空，无法复制`)
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.success(`${label}已复制`)
+  } catch {
+    toast.error(`复制${label}失败`)
+  }
+}
+
 
 const { page, pageSize, total, pageCount, slice: pagedMerchants } = useClientPagination(filteredMerchants, 10)
 
@@ -452,9 +498,9 @@ async function saveForm() {
   const creating = isNew.value
   try {
     if (creating) {
-      const resp = await adminPost<{ merchant: AdminMerchantInfo }>('/v1/admin/merchants', {
+      const resp = await adminPost<{ merchant: AdminMerchantInfo; generated_password?: string }>('/v1/admin/merchants', {
         merchant_id: form.value.merchant_id.trim(),
-        api_secret: form.value.api_secret,
+        email: form.value.email.trim(),
         default_payin_rate_bps: 0,
         default_payout_rate_bps: 0,
         notify_url: form.value.notify_url,
@@ -469,6 +515,9 @@ async function saveForm() {
       selectedMerchantId.value = row.merchant_id
       rightTab.value = 'basic'
       form.value = merchantToForm(row)
+      if (resp.generated_password) {
+        await copyValue(resp.generated_password, '初始密码')
+      }
     } else {
       const mid = selectedMerchant.value!.merchant_id
       const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(mid)}`, {
@@ -530,6 +579,8 @@ async function toggleLock() {
 async function resetSecret() {
   const m = selectedMerchant.value
   if (!m) return
+  const ok = await dialog.confirm('确认重置该商户密钥？重置后旧密钥立即失效。', '重置密钥')
+  if (!ok) return
   formError.value = ''
   try {
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(
@@ -556,6 +607,45 @@ async function resetSecret() {
     const msg = e instanceof Error ? e.message : String(e)
     formError.value = msg
     toast.error(`重置密钥失败：${msg}`)
+  }
+}
+
+async function resetPassword() {
+  const m = selectedMerchant.value
+  if (!m) return
+  const ok = await dialog.confirm('确认重置该商户登录密码？重置后旧密码立即失效。', '重置密码')
+  if (!ok) return
+  formError.value = ''
+  try {
+    const resp = await adminPut<{ merchant: AdminMerchantInfo; generated_password?: string }>(
+      `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`,
+      {
+        reset_password: true,
+        status: m.status,
+        default_payin_rate_bps: m.default_payin_rate_bps,
+        default_payout_rate_bps: m.default_payout_rate_bps,
+        notify_url: m.notify_url,
+        return_url: m.return_url,
+        ip_whitelist: m.ip_whitelist,
+        payin_grants: normalizedPayinGrants(m),
+        payout_grants: normalizedPayoutGrants(m),
+      },
+    )
+    const row = resp.merchant
+    const idx = merchants.value.findIndex((x) => x.merchant_id === row.merchant_id)
+    if (idx >= 0) merchants.value[idx] = row
+    form.value = merchantToForm(row)
+    saved.value = true
+    if (resp.generated_password) {
+      await copyValue(resp.generated_password, '新密码')
+      toast.success(`密码已重置：${resp.generated_password}`)
+    } else {
+      toast.success('密码已重置')
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    formError.value = msg
+    toast.error(`重置密码失败：${msg}`)
   }
 }
 

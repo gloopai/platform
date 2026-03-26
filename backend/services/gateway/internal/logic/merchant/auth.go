@@ -10,6 +10,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -30,16 +31,20 @@ func NewMerchantAuth(ctx context.Context, svcCtx *svc.ServiceContext) *MerchantA
 }
 
 func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.MerchantLoginResp, error) {
-	merchantId := strings.TrimSpace(req.MerchantId)
-	secret := req.ApiSecret
-	if merchantId == "" || secret == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id and api_secret required")
+	email := strings.TrimSpace(strings.ToLower(req.Email))
+	password := req.Password
+	if email == "" || password == "" {
+		return nil, status.Error(codes.InvalidArgument, "email and password required")
 	}
-	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{Email: email})
 	if err != nil || auth.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
-	if auth.GetApiSecret() != secret {
+	if err := bcrypt.CompareHashAndPassword([]byte(auth.GetPasswordHash()), []byte(password)); err != nil {
+		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
+	}
+	merchantId := auth.GetMerchantId()
+	if merchantId == "" {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
@@ -51,6 +56,7 @@ func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.Mercha
 		Token:      tok,
 		ExpiresAt:  expiresAt.Unix(),
 		MerchantId: merchantId,
+		AppId:      auth.GetAppId(),
 	}, nil
 }
 

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
@@ -11,6 +12,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -65,7 +67,9 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 	}
 	return types.AdminMerchantInfo{
 		MerchantId:           m.GetMerchantId(),
-		ApiSecret:            m.GetApiSecret(),
+		AppId:                m.GetAppId(),
+		Email:                m.GetEmail(),
+		AppSecret:            m.GetAppSecret(),
 		Status:               m.GetStatus(),
 		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
 		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
@@ -74,7 +78,7 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		IpWhitelist:          m.GetIpWhitelist(),
 		PayinBalance:         m.GetPayinBalance(),
 		AvailableBalance:     m.GetAvailableBalance(),
-		PayinProductIds:        m.GetPayinProductIds(),
+		PayinProductIds:      m.GetPayinProductIds(),
 		PayoutProductIds:     m.GetPayoutProductIds(),
 		PayinGrants:          cg,
 		PayoutGrants:         pg,
@@ -98,8 +102,8 @@ func (m *AdminMerchants) AdminTransferPayinToPayout(req *types.AdminTransferPayi
 		return nil, err
 	}
 	return &types.AdminTransferPayinToPayoutResp{
-		Ok:            r.GetChanged(),
-		PayinBalance:  r.GetPayinBalance(),
+		Ok:               r.GetChanged(),
+		PayinBalance:     r.GetPayinBalance(),
 		AvailableBalance: r.GetAvailableBalance(),
 	}, nil
 }
@@ -121,18 +125,35 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
+	email := strings.TrimSpace(strings.ToLower(req.Email))
+	if email == "" {
+		return nil, status.Error(codes.InvalidArgument, "email required")
+	}
 
-	secret := strings.TrimSpace(req.ApiSecret)
+	appID, err := newAppID()
+	if err != nil {
+		return nil, err
+	}
+	password, err := newMerchantPassword()
+	if err != nil {
+		return nil, err
+	}
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
 	r, err := m.svcCtx.MerchantRpc.CreateMerchant(m.ctx, &merchantclient.CreateMerchantReq{
 		MerchantId:           merchantId,
-		ApiSecret:            secret,
+		AppId:                appID,
+		Email:                email,
+		PasswordHash:         string(passwordHash),
 		Status:               1,
 		DefaultPayinRateBps:  req.DefaultPayinRateBps,
 		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
 		NotifyUrl:            req.NotifyUrl,
 		ReturnUrl:            req.ReturnUrl,
 		IpWhitelist:          req.IpWhitelist,
-		PayinProductIds:        req.PayinProductIds,
+		PayinProductIds:      req.PayinProductIds,
 		PayoutProductIds:     req.PayoutProductIds,
 	})
 	if err != nil {
@@ -140,7 +161,8 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 	}
 	created := r.GetMerchant()
 	return &types.AdminUpsertMerchantResp{
-		Merchant: toAdminMerchantInfo(created),
+		Merchant:          toAdminMerchantInfo(created),
+		GeneratedPassword: password,
 	}, nil
 }
 
@@ -158,9 +180,24 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		}
 		secret = tok
 	}
+	passwordHash := ""
+	generatedPassword := ""
+	if req.ResetPassword {
+		pwd, err := newMerchantPassword()
+		if err != nil {
+			return nil, err
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		passwordHash = string(hash)
+		generatedPassword = pwd
+	}
 	r, err := m.svcCtx.MerchantRpc.UpdateMerchant(m.ctx, &merchantclient.UpdateMerchantReq{
 		MerchantId:           merchantId,
-		ApiSecret:            secret,
+		AppSecret:            secret,
+		PasswordHash:         passwordHash,
 		Status:               req.Status,
 		DefaultPayinRateBps:  req.DefaultPayinRateBps,
 		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
@@ -297,5 +334,27 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		row.FeeFixedAmount = g.GetFeeFixedAmount()
 		mi.PayoutGrants = append(mi.PayoutGrants, row)
 	}
-	return &types.AdminUpsertMerchantResp{Merchant: mi}, nil
+	return &types.AdminUpsertMerchantResp{Merchant: mi, GeneratedPassword: generatedPassword}, nil
+}
+
+func newAppID() (string, error) {
+	tok, err := shared.NewToken()
+	if err != nil {
+		return "", err
+	}
+	if len(tok) > 16 {
+		tok = tok[:16]
+	}
+	return fmt.Sprintf("app_%s", tok), nil
+}
+
+func newMerchantPassword() (string, error) {
+	tok, err := shared.NewToken()
+	if err != nil {
+		return "", err
+	}
+	if len(tok) > 12 {
+		tok = tok[:12]
+	}
+	return fmt.Sprintf("M#%s", tok), nil
 }

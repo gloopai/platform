@@ -51,15 +51,17 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		rate = float64(sum.GetSuccessCount()) / float64(sum.GetTotalCount())
 	}
 	return &types.MerchantSummaryResp{
-		TodayAmount:   sum.GetTotalAmount(),
-		TodayCount:    sum.GetTotalCount(),
-		SuccessRate:   rate,
-		PayinBalance:  auth.GetPayinBalance(),
+		TodayAmount:      sum.GetTotalAmount(),
+		TodayCount:       sum.GetTotalCount(),
+		SuccessRate:      rate,
+		PayinBalance:     auth.GetPayinBalance(),
 		AvailableBalance: auth.GetAvailableBalance(),
-		MerchantId:    merchantId,
-		ApiSecret:     auth.GetApiSecret(),
-		NotifyUrl:     auth.GetNotifyUrl(),
-		IpWhitelist:   auth.GetIpWhitelist(),
+		MerchantId:       merchantId,
+		AppId:            auth.GetAppId(),
+		Email:            auth.GetEmail(),
+		AppSecret:        auth.GetAppSecret(),
+		NotifyUrl:        auth.GetNotifyUrl(),
+		IpWhitelist:      auth.GetIpWhitelist(),
 	}, nil
 }
 
@@ -78,7 +80,7 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 	}
 	updated, err := c.svcCtx.MerchantRpc.UpdateMerchant(c.ctx, &merchantclient.UpdateMerchantReq{
 		MerchantId:           merchantId,
-		ApiSecret:            m.GetApiSecret(),
+		AppSecret:            m.GetAppSecret(),
 		Status:               m.GetStatus(),
 		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
 		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
@@ -95,7 +97,9 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 	}
 	return &types.MerchantUpdateConfigResp{
 		MerchantId:  out.GetMerchantId(),
-		ApiSecret:   out.GetApiSecret(),
+		AppId:       out.GetAppId(),
+		Email:       out.GetEmail(),
+		AppSecret:   out.GetAppSecret(),
 		NotifyUrl:   out.GetNotifyUrl(),
 		IpWhitelist: out.GetIpWhitelist(),
 	}, nil
@@ -164,7 +168,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
 			PayinProductCode: code,
-			PayinProductName:   lookupPayinProductName(nameByCode, code),
+			PayinProductName: lookupPayinProductName(nameByCode, code),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
 			FeeRateBps:       o.GetFeeRateBps(),
@@ -202,7 +206,7 @@ func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsRe
 		}
 		items = append(items, types.MerchantProductStatsItem{
 			PayinProductCode: code,
-			PayinProductName:   name,
+			PayinProductName: name,
 			OrderCount:       x.GetOrderCount(),
 			PaidAmount:       x.GetPaidAmount(),
 			PaidCount:        x.GetPaidCount(),
@@ -287,8 +291,8 @@ func (c *MerchantConsole) MerchantTransferPayinToPayout(req *types.MerchantTrans
 		return nil, err
 	}
 	return &types.MerchantTransferPayinToPayoutResp{
-		Ok:            r.GetChanged(),
-		PayinBalance:  r.GetPayinBalance(),
+		Ok:               r.GetChanged(),
+		PayinBalance:     r.GetPayinBalance(),
 		AvailableBalance: r.GetAvailableBalance(),
 	}, nil
 }
@@ -341,9 +345,9 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
 			ChannelId:        o.GetChannelId(),
-			PayinProductId:     o.GetPayinProductId(),
+			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
-			PayinProductName:   payProductName,
+			PayinProductName: payProductName,
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),

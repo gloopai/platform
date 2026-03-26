@@ -24,6 +24,13 @@
           >
             重置密钥
           </button>
+          <button
+            type="button"
+            class="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700"
+            @click="$emit('reset-password')"
+          >
+            重置密码
+          </button>
         </template>
       </div>
     </div>
@@ -37,9 +44,9 @@
           :disabled="!isNew"
         />
       </label>
-      <label v-if="isNew" class="col-span-12 grid gap-1 md:col-span-6">
-        <span class="text-xs font-medium text-slate-600">api_secret（留空自动生成）</span>
-        <input v-model.trim="model.api_secret" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
+      <label class="col-span-12 grid gap-1 md:col-span-6">
+        <span class="text-xs font-medium text-slate-600">邮箱 email</span>
+        <input v-model.trim="model.email" class="rounded-md border border-slate-200 px-3 py-2 text-sm" />
       </label>
 
       <label class="col-span-12 grid gap-1 md:col-span-6">
@@ -117,6 +124,7 @@ defineEmits<{
   reset: []
   'toggle-lock': []
   'reset-secret': []
+  'reset-password': []
 }>()
 
 const lockLabel = computed(() => (props.statusForLock === 1 ? '锁定' : '解锁'))

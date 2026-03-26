@@ -20,7 +20,7 @@ export const merchantPlaceholderByPath: Record<string, MerchantPlaceholderBlock>
   '/account': {
     summary: '管理登录安全、联系方式与基础资料；敏感操作建议开启二次验证（若平台提供）。',
     bullets: [
-      '登录与密钥：与「开发配置」中 api_secret 说明联动',
+      '登录与密钥：与「开发配置」中 app_secret 说明联动',
       'IP 白名单、回调域名：以服务端配置为准',
       '子账号与角色（若平台提供商户多用户）',
     ],

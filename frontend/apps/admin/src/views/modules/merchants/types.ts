@@ -12,7 +12,9 @@ export type MerchantPayoutGrant = {
 
 export type AdminMerchantInfo = {
   merchant_id: string
-  api_secret: string
+  app_id: string
+  email: string
+  app_secret: string
   status: number
   default_payin_rate_bps: number
   default_payout_rate_bps: number
@@ -31,7 +33,7 @@ export type ProductRow = { id: number; code: string; name: string }
 
 export type MerchantForm = {
   merchant_id: string
-  api_secret: string
+  email: string
   status: number
   notify_url: string
   return_url: string
@@ -41,7 +43,7 @@ export type MerchantForm = {
 export function emptyMerchantForm(): MerchantForm {
   return {
     merchant_id: '',
-    api_secret: '',
+    email: '',
     status: 1,
     notify_url: '',
     return_url: '',
@@ -52,7 +54,7 @@ export function emptyMerchantForm(): MerchantForm {
 export function merchantToForm(m: AdminMerchantInfo): MerchantForm {
   return {
     merchant_id: m.merchant_id,
-    api_secret: m.api_secret,
+    email: m.email || '',
     status: m.status,
     notify_url: m.notify_url,
     return_url: m.return_url,
