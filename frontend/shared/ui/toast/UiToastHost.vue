@@ -8,12 +8,17 @@
       <div
         v-for="t in toasts"
         :key="t.id"
-        class="pointer-events-auto flex items-start gap-3 rounded-xl border bg-white/95 px-4 py-3 shadow-[0_10px_28px_-14px_rgba(15,23,42,0.35)] backdrop-blur-sm"
+        class="pointer-events-auto relative flex items-start gap-3 rounded-xl border bg-white px-4 py-3 shadow-[0_14px_34px_-14px_rgba(15,23,42,0.42)]"
         :class="panelClass(t.variant)"
         role="status"
       >
         <span
-          class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
+          class="absolute inset-y-2 left-1.5 w-1 rounded-full"
+          :class="accentClass(t.variant)"
+          aria-hidden="true"
+        />
+        <span
+          class="ml-2 mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
           :class="iconWrapClass(t.variant)"
           aria-hidden="true"
           v-html="iconSvg(t.variant)"
@@ -42,11 +47,22 @@ const { toasts, dismiss } = useUiToast()
 function panelClass(v: UiToastVariant) {
   switch (v) {
     case 'error':
-      return 'border-rose-100'
+      return 'border-rose-200'
     case 'info':
-      return 'border-slate-200'
+      return 'border-slate-300'
     default:
-      return 'border-emerald-100'
+      return 'border-emerald-200'
+  }
+}
+
+function accentClass(v: UiToastVariant) {
+  switch (v) {
+    case 'error':
+      return 'bg-rose-400'
+    case 'info':
+      return 'bg-slate-400'
+    default:
+      return 'bg-emerald-400'
   }
 }
 
