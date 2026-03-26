@@ -2,11 +2,10 @@
   <div class="space-y-6">
     <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
 
-    <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-      <div class="text-sm font-semibold text-slate-900">后台用户</div>
-      <p class="mt-1 text-sm text-slate-600">
-        查看管理员账号，并为每人分配<strong>角色</strong>（角色在「角色与授权」里配置菜单与权限）。需同时具备<strong>本页菜单</strong>与权限
-        <span class="font-mono text-xs">admin.admin_users.manage</span>（网关校验）。
+    <div>
+      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">后台用户</h1>
+      <p class="mt-1 max-w-3xl text-sm text-slate-600">
+        查看管理员账号并分配角色；角色的菜单和权限配置在「角色与授权」中维护。
       </p>
     </div>
 

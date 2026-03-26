@@ -1,10 +1,8 @@
 <template>
   <div class="space-y-6">
-    <div class="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-slate-50 to-white p-5 shadow-sm">
-      <h2 class="text-sm font-semibold text-slate-900">菜单管理</h2>
-      <p class="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
-        统一维护侧栏、头像菜单与未挂菜单的能力：侧栏支持分组；头像下为一级页面；其它功能用于仅有接口/权限、无导航入口的能力。
-      </p>
+    <div>
+      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">菜单管理</h1>
+      <p class="mt-1 max-w-3xl text-sm text-slate-600">统一维护左侧菜单、头像菜单和未绑定菜单的其它功能。</p>
     </div>
 
     <PlacementTabs v-model="tab" />

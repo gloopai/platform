@@ -2,11 +2,11 @@
   <div class="space-y-4">
     <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
 
-    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div>
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <div class="text-sm font-semibold text-slate-900">功能点汇总</div>
-          <p class="mt-0.5 text-xs text-slate-500">与菜单管理共用同一数据；这里用于集中查看和维护全部权限点。</p>
+          <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">功能点</h1>
+          <p class="mt-1 max-w-3xl text-sm text-slate-600">集中维护全部权限点，与菜单管理数据实时联动。</p>
         </div>
         <button
           type="button"

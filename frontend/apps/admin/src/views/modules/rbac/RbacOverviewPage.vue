@@ -2,11 +2,9 @@
   <div class="space-y-6">
     <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
 
-    <div class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 to-white p-5 shadow-sm">
-      <h2 class="text-sm font-semibold text-slate-900">按「菜单」理解权限在配什么</h2>
-      <p class="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
-        先选一个导航项（或「未绑定菜单」的能力），右侧会列出<strong>这个功能下要用到的权限点</strong>，以及<strong>网关里对应哪些接口</strong>。配角色时：勾选菜单决定能不能进页面；勾选权限点决定接口能不能调。
-      </p>
+    <div>
+      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">配置总览</h1>
+      <p class="mt-1 max-w-3xl text-sm text-slate-600">按菜单查看对应权限点和接口规则，便于快速核对配置关系。</p>
     </div>
 
     <div class="grid gap-4 lg:grid-cols-12">

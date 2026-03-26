@@ -2,6 +2,11 @@
   <div class="space-y-6">
     <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
 
+    <div>
+      <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">角色与授权</h1>
+      <p class="mt-1 max-w-3xl text-sm text-slate-600">选择角色后，按菜单和其它功能分组配置可见菜单与权限点。</p>
+    </div>
+
     <div class="grid gap-6 lg:grid-cols-12">
       <div class="lg:col-span-3">
         <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
@@ -58,12 +63,7 @@
       <div class="lg:col-span-9 space-y-6">
         <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div class="text-sm font-semibold text-slate-800">角色与授权</div>
-              <p class="mt-0.5 text-xs text-slate-500">
-                选中角色后，右侧按三类展示：左侧菜单、头像菜单、其它功能。每个菜单下可同时配置菜单可见性和权限点。
-              </p>
-            </div>
+            <div class="text-sm font-semibold text-slate-800">授权操作</div>
             <div class="flex flex-wrap items-center gap-2">
               <button
                 type="button"
