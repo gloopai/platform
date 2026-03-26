@@ -218,7 +218,7 @@
                     v-for="a in avatarLinks"
                     :key="a.to"
                     :to="a.to"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    class="flex w-full items-center gap-2 border-b border-slate-100 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
                     @click="userMenuOpen = false"
                   >
                     <span

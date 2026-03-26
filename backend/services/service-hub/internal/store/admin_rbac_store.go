@@ -40,6 +40,18 @@ func NewAdminRbacStore(db *gorm.DB) *AdminRbacStore {
 	return &AdminRbacStore{db: db}
 }
 
+func (s *AdminRbacStore) grantMenuToSuperAdmin(ctx context.Context, menuID int64) error {
+	if menuID <= 0 {
+		return nil
+	}
+	return s.db.WithContext(ctx).Exec(
+		`INSERT INTO admin_role_menus (role_id, menu_id)
+		 SELECT id, ? FROM admin_roles WHERE code = 'super_admin' AND status = 1
+		 ON DUPLICATE KEY UPDATE menu_id = VALUES(menu_id)`,
+		menuID,
+	).Error
+}
+
 func (s *AdminRbacStore) ListMenus(ctx context.Context) ([]AdminMenu, error) {
 	var out []AdminMenu
 	if err := s.db.WithContext(ctx).
@@ -363,6 +375,10 @@ func (s *AdminRbacStore) CreateMenu(ctx context.Context, parentID int64, menuKey
 		Placement: pl,
 	}
 	if err := s.db.WithContext(ctx).Table("admin_menus").Create(&m).Error; err != nil {
+		return nil, err
+	}
+	// Keep menu creation intuitive for super_admin operators.
+	if err := s.grantMenuToSuperAdmin(ctx, m.ID); err != nil {
 		return nil, err
 	}
 	return &m, nil
