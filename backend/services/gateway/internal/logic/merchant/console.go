@@ -11,6 +11,7 @@ import (
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
+	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/gateway/internal/middleware"
@@ -227,6 +228,86 @@ func (c *MerchantConsole) MerchantProductStats(req *types.MerchantProductStatsRe
 	}, nil
 }
 
+func (c *MerchantConsole) MerchantOpenedProducts() (*types.MerchantOpenedProductsResp, error) {
+	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
+	if merchantId == "" {
+		return nil, status.Error(codes.Unauthenticated, "merchant not authenticated")
+	}
+	payinIDsResp, err := c.svcCtx.MerchantRpc.ListMerchantPayinProductIds(c.ctx, &merchantpb.ListMerchantPayinProductIdsReq{
+		MerchantId: merchantId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	payoutIDsResp, err := c.svcCtx.MerchantRpc.ListMerchantPayoutProductIds(c.ctx, &merchantpb.ListMerchantPayoutProductIdsReq{
+		MerchantId: merchantId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	payinByID := c.payinProductByID(c.ctx)
+	payoutByID := c.payoutProductByID(c.ctx)
+	items := make([]types.MerchantOpenedProductItem, 0, len(payinIDsResp.GetGrants())+len(payoutIDsResp.GetGrants()))
+	for _, g := range payinIDsResp.GetGrants() {
+		if g == nil || g.GetPayinProductId() <= 0 {
+			continue
+		}
+		row := payinByID[g.GetPayinProductId()]
+		var feeRateBps *int64
+		if g.MerchantRateBps != nil {
+			v := *g.MerchantRateBps
+			feeRateBps = &v
+		}
+		items = append(items, types.MerchantOpenedProductItem{
+			ProductType: "payin",
+			ProductId:   g.GetPayinProductId(),
+			ProductCode: productCodeFromPayinRow(row),
+			ProductName: productNameFromPayinRow(row, g.GetPayinProductId()),
+			Enabled:     productEnabledFromPayinRow(row),
+			FeeMode:     1,
+			FeeRateBps:  feeRateBps,
+		})
+	}
+	for _, g := range payoutIDsResp.GetGrants() {
+		if g == nil || g.GetPayoutProductId() <= 0 {
+			continue
+		}
+		row := payoutByID[g.GetPayoutProductId()]
+		var feeRateBps *int64
+		if g.MerchantRateBps != nil {
+			v := *g.MerchantRateBps
+			feeRateBps = &v
+		}
+		feeMode := g.GetFeeMode()
+		if feeMode <= 0 {
+			feeMode = 1
+		}
+		items = append(items, types.MerchantOpenedProductItem{
+			ProductType: "payout",
+			ProductId:   g.GetPayoutProductId(),
+			ProductCode: productCodeFromPayoutRow(row),
+			ProductName: productNameFromPayoutRow(row, g.GetPayoutProductId()),
+			Enabled:     productEnabledFromPayoutRow(row),
+			FeeMode:     feeMode,
+			FeeRateBps:  feeRateBps,
+			FeeFixed:    g.GetFeeFixedAmount(),
+		})
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].ProductType == items[j].ProductType {
+			if items[i].ProductName == items[j].ProductName {
+				return items[i].ProductId < items[j].ProductId
+			}
+			return items[i].ProductName < items[j].ProductName
+		}
+		return items[i].ProductType < items[j].ProductType
+	})
+	return &types.MerchantOpenedProductsResp{
+		MerchantId: merchantId,
+		Products:   items,
+	}, nil
+}
+
 func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]string {
 	r, err := c.svcCtx.ChannelRpc.AdminListPayinProducts(ctx, &channelpb.AdminListPayinProductsReq{})
 	if err != nil {
@@ -242,11 +323,95 @@ func (c *MerchantConsole) payProductNameByCode(ctx context.Context) map[string]s
 	return m
 }
 
+func (c *MerchantConsole) payinProductByID(ctx context.Context) map[int64]*channelpb.AdminPayinProductRow {
+	r, err := c.svcCtx.ChannelRpc.AdminListPayinProducts(ctx, &channelpb.AdminListPayinProductsReq{})
+	if err != nil {
+		c.Errorf("AdminListPayinProducts: %v", err)
+		return nil
+	}
+	m := make(map[int64]*channelpb.AdminPayinProductRow, len(r.GetProducts()))
+	for _, row := range r.GetProducts() {
+		if row.GetId() > 0 {
+			m[row.GetId()] = row
+		}
+	}
+	return m
+}
+
+func (c *MerchantConsole) payoutProductByID(ctx context.Context) map[int64]*channelpb.AdminPayoutProductRow {
+	r, err := c.svcCtx.ChannelRpc.AdminListPayoutProducts(ctx, &channelpb.AdminListPayoutProductsReq{})
+	if err != nil {
+		c.Errorf("AdminListPayoutProducts: %v", err)
+		return nil
+	}
+	m := make(map[int64]*channelpb.AdminPayoutProductRow, len(r.GetProducts()))
+	for _, row := range r.GetProducts() {
+		if row.GetId() > 0 {
+			m[row.GetId()] = row
+		}
+	}
+	return m
+}
+
 func lookupPayinProductName(byCode map[string]string, code string) string {
 	if code == "" || byCode == nil {
 		return ""
 	}
 	return byCode[code]
+}
+
+func productCodeFromPayinRow(row *channelpb.AdminPayinProductRow) string {
+	if row == nil {
+		return ""
+	}
+	return row.GetCode()
+}
+
+func productNameFromPayinRow(row *channelpb.AdminPayinProductRow, id int64) string {
+	if row == nil {
+		return "代收产品#" + strconv.FormatInt(id, 10)
+	}
+	if strings.TrimSpace(row.GetName()) != "" {
+		return row.GetName()
+	}
+	if strings.TrimSpace(row.GetCode()) != "" {
+		return row.GetCode()
+	}
+	return "代收产品#" + strconv.FormatInt(id, 10)
+}
+
+func productEnabledFromPayinRow(row *channelpb.AdminPayinProductRow) bool {
+	if row == nil {
+		return true
+	}
+	return row.GetEnabled()
+}
+
+func productCodeFromPayoutRow(row *channelpb.AdminPayoutProductRow) string {
+	if row == nil {
+		return ""
+	}
+	return row.GetCode()
+}
+
+func productNameFromPayoutRow(row *channelpb.AdminPayoutProductRow, id int64) string {
+	if row == nil {
+		return "代付产品#" + strconv.FormatInt(id, 10)
+	}
+	if strings.TrimSpace(row.GetName()) != "" {
+		return row.GetName()
+	}
+	if strings.TrimSpace(row.GetCode()) != "" {
+		return row.GetCode()
+	}
+	return "代付产品#" + strconv.FormatInt(id, 10)
+}
+
+func productEnabledFromPayoutRow(row *channelpb.AdminPayoutProductRow) bool {
+	if row == nil {
+		return true
+	}
+	return row.GetEnabled()
 }
 
 func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*types.MerchantFundLogsResp, error) {

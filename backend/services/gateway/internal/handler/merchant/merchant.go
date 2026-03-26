@@ -115,6 +115,18 @@ func MerchantProductStatsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func MerchantOpenedProductsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := logic.NewMerchantConsole(r.Context(), svcCtx)
+		resp, err := l.MerchantOpenedProducts()
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func MerchantPayOrdersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.MerchantOrdersReq

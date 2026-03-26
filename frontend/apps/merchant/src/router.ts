@@ -6,6 +6,7 @@ import ConsolePage from './views/pages/ConsolePage.vue'
 import DevelopersPage from './views/pages/DevelopersPage.vue'
 import FinancePage from './views/pages/FinancePage.vue'
 import ModulePlaceholderPage from './views/pages/ModulePlaceholderPage.vue'
+import ProductsPage from './views/pages/ProductsPage.vue'
 import TransactionsPayinPage from './views/pages/TransactionsPayinPage.vue'
 import TransactionsPayoutPage from './views/pages/TransactionsPayoutPage.vue'
 
@@ -22,7 +23,7 @@ export const router = createRouter({
         { path: 'transactions-payin', component: TransactionsPayinPage },
         { path: 'transactions-payout', component: TransactionsPayoutPage },
         { path: 'finance', component: FinancePage },
-        { path: 'products', component: ModulePlaceholderPage },
+        { path: 'products', component: ProductsPage },
         { path: 'account', component: ModulePlaceholderPage },
         { path: 'developers', component: DevelopersPage },
       ],

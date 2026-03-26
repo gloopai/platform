@@ -237,6 +237,22 @@ type MerchantDisplaySettingsResp struct {
 type MerchantProductStatsReq struct {
 }
 
+type MerchantOpenedProductItem struct {
+	ProductType string `json:"product_type"`
+	ProductId   int64  `json:"product_id"`
+	ProductCode string `json:"product_code"`
+	ProductName string `json:"product_name"`
+	Enabled     bool   `json:"enabled"`
+	FeeMode     int64  `json:"fee_mode"`
+	FeeRateBps  *int64 `json:"fee_rate_bps,omitempty"`
+	FeeFixed    int64  `json:"fee_fixed_amount"`
+}
+
+type MerchantOpenedProductsResp struct {
+	MerchantId string                      `json:"merchant_id"`
+	Products   []MerchantOpenedProductItem `json:"products"`
+}
+
 type MerchantProductStatsItem struct {
 	PayinProductCode string  `json:"payin_product_code"`
 	PayinProductName string  `json:"payin_product_name"`

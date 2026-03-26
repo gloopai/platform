@@ -7,6 +7,7 @@ export const MERCHANT_API = {
   summary: '/v1/merchant/summary',
   config: '/v1/merchant/config',
   statsByProduct: '/v1/merchant/stats/by_product',
+  products: '/v1/merchant/products',
   payinOrders: '/v1/merchant/payin_orders',
   payoutOrders: '/v1/merchant/payout_orders',
   orderDetail: '/v1/merchant/order/detail',

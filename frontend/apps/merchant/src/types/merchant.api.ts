@@ -53,6 +53,22 @@ export type MerchantProductStatsResp = {
   items: MerchantProductStatsItem[]
 }
 
+export type MerchantOpenedProductItem = {
+  product_type: 'payin' | 'payout'
+  product_id: number
+  product_code: string
+  product_name: string
+  enabled: boolean
+  fee_mode: number
+  fee_rate_bps?: number
+  fee_fixed_amount: number
+}
+
+export type MerchantOpenedProductsResp = {
+  merchant_id: string
+  products: MerchantOpenedProductItem[]
+}
+
 export type MerchantOrderItem = {
   order_no: string
   merchant_order_no: string
