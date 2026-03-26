@@ -253,7 +253,8 @@
     </div>
   </div>
 
-  <AdminToastHost />
+  <UiToastHost />
+  <UiDialogHost />
 
   <Teleport to="body">
     <div
@@ -288,7 +289,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import AdminToastHost from '../components/AdminToastHost.vue'
+import UiDialogHost from '../../../../shared/ui/dialog/UiDialogHost.vue'
+import UiToastHost from '../../../../shared/ui/toast/UiToastHost.vue'
 import { adminPathTitle, defaultAdminMenu, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
 import { adminGet, adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'
