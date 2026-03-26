@@ -174,7 +174,7 @@
             <div ref="userMenuRoot" class="relative">
               <button
                 type="button"
-                class="flex items-center gap-2 rounded-xl  py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition"
+                class="flex items-center gap-2 rounded-xl  py-1.5 pl-1.5 pr-2.5 text-left transition"
                 @click.stop="userMenuOpen = !userMenuOpen"
               >
                 <span
