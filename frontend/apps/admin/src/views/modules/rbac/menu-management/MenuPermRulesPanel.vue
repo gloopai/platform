@@ -358,12 +358,18 @@ function cancelPermCreate() {
 }
 
 async function submitPermCreate() {
+  const permKey = permDraft.perm_key.trim()
+  const label = permDraft.label.trim()
+  if (!permKey || !label) {
+    error.value = 'perm_key 和 名称为必填项'
+    return
+  }
   error.value = ''
   saving.value = true
   try {
     await adminPost('/v1/admin/rbac/permissions', {
-      perm_key: permDraft.perm_key.trim(),
-      label: permDraft.label.trim(),
+      perm_key: permKey,
+      label,
       category: permDraft.category.trim(),
       menu_key: permDraft.menu_key.trim(),
       status: permDraft.status,
@@ -399,11 +405,16 @@ function cancelPermEdit() {
 }
 
 async function submitPermEdit(p: AdminPermission) {
+  const label = permDraft.label.trim()
+  if (!label) {
+    error.value = '名称为必填项'
+    return
+  }
   error.value = ''
   saving.value = true
   try {
     await adminPut(`/v1/admin/rbac/permissions/${p.id}`, {
-      label: permDraft.label.trim(),
+      label,
       category: permDraft.category.trim(),
       menu_key: permDraft.menu_key.trim(),
       status: permDraft.status,

@@ -270,12 +270,19 @@ async function saveMenu() {
       sort_order: form.sort_order,
       placement: 'left',
     }
+    let saved: RbacAdminMenu | null = null
     if (form.id) {
-      await adminPut(`/v1/admin/rbac/menus/${form.id}`, body)
+      const resp = await adminPut<{ menu: RbacAdminMenu }>(`/v1/admin/rbac/menus/${form.id}`, body)
+      saved = resp.menu || null
     } else {
-      await adminPost('/v1/admin/rbac/menus', body)
+      const resp = await adminPost<{ menu: RbacAdminMenu }>('/v1/admin/rbac/menus', body)
+      saved = resp.menu || null
     }
-    await load()
+    if (saved) {
+      const idx = menus.value.findIndex((x) => x.id === saved!.id)
+      if (idx >= 0) menus.value[idx] = saved
+      else menus.value.unshift(saved)
+    }
     if (keepId) {
       const m = menus.value.find((x) => x.id === keepId)
       if (m) selectRow(m)
@@ -297,9 +304,10 @@ async function removeMenu() {
   if (!form.id || !confirm('确定删除？须先删掉子菜单。')) return
   saving.value = true
   error.value = ''
+  const removeId = form.id
   try {
-    await adminDelete(`/v1/admin/rbac/menus/${form.id}`)
-    await load()
+    await adminDelete(`/v1/admin/rbac/menus/${removeId}`)
+    menus.value = menus.value.filter((x) => x.id !== removeId)
     resetNewForm()
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)

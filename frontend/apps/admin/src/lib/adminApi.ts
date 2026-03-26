@@ -58,7 +58,18 @@ export async function adminRequest<T>(path: string, options: AdminRequestOptions
 
   const resp = await fetch(adminApiUrl(path), { method, headers, body })
   if (!resp.ok) {
-    throw new Error(String(resp.status))
+    const text = await resp.text()
+    let detail = ''
+    if (text.trim()) {
+      try {
+        const parsed = JSON.parse(text) as Record<string, unknown>
+        const msg = parsed.message ?? parsed.msg ?? parsed.error
+        if (typeof msg === 'string') detail = msg.trim()
+      } catch {
+        detail = text.trim()
+      }
+    }
+    throw new Error(detail ? `${resp.status}: ${detail}` : String(resp.status))
   }
 
   const text = await resp.text()

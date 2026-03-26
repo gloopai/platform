@@ -236,14 +236,6 @@ func (s *AdminRbacStore) IsUserSuperAdmin(ctx context.Context, adminUserID int64
 }
 
 func (s *AdminRbacStore) ListMenusByUser(ctx context.Context, adminUserID int64) ([]AdminMenu, error) {
-	isSuper, err := s.IsUserSuperAdmin(ctx, adminUserID)
-	if err != nil {
-		return nil, err
-	}
-	if isSuper {
-		return s.ListMenus(ctx)
-	}
-
 	roleIDs, err := s.GetUserRoleIDs(ctx, adminUserID)
 	if err != nil {
 		return nil, err
@@ -266,14 +258,6 @@ func (s *AdminRbacStore) ListMenusByUser(ctx context.Context, adminUserID int64)
 }
 
 func (s *AdminRbacStore) ListPermKeysByUser(ctx context.Context, adminUserID int64) (isSuper bool, permKeys []string, err error) {
-	isSuper, err = s.IsUserSuperAdmin(ctx, adminUserID)
-	if err != nil {
-		return false, nil, err
-	}
-	if isSuper {
-		return true, []string{"*"}, nil
-	}
-
 	roleIDs, err := s.GetUserRoleIDs(ctx, adminUserID)
 	if err != nil {
 		return false, nil, err
