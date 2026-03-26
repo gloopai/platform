@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-6">
-    <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
-
     <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">说明</div>
       <p class="mt-2 text-sm leading-relaxed text-slate-600">
@@ -101,7 +99,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { useUiDialog } from '../../../../composables/ui'
+import { useUiDialog, useUiToast } from '../../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import MenuPermRulesPanel from './MenuPermRulesPanel.vue'
 import type { AdminPermission, ApiRule, RbacAdminMenu } from './types'
@@ -110,6 +108,7 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const dialog = useUiDialog()
+const toast = useUiToast()
 const menus = ref<RbacAdminMenu[]>([])
 const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
@@ -186,7 +185,9 @@ async function load() {
     apiRules.value = rr.rules || []
     if (!form.id && !selectedId.value) resetNewForm()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载头像菜单失败：${msg}`)
     menus.value = []
     permissions.value = []
     apiRules.value = []
@@ -234,8 +235,11 @@ async function saveMenu() {
     } else {
       resetNewForm()
     }
+    toast.success(keepId ? '菜单已保存' : '菜单已创建')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存菜单失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -252,8 +256,11 @@ async function removeMenu() {
     await adminDelete(`/v1/admin/rbac/menus/${removeId}`)
     menus.value = menus.value.filter((x) => x.id !== removeId)
     resetNewForm()
+    toast.success('菜单已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除菜单失败：${msg}`)
   } finally {
     saving.value = false
   }

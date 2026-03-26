@@ -243,6 +243,7 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import AdminDrawer from '../../../components/AdminDrawer.vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useAdminToast } from '../../../composables/useAdminToast'
+import { useUiDialog } from '../../../composables/ui'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 import { adminDisplaySettings, formatAdminMoney } from '../../../lib/displaySettings'
@@ -256,6 +257,7 @@ import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 const toast = useAdminToast()
+const dialog = useUiDialog()
 
 const loading = ref(false)
 const loadingProducts = ref(false)
@@ -395,8 +397,10 @@ async function loadPayinProducts() {
   try {
     const res = await adminGet<{ products: ProductRow[] }>('/v1/admin/payin_products')
     payinProducts.value = res.products || []
-  } catch {
+  } catch (e) {
     payinProducts.value = []
+    const msg = e instanceof Error ? e.message : String(e)
+    toast.error(`加载代收产品失败：${msg}`)
   } finally {
     loadingProducts.value = false
   }
@@ -407,8 +411,10 @@ async function loadPayoutProducts() {
   try {
     const res = await adminGet<{ products: ProductRow[] }>('/v1/admin/payout_products')
     payoutProducts.value = res.products || []
-  } catch {
+  } catch (e) {
     payoutProducts.value = []
+    const msg = e instanceof Error ? e.message : String(e)
+    toast.error(`加载代付产品失败：${msg}`)
   } finally {
     loadingPayoutProducts.value = false
   }
@@ -424,8 +430,10 @@ async function reload() {
     if (selectedMerchantId.value && merchants.value.some((m) => m.merchant_id === selectedMerchantId.value)) {
       applySelectedToForm()
     }
-  } catch {
-    formError.value = '网络错误'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    formError.value = msg
+    toast.error(`加载商户列表失败：${msg}`)
   } finally {
     loading.value = false
   }
@@ -474,8 +482,10 @@ async function saveForm() {
     }
     saved.value = true
     toast.success(creating ? '商户创建成功' : '编辑已保存')
-  } catch {
-    formError.value = '网络错误'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    formError.value = msg
+    toast.error(`保存商户失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -503,8 +513,10 @@ async function toggleLock() {
     form.value = merchantToForm(row)
     saved.value = true
     toast.success('状态已更新')
-  } catch {
-    formError.value = '更新状态失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    formError.value = msg
+    toast.error(`更新商户状态失败：${msg}`)
   }
 }
 
@@ -533,8 +545,10 @@ async function resetSecret() {
     form.value = merchantToForm(row)
     saved.value = true
     toast.success('密钥已重置')
-  } catch {
-    formError.value = '重置密钥失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    formError.value = msg
+    toast.error(`重置密钥失败：${msg}`)
   }
 }
 
@@ -559,8 +573,10 @@ async function persistPayinProducts(newGrants: MerchantPayinGrant[]) {
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
     toast.success('代收产品授权已更新')
-  } catch {
-    bindError.value = '保存失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    bindError.value = msg
+    toast.error(`保存代收产品授权失败：${msg}`)
   } finally {
     bindingSaving.value = false
   }
@@ -587,16 +603,20 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
     if (idx >= 0) merchants.value[idx] = row
     form.value = merchantToForm(row)
     toast.success('代付产品授权已更新')
-  } catch {
-    bindError.value = '保存失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    bindError.value = msg
+    toast.error(`保存代付产品授权失败：${msg}`)
   } finally {
     bindingSaving.value = false
   }
 }
 
-function removePayinProduct(productId: number) {
+async function removePayinProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m) return
+  const ok = await dialog.confirm('确认移除该代收产品绑定？', '移除代收产品')
+  if (!ok) return
   const cur = normalizedPayinGrants(m)
   const next = cur.filter((x) => x.payin_product_id !== productId)
   void persistPayinProducts(next)
@@ -627,9 +647,11 @@ function updatePayinGrant(grant: MerchantPayinGrant) {
   void persistPayinProducts(cur)
 }
 
-function removePayoutProduct(productId: number) {
+async function removePayoutProduct(productId: number) {
   const m = selectedMerchant.value
   if (!m) return
+  const ok = await dialog.confirm('确认移除该代付产品绑定？', '移除代付产品')
+  if (!ok) return
   const cur = normalizedPayoutGrants(m)
   const next = cur.filter((x) => x.payout_product_id !== productId)
   void persistPayoutProducts(next)
@@ -699,8 +721,10 @@ async function submitTransfer() {
     transferAmount.value = 0
     toast.success('划转成功')
     closeTransferDialog()
-  } catch {
-    transferMsg.value = '划转失败：请确认代收余额充足。'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    transferMsg.value = msg
+    toast.error(`余额划转失败：${msg}`)
   } finally {
     transferLoading.value = false
   }

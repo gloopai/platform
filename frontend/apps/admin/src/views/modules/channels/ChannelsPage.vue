@@ -245,8 +245,10 @@ async function reload() {
     if (selectedId.value && channels.value.some((c) => c.id === selectedId.value)) {
       applySelected()
     }
-  } catch {
-    error.value = '网络错误'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载通道列表失败：${msg}`)
   } finally {
     loading.value = false
   }
@@ -280,8 +282,10 @@ async function save() {
     form.value = { ...ch }
     saved.value = true
     toast.success(creating ? '通道已创建' : '编辑已保存')
-  } catch {
-    error.value = '网络错误'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存通道失败：${msg}`)
   } finally {
     saving.value = false
   }

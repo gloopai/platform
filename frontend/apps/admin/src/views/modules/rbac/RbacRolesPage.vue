@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-6">
-    <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
-
     <div>
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">角色与授权</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">选择角色后，按菜单和其它功能分组配置可见菜单与权限点。</p>
@@ -245,7 +243,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
-import { useUiDialog } from '../../../composables/ui'
+import { useUiDialog, useUiToast } from '../../../composables/ui'
 
 type AdminRole = { id: number; code: string; name: string; status: number }
 type AdminMenu = {
@@ -281,6 +279,7 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const dialog = useUiDialog()
+const toast = useUiToast()
 
 const roles = ref<AdminRole[]>([])
 const menus = ref<AdminMenu[]>([])
@@ -382,7 +381,9 @@ async function load() {
       await reloadRolePerms()
     }
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载角色与权限数据失败：${msg}`)
     roles.value = []
     menus.value = []
     permissions.value = []
@@ -410,7 +411,9 @@ async function reloadRoleMenus() {
     const r = await adminGet<{ menu_ids: number[] }>(`/v1/admin/rbac/roles/${selectedRoleId.value}/menus`)
     selectedMenuIds.value = (r.menu_ids || []).slice()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载角色菜单授权失败：${msg}`)
     selectedMenuIds.value = []
   }
 }
@@ -421,7 +424,9 @@ async function reloadRolePerms() {
     const r = await adminGet<{ perm_keys: string[] }>(`/v1/admin/rbac/roles/${selectedRoleId.value}/perm_keys`)
     selectedPermKeys.value = (r.perm_keys || []).slice()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载角色权限点失败：${msg}`)
     selectedPermKeys.value = []
   }
 }
@@ -433,8 +438,11 @@ async function saveRoleGrants() {
   try {
     await adminPut(`/v1/admin/rbac/roles/${selectedRoleId.value}/menus`, { menu_ids: selectedMenuIds.value })
     await adminPut(`/v1/admin/rbac/roles/${selectedRoleId.value}/perm_keys`, { perm_keys: selectedPermKeys.value })
+    toast.success('角色授权已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存角色授权失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -472,8 +480,11 @@ async function createRole() {
     newRoleCode.value = ''
     newRoleName.value = ''
     await load()
+    toast.success('角色已创建')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`创建角色失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -495,8 +506,11 @@ async function deleteRole() {
     selectedMenuIds.value = []
     selectedPermKeys.value = []
     await load()
+    toast.success('角色已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除角色失败：${msg}`)
   } finally {
     saving.value = false
   }

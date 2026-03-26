@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-6">
-    <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
-
     <div>
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">后台用户</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">
@@ -79,6 +77,7 @@
 import { onMounted, ref } from 'vue'
 
 import { adminGet, adminPut } from '../../../lib/adminApi'
+import { useUiToast } from '../../../composables/ui'
 
 type AdminUser = { id: number; username: string; status: number }
 type AdminRole = { id: number; code: string; name: string; status: number }
@@ -86,6 +85,7 @@ type AdminRole = { id: number; code: string; name: string; status: number }
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const toast = useUiToast()
 const users = ref<AdminUser[]>([])
 const roles = ref<AdminRole[]>([])
 const userRoles = ref<Record<number, number[]>>({})
@@ -124,7 +124,9 @@ async function load() {
     )
     userRoles.value = map
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载后台用户失败：${msg}`)
   } finally {
     loading.value = false
   }
@@ -148,8 +150,11 @@ async function saveUserRoles(uid: number) {
     const r = await adminGet<{ role_ids: number[] }>(`/v1/admin/rbac/admin_users/${uid}/roles`)
     userRoles.value = { ...userRoles.value, [uid]: r.role_ids || [] }
     cancelEdit()
+    toast.success('角色分配已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存角色分配失败：${msg}`)
   } finally {
     saving.value = false
   }

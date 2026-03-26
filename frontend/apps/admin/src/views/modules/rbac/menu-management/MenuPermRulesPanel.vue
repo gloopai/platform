@@ -5,8 +5,6 @@
       <p class="mt-1 text-xs text-slate-600">选中左侧菜单后，这里只展示列表；编辑在表格行内进行。</p>
     </div>
 
-    <p v-if="error" class="text-xs text-rose-600">{{ error }}</p>
-
     <div class="space-y-4">
       <div class="rounded-xl border border-slate-200 bg-white">
         <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -253,7 +251,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 
-import { useUiDialog } from '../../../../composables/ui'
+import { useUiDialog, useUiToast } from '../../../../composables/ui'
 import { adminDelete, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 
@@ -270,6 +268,7 @@ const emit = defineEmits<{
 const saving = ref(false)
 const error = ref('')
 const dialog = useUiDialog()
+const toast = useUiToast()
 const selectedPerm = ref<AdminPermission | null>(null)
 const permCreateOpen = ref(false)
 const permEditId = ref(0)
@@ -378,8 +377,11 @@ async function submitPermCreate() {
     })
     permCreateOpen.value = false
     emit('refresh')
+    toast.success('权限点已创建')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`创建权限点失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -423,8 +425,11 @@ async function submitPermEdit(p: AdminPermission) {
     })
     permEditId.value = 0
     emit('refresh')
+    toast.success('权限点已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存权限点失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -457,8 +462,11 @@ async function submitRuleCreate() {
     })
     ruleCreateOpen.value = false
     emit('refresh')
+    toast.success('接口规则已创建')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`创建接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -498,8 +506,11 @@ async function submitRuleEdit(r: ApiRule) {
     })
     ruleEditId.value = 0
     emit('refresh')
+    toast.success('接口规则已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -514,8 +525,11 @@ async function removePerm(p: AdminPermission) {
     await adminDelete(`/v1/admin/rbac/permissions/${p.id}`)
     if (selectedPerm.value?.id === p.id) selectedPerm.value = null
     emit('refresh')
+    toast.success('权限点已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除权限点失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -529,8 +543,11 @@ async function removeRule(id: number) {
   try {
     await adminDelete(`/v1/admin/rbac/api_rules/${id}`)
     emit('refresh')
+    toast.success('接口规则已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }

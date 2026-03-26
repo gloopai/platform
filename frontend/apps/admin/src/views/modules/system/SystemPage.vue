@@ -7,7 +7,6 @@
         <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">权限与安全 → 后台用户</RouterLink>
         中维护。
       </p>
-      <p v-if="error" class="mt-2 text-sm text-rose-600">{{ error }}</p>
     </div>
 
     <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
@@ -55,9 +54,11 @@ import { RouterLink } from 'vue-router'
 
 import { adminGet } from '../../../lib/adminApi'
 import { adminPut } from '../../../lib/adminApi'
+import { useUiToast } from '../../../composables/ui'
 import { applyAdminDisplaySettings } from '../../../lib/displaySettings'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
+const toast = useUiToast()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -75,8 +76,10 @@ async function load() {
     countryCode.value = ds.country_code || 'CN'
     currencyCode.value = ds.currency_code || 'CNY'
     currencySymbol.value = ds.currency_symbol || '¥'
-  } catch {
-    error.value = '加载失败，请检查登录态与网关'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载展示配置失败：${msg}`)
   } finally {
     loading.value = false
   }
@@ -97,8 +100,11 @@ async function saveDisplaySettings() {
     currencyCode.value = r.currency_code
     currencySymbol.value = r.currency_symbol
     saved.value = true
-  } catch {
-    error.value = '保存失败，请检查字段与登录态'
+    toast.success('展示配置已保存')
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存展示配置失败：${msg}`)
   } finally {
     saving.value = false
   }

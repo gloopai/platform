@@ -292,8 +292,10 @@ async function loadProducts() {
     if (selectedProductId.value && products.value.some((p) => p.id === selectedProductId.value)) {
       applySelectedProduct()
     }
-  } catch {
-    productError.value = '加载产品列表失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    productError.value = msg
+    toast.error(`加载产品列表失败：${msg}`)
     products.value = []
   } finally {
     loadingProducts.value = false
@@ -309,9 +311,11 @@ async function loadBindings(productId: number) {
     bindings.value = props.payoutMode
       ? raw.map((b) => ({ ...b, payout_product_id: b.payout_product_id }))
       : raw
-  } catch {
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
     bindings.value = []
-    bindingError.value = '加载绑定失败'
+    bindingError.value = msg
+    toast.error(`加载绑定失败：${msg}`)
   } finally {
     loadingBindings.value = false
   }
@@ -383,8 +387,10 @@ async function saveProduct() {
     savedProduct.value = true
     await loadBindings(p.id)
     toast.success(creating ? '产品已创建' : '编辑已保存')
-  } catch {
-    productError.value = '保存失败（编码重复或网络错误）'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    productError.value = msg
+    toast.error(`保存产品失败：${msg}`)
   } finally {
     savingProduct.value = false
   }
@@ -403,8 +409,10 @@ async function addBinding() {
     newBind.value = { channel_id: 0, weight: 100, enabled: true }
     await loadBindings(form.value.id)
     toast.success('通道绑定已添加')
-  } catch {
-    bindingError.value = '添加失败（通道不存在或已绑定）'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    bindingError.value = msg
+    toast.error(`添加通道绑定失败：${msg}`)
   } finally {
     addingBinding.value = false
   }
@@ -424,8 +432,10 @@ async function updateBinding(bindingId: number, weight: number, enabled: boolean
     await adminPut(apiBindingRow(bindingId), { weight, enabled })
     await loadBindings(form.value.id)
     toast.success('绑定已更新')
-  } catch {
-    bindingError.value = '更新绑定失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    bindingError.value = msg
+    toast.error(`更新通道绑定失败：${msg}`)
   }
 }
 
@@ -437,8 +447,10 @@ async function removeBinding(bindingId: number) {
     await adminDelete(apiBindingRow(bindingId))
     await loadBindings(form.value.id)
     toast.success('绑定已删除')
-  } catch {
-    bindingError.value = '删除失败'
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    bindingError.value = msg
+    toast.error(`删除通道绑定失败：${msg}`)
   }
 }
 

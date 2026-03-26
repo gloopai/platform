@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-6">
-    <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
-
     <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
       <div class="text-sm font-semibold text-slate-900">说明</div>
       <p class="mt-2 text-sm leading-relaxed text-slate-600">
@@ -161,7 +159,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { useUiDialog } from '../../../../composables/ui'
+import { useUiDialog, useUiToast } from '../../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 
@@ -169,6 +167,7 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const dialog = useUiDialog()
+const toast = useUiToast()
 const q = ref('')
 const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
@@ -242,13 +241,16 @@ async function load() {
     permissions.value = pr.permissions || []
     apiRules.value = rr.rules || []
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载能力列表失败：${msg}`)
   } finally {
     loading.value = false
   }
 }
 
 async function savePerm() {
+  const isCreate = creating.value
   saving.value = true
   error.value = ''
   try {
@@ -273,8 +275,11 @@ async function savePerm() {
     const p = permissions.value.find((x) => x.perm_key === form.perm_key.trim())
     if (p) select(p)
     else selected.value = null
+    toast.success(isCreate ? '能力已创建' : '能力已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存能力失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -291,8 +296,11 @@ async function removePerm() {
     selected.value = null
     creating.value = false
     await load()
+    toast.success('能力已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除能力失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -313,8 +321,11 @@ async function saveRule() {
     const rr = await adminGet<{ rules: ApiRule[] }>('/v1/admin/rbac/api_rules')
     apiRules.value = rr.rules || []
     ruleForm.path_pattern = ''
+    toast.success('接口规则已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -329,8 +340,11 @@ async function deleteRule(id: number) {
     await adminDelete(`/v1/admin/rbac/api_rules/${id}`)
     const rr = await adminGet<{ rules: ApiRule[] }>('/v1/admin/rbac/api_rules')
     apiRules.value = rr.rules || []
+    toast.success('接口规则已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }

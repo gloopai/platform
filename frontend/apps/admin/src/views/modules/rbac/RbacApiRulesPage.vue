@@ -1,7 +1,5 @@
 <template>
   <div class="space-y-4">
-    <p v-if="error" class="text-sm text-rose-600">{{ error }}</p>
-
     <div>
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div>
@@ -129,11 +127,12 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
-import { useUiDialog } from '../../../composables/ui'
+import { useUiDialog, useUiToast } from '../../../composables/ui'
 import type { AdminPermission, ApiRule } from './menu-management/types'
 
 const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 const dialog = useUiDialog()
+const toast = useUiToast()
 
 const saving = ref(false)
 const error = ref('')
@@ -201,7 +200,9 @@ async function load() {
     rules.value = rr.rules || []
     permissions.value = pr.permissions || []
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`加载接口规则失败：${msg}`)
     rules.value = []
     permissions.value = []
   }
@@ -220,8 +221,11 @@ async function submitCreate() {
     })
     createOpen.value = false
     await load()
+    toast.success('接口规则已创建')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`创建接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -240,8 +244,11 @@ async function submitEdit(id: number) {
     })
     editId.value = 0
     await load()
+    toast.success('接口规则已保存')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`保存接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
@@ -255,8 +262,11 @@ async function removeRule(id: number) {
   try {
     await adminDelete(`/v1/admin/rbac/api_rules/${id}`)
     await load()
+    toast.success('接口规则已删除')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`删除接口规则失败：${msg}`)
   } finally {
     saving.value = false
   }
