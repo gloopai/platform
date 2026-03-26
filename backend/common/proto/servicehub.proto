@@ -40,6 +40,12 @@ service ServiceHub {
   rpc ListAdminApiRules(ListAdminApiRulesReq) returns (ListAdminApiRulesResp);
   rpc UpsertAdminApiRule(UpsertAdminApiRuleReq) returns (UpsertAdminApiRuleResp);
   rpc DeleteAdminApiRule(DeleteAdminApiRuleReq) returns (DeleteAdminApiRuleResp);
+
+  // ---- Admin users / MFA ----
+  rpc CreateAdminUser(CreateAdminUserReq) returns (CreateAdminUserResp);
+  rpc UpdateAdminUser(UpdateAdminUserReq) returns (UpdateAdminUserResp);
+  rpc DeleteAdminUser(DeleteAdminUserReq) returns (DeleteAdminUserResp);
+  rpc GetAdminUserById(GetAdminUserByIdReq) returns (GetAdminUserByIdResp);
 }
 
 message FindAdminUserByUsernameReq {
@@ -55,12 +61,15 @@ message AdminUser {
   string username = 2;
   string password_hash = 3;
   int64 status = 4;
+  string mfa_secret = 5;
+  int64 mfa_enabled = 6;
 }
 
 message AdminUserPublic {
   int64 id = 1;
   string username = 2;
   int64 status = 3;
+  int64 mfa_enabled = 4;
 }
 
 message ListAdminUsersReq {}
@@ -76,6 +85,7 @@ message GetDisplaySettingsResp {
   string currency_code = 2;
   string currency_symbol = 3;
   double fiat_to_usdt_rate = 4;
+  int64 admin_mfa_enabled = 5;
 }
 
 message UpsertDisplaySettingsReq {
@@ -83,6 +93,7 @@ message UpsertDisplaySettingsReq {
   string currency_code = 2;
   string currency_symbol = 3;
   double fiat_to_usdt_rate = 4;
+  int64 admin_mfa_enabled = 5;
 }
 
 message MarkPayoutSuccessReq {
@@ -308,3 +319,25 @@ message UpsertAdminApiRuleReq {
 message UpsertAdminApiRuleResp { AdminApiRule rule = 1; }
 message DeleteAdminApiRuleReq { int64 id = 1; }
 message DeleteAdminApiRuleResp { bool ok = 1; }
+
+message CreateAdminUserReq {
+  string username = 1;
+  string password_hash = 2;
+  int64 status = 3;
+}
+message CreateAdminUserResp { AdminUserPublic user = 1; }
+
+message UpdateAdminUserReq {
+  int64 id = 1;
+  int64 status = 2;
+  string password_hash = 3;
+  string mfa_secret = 4;
+  int64 mfa_enabled = 5;
+}
+message UpdateAdminUserResp { AdminUserPublic user = 1; }
+
+message DeleteAdminUserReq { int64 id = 1; }
+message DeleteAdminUserResp { bool ok = 1; }
+
+message GetAdminUserByIdReq { int64 id = 1; }
+message GetAdminUserByIdResp { AdminUser user = 1; }

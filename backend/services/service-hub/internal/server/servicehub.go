@@ -45,6 +45,8 @@ func (s *ServiceHubServer) FindAdminUserByUsername(ctx context.Context, req *ser
 			Username:     u.Username,
 			PasswordHash: u.PasswordHash,
 			Status:       u.Status,
+			MfaSecret:    u.MfaSecret,
+			MfaEnabled:   u.MfaEnabled,
 		},
 	}, nil
 }
@@ -57,9 +59,10 @@ func (s *ServiceHubServer) ListAdminUsers(ctx context.Context, _ *servicehub.Lis
 	out := make([]*servicehub.AdminUserPublic, 0, len(rows))
 	for _, r := range rows {
 		out = append(out, &servicehub.AdminUserPublic{
-			Id:       r.ID,
-			Username: r.Username,
-			Status:   r.Status,
+			Id:         r.ID,
+			Username:   r.Username,
+			Status:     r.Status,
+			MfaEnabled: r.MfaEnabled,
 		})
 	}
 	return &servicehub.ListAdminUsersResp{Users: out}, nil
@@ -71,10 +74,11 @@ func (s *ServiceHubServer) GetDisplaySettings(ctx context.Context, _ *servicehub
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &servicehub.GetDisplaySettingsResp{
-		CountryCode:    row.CountryCode,
-		CurrencyCode:   row.CurrencyCode,
-		CurrencySymbol: row.CurrencySymbol,
-		FiatToUsdtRate: row.FiatToUsdtRate,
+		CountryCode:     row.CountryCode,
+		CurrencyCode:    row.CurrencyCode,
+		CurrencySymbol:  row.CurrencySymbol,
+		FiatToUsdtRate:  row.FiatToUsdtRate,
+		AdminMfaEnabled: row.AdminMfaEnabled,
 	}, nil
 }
 
@@ -87,18 +91,104 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol, fiat_to_usdt_rate required")
 	}
 	if err := s.svcCtx.GlobalSettings.UpsertDisplaySettings(ctx, &store.GlobalDisplaySettings{
-		CountryCode:    country,
-		CurrencyCode:   currency,
-		CurrencySymbol: symbol,
-		FiatToUsdtRate: rate,
+		CountryCode:     country,
+		CurrencyCode:    currency,
+		CurrencySymbol:  symbol,
+		FiatToUsdtRate:  rate,
+		AdminMfaEnabled: req.GetAdminMfaEnabled(),
 	}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &servicehub.GetDisplaySettingsResp{
-		CountryCode:    country,
-		CurrencyCode:   currency,
-		CurrencySymbol: symbol,
-		FiatToUsdtRate: rate,
+		CountryCode:     country,
+		CurrencyCode:    currency,
+		CurrencySymbol:  symbol,
+		FiatToUsdtRate:  rate,
+		AdminMfaEnabled: req.GetAdminMfaEnabled(),
+	}, nil
+}
+
+func (s *ServiceHubServer) CreateAdminUser(ctx context.Context, req *servicehub.CreateAdminUserReq) (*servicehub.CreateAdminUserResp, error) {
+	username := strings.TrimSpace(req.GetUsername())
+	passwordHash := strings.TrimSpace(req.GetPasswordHash())
+	if username == "" || passwordHash == "" {
+		return nil, status.Error(codes.InvalidArgument, "username and password_hash required")
+	}
+	row, err := s.svcCtx.AdminUsers.Create(ctx, username, passwordHash, req.GetStatus())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.CreateAdminUserResp{
+		User: &servicehub.AdminUserPublic{
+			Id:         row.ID,
+			Username:   row.Username,
+			Status:     row.Status,
+			MfaEnabled: row.MfaEnabled,
+		},
+	}, nil
+}
+
+func (s *ServiceHubServer) UpdateAdminUser(ctx context.Context, req *servicehub.UpdateAdminUserReq) (*servicehub.UpdateAdminUserResp, error) {
+	var passwordHash *string
+	if strings.TrimSpace(req.GetPasswordHash()) != "" {
+		v := strings.TrimSpace(req.GetPasswordHash())
+		passwordHash = &v
+	}
+	var mfaSecret *string
+	if req.GetMfaSecret() != "__NO_CHANGE__" {
+		v := req.GetMfaSecret()
+		mfaSecret = &v
+	}
+	var mfaEnabled *int64
+	vEnabled := req.GetMfaEnabled()
+	if vEnabled >= 0 {
+		mfaEnabled = &vEnabled
+	}
+
+	row, err := s.svcCtx.AdminUsers.Update(ctx, req.GetId(), req.GetStatus(), passwordHash, mfaSecret, mfaEnabled)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.UpdateAdminUserResp{
+		User: &servicehub.AdminUserPublic{
+			Id:         row.ID,
+			Username:   row.Username,
+			Status:     row.Status,
+			MfaEnabled: row.MfaEnabled,
+		},
+	}, nil
+}
+
+func (s *ServiceHubServer) DeleteAdminUser(ctx context.Context, req *servicehub.DeleteAdminUserReq) (*servicehub.DeleteAdminUserResp, error) {
+	if err := s.svcCtx.AdminUsers.Delete(ctx, req.GetId()); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.DeleteAdminUserResp{Ok: true}, nil
+}
+
+func (s *ServiceHubServer) GetAdminUserById(ctx context.Context, req *servicehub.GetAdminUserByIdReq) (*servicehub.GetAdminUserByIdResp, error) {
+	row, err := s.svcCtx.AdminUsers.GetByID(ctx, req.GetId())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.GetAdminUserByIdResp{
+		User: &servicehub.AdminUser{
+			Id:           row.ID,
+			Username:     row.Username,
+			PasswordHash: row.PasswordHash,
+			Status:       row.Status,
+			MfaSecret:    row.MfaSecret,
+			MfaEnabled:   row.MfaEnabled,
+		},
 	}, nil
 }
 

@@ -34,9 +34,14 @@ type ServiceHub interface {
 	FindAdminUserByUsername(ctx context.Context, username string) (*AdminUser, error)
 	ListAdminUsers(ctx context.Context) ([]*AdminUserPublic, error)
 	GetDisplaySettings(ctx context.Context) (*GetDisplaySettingsResp, error)
-	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64) error
+	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64) error
 	MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error)
 	MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error)
+
+	CreateAdminUser(ctx context.Context, username, passwordHash string, status int64) (*AdminUserPublic, error)
+	UpdateAdminUser(ctx context.Context, id int64, status int64, passwordHash, mfaSecret *string, mfaEnabled *int64) (*AdminUserPublic, error)
+	DeleteAdminUser(ctx context.Context, id int64) (bool, error)
+	GetAdminUserById(ctx context.Context, id int64) (*AdminUser, error)
 
 	// RBAC
 	GetAdminRbacMyMenus(ctx context.Context, adminUserID int64) ([]*AdminMenu, error)
@@ -105,14 +110,74 @@ func (d *defaultClient) GetDisplaySettings(ctx context.Context) (*GetDisplaySett
 	return d.cli.GetDisplaySettings(ctx, &servicehub.GetDisplaySettingsReq{})
 }
 
-func (d *defaultClient) UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64) error {
+func (d *defaultClient) UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64) error {
 	_, err := d.cli.UpsertDisplaySettings(ctx, &servicehub.UpsertDisplaySettingsReq{
-		CountryCode:    country,
-		CurrencyCode:   currency,
-		CurrencySymbol: symbol,
-		FiatToUsdtRate: fiatToUsdtRate,
+		CountryCode:     country,
+		CurrencyCode:    currency,
+		CurrencySymbol:  symbol,
+		FiatToUsdtRate:  fiatToUsdtRate,
+		AdminMfaEnabled: adminMfaEnabled,
 	})
 	return err
+}
+
+func (d *defaultClient) CreateAdminUser(ctx context.Context, username, passwordHash string, status int64) (*AdminUserPublic, error) {
+	r, err := d.cli.CreateAdminUser(ctx, &servicehub.CreateAdminUserReq{
+		Username: username, PasswordHash: passwordHash, Status: status,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.User, nil
+}
+
+func (d *defaultClient) UpdateAdminUser(ctx context.Context, id int64, status int64, passwordHash, mfaSecret *string, mfaEnabled *int64) (*AdminUserPublic, error) {
+	req := &servicehub.UpdateAdminUserReq{Id: id, Status: status, MfaEnabled: -1, MfaSecret: "__NO_CHANGE__"}
+	if passwordHash != nil {
+		req.PasswordHash = *passwordHash
+	}
+	if mfaSecret != nil {
+		req.MfaSecret = *mfaSecret
+	}
+	if mfaEnabled != nil {
+		req.MfaEnabled = *mfaEnabled
+	}
+	r, err := d.cli.UpdateAdminUser(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.User, nil
+}
+
+func (d *defaultClient) DeleteAdminUser(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.DeleteAdminUser(ctx, &servicehub.DeleteAdminUserReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	if r == nil {
+		return false, nil
+	}
+	return r.Ok, nil
+}
+
+func (d *defaultClient) GetAdminUserById(ctx context.Context, id int64) (*AdminUser, error) {
+	r, err := d.cli.GetAdminUserById(ctx, &servicehub.GetAdminUserByIdReq{Id: id})
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if r == nil || r.User == nil {
+		return nil, nil
+	}
+	return r.User, nil
 }
 
 func (d *defaultClient) MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error) {

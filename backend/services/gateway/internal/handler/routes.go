@@ -441,6 +441,41 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: adminhandler.AdminListUsersHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/admin_users",
+					Handler: adminhandler.AdminCreateUserHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/admin_users/:id",
+					Handler: adminhandler.AdminUpdateUserHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/v1/admin/admin_users/:id",
+					Handler: adminhandler.AdminDeleteUserHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/admin_users/:id/reset_password",
+					Handler: adminhandler.AdminResetUserPasswordHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/admin_users/:id/mfa/setup",
+					Handler: adminhandler.AdminMfaSetupHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/admin_users/:id/mfa/confirm",
+					Handler: adminhandler.AdminMfaConfirmHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/admin_users/:id/mfa/disable",
+					Handler: adminhandler.AdminMfaDisableHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/display_settings",
 					Handler: adminhandler.AdminDisplaySettingsHandler(serverCtx),

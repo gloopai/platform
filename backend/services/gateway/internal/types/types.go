@@ -336,6 +336,7 @@ type MerchantRetryNotifyResp struct {
 type AdminLoginReq struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	MfaCode  string `json:"mfa_code,optional"`
 }
 
 type AdminLoginResp struct {
@@ -742,9 +743,10 @@ type AdminDayOverviewResp struct {
 // --- 系统管理（管理员账号只读） ---
 
 type AdminUserRow struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
-	Status   int64  `json:"status"`
+	ID         int64  `json:"id"`
+	Username   string `json:"username"`
+	Status     int64  `json:"status"`
+	MfaEnabled int64  `json:"mfa_enabled"`
 }
 
 type AdminUsersResp struct {
@@ -759,6 +761,7 @@ type AdminDisplaySettingsUpdateReq struct {
 	CurrencyCode   string `json:"currency_code"`
 	CurrencySymbol string `json:"currency_symbol"`
 	FiatToUsdtRate float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled int64 `json:"admin_mfa_enabled,optional"`
 }
 
 type AdminDisplaySettingsResp struct {
@@ -766,6 +769,48 @@ type AdminDisplaySettingsResp struct {
 	CurrencyCode   string `json:"currency_code"`
 	CurrencySymbol string `json:"currency_symbol"`
 	FiatToUsdtRate float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled int64 `json:"admin_mfa_enabled"`
+}
+
+type AdminCreateUserReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Status   int64  `json:"status,optional"`
+	RoleIds  []int64 `json:"role_ids,optional"`
+}
+
+type AdminUpdateUserReq struct {
+	Id       int64  `path:"id"`
+	Status   int64  `json:"status"`
+	RoleIds  []int64 `json:"role_ids,optional"`
+}
+
+type AdminResetUserPasswordReq struct {
+	Id       int64  `path:"id"`
+	Password string `json:"password"`
+}
+
+type AdminDeleteUserReq struct {
+	Id int64 `path:"id"`
+}
+
+type AdminMfaSetupReq struct {
+	Id int64 `path:"id"`
+}
+
+type AdminMfaSetupResp struct {
+	Secret    string `json:"secret"`
+	OtpAuthUrl string `json:"otpauth_url"`
+	QrDataUrl string `json:"qr_data_url"`
+}
+
+type AdminMfaConfirmReq struct {
+	Id   int64  `path:"id"`
+	Code string `json:"code"`
+}
+
+type AdminMfaDisableReq struct {
+	Id int64 `path:"id"`
 }
 
 // --- 结算中心（MVP：平台资金流水） ---

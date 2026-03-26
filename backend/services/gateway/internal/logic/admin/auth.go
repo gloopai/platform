@@ -8,6 +8,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/pquerna/otp/totp"
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -42,6 +43,20 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(u.GetPasswordHash()), []byte(password)); err != nil {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
+	}
+
+	ds, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
+	if err != nil {
+		return nil, err
+	}
+	if ds.GetAdminMfaEnabled() == 1 && u.GetMfaEnabled() == 1 {
+		code := strings.TrimSpace(req.MfaCode)
+		if code == "" {
+			return nil, status.Error(codes.Unauthenticated, "mfa code required")
+		}
+		if ok := totp.Validate(code, u.GetMfaSecret()); !ok {
+			return nil, status.Error(codes.Unauthenticated, "invalid mfa code")
+		}
 	}
 
 	tok, expiresAt, err := shared.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.GetId(), 24*time.Hour)

@@ -29,6 +29,10 @@
           <input v-model.number="fiatToUsdtRate" type="number" min="0.000001" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
         </label>
       </div>
+      <label class="mt-3 inline-flex items-center gap-2 text-xs font-medium text-slate-600">
+        <input v-model="adminMfaEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
+        启用后台登录 MFA（启用后，仅对已绑定 MFA 的管理员强制校验）
+      </label>
       <div class="mt-3 flex items-center gap-2">
         <button
           type="button"
@@ -72,16 +76,18 @@ const countryCode = ref('CN')
 const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
 const fiatToUsdtRate = ref(7.2)
+const adminMfaEnabled = ref(false)
 
 async function load() {
   loading.value = true
   error.value = ''
   try {
-    const ds = await adminGet<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number }>('/v1/admin/display_settings')
+    const ds = await adminGet<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number; admin_mfa_enabled: number }>('/v1/admin/display_settings')
     countryCode.value = ds.country_code || 'CN'
     currencyCode.value = ds.currency_code || 'CNY'
     currencySymbol.value = ds.currency_symbol || '¥'
     fiatToUsdtRate.value = ds.fiat_to_usdt_rate > 0 ? ds.fiat_to_usdt_rate : 7.2
+    adminMfaEnabled.value = Number(ds.admin_mfa_enabled || 0) === 1
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     error.value = msg
@@ -96,17 +102,19 @@ async function saveDisplaySettings() {
   saved.value = false
   error.value = ''
   try {
-    const r = await adminPut<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number }>('/v1/admin/display_settings', {
+    const r = await adminPut<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number; admin_mfa_enabled: number }>('/v1/admin/display_settings', {
       country_code: countryCode.value.trim().toUpperCase(),
       currency_code: currencyCode.value.trim().toUpperCase(),
       currency_symbol: currencySymbol.value.trim(),
       fiat_to_usdt_rate: fiatToUsdtRate.value,
+      admin_mfa_enabled: adminMfaEnabled.value ? 1 : 0,
     })
     applyAdminDisplaySettings(r)
     countryCode.value = r.country_code
     currencyCode.value = r.currency_code
     currencySymbol.value = r.currency_symbol
     fiatToUsdtRate.value = r.fiat_to_usdt_rate
+    adminMfaEnabled.value = Number(r.admin_mfa_enabled || 0) === 1
     saved.value = true
     toast.success('展示配置已保存')
   } catch (e) {

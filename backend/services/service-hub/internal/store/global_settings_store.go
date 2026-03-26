@@ -8,17 +8,19 @@ import (
 )
 
 const (
-	GlobalSettingCountryCode  = "country_code"
-	GlobalSettingCurrencyCode = "currency_code"
-	GlobalSettingCurrencySign = "currency_symbol"
-	GlobalSettingFiatToUsdtRate = "fiat_to_usdt_rate"
+	GlobalSettingCountryCode     = "country_code"
+	GlobalSettingCurrencyCode    = "currency_code"
+	GlobalSettingCurrencySign    = "currency_symbol"
+	GlobalSettingFiatToUsdtRate  = "fiat_to_usdt_rate"
+	GlobalSettingAdminMfaEnabled = "admin_mfa_enabled"
 )
 
 type GlobalDisplaySettings struct {
-	CountryCode    string
-	CurrencyCode   string
-	CurrencySymbol string
-	FiatToUsdtRate float64
+	CountryCode     string
+	CurrencyCode    string
+	CurrencySymbol  string
+	FiatToUsdtRate  float64
+	AdminMfaEnabled int64
 }
 
 type GlobalSettingsStore struct {
@@ -38,15 +40,16 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 	if err := s.db.WithContext(ctx).
 		Table("global_settings").
 		Select("setting_key, setting_value").
-		Where("setting_key IN ?", []string{GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign, GlobalSettingFiatToUsdtRate}).
+		Where("setting_key IN ?", []string{GlobalSettingCountryCode, GlobalSettingCurrencyCode, GlobalSettingCurrencySign, GlobalSettingFiatToUsdtRate, GlobalSettingAdminMfaEnabled}).
 		Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	out := &GlobalDisplaySettings{
-		CountryCode:    "CN",
-		CurrencyCode:   "CNY",
-		CurrencySymbol: "¥",
-		FiatToUsdtRate: 7.2,
+		CountryCode:     "CN",
+		CurrencyCode:    "CNY",
+		CurrencySymbol:  "¥",
+		FiatToUsdtRate:  7.2,
+		AdminMfaEnabled: 0,
 	}
 	for _, r := range rows {
 		switch r.K {
@@ -60,6 +63,12 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 			if v, err := strconv.ParseFloat(r.V, 64); err == nil && v > 0 {
 				out.FiatToUsdtRate = v
 			}
+		case GlobalSettingAdminMfaEnabled:
+			if r.V == "1" {
+				out.AdminMfaEnabled = 1
+			} else {
+				out.AdminMfaEnabled = 0
+			}
 		}
 	}
 	return out, nil
@@ -71,6 +80,7 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   (?, ?),
   (?, ?),
   (?, ?),
+  (?, ?),
   (?, ?)
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 `,
@@ -78,6 +88,6 @@ ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 		GlobalSettingCurrencyCode, in.CurrencyCode,
 		GlobalSettingCurrencySign, in.CurrencySymbol,
 		GlobalSettingFiatToUsdtRate, strconv.FormatFloat(in.FiatToUsdtRate, 'f', 6, 64),
+		GlobalSettingAdminMfaEnabled, strconv.FormatInt(in.AdminMfaEnabled, 10),
 	).Error
 }
-

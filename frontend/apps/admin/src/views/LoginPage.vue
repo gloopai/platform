@@ -14,6 +14,10 @@
             <span class="text-xs font-medium text-slate-600">密码</span>
             <input v-model.trim="password" class="rounded-md border border-slate-200 px-3 py-2 text-sm" type="password" />
           </label>
+          <label class="grid gap-1">
+            <span class="text-xs font-medium text-slate-600">MFA 验证码（如已启用）</span>
+            <input v-model.trim="mfaCode" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-mono" maxlength="8" />
+          </label>
           <button
             class="mt-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
             :disabled="loading || !username || !password"
@@ -50,6 +54,7 @@ const username = ref('admin')
 const password = ref('admin123')
 const loading = ref(false)
 const error = ref('')
+const mfaCode = ref('')
 
 async function login() {
   loading.value = true
@@ -58,10 +63,15 @@ async function login() {
     const resp = await fetch(adminApiUrl('/v1/admin/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: username.value, password: password.value }),
+      body: JSON.stringify({ username: username.value, password: password.value, mfa_code: mfaCode.value }),
     })
     if (!resp.ok) {
-      error.value = `登录失败(${resp.status})`
+      try {
+        const e = (await resp.json()) as { message?: string; msg?: string; error?: string }
+        error.value = e.message || e.msg || e.error || `登录失败(${resp.status})`
+      } catch {
+        error.value = `登录失败(${resp.status})`
+      }
       return
     }
     const data = (await resp.json()) as AdminLoginResp

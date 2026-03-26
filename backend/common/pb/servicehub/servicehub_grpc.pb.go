@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: proto/servicehub.proto
+// source: servicehub.proto
 
 package servicehub
 
@@ -48,6 +48,10 @@ const (
 	ServiceHub_ListAdminApiRules_FullMethodName       = "/servicehub.ServiceHub/ListAdminApiRules"
 	ServiceHub_UpsertAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/UpsertAdminApiRule"
 	ServiceHub_DeleteAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/DeleteAdminApiRule"
+	ServiceHub_CreateAdminUser_FullMethodName         = "/servicehub.ServiceHub/CreateAdminUser"
+	ServiceHub_UpdateAdminUser_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminUser"
+	ServiceHub_DeleteAdminUser_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminUser"
+	ServiceHub_GetAdminUserById_FullMethodName        = "/servicehub.ServiceHub/GetAdminUserById"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
@@ -88,6 +92,11 @@ type ServiceHubClient interface {
 	ListAdminApiRules(ctx context.Context, in *ListAdminApiRulesReq, opts ...grpc.CallOption) (*ListAdminApiRulesResp, error)
 	UpsertAdminApiRule(ctx context.Context, in *UpsertAdminApiRuleReq, opts ...grpc.CallOption) (*UpsertAdminApiRuleResp, error)
 	DeleteAdminApiRule(ctx context.Context, in *DeleteAdminApiRuleReq, opts ...grpc.CallOption) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
+	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error)
+	GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error)
 }
 
 type serviceHubClient struct {
@@ -388,6 +397,46 @@ func (c *serviceHubClient) DeleteAdminApiRule(ctx context.Context, in *DeleteAdm
 	return out, nil
 }
 
+func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminUserByIdResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetAdminUserById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceHubServer is the server API for ServiceHub service.
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
@@ -426,6 +475,11 @@ type ServiceHubServer interface {
 	ListAdminApiRules(context.Context, *ListAdminApiRulesReq) (*ListAdminApiRulesResp, error)
 	UpsertAdminApiRule(context.Context, *UpsertAdminApiRuleReq) (*UpsertAdminApiRuleResp, error)
 	DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
+	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error)
+	GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error)
 	mustEmbedUnimplementedServiceHubServer()
 }
 
@@ -522,6 +576,18 @@ func (UnimplementedServiceHubServer) UpsertAdminApiRule(context.Context, *Upsert
 }
 func (UnimplementedServiceHubServer) DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminApiRule not implemented")
+}
+func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminUserById not implemented")
 }
 func (UnimplementedServiceHubServer) mustEmbedUnimplementedServiceHubServer() {}
 func (UnimplementedServiceHubServer) testEmbeddedByValue()                    {}
@@ -1066,6 +1132,78 @@ func _ServiceHub_DeleteAdminApiRule_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, req.(*CreateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, req.(*UpdateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, req.(*DeleteAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_GetAdminUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminUserByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetAdminUserById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, req.(*GetAdminUserByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceHub_ServiceDesc is the grpc.ServiceDesc for ServiceHub service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1189,7 +1327,23 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteAdminApiRule",
 			Handler:    _ServiceHub_DeleteAdminApiRule_Handler,
 		},
+		{
+			MethodName: "CreateAdminUser",
+			Handler:    _ServiceHub_CreateAdminUser_Handler,
+		},
+		{
+			MethodName: "UpdateAdminUser",
+			Handler:    _ServiceHub_UpdateAdminUser_Handler,
+		},
+		{
+			MethodName: "DeleteAdminUser",
+			Handler:    _ServiceHub_DeleteAdminUser_Handler,
+		},
+		{
+			MethodName: "GetAdminUserById",
+			Handler:    _ServiceHub_GetAdminUserById_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/servicehub.proto",
+	Metadata: "servicehub.proto",
 }
