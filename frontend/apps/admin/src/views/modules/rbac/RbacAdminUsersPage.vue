@@ -77,7 +77,7 @@
 import { onMounted, ref } from 'vue'
 
 import { adminGet, adminPut } from '../../../lib/adminApi'
-import { useUiToast } from '../../../composables/ui'
+import { useUiToast } from '../../../composables/useUiToast'
 
 type AdminUser = { id: number; username: string; status: number }
 type AdminRole = { id: number; code: string; name: string; status: number }

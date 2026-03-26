@@ -251,7 +251,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 
-import { useUiDialog, useUiToast } from '../../../../composables/ui'
+import { useUiDialog } from '../../../../composables/useUiDialog'
+import { useUiToast } from '../../../../composables/useUiToast'
 import { adminDelete, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 

@@ -174,7 +174,7 @@
             <div ref="userMenuRoot" class="relative">
               <button
                 type="button"
-                class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                class="flex items-center gap-2 rounded-xl  py-1.5 pl-1.5 pr-2.5 text-left shadow-sm transition"
                 @click.stop="userMenuOpen = !userMenuOpen"
               >
                 <span
@@ -230,7 +230,7 @@
                   </RouterLink>
                   <button
                     type="button"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    class="flex w-full items-center gap-2 px-3 py-3 text-left text-xs font-medium text-slate-700 hover:bg-slate-50"
                     @click="logout"
                   >
                     <svg class="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -289,8 +289,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import UiDialogHost from '../../../../shared/ui/dialog/UiDialogHost.vue'
-import UiToastHost from '../../../../shared/ui/toast/UiToastHost.vue'
+import UiDialogHost from '../components/UiDialogHost.vue'
+import UiToastHost from '../components/UiToastHost.vue'
 import { adminPathTitle, defaultAdminMenu, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
 import { adminGet, adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'

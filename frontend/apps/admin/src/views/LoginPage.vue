@@ -15,7 +15,7 @@
             <input v-model.trim="password" class="rounded-md border border-slate-200 px-3 py-2 text-sm" type="password" />
           </label>
           <button
-            class="mt-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            class="mt-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
             :disabled="loading || !username || !password"
             @click="login"
           >

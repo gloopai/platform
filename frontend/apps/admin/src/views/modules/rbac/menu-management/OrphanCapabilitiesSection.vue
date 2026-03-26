@@ -24,17 +24,17 @@
             </button>
           </div>
           <div class="max-h-[min(70vh,560px)] overflow-y-auto">
-            <button
+            <div
               v-for="p in filteredOrphans"
               :key="p.perm_key"
               type="button"
-              class="flex w-full flex-col items-start gap-0.5 border-b border-slate-50 px-4 py-2.5 text-left text-sm transition hover:bg-slate-50"
+              class="flex w-full cursor-pointer flex-col items-start gap-0.5 border-b border-slate-50 px-4 py-2.5 text-left text-sm transition hover:bg-slate-50"
               :class="selected?.perm_key === p.perm_key ? 'bg-indigo-50' : ''"
               @click="select(p)"
             >
               <span class="font-medium text-slate-900">{{ p.label }}</span>
               <span class="font-mono text-[11px] text-slate-500">{{ p.perm_key }}</span>
-            </button>
+          </div>
             <div v-if="!filteredOrphans.length && !loading" class="px-4 py-8 text-center text-sm text-slate-500">无匹配项</div>
           </div>
         </div>
@@ -77,7 +77,7 @@
             <div class="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+                class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
                 :disabled="saving"
                 @click="savePerm"
               >
@@ -159,7 +159,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { useUiDialog, useUiToast } from '../../../../composables/ui'
+import { useUiDialog } from '../../../../composables/useUiDialog'
+import { useUiToast } from '../../../../composables/useUiToast'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import type { AdminPermission, ApiRule } from './types'
 

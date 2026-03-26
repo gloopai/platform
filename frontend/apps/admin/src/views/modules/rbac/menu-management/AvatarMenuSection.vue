@@ -16,11 +16,11 @@
           </div>
           <div v-if="loading" class="px-4 py-10 text-center text-sm text-slate-500">加载中…</div>
           <div v-else class="max-h-[min(70vh,520px)] divide-y divide-slate-100 overflow-y-auto">
-            <button
+            <div
               v-for="m in avatarMenus"
               :key="m.id"
               type="button"
-              class="flex w-full items-start gap-2 px-4 py-2.5 text-left text-sm transition hover:bg-slate-50"
+              class="flex w-full cursor-pointer items-start gap-2 px-4 py-2.5 text-left text-sm transition hover:bg-slate-50"
               :class="selectedId === m.id ? 'bg-indigo-50' : ''"
               @click="selectRow(m)"
             >
@@ -29,7 +29,7 @@
                 <div class="truncate font-mono text-[11px] text-slate-500">{{ m.menu_key }}</div>
                 <div class="truncate font-mono text-[11px] text-slate-400">{{ m.path }}</div>
               </div>
-            </button>
+            </div>
             <div v-if="!avatarMenus.length" class="px-4 py-8 text-center text-sm text-slate-500">暂无项</div>
           </div>
         </div>
@@ -63,13 +63,13 @@
           <div class="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
-              class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
               :disabled="saving"
               @click="saveMenu"
             >
               {{ saving ? '保存中…' : form.id ? '保存' : '创建' }}
             </button>
-            <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700" :disabled="saving" @click="resetNewForm">
+            <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700" :disabled="saving" @click="resetNewForm">
               清空（新建）
             </button>
             <button
@@ -99,7 +99,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { useUiDialog, useUiToast } from '../../../../composables/ui'
+import { useUiDialog } from '../../../../composables/useUiDialog'
+import { useUiToast } from '../../../../composables/useUiToast'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../../lib/adminApi'
 import MenuPermRulesPanel from './MenuPermRulesPanel.vue'
 import type { AdminPermission, ApiRule, RbacAdminMenu } from './types'

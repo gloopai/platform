@@ -16,20 +16,20 @@
           </div>
           <div v-if="loading" class="px-4 py-10 text-center text-sm text-slate-500">加载中…</div>
           <div v-else class="max-h-[min(72vh,560px)] overflow-y-auto">
-            <button
+            <div
               type="button"
-              class="flex w-full items-center gap-2 border-b border-slate-50 px-4 py-3 text-left text-sm transition hover:bg-slate-50"
+              class="flex w-full items-center cursor-pointer gap-2 border-b border-slate-50 px-4 py-3 text-left text-sm transition hover:bg-slate-50"
               :class="selectedKey === UNBOUND ? 'bg-indigo-50' : ''"
               @click="selectedKey = UNBOUND"
             >
               <span class="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-800">其它</span>
               <span class="font-medium text-slate-900">未绑定具体菜单的权限</span>
-            </button>
-            <button
+          </div>
+            <div
               v-for="row in menuPickerRows"
               :key="row.raw.menu_key"
               type="button"
-              class="flex w-full items-start gap-2 border-b border-slate-50 py-2.5 pr-3 text-left text-sm transition hover:bg-slate-50"
+              class="flex w-full cursor-pointer items-start gap-2 border-b border-slate-50 py-2.5 pr-3 text-left text-sm transition hover:bg-slate-50"
               :style="{ paddingLeft: `${12 + row.depth * 12}px` }"
               :class="selectedKey === row.raw.menu_key ? 'bg-indigo-50' : ''"
               @click="selectedKey = row.raw.menu_key"
@@ -44,7 +44,7 @@
                 <div class="font-medium text-slate-900">{{ row.raw.label }}</div>
                 <div class="truncate font-mono text-[11px] text-slate-500">{{ row.raw.menu_key }}</div>
               </div>
-            </button>
+            </div>
           </div>
         </div>
       </div>

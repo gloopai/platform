@@ -3,4 +3,6 @@ import { router } from './router'
 import './style.css'
 import App from './App.vue'
 
+document.documentElement.setAttribute('data-theme', 'halloween')
+
 createApp(App).use(router).mount('#app')

@@ -87,7 +87,7 @@
         </label>
         <button
           type="button"
-          class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+          class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
           :disabled="saving || localPick <= 0"
           @click="emitAdd"
         >

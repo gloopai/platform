@@ -122,14 +122,14 @@
         <div class="flex flex-wrap items-center justify-start gap-3">
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
             @click="resetProductForm"
           >
             重置
           </button>
           <button
             type="button"
-            class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
             :disabled="savingProduct || !adminTokenValue || !form.code || !form.name"
             @click="saveProduct"
           >
@@ -137,7 +137,7 @@
           </button>
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
             @click="closeDrawer"
           >
             关闭
@@ -152,10 +152,10 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
-import { UiDrawer } from '../../../components/ui'
-import { useAdminToast } from '../../../composables/useAdminToast'
+import { UiDrawer } from '../../../../../../shared/ui'
+import { useUiDialog } from '../../../composables/useUiDialog'
+import { useUiToast } from '../../../composables/useUiToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
-import { useUiDialog } from '../../../composables/ui'
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
 import ProductBindingsCard from './ProductBindingsCard.vue'
@@ -175,7 +175,7 @@ const adminToken = inject('adminToken') as { value: string } | undefined
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 const adminTokenValue = computed(() => adminToken?.value || '')
 
-const toast = useAdminToast()
+const toast = useUiToast()
 const dialog = useUiDialog()
 const loadingProducts = ref(false)
 const loadingBindings = ref(false)

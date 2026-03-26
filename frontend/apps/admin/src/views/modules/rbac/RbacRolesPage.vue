@@ -243,7 +243,8 @@
 import { computed, onMounted, ref } from 'vue'
 
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
-import { useUiDialog, useUiToast } from '../../../composables/ui'
+import { useUiDialog } from '../../../composables/useUiDialog'
+import { useUiToast } from '../../../composables/useUiToast'
 
 type AdminRole = { id: number; code: string; name: string; status: number }
 type AdminMenu = {

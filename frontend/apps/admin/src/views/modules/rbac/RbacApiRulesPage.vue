@@ -126,8 +126,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
-import { useUiDialog, useUiToast } from '../../../composables/ui'
+import { adminDelete, adminGet, adminPost } from '../../../lib/adminApi'
+import { useUiDialog } from '../../../composables/useUiDialog'
+import { useUiToast } from '../../../composables/useUiToast'
 import type { AdminPermission, ApiRule } from './menu-management/types'
 
 const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']

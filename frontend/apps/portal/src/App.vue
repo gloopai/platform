@@ -92,8 +92,6 @@
       </div>
     </footer>
   </div>
-  <UiToastHost />
-  <UiDialogHost />
 </template>
 
 <script setup lang="ts">
@@ -101,8 +99,6 @@ import { computed, watch } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-import UiDialogHost from '../../../shared/ui/dialog/UiDialogHost.vue'
-import UiToastHost from '../../../shared/ui/toast/UiToastHost.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import { htmlLangFromLocale, persistLocale } from './i18n'
 

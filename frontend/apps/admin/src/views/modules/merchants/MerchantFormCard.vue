@@ -72,7 +72,7 @@
     <div v-if="!hideFooterActions" class="mt-6 flex flex-wrap items-center gap-3">
       <button
         type="button"
-        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
         :disabled="saving || !canSave"
         @click="$emit('save')"
       >
@@ -80,7 +80,7 @@
       </button>
       <button
         type="button"
-        class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+        class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
         @click="$emit('reset')"
       >
         重置

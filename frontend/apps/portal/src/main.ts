@@ -6,5 +6,6 @@ import { router } from './router'
 import './style.css'
 
 document.documentElement.lang = htmlLangFromLocale(getInitialLocale())
+document.documentElement.setAttribute('data-theme', 'gloopmono')
 
 createApp(App).use(router).use(i18n).mount('#app')

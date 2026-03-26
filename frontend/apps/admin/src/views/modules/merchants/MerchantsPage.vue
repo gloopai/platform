@@ -172,14 +172,14 @@
           <template v-if="rightTab === 'basic'">
             <button
               type="button"
-              class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+              class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
               @click="resetForm"
             >
               重置
             </button>
             <button
               type="button"
-              class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
               :disabled="saving || !canSaveForm"
               @click="saveForm"
             >
@@ -188,7 +188,7 @@
           </template>
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
             @click="closeDrawer"
           >
             关闭
@@ -241,9 +241,9 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
-import { UiDrawer } from '../../../components/ui'
-import { useAdminToast } from '../../../composables/useAdminToast'
-import { useUiDialog } from '../../../composables/ui'
+import { UiDrawer } from '../../../../../../shared/ui'
+import { useUiDialog } from '../../../composables/useUiDialog'
+import { useUiToast } from '../../../composables/useUiToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 import { adminDisplaySettings, formatAdminMoney } from '../../../lib/displaySettings'
@@ -256,7 +256,7 @@ import type { AdminMerchantInfo, MerchantForm, MerchantPayinGrant, MerchantPayou
 import { emptyMerchantForm, merchantToForm } from './types'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
-const toast = useAdminToast()
+const toast = useUiToast()
 const dialog = useUiDialog()
 
 const loading = ref(false)

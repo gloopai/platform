@@ -178,7 +178,7 @@
           </label>
           <button
             type="button"
-            class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
             :disabled="withdrawSaving || !withdrawForm.merchant_id || withdrawForm.apply_amount_yuan <= 0"
             @click="createWithdrawal"
           >
@@ -282,7 +282,8 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { useClientPagination } from '../../../composables/useClientPagination'
-import { useUiDialog, useUiToast } from '../../../composables/ui'
+import { useUiDialog } from '../../../composables/useUiDialog'
+import { useUiToast } from '../../../composables/useUiToast'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
 type SettlementLogItem = {

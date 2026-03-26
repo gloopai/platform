@@ -32,7 +32,7 @@
       <div class="mt-3 flex items-center gap-2">
         <button
           type="button"
-          class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+          class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
           :disabled="saving"
           @click="saveDisplaySettings"
         >
@@ -58,7 +58,7 @@ import { RouterLink } from 'vue-router'
 
 import { adminGet } from '../../../lib/adminApi'
 import { adminPut } from '../../../lib/adminApi'
-import { useUiToast } from '../../../composables/ui'
+import { useUiToast } from '../../../composables/useUiToast'
 import { applyAdminDisplaySettings } from '../../../lib/displaySettings'
 
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
