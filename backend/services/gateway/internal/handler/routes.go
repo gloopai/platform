@@ -139,6 +139,11 @@ func RegisterMerchantHandlers(server *rest.Server, serverCtx *svc.ServiceContext
 					Path:    "/v1/merchant/logout",
 					Handler: merchanthandler.MerchantLogoutHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/merchant/password/change",
+					Handler: merchanthandler.MerchantChangePasswordHandler(serverCtx),
+				},
 			}...,
 		),
 	)

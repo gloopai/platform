@@ -57,11 +57,13 @@ func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types
 		SuccessRate:      rate,
 		PayinBalance:     auth.GetPayinBalance(),
 		AvailableBalance: auth.GetAvailableBalance(),
+		Status:           auth.GetStatus(),
 		MerchantId:       merchantId,
 		AppId:            auth.GetAppId(),
 		Email:            auth.GetEmail(),
 		AppSecret:        auth.GetAppSecret(),
 		NotifyUrl:        auth.GetNotifyUrl(),
+		ReturnUrl:        auth.GetReturnUrl(),
 		IpWhitelist:      auth.GetIpWhitelist(),
 	}, nil
 }

@@ -202,11 +202,13 @@ type MerchantSummaryResp struct {
 	SuccessRate      float64 `json:"success_rate"`
 	PayinBalance     int64   `json:"payin_balance"`
 	AvailableBalance int64   `json:"available_balance"`
+	Status           int64   `json:"status"`
 	MerchantId       string  `json:"merchant_id"`
 	AppId            string  `json:"app_id"`
 	Email            string  `json:"email"`
 	AppSecret        string  `json:"app_secret"`
 	NotifyUrl        string  `json:"notify_url"`
+	ReturnUrl        string  `json:"return_url"`
 	IpWhitelist      string  `json:"ip_whitelist"`
 }
 
@@ -385,6 +387,15 @@ type MerchantLoginResp struct {
 }
 
 type MerchantLogoutResp struct {
+	Ok bool `json:"ok"`
+}
+
+type MerchantChangePasswordReq struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+type MerchantChangePasswordResp struct {
 	Ok bool `json:"ok"`
 }
 

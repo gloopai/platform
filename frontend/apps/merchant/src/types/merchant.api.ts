@@ -15,11 +15,13 @@ export type MerchantSummary = {
   success_rate: number
   payin_balance: number
   available_balance: number
+  status?: number
   merchant_id: string
   app_id?: string
   email?: string
   app_secret: string
   notify_url: string
+  return_url?: string
   ip_whitelist: string
 }
 
@@ -151,4 +153,13 @@ export type MerchantTransferPayinToPayoutResp = {
   ok: boolean
   payin_balance: number
   available_balance: number
+}
+
+export type MerchantChangePasswordReq = {
+  old_password: string
+  new_password: string
+}
+
+export type MerchantChangePasswordResp = {
+  ok: boolean
 }

@@ -12,6 +12,7 @@ export const MERCHANT_API = {
   payoutOrders: '/v1/merchant/payout_orders',
   orderDetail: '/v1/merchant/order/detail',
   retryNotify: '/v1/merchant/order/retry_notify',
+  changePassword: '/v1/merchant/password/change',
   fundLogs: '/v1/merchant/fund_logs',
   transferPayinToPayout: '/v1/merchant/balance/transfer_payin_to_payout',
 } as const

@@ -43,6 +43,23 @@ func MerchantLogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func MerchantChangePasswordHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.MerchantChangePasswordReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+		l := logic.NewMerchantAuth(r.Context(), svcCtx)
+		resp, err := l.MerchantChangePassword(&req)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			httpx.OkJsonCtx(r.Context(), w, resp)
+		}
+	}
+}
+
 func MerchantSummaryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.MerchantSummaryReq
