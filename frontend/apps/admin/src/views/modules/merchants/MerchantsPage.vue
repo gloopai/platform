@@ -330,21 +330,35 @@
     </UiDrawer>
 
     <div v-if="createWizardOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
+      <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
         <div class="border-b border-slate-200 px-5 py-4">
           <div class="text-base font-semibold text-slate-900">
-            {{ createWizardStep === 'form' ? '新建商户' : '商户已创建' }}
+            {{ createWizardPhase === 'done' ? '商户已创建' : '新建商户' }}
           </div>
           <div class="mt-1 text-xs text-slate-500">
-            {{
-              createWizardStep === 'form'
-                ? '填写登录邮箱并校验可用后创建；系统会生成商户 ID、AppID、API Secret 与初始密码。'
-                : '请妥善保存以下凭据（关闭后 API Secret 与密码不会在界面完整展示）。'
-            }}
+            <template v-if="createWizardPhase === 'done'">
+              请妥善保存以下凭据（关闭后 API Secret 与密码不会在界面完整展示）。
+            </template>
+            <template v-else>
+              {{ createWizardPhaseSubtitle }}
+            </template>
+          </div>
+          <div
+            v-if="createWizardPhase !== 'done'"
+            class="mt-2 flex flex-wrap gap-1.5 text-[10px] font-medium text-slate-500"
+          >
+            <span :class="createPhaseChipClass(1)">1 邮箱</span>
+            <span class="text-slate-300">→</span>
+            <span :class="createPhaseChipClass(2)">2 财务</span>
+            <span class="text-slate-300">→</span>
+            <span :class="createPhaseChipClass(3)">3 代收</span>
+            <span class="text-slate-300">→</span>
+            <span :class="createPhaseChipClass(4)">4 代付</span>
           </div>
         </div>
 
-        <div v-if="createWizardStep === 'form'" class="space-y-4 px-5 py-4">
+        <!-- 1 邮箱 -->
+        <div v-if="createWizardPhase === 1" class="space-y-4 px-5 py-4">
           <label class="grid gap-1">
             <span class="text-xs font-medium text-slate-600">登录邮箱</span>
             <input
@@ -377,6 +391,171 @@
             <button
               type="button"
               class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="!canGoNextFromEmailStep"
+              @click="goCreateWizardPhase(2)"
+            >
+              下一步
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 USDT -->
+        <div v-else-if="createWizardPhase === 2" class="space-y-4 px-5 py-4">
+          <label class="grid gap-1">
+            <span class="text-xs font-medium text-slate-600">提现 USDT 收款地址</span>
+            <input
+              v-model.trim="createWithdrawUsdt"
+              type="text"
+              autocomplete="off"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="如 TRC20 地址"
+            />
+          </label>
+          <p class="text-[11px] text-amber-800/90">请与商户确认主网；错误地址可能导致资金损失。</p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              @click="goCreateWizardPhase(1)"
+            >
+              上一步
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="!canGoNextFromFinanceStep"
+              @click="goCreateWizardPhase(3)"
+            >
+              下一步
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 代收 -->
+        <div v-else-if="createWizardPhase === 3" class="space-y-4 px-5 py-4">
+          <p class="text-[11px] text-slate-500">选择开放给该商户的代收产品；费率可在创建后在商户编辑中调整。</p>
+          <div v-if="loadingProducts" class="py-6 text-center text-xs text-slate-500">加载产品中…</div>
+          <template v-else>
+            <div v-if="createPayinPicks.length" class="max-h-48 space-y-2 overflow-y-auto">
+              <div
+                v-for="row in createPayinPicks"
+                :key="row.id"
+                class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs"
+              >
+                <span class="font-mono text-slate-800">{{ row.code }} — {{ row.name }}</span>
+                <button
+                  type="button"
+                  class="shrink-0 text-rose-700 hover:underline"
+                  @click="removeCreatePayin(row.id)"
+                >
+                  移除
+                </button>
+              </div>
+            </div>
+            <div v-else class="rounded-lg border border-dashed border-slate-200 py-6 text-center text-[11px] text-slate-500">
+              未选择代收产品
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <label class="min-w-0 flex-1 grid gap-0.5">
+                <span class="text-[11px] font-medium text-slate-600">添加代收产品</span>
+                <select v-model.number="createPayinPick" class="rounded-lg border border-slate-200 px-2 py-1.5 text-sm">
+                  <option :value="0">请选择</option>
+                  <option v-for="p in createPayinCatalogLeft" :key="p.id" :value="p.id">{{ p.code }} — {{ p.name }}</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                class="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+                :disabled="createPayinPick <= 0"
+                @click="addCreatePayin"
+              >
+                添加
+              </button>
+            </div>
+          </template>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              @click="goCreateWizardPhase(2)"
+            >
+              上一步
+            </button>
+            <button type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700" @click="skipCreatePayin">
+              跳过
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white"
+              @click="goCreateWizardPhase(4)"
+            >
+              下一步
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 代付 -->
+        <div v-else-if="createWizardPhase === 4" class="space-y-4 px-5 py-4">
+          <p class="text-[11px] text-slate-500">选择开放给该商户的代付产品；费率与计费模式可在创建后编辑。</p>
+          <div v-if="loadingPayoutProducts" class="py-6 text-center text-xs text-slate-500">加载产品中…</div>
+          <template v-else>
+            <div v-if="createPayoutPicks.length" class="max-h-48 space-y-2 overflow-y-auto">
+              <div
+                v-for="row in createPayoutPicks"
+                :key="row.id"
+                class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs"
+              >
+                <span class="font-mono text-slate-800">{{ row.code }} — {{ row.name }}</span>
+                <button
+                  type="button"
+                  class="shrink-0 text-rose-700 hover:underline"
+                  @click="removeCreatePayout(row.id)"
+                >
+                  移除
+                </button>
+              </div>
+            </div>
+            <div v-else class="rounded-lg border border-dashed border-slate-200 py-6 text-center text-[11px] text-slate-500">
+              未选择代付产品
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
+              <label class="min-w-0 flex-1 grid gap-0.5">
+                <span class="text-[11px] font-medium text-slate-600">添加代付产品</span>
+                <select v-model.number="createPayoutPick" class="rounded-lg border border-slate-200 px-2 py-1.5 text-sm">
+                  <option :value="0">请选择</option>
+                  <option v-for="p in createPayoutCatalogLeft" :key="p.id" :value="p.id">{{ p.code }} — {{ p.name }}</option>
+                </select>
+              </label>
+              <button
+                type="button"
+                class="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+                :disabled="createPayoutPick <= 0"
+                @click="addCreatePayout"
+              >
+                添加
+              </button>
+            </div>
+          </template>
+          <p v-if="createWizardError" class="text-xs text-rose-700">{{ createWizardError }}</p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              @click="goCreateWizardPhase(3)"
+            >
+              上一步
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-700 disabled:opacity-40"
+              :disabled="createSubmitting || !canSubmitCreate"
+              @click="submitCreateMerchant"
+            >
+              跳过并创建
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
               :disabled="createSubmitting || !canSubmitCreate"
               @click="submitCreateMerchant"
             >
@@ -385,7 +564,7 @@
           </div>
         </div>
 
-        <div v-else class="space-y-3 px-5 py-4">
+        <div v-else-if="createWizardPhase === 'done'" class="space-y-3 px-5 py-4">
           <p class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
             建议立即将凭据发送给商户或保存至密管；可逐项复制或使用「一键复制全部」。
           </p>
@@ -508,7 +687,13 @@ const transferLoading = ref(false)
 const transferMsg = ref('')
 
 const createWizardOpen = ref(false)
-const createWizardStep = ref<'form' | 'done'>('form')
+type CreateWizardPhase = 1 | 2 | 3 | 4 | 'done'
+const createWizardPhase = ref<CreateWizardPhase>(1)
+const createWithdrawUsdt = ref('')
+const createPayinPicks = ref<ProductRow[]>([])
+const createPayoutPicks = ref<ProductRow[]>([])
+const createPayinPick = ref(0)
+const createPayoutPick = ref(0)
 const createEmail = ref('')
 type EmailCheckStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'error'
 const emailCheckStatus = ref<EmailCheckStatus>('idle')
@@ -586,9 +771,48 @@ const emailCheckHintClass = computed(() => {
   return 'text-slate-600'
 })
 
+const canGoNextFromEmailStep = computed(
+  () => emailCheckStatus.value === 'available' && createEmail.value.includes('@'),
+)
+
+const canGoNextFromFinanceStep = computed(() => createWithdrawUsdt.value.trim().length > 0)
+
 const canSubmitCreate = computed(
   () => emailCheckStatus.value === 'available' && createEmail.value.includes('@'),
 )
+
+const createWizardPhaseSubtitle = computed(() => {
+  switch (createWizardPhase.value) {
+    case 1:
+      return '第 1 步：检查邮箱是否已被占用。'
+    case 2:
+      return '第 2 步：配置提现 USDT 链上收款地址。'
+    case 3:
+      return '第 3 步：绑定代收产品；可跳过。'
+    case 4:
+      return '第 4 步：绑定代付产品；可跳过。'
+    default:
+      return ''
+  }
+})
+
+const createPayinCatalogLeft = computed(() => {
+  const ids = new Set(createPayinPicks.value.map((p) => p.id))
+  return payinProducts.value.filter((p) => !ids.has(p.id))
+})
+
+const createPayoutCatalogLeft = computed(() => {
+  const ids = new Set(createPayoutPicks.value.map((p) => p.id))
+  return payoutProducts.value.filter((p) => !ids.has(p.id))
+})
+
+function createPhaseChipClass(phase: number) {
+  const cur = createWizardPhase.value
+  const active = cur !== 'done' && cur === phase
+  return active
+    ? 'rounded-md bg-slate-900 px-2 py-0.5 text-white'
+    : 'rounded-md bg-slate-100 px-2 py-0.5 text-slate-600'
+}
 
 const createCredentialRows = computed(() => {
   const p = createDonePayload.value
@@ -701,13 +925,56 @@ function openEdit(merchantId: string) {
 const emailLooksValid = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim())
 
 function openNew() {
-  createWizardStep.value = 'form'
+  createWizardPhase.value = 1
+  createWithdrawUsdt.value = ''
+  createPayinPicks.value = []
+  createPayoutPicks.value = []
+  createPayinPick.value = 0
+  createPayoutPick.value = 0
   createEmail.value = ''
   emailCheckStatus.value = 'idle'
   emailCheckErrorDetail.value = ''
   createWizardError.value = ''
   createDonePayload.value = null
   createWizardOpen.value = true
+  void loadPayinProducts()
+  void loadPayoutProducts()
+}
+
+function goCreateWizardPhase(phase: 1 | 2 | 3 | 4) {
+  createWizardPhase.value = phase
+}
+
+function skipCreatePayin() {
+  createPayinPicks.value = []
+  createPayinPick.value = 0
+  goCreateWizardPhase(4)
+}
+
+function addCreatePayin() {
+  const id = createPayinPick.value
+  if (id <= 0) return
+  const p = payinProducts.value.find((x) => x.id === id)
+  if (!p || createPayinPicks.value.some((x) => x.id === id)) return
+  createPayinPicks.value = [...createPayinPicks.value, p]
+  createPayinPick.value = 0
+}
+
+function removeCreatePayin(id: number) {
+  createPayinPicks.value = createPayinPicks.value.filter((x) => x.id !== id)
+}
+
+function addCreatePayout() {
+  const id = createPayoutPick.value
+  if (id <= 0) return
+  const p = payoutProducts.value.find((x) => x.id === id)
+  if (!p || createPayoutPicks.value.some((x) => x.id === id)) return
+  createPayoutPicks.value = [...createPayoutPicks.value, p]
+  createPayoutPick.value = 0
+}
+
+function removeCreatePayout(id: number) {
+  createPayoutPicks.value = createPayoutPicks.value.filter((x) => x.id !== id)
 }
 
 function closeCreateWizard() {
@@ -741,20 +1008,22 @@ async function checkCreateEmail() {
 }
 
 async function submitCreateMerchant() {
+  if (createWizardPhase.value !== 4) return
   if (!canSubmitCreate.value) return
   createWizardError.value = ''
   createSubmitting.value = true
   try {
     const resp = await adminPost<{ merchant: AdminMerchantInfo; generated_password?: string }>('/v1/admin/merchants', {
       email: createEmail.value.trim().toLowerCase(),
-      payin_product_ids: [],
-      payout_product_ids: [],
+      withdraw_usdt_address: createWithdrawUsdt.value.trim(),
+      payin_product_ids: createPayinPicks.value.map((p) => p.id),
+      payout_product_ids: createPayoutPicks.value.map((p) => p.id),
     })
     createDonePayload.value = {
       merchant: resp.merchant,
       generated_password: resp.generated_password,
     }
-    createWizardStep.value = 'done'
+    createWizardPhase.value = 'done'
     toast.success('商户创建成功')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
