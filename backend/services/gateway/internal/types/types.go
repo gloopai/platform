@@ -310,6 +310,7 @@ type MerchantFundLogItem struct {
 	Id            int64  `json:"id"`
 	OrderNo       string `json:"order_no"`
 	ChangeType    string `json:"change_type"`
+	AccountType   string `json:"account_type"` // payin | available
 	Amount        int64  `json:"amount"`
 	BalanceBefore int64  `json:"balance_before"`
 	BalanceAfter  int64  `json:"balance_after"`
@@ -876,6 +877,7 @@ type AdminSettlementLogItem struct {
 	MerchantId    string `json:"merchant_id"`
 	OrderNo       string `json:"order_no"`
 	ChangeType    string `json:"change_type"`
+	AccountType   string `json:"account_type"` // payin=代收余额 available=可用余额
 	Amount        int64  `json:"amount"`
 	BalanceBefore int64  `json:"balance_before"`
 	BalanceAfter  int64  `json:"balance_after"`

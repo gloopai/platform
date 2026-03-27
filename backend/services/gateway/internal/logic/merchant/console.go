@@ -14,6 +14,7 @@ import (
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
+	"github.com/gloopai/pay/gateway/internal/logic/fundlog"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -427,10 +428,12 @@ func (c *MerchantConsole) MerchantFundLogs(req *types.MerchantFundLogsReq) (*typ
 	}
 	out := make([]types.MerchantFundLogItem, 0, len(r.GetLogs()))
 	for _, f := range r.GetLogs() {
+		ct := f.GetChangeType()
 		out = append(out, types.MerchantFundLogItem{
 			Id:            f.GetId(),
 			OrderNo:       f.GetOrderNo(),
-			ChangeType:    f.GetChangeType(),
+			ChangeType:    ct,
+			AccountType:   fundlog.AccountTypeFromChangeType(ct),
 			Amount:        f.GetAmount(),
 			BalanceBefore: f.GetBalanceBefore(),
 			BalanceAfter:  f.GetBalanceAfter(),

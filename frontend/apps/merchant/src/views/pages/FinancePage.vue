@@ -16,11 +16,12 @@
       </div>
       <div class="mt-4 overflow-hidden rounded-xl border border-slate-100">
         <div class="overflow-x-auto">
-          <table class="w-full min-w-[640px] text-left text-sm">
+          <table class="w-full min-w-[760px] text-left text-sm">
             <thead class="border-b border-slate-100 bg-slate-50/90 text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th class="whitespace-nowrap px-4 py-3">时间</th>
                 <th class="whitespace-nowrap px-4 py-3">类型</th>
+                <th class="whitespace-nowrap px-4 py-3">账户类型</th>
                 <th class="whitespace-nowrap px-4 py-3">订单号</th>
                 <th class="whitespace-nowrap px-4 py-3">变更</th>
                 <th class="whitespace-nowrap px-4 py-3">余额</th>
@@ -28,14 +29,15 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr v-if="loading">
-                <td class="px-4 py-8 text-center text-slate-500" colspan="5">加载中…</td>
+                <td class="px-4 py-8 text-center text-slate-500" colspan="6">加载中…</td>
               </tr>
               <tr v-else-if="logs.length === 0">
-                <td class="px-4 py-12 text-center text-slate-500" colspan="5">暂无流水记录</td>
+                <td class="px-4 py-12 text-center text-slate-500" colspan="6">暂无流水记录</td>
               </tr>
               <tr v-for="l in pagedLogs" :key="l.id" class="transition hover:bg-slate-50/80">
                 <td class="whitespace-nowrap px-4 py-3 text-slate-700">{{ formatTime(l.created_at) }}</td>
                 <td class="px-4 py-3 text-slate-800">{{ l.change_type }}</td>
+                <td class="px-4 py-3 text-slate-800">{{ accountTypeLabel(l) }}</td>
                 <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ l.order_no || '—' }}</td>
                 <td class="px-4 py-3 tabular-nums text-slate-800">{{ formatAmount(l.amount) }}</td>
                 <td class="px-4 py-3 tabular-nums font-medium text-slate-900">{{ formatAmount(l.balance_after) }}</td>
@@ -135,6 +137,13 @@ function formatAmount(v: number) {
 
 function formatTime(ts: number) {
   return formatUnixSeconds(ts)
+}
+
+function accountTypeLabel(l: MerchantFundLogItem): string {
+  const a = (l.account_type || '').trim()
+  if (a === 'available') return '可用余额'
+  if (a === 'payin') return '代收余额'
+  return l.change_type === 'PAYOUT_DEBIT' ? '可用余额' : '代收余额'
 }
 
 async function reload() {

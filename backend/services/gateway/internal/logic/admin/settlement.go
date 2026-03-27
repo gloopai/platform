@@ -9,6 +9,7 @@ import (
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
+	"github.com/gloopai/pay/gateway/internal/logic/fundlog"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -41,11 +42,13 @@ func (a *AdminSettlement) AdminSettlementLogs(req *types.AdminSettlementLogsReq)
 	}
 	out := make([]types.AdminSettlementLogItem, 0, len(r.GetLogs()))
 	for _, x := range r.GetLogs() {
+		ct := x.GetChangeType()
 		out = append(out, types.AdminSettlementLogItem{
 			Id:            x.GetId(),
 			MerchantId:    x.GetMerchantId(),
 			OrderNo:       x.GetOrderNo(),
-			ChangeType:    x.GetChangeType(),
+			ChangeType:    ct,
+			AccountType:   fundlog.AccountTypeFromChangeType(ct),
 			Amount:        x.GetAmount(),
 			BalanceBefore: x.GetBalanceBefore(),
 			BalanceAfter:  x.GetBalanceAfter(),

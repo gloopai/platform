@@ -138,6 +138,7 @@ export type MerchantFundLogItem = {
   id: number
   order_no: string
   change_type: string
+  account_type?: string
   amount: number
   balance_before: number
   balance_after: number
