@@ -100,11 +100,44 @@
             </div>
           </div>
 
-          <div v-if="selectedRole" class="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            当前角色：
-            <span class="font-semibold text-slate-900">{{ selectedRole.name }}</span>
-            <span class="mx-1 text-slate-400">·</span>
-            <span class="font-mono text-slate-700">{{ selectedRole.code }}</span>
+          <div v-if="selectedRole" class="mt-3 space-y-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+            <div>
+              当前角色：
+              <span class="font-semibold text-slate-900">{{ selectedRole.name }}</span>
+              <span class="mx-1 text-slate-400">·</span>
+              <span class="font-mono text-slate-700">{{ selectedRole.code }}</span>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="grid gap-1 text-xs font-medium text-slate-700">
+                角色名称
+                <input
+                  v-model.trim="editRoleName"
+                  type="text"
+                  class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                  :disabled="saving"
+                />
+              </label>
+              <label class="grid gap-1 text-xs font-medium text-slate-700">
+                状态
+                <select
+                  v-model.number="editRoleStatus"
+                  class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                  :disabled="saving || isSelectedSuperAdmin"
+                  :title="isSelectedSuperAdmin ? '超管角色须保持启用' : ''"
+                >
+                  <option :value="1">启用</option>
+                  <option :value="0">停用</option>
+                </select>
+              </label>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm disabled:opacity-40"
+              :disabled="saving || !editRoleName.trim()"
+              @click="saveRoleProfile"
+            >
+              保存角色信息
+            </button>
           </div>
 
           <div class="mt-4">
@@ -240,7 +273,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { adminDelete, adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 import { useUiDialog } from '../../../composables/useUiDialog'
@@ -292,8 +325,25 @@ const selectedPermKeys = ref<string[]>([])
 const newRoleCode = ref('')
 const newRoleName = ref('')
 
+const editRoleName = ref('')
+const editRoleStatus = ref(1)
+
 const selectedRole = computed(() => roles.value.find((r) => r.id === selectedRoleId.value) || null)
 const isSelectedSuperAdmin = computed(() => (selectedRole.value?.code || '').trim().toLowerCase() === 'super_admin')
+
+watch(
+  selectedRole,
+  (r) => {
+    if (!r) {
+      editRoleName.value = ''
+      editRoleStatus.value = 1
+      return
+    }
+    editRoleName.value = r.name
+    editRoleStatus.value = r.status
+  },
+  { immediate: true },
+)
 
 type MenuGrantRow = { menu: AdminMenu; depth: number; perms: AdminPermission[]; pathText: string }
 
@@ -364,7 +414,7 @@ const otherPerms = computed(() =>
     .sort((a, b) => a.perm_key.localeCompare(b.perm_key)),
 )
 
-async function load() {
+async function load(preferredRoleId?: number) {
   loading.value = true
   error.value = ''
   try {
@@ -374,7 +424,10 @@ async function load() {
     menus.value = mr.menus || []
     const pr = await adminGet<{ permissions: AdminPermission[] }>('/v1/admin/rbac/permissions')
     permissions.value = pr.permissions || []
-    if (!roles.value.some((r) => r.id === selectedRoleId.value)) {
+    const prefer = preferredRoleId != null && preferredRoleId > 0 ? preferredRoleId : 0
+    if (prefer && roles.value.some((r) => r.id === prefer)) {
+      selectedRoleId.value = prefer
+    } else if (!roles.value.some((r) => r.id === selectedRoleId.value)) {
       selectedRoleId.value = roles.value[0]?.id || 0
     }
     if (selectedRoleId.value) {
@@ -449,6 +502,32 @@ async function saveRoleGrants() {
   }
 }
 
+async function saveRoleProfile() {
+  if (!selectedRoleId.value || !selectedRole.value) return
+  const name = editRoleName.value.trim()
+  if (!name) {
+    toast.error('请填写角色名称')
+    return
+  }
+  let st = editRoleStatus.value
+  if (isSelectedSuperAdmin.value) {
+    st = 1
+  }
+  saving.value = true
+  error.value = ''
+  try {
+    await adminPut(`/v1/admin/rbac/roles/${selectedRoleId.value}`, { name, status: st })
+    await load(selectedRoleId.value)
+    toast.success('角色信息已更新')
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`更新角色信息失败：${msg}`)
+  } finally {
+    saving.value = false
+  }
+}
+
 function syncMenusFromPerms() {
   if (!selectedRoleId.value) return
   const ids = new Set(selectedMenuIds.value)
@@ -477,10 +556,11 @@ async function createRole() {
   saving.value = true
   error.value = ''
   try {
-    await adminPost('/v1/admin/rbac/roles', { code, name, status: 1 })
+    const resp = await adminPost<{ role: AdminRole }>('/v1/admin/rbac/roles', { code, name, status: 1 })
+    const newId = resp.role?.id || 0
     newRoleCode.value = ''
     newRoleName.value = ''
-    await load()
+    await load(newId > 0 ? newId : undefined)
     toast.success('角色已创建')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)

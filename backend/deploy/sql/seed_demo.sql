@@ -220,7 +220,7 @@ INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALU
   ('admin.system.read_settings', '系统管理-展示配置读取', 'system', 'menu.system', 1),
   ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 'menu.system', 1),
 
-  ('admin.admin_users.manage', '后台用户-查看列表与分配角色', 'admin_users', 'menu.rbac_admin_users', 1),
+  ('admin.admin_users.manage', '后台用户管理（列表、增删改、角色、密码与 MFA）', 'admin_users', 'menu.rbac_admin_users', 1),
 
   ('admin.rbac.my_menu', 'RBAC-读取我的菜单', 'rbac', 'menu.rbac_overview', 1),
   ('admin.rbac.manage', 'RBAC-配置管理（菜单/角色/权限/接口）', 'rbac', 'menu.rbac_roles', 1)
@@ -279,6 +279,13 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('GET', '/v1/admin/settlement/logs', 'admin.settlement.read', 1, ''),
 
   ('GET', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),
+  ('POST', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),
+  ('PUT', '/v1/admin/admin_users/:id', 'admin.admin_users.manage', 1, ''),
+  ('DELETE', '/v1/admin/admin_users/:id', 'admin.admin_users.manage', 1, ''),
+  ('POST', '/v1/admin/admin_users/:id/reset_password', 'admin.admin_users.manage', 1, ''),
+  ('POST', '/v1/admin/admin_users/:id/mfa/setup', 'admin.admin_users.manage', 1, ''),
+  ('POST', '/v1/admin/admin_users/:id/mfa/confirm', 'admin.admin_users.manage', 1, ''),
+  ('POST', '/v1/admin/admin_users/:id/mfa/disable', 'admin.admin_users.manage', 1, ''),
   ('GET', '/v1/admin/display_settings', 'admin.system.read_settings', 1, ''),
   ('PUT', '/v1/admin/display_settings', 'admin.system.write_settings', 1, ''),
 
