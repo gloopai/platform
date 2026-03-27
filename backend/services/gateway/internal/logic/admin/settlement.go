@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -82,9 +83,38 @@ func mapWithdrawal(x *settlepb.WithdrawalItem) types.AdminWithdrawalItem {
 }
 
 func (a *AdminSettlement) AdminSettlementWithdrawals(req *types.AdminSettlementWithdrawalsReq) (*types.AdminSettlementWithdrawalsResp, error) {
+	page := req.Page
+	if page <= 0 {
+		page = 1
+	}
+	pageSize := req.PageSize
+	if pageSize <= 0 {
+		if req.Limit > 0 {
+			pageSize = req.Limit
+		} else {
+			pageSize = 20
+		}
+	}
+	if pageSize > 200 {
+		pageSize = 200
+	}
+	offset := (page - 1) * pageSize
+
+	var st *int32
+	if s := strings.TrimSpace(req.Status); s != "" {
+		n, err := strconv.ParseInt(s, 10, 32)
+		if err == nil && n >= 0 && n <= 5 {
+			v := int32(n)
+			st = &v
+		}
+	}
+
 	r, err := a.svcCtx.SettleRpc.ListWithdrawals(a.ctx, &settlepb.ListWithdrawalsReq{
-		MerchantId: strings.TrimSpace(req.MerchantId),
-		Limit:      req.Limit,
+		MerchantId:         strings.TrimSpace(req.MerchantId),
+		Limit:              pageSize,
+		Offset:             offset,
+		Status:             st,
+		WithdrawNoContains: strings.TrimSpace(req.WithdrawNo),
 	})
 	if err != nil {
 		return nil, err
@@ -93,7 +123,7 @@ func (a *AdminSettlement) AdminSettlementWithdrawals(req *types.AdminSettlementW
 	for _, x := range r.GetItems() {
 		items = append(items, mapWithdrawal(x))
 	}
-	return &types.AdminSettlementWithdrawalsResp{Items: items}, nil
+	return &types.AdminSettlementWithdrawalsResp{Items: items, Total: r.GetTotal()}, nil
 }
 
 func (a *AdminSettlement) AdminCreateWithdrawal(req *types.AdminCreateWithdrawalReq) (*types.AdminCreateWithdrawalResp, error) {

@@ -125,11 +125,15 @@ message CreateWithdrawalResp {
 
 message ListWithdrawalsReq {
   string merchant_id = 1;
-  int64 limit = 2;
+  int64 limit = 2; // 每页条数；与 offset 联用；<=0 时服务端默认
+  int64 offset = 3; // 跳过条数，默认 0
+  optional int32 status = 4; // 若设置则按状态筛选（0-5）
+  string withdraw_no_contains = 5; // 可选，单号模糊匹配
 }
 
 message ListWithdrawalsResp {
   repeated WithdrawalItem items = 1;
+  int64 total = 2; // 符合筛选条件的总条数
 }
 
 message ReviewWithdrawalReq {

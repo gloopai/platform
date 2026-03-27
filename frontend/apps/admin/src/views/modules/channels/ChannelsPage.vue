@@ -106,27 +106,86 @@
     <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
-      subtitle="保存后路由与绑定校验将按通道能力生效。"
-      max-width-class="max-w-2xl"
+      :subtitle="drawerSubtitle"
+      max-width-class="max-w-3xl"
     >
-      <ChannelFormCard
-        v-if="drawerOpen"
-        v-model="form"
-        embedded
-        hide-footer-actions
-        :saving="saving"
-        :saved="saved"
-        :error="error"
-        :can-save="!!adminTokenValue && !!form.name"
-        @save="save"
-        @reset="resetForm"
-      />
+      <div v-if="drawerOpen" class="space-y-4">
+        <div
+          class="inline-flex max-w-full flex-wrap gap-0.5 rounded-lg border border-slate-200/90 bg-slate-100 p-0.5 shadow-sm"
+          role="tablist"
+          aria-label="通道编辑"
+        >
+          <button
+            v-for="tab in editTabs"
+            :key="tab.key"
+            type="button"
+            role="tab"
+            :aria-selected="editTab === tab.key"
+            class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
+            :class="
+              editTab === tab.key
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
+            "
+            @click="editTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <div v-if="error" class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] text-rose-800">
+          {{ error }}
+        </div>
+
+        <div v-show="editTab === 'basic'" role="tabpanel">
+          <ChannelFormCard
+            v-model="form"
+            section="basic"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            error=""
+            :can-save="!!adminTokenValue && !!form.name"
+            @save="save"
+            @reset="resetForm"
+          />
+        </div>
+        <div v-show="editTab === 'upstream'" role="tabpanel">
+          <ChannelFormCard
+            v-model="form"
+            section="upstream"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            error=""
+            :can-save="!!adminTokenValue && !!form.name"
+            @save="save"
+            @reset="resetForm"
+          />
+        </div>
+        <div v-show="editTab === 'rates'" role="tabpanel">
+          <ChannelFormCard
+            v-model="form"
+            section="rates"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            error=""
+            :can-save="!!adminTokenValue && !!form.name"
+            @save="save"
+            @reset="resetForm"
+          />
+        </div>
+      </div>
 
       <template #footer>
         <div class="flex flex-wrap items-center justify-start gap-3">
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             @click="resetForm"
           >
             重置
@@ -141,7 +200,7 @@
           </button>
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             @click="closeDrawer"
           >
             关闭
@@ -161,7 +220,7 @@ import { useUiToast } from '../../../composables/useUiToast'
 import { useClientPagination } from '../../../composables/useClientPagination'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
 
-import ChannelFormCard from './ChannelFormCard.vue'
+import ChannelFormCard, { type ChannelFormSection } from './ChannelFormCard.vue'
 import ChannelsHeader from './ChannelsHeader.vue'
 import type { AdminChannel } from './types'
 import { emptyChannelForm } from './types'
@@ -177,6 +236,12 @@ const error = ref('')
 const saved = ref(false)
 const drawerOpen = ref(false)
 const searchQuery = ref('')
+const editTab = ref<ChannelFormSection>('basic')
+const editTabs: { key: ChannelFormSection; label: string }[] = [
+  { key: 'basic', label: '基本设置' },
+  { key: 'upstream', label: '上游对接' },
+  { key: 'rates', label: '费率与能力' },
+]
 
 const channels = ref<AdminChannel[]>([])
 const selectedId = ref<number | null>(null)
@@ -186,6 +251,11 @@ const form = ref<AdminChannel>(emptyChannelForm())
 const isNew = computed(() => selectedId.value === null)
 
 const drawerTitle = computed(() => (isNew.value ? '新建通道' : `编辑通道 · #${form.value.id}`))
+
+const drawerSubtitle = computed(
+  () =>
+    '分段维护：基本参数、上游凭证与费率能力一次保存；保存后产品与路由将按通道能力校验。',
+)
 
 const selected = computed(() => channels.value.find((c) => c.id === selectedId.value) || null)
 
@@ -220,6 +290,7 @@ function resetForm() {
 }
 
 function openEdit(id: number) {
+  editTab.value = 'basic'
   selectedId.value = id
   applySelected()
   saved.value = false
@@ -228,6 +299,7 @@ function openEdit(id: number) {
 }
 
 function openNew() {
+  editTab.value = 'basic'
   selectedId.value = null
   form.value = emptyChannelForm()
   saved.value = false

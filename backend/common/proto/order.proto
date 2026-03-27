@@ -34,8 +34,11 @@ message CreatePayoutOrderReq {
   int64 channel_id = 6;
   int64 payout_product_id = 7;
   string payout_product_code = 8;
+  // 下单快照：计费模式 1=仅比例 2=仅固定 3=固定+比例
   int64 fee_mode = 9;
+  // 对客比例：万分比整数 (= round(百分数×100))；fee_fen = amount_fen * bps / 10000
   int64 fee_rate_bps = 10;
+  // 对客固定部分（分）
   int64 fee_fixed_amount = 11;
   int64 fee_amount = 12;
   int64 net_amount = 13;
@@ -55,6 +58,7 @@ message CreateOrderReq {
   string payin_product_code = 11;
   // 下单时由网关/交易写入：商户 API 指定通道时为 1
   int32 channel_locked = 12;
+  // 下单快照，语义同 CreatePayoutOrderReq / OrderInfo
   int64 fee_mode = 13;
   int64 fee_rate_bps = 14;
   int64 fee_fixed_amount = 15;
@@ -105,8 +109,11 @@ message OrderInfo {
   int64 payin_product_id = 14;
   string payin_product_code = 15;
   int32 channel_locked = 16;
+  // 计费模式：1=仅比例 2=仅固定 3=固定+比例
   int64 fee_mode = 17;
+  // 对客比例：万分比整数 (= round(百分数×100))，下单快照
   int64 fee_rate_bps = 18;
+  // 对客固定部分（分），下单快照
   int64 fee_fixed_amount = 19;
   int64 fee_amount = 20;
   int64 net_amount = 21;

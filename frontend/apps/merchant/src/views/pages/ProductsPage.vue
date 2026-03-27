@@ -18,7 +18,7 @@
             <thead class="border-b border-slate-100 bg-white text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th class="whitespace-nowrap px-4 py-3">产品名称</th>
-                <th class="whitespace-nowrap px-4 py-3">费率</th>
+                <th class="whitespace-nowrap px-4 py-3">对客手续费</th>
                 <th class="whitespace-nowrap px-4 py-3">状态</th>
               </tr>
             </thead>
@@ -50,7 +50,7 @@
             <thead class="border-b border-slate-100 bg-white text-xs font-semibold uppercase tracking-wide text-slate-500">
               <tr>
                 <th class="whitespace-nowrap px-4 py-3">产品名称</th>
-                <th class="whitespace-nowrap px-4 py-3">费率</th>
+                <th class="whitespace-nowrap px-4 py-3">对客手续费</th>
                 <th class="whitespace-nowrap px-4 py-3">状态</th>
               </tr>
             </thead>
@@ -86,6 +86,7 @@ import { fetchMerchantOpenedProducts } from '@/api/console'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import ErrorCallout from '@/components/ui/ErrorCallout.vue'
 import { merchantDisplaySettings } from '@/lib/displaySettings'
+import { formatPercentFromBps } from '@/lib/ratePercent'
 import type { MerchantOpenedProductItem } from '@/types/merchant.api'
 
 const loading = ref(true)
@@ -109,7 +110,7 @@ onMounted(async () => {
 function formatRate(item: MerchantOpenedProductItem): string {
   const hasRate = item.fee_rate_bps !== undefined && item.fee_rate_bps !== null
   const hasFixed = (item.fee_fixed_amount || 0) > 0
-  const rateText = hasRate ? formatBps(item.fee_rate_bps || 0) : '-'
+  const rateText = hasRate ? formatPercentFromBps(item.fee_rate_bps || 0) : '-'
   const fixedText = `${formatMoney(item.fee_fixed_amount || 0)}/笔`
 
   if (item.product_type !== 'payout') {
@@ -125,10 +126,6 @@ function formatRate(item: MerchantOpenedProductItem): string {
     return '-'
   }
   return rateText
-}
-
-function formatBps(v: number): string {
-  return `${(v / 100).toFixed(2)}%`
 }
 
 function formatCent(v: number): string {

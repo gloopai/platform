@@ -44,7 +44,7 @@
               <th class="whitespace-nowrap px-4 py-3">金额</th>
               <th class="whitespace-nowrap px-4 py-3">手续费</th>
               <th class="whitespace-nowrap px-4 py-3">净额</th>
-              <th class="whitespace-nowrap px-4 py-3">费率模式</th>
+              <th class="whitespace-nowrap px-4 py-3">计费模式</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">上游单号</th>
@@ -77,7 +77,7 @@
               <td class="px-4 py-3 align-top tabular-nums text-slate-800">{{ formatAmount(o.amount, o.currency) }}</td>
               <td class="px-4 py-3 align-top tabular-nums text-slate-700">{{ formatAmount(o.fee_amount || 0, o.currency) }}</td>
               <td class="px-4 py-3 align-top tabular-nums text-slate-700">{{ formatAmount(o.net_amount || 0, o.currency) }}</td>
-              <td class="px-4 py-3 align-top text-xs text-slate-600">{{ feeModeLabel(o.fee_mode) }}</td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">{{ feeModeOptionLabel(o.fee_mode) }}</td>
               <td class="px-4 py-3 align-top">
                 <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="statusBadgeClass(o.status)">
                   {{ statusLabel(o.status) }}
@@ -251,6 +251,7 @@ import { fetchMerchantOrderDetail, fetchMerchantOrders, postRetryMerchantNotify 
 import type { MerchantOrderDetail, MerchantOrderDetailResp, MerchantOrderItem } from '@/types/merchant.api'
 import { formatCentsWithCurrency, formatUnixSeconds } from '@/utils/format'
 import { orderStatusBadgeClass as statusBadgeClass, orderStatusLabel as statusLabel } from '@/utils/orderStatus'
+import { feeModeOptionLabel } from '@/lib/feeSemantics'
 
 const props = withDefaults(defineProps<{
   title?: string
@@ -299,12 +300,6 @@ function payProductShowCodeLine(o: MerchantOrderItem | MerchantOrderDetail) {
   const name = o.payin_product_name?.trim()
   const code = o.payin_product_code?.trim()
   return !!(name && code && name !== code)
-}
-
-function feeModeLabel(m: number) {
-  if (m === 2) return '固定金额'
-  if (m === 3) return '固定+比例'
-  return '比例'
 }
 
 async function reload() {

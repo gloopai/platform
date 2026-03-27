@@ -1047,11 +1047,14 @@ func (x *CreateWithdrawalResp) GetItem() *WithdrawalItem {
 }
 
 type ListWithdrawalsReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	Limit         int64                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId         string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Limit              int64                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`                                                      // 每页条数；与 offset 联用；<=0 时服务端默认
+	Offset             int64                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`                                                    // 跳过条数，默认 0
+	Status             *int32                 `protobuf:"varint,4,opt,name=status,proto3,oneof" json:"status,omitempty"`                                              // 若设置则按状态筛选（0-5）
+	WithdrawNoContains string                 `protobuf:"bytes,5,opt,name=withdraw_no_contains,json=withdrawNoContains,proto3" json:"withdraw_no_contains,omitempty"` // 可选，单号模糊匹配
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ListWithdrawalsReq) Reset() {
@@ -1098,9 +1101,31 @@ func (x *ListWithdrawalsReq) GetLimit() int64 {
 	return 0
 }
 
+func (x *ListWithdrawalsReq) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *ListWithdrawalsReq) GetStatus() int32 {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return 0
+}
+
+func (x *ListWithdrawalsReq) GetWithdrawNoContains() string {
+	if x != nil {
+		return x.WithdrawNoContains
+	}
+	return ""
+}
+
 type ListWithdrawalsResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*WithdrawalItem      `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 符合筛选条件的总条数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1140,6 +1165,13 @@ func (x *ListWithdrawalsResp) GetItems() []*WithdrawalItem {
 		return x.Items
 	}
 	return nil
+}
+
+func (x *ListWithdrawalsResp) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type ReviewWithdrawalReq struct {
@@ -1468,13 +1500,18 @@ const file_settle_proto_rawDesc = "" +
 	"\n" +
 	"apply_note\x18\b \x01(\tR\tapplyNote\"B\n" +
 	"\x14CreateWithdrawalResp\x12*\n" +
-	"\x04item\x18\x01 \x01(\v2\x16.settle.WithdrawalItemR\x04item\"K\n" +
+	"\x04item\x18\x01 \x01(\v2\x16.settle.WithdrawalItemR\x04item\"\xbd\x01\n" +
 	"\x12ListWithdrawalsReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x03R\x05limit\"C\n" +
+	"\x05limit\x18\x02 \x01(\x03R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x03R\x06offset\x12\x1b\n" +
+	"\x06status\x18\x04 \x01(\x05H\x00R\x06status\x88\x01\x01\x120\n" +
+	"\x14withdraw_no_contains\x18\x05 \x01(\tR\x12withdrawNoContainsB\t\n" +
+	"\a_status\"Y\n" +
 	"\x13ListWithdrawalsResp\x12,\n" +
-	"\x05items\x18\x01 \x03(\v2\x16.settle.WithdrawalItemR\x05items\"\x8f\x01\n" +
+	"\x05items\x18\x01 \x03(\v2\x16.settle.WithdrawalItemR\x05items\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\x8f\x01\n" +
 	"\x13ReviewWithdrawalReq\x12\x1f\n" +
 	"\vwithdraw_no\x18\x01 \x01(\tR\n" +
 	"withdrawNo\x12\x1a\n" +
@@ -1574,6 +1611,7 @@ func file_settle_proto_init() {
 	if File_settle_proto != nil {
 		return
 	}
+	file_settle_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

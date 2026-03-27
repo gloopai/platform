@@ -5,7 +5,7 @@
       <p class="mt-0.5 text-[11px] text-slate-500">开放给该商户收银台的代收产品；未绑定则无可用支付方式。</p>
     </template>
     <p v-else class="text-[11px] leading-snug text-slate-500">
-      收银台可见的代收产品；费率单位为 bps（万分比）。
+      收银台可见的代收产品；比例费率按百分数（%）填写，与订单快照 fee_rate_bps（万分比整数）同语义。
     </p>
 
     <div v-if="loading" class="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center text-[11px] text-slate-500">
@@ -31,17 +31,17 @@
               </div>
             </div>
             <div class="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
-              <label class="flex items-center gap-1.5">
-                <span class="whitespace-nowrap text-[11px] text-slate-500">费率</span>
+              <label class="flex min-w-0 flex-1 flex-col gap-0.5 sm:max-w-[14rem]">
+                <span class="text-[11px] font-medium text-slate-600">{{ LABEL_MERCHANT_PAYIN_RATE }}</span>
                 <input
-                  v-model.number="row.merchant_rate_bps"
+                  :value="bpsToPercentInputValue(row.merchant_rate_bps)"
                   type="number"
                   min="0"
-                  class="w-[4.5rem] rounded-md border border-slate-200 bg-white px-2 py-1 text-center font-mono text-xs tabular-nums text-slate-900"
+                  step="0.01"
+                  class="w-full rounded-md border border-slate-200 bg-white px-2 py-1 font-mono text-xs tabular-nums text-slate-900"
                   :disabled="saving"
-                  @change="emitUpdate(row)"
+                  @change="onPayinPercentChange(row, $event)"
                 />
-                <span class="text-[11px] text-slate-400">bps</span>
               </label>
               <button
                 type="button"
@@ -96,6 +96,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import { LABEL_MERCHANT_PAYIN_RATE } from '../../../lib/feeSemantics'
+import { bpsToPercentInputValue, percentToBps } from '../../../lib/ratePercent'
 import type { MerchantPayinGrant, ProductRow } from './types'
 
 const props = withDefaults(
@@ -156,6 +158,11 @@ function emitUpdate(row: { id: number; merchant_rate_bps: number }) {
     payin_product_id: row.id,
     merchant_rate_bps: row.merchant_rate_bps ?? 0,
   })
+}
+
+function onPayinPercentChange(row: { id: number; merchant_rate_bps: number }, e: Event) {
+  const n = parseFloat((e.target as HTMLInputElement).value)
+  emitUpdate({ ...row, merchant_rate_bps: Number.isFinite(n) ? percentToBps(n) : 0 })
 }
 </script>
 

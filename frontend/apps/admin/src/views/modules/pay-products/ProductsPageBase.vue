@@ -84,60 +84,107 @@
     <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
-      :subtitle="headerSubtitle"
+      :subtitle="drawerSubtitle"
       max-width-class="max-w-3xl"
     >
       <div v-if="drawerOpen" class="space-y-4">
-        <ProductFormCard
-          :model="form"
-          embedded
-          hide-footer-actions
-          :saving="savingProduct"
-          :saved="savedProduct"
-          :error="productError"
-          :can-save="!!adminTokenValue && !!form.code && !!form.name"
-          @update:model="setForm"
-          @save="saveProduct"
-          @reset="resetProductForm"
-        />
+        <div
+          class="inline-flex max-w-full flex-wrap gap-0.5 rounded-lg border border-slate-200/90 bg-slate-100 p-0.5 shadow-sm"
+          role="tablist"
+          :aria-label="payoutMode ? '代付产品编辑' : '代收产品编辑'"
+        >
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="editTab === 'basic'"
+            class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
+            :class="
+              editTab === 'basic'
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
+            "
+            @click="editTab = 'basic'"
+          >
+            基本设置
+          </button>
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="editTab === 'bindings'"
+            class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
+            :class="
+              editTab === 'bindings'
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
+            "
+            @click="editTab = 'bindings'"
+          >
+            上游通道
+          </button>
+        </div>
 
-        <ProductBindingsCard
-          v-if="form.id"
-          embedded
-          :bindings="bindings"
-          :channels="filteredChannels"
-          :exclude-channel-ids="boundChannelIds"
-          :loading="loadingBindings"
-          :error="bindingError"
-          :adding="addingBinding"
-          :draft="newBind"
-          @update:draft="setNewBindDraft"
-          @save-row="onSaveBindingRow"
-          @delete-row="removeBinding"
-          @add="addBinding"
-        />
+        <div v-show="editTab === 'basic'" role="tabpanel">
+          <ProductFormCard
+            :model="form"
+            embedded
+            hide-footer-actions
+            :saving="savingProduct"
+            :saved="savedProduct"
+            :error="productError"
+            :can-save="!!adminTokenValue && !!form.code && !!form.name"
+            @update:model="setForm"
+            @save="saveProduct"
+            @reset="resetProductForm"
+          />
+        </div>
+
+        <div v-show="editTab === 'bindings'" role="tabpanel">
+          <ProductBindingsCard
+            v-if="form.id"
+            embedded
+            :bindings="bindings"
+            :channels="filteredChannels"
+            :exclude-channel-ids="boundChannelIds"
+            :loading="loadingBindings"
+            :error="bindingError"
+            :adding="addingBinding"
+            :draft="newBind"
+            @update:draft="setNewBindDraft"
+            @save-row="onSaveBindingRow"
+            @delete-row="removeBinding"
+            @add="addBinding"
+          />
+          <p
+            v-else
+            class="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 px-3 py-6 text-center text-[11px] leading-relaxed text-slate-500"
+          >
+            请先保存产品基本信息后，再在此配置上游通道绑定。
+          </p>
+        </div>
       </div>
 
       <template #footer>
         <div class="flex flex-wrap items-center justify-start gap-3">
+          <template v-if="editTab === 'basic'">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              @click="resetProductForm"
+            >
+              重置
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="savingProduct || !adminTokenValue || !form.code || !form.name"
+              @click="saveProduct"
+            >
+              {{ savingProduct ? '保存中...' : '保存产品' }}
+            </button>
+          </template>
           <button
             type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
-            @click="resetProductForm"
-          >
-            重置
-          </button>
-          <button
-            type="button"
-            class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
-            :disabled="savingProduct || !adminTokenValue || !form.code || !form.name"
-            @click="saveProduct"
-          >
-            {{ savingProduct ? '保存中...' : '保存产品' }}
-          </button>
-          <button
-            type="button"
-            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
+            class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             @click="closeDrawer"
           >
             关闭
@@ -186,6 +233,8 @@ const productError = ref('')
 const bindingError = ref('')
 const drawerOpen = ref(false)
 const searchQuery = ref('')
+type EditTab = 'basic' | 'bindings'
+const editTab = ref<EditTab>('basic')
 
 const products = ref<PayinProduct[]>([])
 const channels = ref<PayinProductChannelOption[]>([])
@@ -206,8 +255,8 @@ const headerTitle = computed(() =>
 )
 const headerSubtitle = computed(() =>
   props.payoutMode
-    ? '维护代付对外产品编码与路由绑定；仅 supports_payout 的通道可参与。费率在通道与商户侧配置。'
-    : '维护对外展示编码（code）、排序与启用；为每个产品绑定上游通道及权重。费率在通道与商户侧配置，不在产品绑定行设置。',
+    ? '维护代付对外产品编码与路由绑定；仅 supports_payout 的通道可参与。手续费规则（比例按 %、固定按分）在通道与商户授权中配置，产品绑定仅路由。'
+    : '维护对外展示编码（code）、排序与启用；为每个产品绑定上游通道及权重。手续费规则在通道与商户授权中配置，不在产品绑定行设置。',
 )
 
 const drawerTitle = computed(() =>
@@ -218,6 +267,11 @@ const drawerTitle = computed(() =>
     : props.payoutMode
       ? `编辑代付产品 · ${form.value.code || form.value.id}`
       : `编辑代收产品 · ${form.value.code || form.value.id}`,
+)
+
+const drawerSubtitle = computed(
+  () =>
+    '分段维护：基本设置保存 code / 名称 / 排序与启用状态；上游通道中逐行保存绑定或添加新通道。比例费率按百分数配置（接口存万分比整数），固定金额为分；细则见 docs/payment-fee-naming.md。',
 )
 
 const filteredChannels = computed(() => {
@@ -336,6 +390,7 @@ function selectProduct(id: number) {
 }
 
 function openEdit(id: number) {
+  editTab.value = 'basic'
   selectProduct(id)
   drawerOpen.value = true
 }
@@ -347,6 +402,7 @@ function newProduct() {
   savedProduct.value = false
   productError.value = ''
   newBind.value = { channel_id: 0, weight: 100, enabled: true }
+  editTab.value = 'basic'
 }
 
 function openNew() {

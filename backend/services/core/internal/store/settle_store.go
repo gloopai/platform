@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -290,19 +291,44 @@ INSERT INTO merchant_withdrawals (
 	return s.GetWithdrawalByNo(ctx, in.WithdrawNo)
 }
 
-func (s *SettleStore) ListWithdrawals(ctx context.Context, merchantId string, limit int64) ([]WithdrawalRow, error) {
+func sanitizeWithdrawNoLikeKeyword(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.ReplaceAll(s, "\\", "")
+	s = strings.ReplaceAll(s, "%", "")
+	s = strings.ReplaceAll(s, "_", "")
+	return s
+}
+
+// ListWithdrawals 按条件分页查询提现申请；total 为符合筛选的总条数。
+func (s *SettleStore) ListWithdrawals(ctx context.Context, merchantId string, limit, offset int64, status *int32, withdrawNoContains string) ([]WithdrawalRow, int64, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 50
 	}
+	if offset < 0 {
+		offset = 0
+	}
+	scope := func(tx *gorm.DB) *gorm.DB {
+		tx = tx.Table("merchant_withdrawals")
+		if mid := strings.TrimSpace(merchantId); mid != "" {
+			tx = tx.Where("merchant_id = ?", mid)
+		}
+		if status != nil {
+			tx = tx.Where("status = ?", *status)
+		}
+		if kw := sanitizeWithdrawNoLikeKeyword(withdrawNoContains); kw != "" {
+			tx = tx.Where("withdraw_no LIKE ?", "%"+kw+"%")
+		}
+		return tx
+	}
+	var total int64
+	if err := s.db.WithContext(ctx).Scopes(scope).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 	var out []WithdrawalRow
-	q := s.db.WithContext(ctx).Table("merchant_withdrawals")
-	if merchantId != "" {
-		q = q.Where("merchant_id = ?", merchantId)
+	if err := s.db.WithContext(ctx).Scopes(scope).Order("created_at DESC").Offset(int(offset)).Limit(int(limit)).Scan(&out).Error; err != nil {
+		return nil, 0, err
 	}
-	if err := q.Order("created_at DESC").Limit(int(limit)).Scan(&out).Error; err != nil {
-		return nil, err
-	}
-	return out, nil
+	return out, total, nil
 }
 
 func (s *SettleStore) GetWithdrawalByNo(ctx context.Context, withdrawNo string) (WithdrawalRow, error) {

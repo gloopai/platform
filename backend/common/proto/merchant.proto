@@ -17,14 +17,18 @@ service Merchant {
 
 message MerchantPayinGrant {
   int64 payin_product_id = 1;
+  // 对客代收比例：万分比整数 (= round(百分数×100))；与订单 fee_rate_bps 同语义
   optional int64 merchant_rate_bps = 2;
 }
 
 message MerchantPayoutGrant {
   int64 payout_product_id = 1;
+  // 对客代付比例部分：万分比整数 (= round(百分数×100))；与订单 fee_rate_bps 同语义
   optional int64 merchant_rate_bps = 2;
-  int64 fee_mode = 3; // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
-  int64 fee_fixed_amount = 4; // 分
+  // 计费模式：1=仅比例 2=仅固定 3=固定+比例（与订单 fee_mode 一致）
+  int64 fee_mode = 3;
+  // 对客代付固定部分（分）；与订单 fee_fixed_amount 同语义
+  int64 fee_fixed_amount = 4;
 }
 
 message MerchantInfo {

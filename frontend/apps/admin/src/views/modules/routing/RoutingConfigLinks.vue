@@ -6,7 +6,7 @@
     >
       <div class="text-sm font-semibold text-slate-900">代收产品</div>
       <p class="mt-2 text-sm text-slate-600">
-        为每个对外<strong>代收</strong>产品绑定上游通道（须开启代收能力）及权重；费率在通道与商户侧配置。
+        为每个对外<strong>代收</strong>产品绑定上游通道（须开启代收能力）及权重；手续费规则在通道与商户授权中配置。
       </p>
       <div class="mt-3 text-sm font-medium text-indigo-600 group-hover:underline">去配置 →</div>
     </RouterLink>
@@ -28,7 +28,7 @@
     >
       <div class="text-sm font-semibold text-slate-900">商户列表</div>
       <p class="mt-2 text-sm text-slate-600">
-        为商户分别勾选<strong>代收 / 代付</strong>可用产品并设置默认费率；白名单与开放模式规则见文档。
+        为商户分别勾选<strong>代收 / 代付</strong>可用产品并设置对客手续费（比例 %、固定分）；白名单与开放模式规则见文档。
       </p>
       <div class="mt-3 text-sm font-medium text-indigo-600 group-hover:underline">去配置 →</div>
     </RouterLink>

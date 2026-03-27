@@ -61,8 +61,11 @@ export type MerchantOpenedProductItem = {
   product_code: string
   product_name: string
   enabled: boolean
+  /** 代付：1=仅比例 2=仅固定 3=固定+比例；代收通常为 1 */
   fee_mode: number
+  /** 对客比例：万分比整数，展示为 bps/100 % */
   fee_rate_bps?: number
+  /** 对客固定部分（分）；代收多为 0 */
   fee_fixed_amount: number
 }
 
@@ -83,8 +86,11 @@ export type MerchantOrderItem = {
   /** 管理台配置的展示名；缺省时前端仅用 `payin_product_code` */
   payin_product_name?: string
   paid_amount: number
+  /** 计费模式 1/2/3，见 lib/feeSemantics */
   fee_mode: number
+  /** 对客比例：万分比整数，展示为 bps/100 %（下单快照） */
   fee_rate_bps: number
+  /** 对客固定部分（分），下单快照 */
   fee_fixed_amount: number
   fee_amount: number
   net_amount: number
@@ -122,6 +128,7 @@ export type MerchantOrderDetail = {
   fee_mode: number
   fee_rate_bps: number
   fee_fixed_amount: number
+  /** 手续费、净额为下单快照（分） */
   fee_amount: number
   net_amount: number
   return_url: string

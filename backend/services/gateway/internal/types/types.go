@@ -930,11 +930,16 @@ type AdminWithdrawalItem struct {
 
 type AdminSettlementWithdrawalsReq struct {
 	MerchantId string `form:"merchant_id,optional"`
-	Limit      int64  `form:"limit,optional"`
+	Page       int64  `form:"page,optional"`
+	PageSize   int64  `form:"page_size,optional"`
+	Limit      int64  `form:"limit,optional"` // 兼容旧客户端：仅传 limit 时视为第 1 页、每页 limit 条
+	Status     string `form:"status,optional"`    // 空=全部，0-5 为状态筛选
+	WithdrawNo string `form:"withdraw_no,optional"` // 单号模糊匹配
 }
 
 type AdminSettlementWithdrawalsResp struct {
 	Items []AdminWithdrawalItem `json:"items"`
+	Total int64                 `json:"total"`
 }
 
 type AdminCreateWithdrawalReq struct {

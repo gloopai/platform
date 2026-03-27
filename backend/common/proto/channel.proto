@@ -70,10 +70,14 @@ message ChannelRow {
   bool fuse_enabled = 12;
   bool supports_payin = 13;
   bool supports_payout = 14;
+  // 平台相对上游：代收成本比例，万分比整数 (= round(百分数×100))
   int64 upstream_payin_rate_bps = 15;
+  // 平台相对上游：代付成本比例，同上
   int64 upstream_payout_rate_bps = 16;
-  int64 upstream_payout_fee_mode = 17; // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
-  int64 upstream_payout_fixed_fee = 18; // 分
+  // 上游代付计费模式：1=仅比例 2=仅固定 3=固定+比例
+  int64 upstream_payout_fee_mode = 17;
+  // 上游代付固定成本（分）
+  int64 upstream_payout_fixed_fee = 18;
 }
 
 message ListChannelsResp {
@@ -95,6 +99,7 @@ message UpsertChannelReq {
   bool fuse_enabled = 12;
   bool supports_payin = 13;
   bool supports_payout = 14;
+  // 以下四项语义与 ChannelRow 一致（平台相对上游成本）
   int64 upstream_payin_rate_bps = 15;
   int64 upstream_payout_rate_bps = 16;
   int64 upstream_payout_fee_mode = 17;

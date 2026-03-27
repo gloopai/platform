@@ -331,9 +331,9 @@ func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductID int64, am
 	case 2:
 		feeAmount = feeFixedAmount
 	case 3:
-		feeAmount = feeFixedAmount + amount*feeRateBps/10000
+		feeAmount = feeFixedAmount + proportionalFeeFen(amount, feeRateBps)
 	default:
-		feeAmount = amount * feeRateBps / 10000
+		feeAmount = proportionalFeeFen(amount, feeRateBps)
 	}
 	if feeAmount < 0 {
 		feeAmount = 0
@@ -657,6 +657,16 @@ func notifyOK(code, reason string) *types.UpstreamNotifyResp {
 	}
 }
 
+// feeRateBpsDivisor：比例费率在库中为万分比整数，数值等于 round(百分数×100)；手续费(分)=金额(分)×bps/divisor。
+const feeRateBpsDivisor int64 = 10_000
+
+func proportionalFeeFen(amountFen, feeRateBps int64) int64 {
+	if amountFen <= 0 || feeRateBps <= 0 {
+		return 0
+	}
+	return amountFen * feeRateBps / feeRateBpsDivisor
+}
+
 func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int64) (feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount int64) {
 	feeMode = 1
 	feeRateBps = 0
@@ -678,7 +688,7 @@ func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int
 	if feeRateBps < 0 {
 		feeRateBps = 0
 	}
-	feeAmount = amount * feeRateBps / 10000
+	feeAmount = proportionalFeeFen(amount, feeRateBps)
 	if feeAmount < 0 {
 		feeAmount = 0
 	}

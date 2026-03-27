@@ -5,7 +5,7 @@
       <p class="mt-0.5 text-[11px] text-slate-500">与代收独立；仅绑定的代付产品可在 API 中使用。</p>
     </template>
     <p v-else class="text-[11px] leading-snug text-slate-500">
-      代付白名单与计费；模式与代收侧逻辑一致（比例 / 固定 / 固定+比例）。
+      代付白名单与对客计费：计费模式与「比例费率（%）」「固定手续费（分）」组合使用，与订单快照字段同语义。
     </p>
 
     <div v-if="loading" class="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center text-[11px] text-slate-500">
@@ -39,31 +39,30 @@
           </div>
           <div class="mt-2.5 grid grid-cols-1 gap-2 border-t border-slate-200/60 pt-2.5 sm:grid-cols-3">
             <label class="grid gap-0.5">
-              <span class="text-[11px] font-medium text-slate-600">计费模式</span>
+              <span class="text-[11px] font-medium text-slate-600">{{ LABEL_MERCHANT_PAYOUT_FEE_MODE }}</span>
               <select
                 v-model.number="row.fee_mode"
                 class="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs"
                 :disabled="saving"
                 @change="emitUpdate(row)"
               >
-                <option :value="1">比例</option>
-                <option :value="2">固定金额</option>
-                <option :value="3">固定 + 比例</option>
+                <option v-for="opt in FEE_MODE_SELECT_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
               </select>
             </label>
             <label class="grid gap-0.5">
-              <span class="text-[11px] font-medium text-slate-600">比例 (bps)</span>
+              <span class="text-[11px] font-medium text-slate-600">{{ LABEL_MERCHANT_PAYOUT_RATE }}</span>
               <input
-                v-model.number="row.merchant_rate_bps"
+                :value="bpsToPercentInputValue(row.merchant_rate_bps)"
                 type="number"
                 min="0"
+                step="0.01"
                 class="rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-xs tabular-nums"
                 :disabled="saving"
-                @change="emitUpdate(row)"
+                @change="onPayoutPercentChange(row, $event)"
               />
             </label>
             <label class="grid gap-0.5">
-              <span class="text-[11px] font-medium text-slate-600">固定手续费 (分)</span>
+              <span class="text-[11px] font-medium text-slate-600">{{ LABEL_MERCHANT_PAYOUT_FIXED }}</span>
               <input
                 v-model.number="row.fee_fixed_amount"
                 type="number"
@@ -114,6 +113,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import { FEE_MODE_SELECT_OPTIONS, LABEL_MERCHANT_PAYOUT_FEE_MODE, LABEL_MERCHANT_PAYOUT_FIXED, LABEL_MERCHANT_PAYOUT_RATE } from '../../../lib/feeSemantics'
+import { bpsToPercentInputValue, percentToBps } from '../../../lib/ratePercent'
 import type { MerchantPayoutGrant, ProductRow } from './types'
 
 const props = withDefaults(
@@ -188,6 +189,14 @@ function emitUpdate(row: { id: number; fee_mode: number; merchant_rate_bps: numb
     merchant_rate_bps: row.merchant_rate_bps ?? 0,
     fee_fixed_amount: row.fee_fixed_amount ?? 0,
   })
+}
+
+function onPayoutPercentChange(
+  row: { id: number; fee_mode: number; merchant_rate_bps: number; fee_fixed_amount: number },
+  e: Event,
+) {
+  const n = parseFloat((e.target as HTMLInputElement).value)
+  emitUpdate({ ...row, merchant_rate_bps: Number.isFinite(n) ? percentToBps(n) : 0 })
 }
 </script>
 

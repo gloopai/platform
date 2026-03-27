@@ -60,7 +60,7 @@
               <th class="whitespace-nowrap px-4 py-3">金额</th>
               <th class="whitespace-nowrap px-4 py-3">手续费</th>
               <th class="whitespace-nowrap px-4 py-3">净额</th>
-              <th class="whitespace-nowrap px-4 py-3">费率模式</th>
+              <th class="whitespace-nowrap px-4 py-3">计费模式</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
               <th class="whitespace-nowrap px-4 py-3">支付产品</th>
               <th class="whitespace-nowrap px-4 py-3">通道</th>
@@ -84,7 +84,7 @@
               <td class="px-4 py-3 tabular-nums text-slate-800">{{ formatYuan(o.amount) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.fee_amount || 0) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.net_amount || 0) }}</td>
-              <td class="px-4 py-3 text-xs text-slate-600">{{ feeModeLabel(o.fee_mode) }}</td>
+              <td class="px-4 py-3 text-xs text-slate-600">{{ feeModeOptionLabel(o.fee_mode) }}</td>
               <td class="px-4 py-3">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -116,6 +116,7 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 
+import { feeModeOptionLabel } from '../../../lib/feeSemantics'
 import { adminGet } from '../../../lib/adminApi'
 import { formatAdminMoney } from '../../../lib/displaySettings'
 
@@ -170,12 +171,6 @@ function statusClass(s: number) {
   if (s === 0) return 'bg-amber-100 text-amber-900'
   if (s === 2 || s === 3) return 'bg-rose-100 text-rose-800'
   return 'bg-slate-100 text-slate-700'
-}
-
-function feeModeLabel(m: number) {
-  if (m === 2) return '固定金额'
-  if (m === 3) return '固定+比例'
-  return '比例'
 }
 
 function buildQuery(): string {

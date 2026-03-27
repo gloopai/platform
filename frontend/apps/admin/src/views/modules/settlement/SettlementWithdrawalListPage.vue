@@ -13,7 +13,7 @@
           type="text"
           placeholder="merchant_id"
           class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm"
-          @keyup.enter="loadWithdrawals"
+          @keyup.enter="reloadFromFilters"
         />
       </label>
       <label class="flex flex-col gap-1 text-sm">
@@ -44,13 +44,13 @@
         <button
           type="button"
           class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50"
-          @click="loadWithdrawals"
+          @click="reloadFromFilters"
         >
           加载
         </button>
       </div>
     </div>
-    <p class="text-xs text-slate-500">列表为接口返回的最近 200 条；状态与单号筛选在本地对已加载数据生效。</p>
+    <p class="text-xs text-slate-500">筛选条件在服务端生效；翻页会带上当前商户、状态与单号条件。</p>
 
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="overflow-x-auto">
@@ -69,13 +69,13 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-if="withdrawLoading"><td class="px-4 py-8 text-center text-slate-500" colspan="8">加载中...</td></tr>
-            <tr v-else-if="!filteredWithdrawals.length">
+            <tr v-else-if="!withdrawals.length">
               <td class="px-4 py-8 text-center text-slate-500" colspan="8">
-                {{ withdrawals.length ? '当前筛选条件下暂无记录' : '暂无提现申请' }}
+                {{ total > 0 ? '当前页暂无记录' : '暂无提现申请' }}
               </td>
             </tr>
             <template v-else>
-              <tr v-for="w in filteredWithdrawals" :key="w.withdraw_no" class="hover:bg-slate-50/80">
+              <tr v-for="w in withdrawals" :key="w.withdraw_no" class="hover:bg-slate-50/80">
                 <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ w.withdraw_no }}</td>
                 <td class="px-4 py-3 font-medium text-slate-900">{{ w.merchant_id }}</td>
                 <td class="px-4 py-3 text-slate-700">
@@ -97,6 +97,42 @@
             </template>
           </tbody>
         </table>
+      </div>
+      <div
+        v-if="total > 0"
+        class="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="text-xs text-slate-500">
+          共 <span class="font-semibold text-slate-800">{{ total }}</span> 条 · 每页
+          <select v-model.number="pageSize" class="mx-1 rounded border border-slate-200 px-2 py-1 text-xs" @change="onPageSizeChange">
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+            <option :value="100">100</option>
+          </select>
+          条
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 disabled:opacity-40"
+            :disabled="page <= 1 || withdrawLoading"
+            @click="goPage(page - 1)"
+          >
+            上一页
+          </button>
+          <span class="text-xs text-slate-600">
+            第 <span class="font-mono font-semibold text-slate-900">{{ page }}</span> / {{ totalPages }} 页
+          </span>
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 disabled:opacity-40"
+            :disabled="page >= totalPages || withdrawLoading"
+            @click="goPage(page + 1)"
+          >
+            下一页
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -131,17 +167,11 @@ const withdrawLoading = ref(false)
 const merchantId = ref('')
 const statusFilter = ref('')
 const withdrawNoKeyword = ref('')
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(20)
 
-const filteredWithdrawals = computed(() => {
-  let rows = withdrawals.value
-  if (statusFilter.value !== '') {
-    const n = Number(statusFilter.value)
-    if (!Number.isNaN(n)) rows = rows.filter((w) => w.status === n)
-  }
-  const kw = withdrawNoKeyword.value.trim().toLowerCase()
-  if (kw) rows = rows.filter((w) => (w.withdraw_no || '').toLowerCase().includes(kw))
-  return rows
-})
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const fiatSymbol = ref('¥')
 const toast = useUiToast()
 const dialog = useUiDialog()
@@ -196,15 +226,47 @@ async function loadWithdrawals() {
   try {
     const q = new URLSearchParams()
     if (merchantId.value.trim()) q.set('merchant_id', merchantId.value.trim())
-    q.set('limit', '200')
-    const r = await adminGet<{ items: WithdrawalItem[] }>(`/v1/admin/settlement/withdrawals?${q.toString()}`)
+    if (statusFilter.value !== '') q.set('status', statusFilter.value)
+    const kw = withdrawNoKeyword.value.trim()
+    if (kw) q.set('withdraw_no', kw)
+    q.set('page', String(page.value))
+    q.set('page_size', String(pageSize.value))
+    const r = await adminGet<{ items: WithdrawalItem[]; total: number }>(`/v1/admin/settlement/withdrawals?${q.toString()}`)
     withdrawals.value = r.items ?? []
+    total.value = typeof r.total === 'number' ? r.total : 0
+    if (total.value === 0) {
+      page.value = 1
+    } else {
+      const lastPage = Math.max(1, Math.ceil(total.value / pageSize.value))
+      if (page.value > lastPage) {
+        page.value = lastPage
+        withdrawLoading.value = false
+        return loadWithdrawals()
+      }
+    }
   } catch {
     withdrawals.value = []
+    total.value = 0
     toast.error('提现申请加载失败')
   } finally {
     withdrawLoading.value = false
   }
+}
+
+function reloadFromFilters() {
+  page.value = 1
+  void loadWithdrawals()
+}
+
+function goPage(p: number) {
+  if (p < 1 || p > totalPages.value) return
+  page.value = p
+  void loadWithdrawals()
+}
+
+function onPageSizeChange() {
+  page.value = 1
+  void loadWithdrawals()
 }
 
 async function reviewWithdrawal(w: WithdrawalItem, approved: boolean) {
@@ -234,10 +296,10 @@ async function confirmPayout(w: WithdrawalItem) {
 let unregister: (() => void) | null = null
 onMounted(() => {
   void loadDisplaySettings()
-  void loadWithdrawals()
+  void reloadFromFilters()
   if (registerRefresh) unregister = registerRefresh(() => {
     void loadDisplaySettings()
-    void loadWithdrawals()
+    void reloadFromFilters()
   })
 })
 onUnmounted(() => {

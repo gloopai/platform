@@ -82,7 +82,20 @@ func (l *WithdrawalsLogic) CreateWithdrawal(in *settlepb.CreateWithdrawalReq) (*
 }
 
 func (l *WithdrawalsLogic) ListWithdrawals(in *settlepb.ListWithdrawalsReq) (*settlepb.ListWithdrawalsResp, error) {
-	rows, err := l.svcCtx.Settle.ListWithdrawals(l.ctx, strings.TrimSpace(in.GetMerchantId()), in.GetLimit())
+	limit := in.GetLimit()
+	offset := in.GetOffset()
+	var st *int32
+	if in.Status != nil {
+		st = in.Status
+	}
+	rows, total, err := l.svcCtx.Settle.ListWithdrawals(
+		l.ctx,
+		strings.TrimSpace(in.GetMerchantId()),
+		limit,
+		offset,
+		st,
+		strings.TrimSpace(in.GetWithdrawNoContains()),
+	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "list withdrawals failed")
 	}
@@ -90,7 +103,7 @@ func (l *WithdrawalsLogic) ListWithdrawals(in *settlepb.ListWithdrawalsReq) (*se
 	for _, x := range rows {
 		items = append(items, toPbWithdrawal(x))
 	}
-	return &settlepb.ListWithdrawalsResp{Items: items}, nil
+	return &settlepb.ListWithdrawalsResp{Items: items, Total: total}, nil
 }
 
 func (l *WithdrawalsLogic) ReviewWithdrawal(in *settlepb.ReviewWithdrawalReq) (*settlepb.ReviewWithdrawalResp, error) {

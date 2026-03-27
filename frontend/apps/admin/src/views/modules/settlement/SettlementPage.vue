@@ -571,8 +571,8 @@ async function loadWithdrawals() {
   try {
     const q = new URLSearchParams()
     if (merchantId.value) q.set('merchant_id', merchantId.value)
-    q.set('limit', '200')
-    const r = await adminGet<{ items: WithdrawalItem[] }>(`/v1/admin/settlement/withdrawals?${q.toString()}`)
+    q.set('limit', '50')
+    const r = await adminGet<{ items: WithdrawalItem[]; total?: number }>(`/v1/admin/settlement/withdrawals?${q.toString()}`)
     withdrawals.value = r.items ?? []
   } catch {
     withdrawals.value = []
