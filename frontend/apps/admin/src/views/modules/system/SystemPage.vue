@@ -46,7 +46,7 @@
               max="9999999999"
               step="1"
               class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
-              placeholder="1"
+              placeholder="5000000000"
             />
             <span class="text-[11px] font-normal text-slate-500">
               自动分配 10 位商户号时的下限（含）。若序列表已超过此值，下一个号仍连续递增；仅在新号需「抬高」时改大并保存。
@@ -171,7 +171,7 @@ const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
 const fiatToUsdtRate = ref(7.2)
 const adminMfaEnabled = ref(false)
-const merchantNumericIdStart = ref(1)
+const merchantNumericIdStart = ref(5_000_000_000)
 
 const canSave = computed(() => {
   const floor = Number(merchantNumericIdStart.value)
@@ -210,9 +210,9 @@ async function load() {
     currencySymbol.value = ds.currency_symbol || '¥'
     fiatToUsdtRate.value = ds.fiat_to_usdt_rate > 0 ? ds.fiat_to_usdt_rate : 7.2
     adminMfaEnabled.value = Number(ds.admin_mfa_enabled || 0) === 1
-    const st = Number(ds.merchant_numeric_id_start ?? 1)
+    const st = Number(ds.merchant_numeric_id_start ?? 5_000_000_000)
     merchantNumericIdStart.value =
-      Number.isFinite(st) && st >= 1 && st <= 9999999999 ? Math.floor(st) : 1
+      Number.isFinite(st) && st >= 1 && st <= 9999999999 ? Math.floor(st) : 5_000_000_000
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     error.value = msg
@@ -249,9 +249,9 @@ async function saveDisplaySettings() {
     currencySymbol.value = r.currency_symbol
     fiatToUsdtRate.value = r.fiat_to_usdt_rate
     adminMfaEnabled.value = Number(r.admin_mfa_enabled || 0) === 1
-    const rst = Number(r.merchant_numeric_id_start ?? 1)
+    const rst = Number(r.merchant_numeric_id_start ?? 5_000_000_000)
     merchantNumericIdStart.value =
-      Number.isFinite(rst) && rst >= 1 && rst <= 9999999999 ? Math.floor(rst) : 1
+      Number.isFinite(rst) && rst >= 1 && rst <= 9999999999 ? Math.floor(rst) : 5_000_000_000
     saved.value = true
     toast.success('展示配置已保存')
   } catch (e) {

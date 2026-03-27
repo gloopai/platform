@@ -349,7 +349,7 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('country_code', 'CN'),
   ('currency_code', 'CNY'),
   ('currency_symbol', '¥'),
-  ('merchant_numeric_id_start', '1')
+  ('merchant_numeric_id_start', '5000000000')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 
 INSERT INTO payin_orders (

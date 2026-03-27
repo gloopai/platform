@@ -40,7 +40,7 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		floor, ferr := l.svcCtx.Merchants.GetMerchantNumericIDFloor(l.ctx)
 		if ferr != nil {
 			l.Errorf("read merchant_numeric_id_start: %v", ferr)
-			floor = 1
+			floor = store.DefaultMerchantNumericIDFloor
 		}
 		n, err := l.svcCtx.Merchants.AllocNextMerchantNumericID(l.ctx, floor)
 		if err != nil {

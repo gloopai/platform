@@ -112,7 +112,7 @@ func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*t
 	}
 	start := row.GetMerchantNumericIdStart()
 	if start < 1 {
-		start = 1
+		start = 5000000000
 	}
 	return &types.AdminDisplaySettingsResp{
 		CountryCode:            row.GetCountryCode(),
@@ -140,7 +140,7 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 		}
 		start = cur.GetMerchantNumericIdStart()
 		if start < 1 {
-			start = 1
+			start = 5000000000
 		}
 	}
 	if start < 1 || start > 9999999999 {

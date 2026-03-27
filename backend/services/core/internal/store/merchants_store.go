@@ -11,6 +11,9 @@ import (
 
 const globalKeyMerchantNumericIDStart = "merchant_numeric_id_start"
 
+// DefaultMerchantNumericIDFloor 与 global_settings 默认 seed 一致：未配置或异常时的取号下限
+const DefaultMerchantNumericIDFloor int64 = 5000000000
+
 type Merchant struct {
 	ID                   int64
 	MerchantId           string
@@ -149,14 +152,14 @@ func (s *MerchantsStore) GetMerchantNumericIDFloor(ctx context.Context) (int64, 
 	if err := s.db.WithContext(ctx).Raw(`
 SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1
 `, globalKeyMerchantNumericIDStart).Scan(&v).Error; err != nil {
-		return 1, err
+		return DefaultMerchantNumericIDFloor, err
 	}
 	if strings.TrimSpace(v) == "" {
-		return 1, nil
+		return DefaultMerchantNumericIDFloor, nil
 	}
 	n, err := strconv.ParseInt(strings.TrimSpace(v), 10, 64)
 	if err != nil || n < 1 {
-		return 1, nil
+		return DefaultMerchantNumericIDFloor, nil
 	}
 	if n > 9999999999 {
 		return 9999999999, nil

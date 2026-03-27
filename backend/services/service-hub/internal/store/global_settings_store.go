@@ -23,7 +23,7 @@ type GlobalDisplaySettings struct {
 	CurrencySymbol           string
 	FiatToUsdtRate           float64
 	AdminMfaEnabled          int64
-	MerchantNumericIDStart   int64 // 新建商户自动分配的数字型 merchant_id 下限（含），默认 1
+	MerchantNumericIDStart   int64 // 新建商户自动分配的数字型 merchant_id 下限（含），默认 5000000000
 }
 
 type GlobalSettingsStore struct {
@@ -60,7 +60,7 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 		CurrencySymbol:         "¥",
 		FiatToUsdtRate:         7.2,
 		AdminMfaEnabled:        0,
-		MerchantNumericIDStart: 1,
+		MerchantNumericIDStart: 5000000000,
 	}
 	for _, r := range rows {
 		switch r.K {
