@@ -3,61 +3,140 @@
     <div>
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">系统管理</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">
-        <strong>MVP</strong>：提供平台<strong>全局展示配置</strong>（国家/货币）。管理员列表与角色分配请在
-        <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">权限与安全 → 后台用户</RouterLink>
-        中维护。
+        管理全局展示参数（国家、货币、汇率）与后台登录安全开关。改动保存后会立即影响管理台的金额显示与登录策略。
       </p>
     </div>
 
-    <div class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
-      <div class="mb-3 text-sm font-semibold text-slate-800">全局展示配置</div>
-      <div class="grid gap-3 sm:grid-cols-4">
-        <label class="grid gap-1 text-sm">
-          <span class="text-xs font-medium text-slate-500">国家代码</span>
-          <input v-model.trim="countryCode" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
-        </label>
-        <label class="grid gap-1 text-sm">
-          <span class="text-xs font-medium text-slate-500">货币代码</span>
-          <input v-model.trim="currencyCode" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
-        </label>
-        <label class="grid gap-1 text-sm">
-          <span class="text-xs font-medium text-slate-500">货币符号</span>
-          <input v-model.trim="currencySymbol" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
-        </label>
-        <label class="grid gap-1 text-sm">
-          <span class="text-xs font-medium text-slate-500">法币 -> USDT 汇率</span>
-          <input v-model.number="fiatToUsdtRate" type="number" min="0.000001" step="0.000001" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
-        </label>
-      </div>
-      <label class="mt-3 inline-flex items-center gap-2 text-xs font-medium text-slate-600">
-        <input v-model="adminMfaEnabled" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
-        启用后台登录 MFA（启用后，仅对已绑定 MFA 的管理员强制校验）
-      </label>
-      <div class="mt-3 flex items-center gap-2">
-        <button
-          type="button"
-          class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
-          :disabled="saving"
-          @click="saveDisplaySettings"
-        >
-          {{ saving ? '保存中…' : '保存配置' }}
-        </button>
-        <span v-if="saved" class="text-xs text-emerald-700">已保存</span>
+    <div
+      v-if="error"
+      class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+    >
+      {{ error }}
+    </div>
+
+    <div v-if="loading" class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+      <div class="animate-pulse space-y-3">
+        <div class="h-4 w-36 rounded bg-slate-200" />
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="h-16 rounded-xl bg-slate-100" />
+          <div class="h-16 rounded-xl bg-slate-100" />
+          <div class="h-16 rounded-xl bg-slate-100" />
+          <div class="h-16 rounded-xl bg-slate-100" />
+        </div>
       </div>
     </div>
 
+    <div v-else class="grid gap-6 lg:grid-cols-12">
+      <section class="lg:col-span-8 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div class="text-sm font-semibold text-slate-900">全局展示配置</div>
+            <div class="mt-1 text-xs text-slate-500">用于金额文案和汇率计算展示。</div>
+          </div>
+          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">MVP</span>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="grid gap-1 text-sm">
+            <span class="text-xs font-medium text-slate-500">国家代码</span>
+            <input
+              v-model.trim="countryCode"
+              type="text"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="CN"
+            />
+          </label>
+          <label class="grid gap-1 text-sm">
+            <span class="text-xs font-medium text-slate-500">货币代码</span>
+            <input
+              v-model.trim="currencyCode"
+              type="text"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="CNY"
+            />
+          </label>
+          <label class="grid gap-1 text-sm">
+            <span class="text-xs font-medium text-slate-500">货币符号</span>
+            <input
+              v-model.trim="currencySymbol"
+              type="text"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="¥"
+            />
+          </label>
+          <label class="grid gap-1 text-sm">
+            <span class="text-xs font-medium text-slate-500">法币 -> USDT 汇率</span>
+            <input
+              v-model.number="fiatToUsdtRate"
+              type="number"
+              min="0.000001"
+              step="0.000001"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="7.200000"
+            />
+          </label>
+        </div>
+
+        <div class="mt-4 flex items-center gap-3 border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            :disabled="saving || !canSave"
+            @click="saveDisplaySettings"
+          >
+            {{ saving ? '保存中…' : '保存配置' }}
+          </button>
+          <span v-if="saved" class="text-xs font-medium text-emerald-700">已保存</span>
+          <span v-if="!canSave" class="text-xs text-amber-700">请填写完整且有效的配置</span>
+        </div>
+      </section>
+
+      <aside class="space-y-4 lg:col-span-4">
+        <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+          <div class="text-sm font-semibold text-slate-900">安全策略</div>
+          <p class="mt-1 text-xs text-slate-500">后台登录二次校验策略。</p>
+          <label class="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+            <input v-model="adminMfaEnabled" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300" />
+            <span>启用后台登录 MFA（仅对已绑定 MFA 的管理员强制校验）</span>
+          </label>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+          <div class="text-sm font-semibold text-slate-900">实时预览</div>
+          <div class="mt-3 space-y-2 text-xs text-slate-600">
+            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+              <span>国家 / 货币</span>
+              <span class="font-mono font-semibold text-slate-800">{{ countryCode.toUpperCase() }} / {{ currencyCode.toUpperCase() }}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+              <span>金额样式</span>
+              <span class="font-semibold text-slate-800">{{ currencySymbol || '¥' }} 12,345.67</span>
+            </div>
+            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+              <span>汇率</span>
+              <span class="font-mono font-semibold text-slate-800">{{ ratePreview }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+          管理员账号与角色请在
+          <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">后台用户</RouterLink>
+          与
+          <RouterLink to="/rbac/roles" class="font-semibold text-indigo-600 underline">角色与授权</RouterLink>
+          中维护。
+        </section>
+      </aside>
+    </div>
+
     <div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
-      操作审计、参数中心、账号新建/改密等后续迭代；管理员与角色请在
-      <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">后台用户</RouterLink>
-      与
-      <RouterLink to="/rbac/roles" class="font-semibold text-indigo-600 underline">角色与授权</RouterLink>
-      配置。
+      后续可继续扩展操作审计、参数中心、账号风险策略等系统治理能力。
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { adminGet } from '../../../lib/adminApi'
@@ -77,6 +156,21 @@ const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
 const fiatToUsdtRate = ref(7.2)
 const adminMfaEnabled = ref(false)
+
+const canSave = computed(
+  () =>
+    countryCode.value.trim().length > 0 &&
+    currencyCode.value.trim().length > 0 &&
+    currencySymbol.value.trim().length > 0 &&
+    Number.isFinite(fiatToUsdtRate.value) &&
+    fiatToUsdtRate.value > 0,
+)
+
+const ratePreview = computed(() => {
+  const v = Number(fiatToUsdtRate.value)
+  if (!Number.isFinite(v) || v <= 0) return '—'
+  return `${v.toFixed(6)}`
+})
 
 async function load() {
   loading.value = true
@@ -98,6 +192,7 @@ async function load() {
 }
 
 async function saveDisplaySettings() {
+  if (!canSave.value) return
   saving.value = true
   saved.value = false
   error.value = ''

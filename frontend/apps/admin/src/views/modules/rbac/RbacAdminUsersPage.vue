@@ -10,44 +10,15 @@
     <div class="grid gap-6 lg:grid-cols-12">
       <div class="lg:col-span-3">
         <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50/90 px-4 py-3">
+          <div class="flex items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/90 px-4 py-3">
             <div class="text-sm font-semibold text-slate-800">用户</div>
-          </div>
-          <div class="p-4">
-            <div class="mb-2 text-xs font-semibold text-slate-700">新建用户</div>
-            <div class="grid gap-2">
-              <label class="grid gap-1 text-xs font-medium text-slate-600">
-                用户名（创建后不可改）
-                <input v-model.trim="newUsername" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-              </label>
-              <label class="grid gap-1 text-xs font-medium text-slate-600">
-                初始密码
-                <input v-model.trim="newPassword" type="password" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-              </label>
-              <label class="grid gap-1 text-xs font-medium text-slate-600">
-                状态
-                <select v-model.number="newStatus" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
-                  <option :value="1">正常</option>
-                  <option :value="0">停用</option>
-                </select>
-              </label>
-              <div>
-                <div class="mb-1 text-xs font-medium text-slate-600">初始角色</div>
-                <div class="flex max-h-28 flex-col gap-1.5 overflow-y-auto pr-0.5">
-                  <label v-for="r in roles" :key="'new_' + r.id" class="inline-flex cursor-pointer items-center gap-1.5 text-xs">
-                    <input v-model="newRoleIds" :value="r.id" type="checkbox" class="h-4 w-4 shrink-0 rounded border-slate-300" />
-                    <span class="min-w-0 truncate">{{ r.name }}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
             <button
               type="button"
-              class="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
-              :disabled="saving || !newUsername || !newPassword"
-              @click="createUser"
+              class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="saving"
+              @click="openCreateDialog"
             >
-              创建用户
+              新建
             </button>
           </div>
           <div class="border-t border-slate-100">
@@ -239,6 +210,77 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="body">
+      <div v-if="showCreateDialog" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/40 p-4">
+        <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-slate-900">新建后台用户</div>
+              <div class="mt-1 text-xs text-slate-500">创建后可在右侧继续调整状态、角色和 MFA。</div>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              :disabled="saving"
+              @click="closeCreateDialog"
+            >
+              关闭
+            </button>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              用户名（创建后不可改）
+              <input v-model.trim="newUsername" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              初始密码
+              <input v-model.trim="newPassword" type="password" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600 sm:col-span-2">
+              状态
+              <select v-model.number="newStatus" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                <option :value="1">正常</option>
+                <option :value="0">停用</option>
+              </select>
+            </label>
+            <div class="sm:col-span-2">
+              <div class="mb-1 text-xs font-medium text-slate-600">初始角色</div>
+              <div class="grid max-h-36 gap-2 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2">
+                <label
+                  v-for="r in roles"
+                  :key="'new_' + r.id"
+                  class="inline-flex cursor-pointer items-center gap-1.5 text-xs"
+                >
+                  <input v-model="newRoleIds" :value="r.id" type="checkbox" class="h-4 w-4 shrink-0 rounded border-slate-300" />
+                  <span class="min-w-0 truncate text-slate-700">{{ r.name }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              :disabled="saving"
+              @click="closeCreateDialog"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="saving || !newUsername || !newPassword"
+              @click="createUser"
+            >
+              {{ saving ? '创建中…' : '创建用户' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -272,6 +314,7 @@ const mfaSecret = ref('')
 const mfaQrDataUrl = ref('')
 const mfaCode = ref('')
 const resetPwdUserId = ref(0)
+const showCreateDialog = ref(false)
 
 const selectedUser = computed(() => users.value.find((u) => u.id === selectedUserId.value) || null)
 
@@ -385,6 +428,7 @@ async function createUser() {
       selectedUserId.value = created.id
       syncEditFromSelected()
     }
+    closeCreateDialog()
     toast.success('后台用户已创建')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
@@ -393,6 +437,18 @@ async function createUser() {
   } finally {
     saving.value = false
   }
+}
+
+function openCreateDialog() {
+  showCreateDialog.value = true
+}
+
+function closeCreateDialog() {
+  showCreateDialog.value = false
+  newUsername.value = ''
+  newPassword.value = ''
+  newStatus.value = 1
+  newRoleIds.value = []
 }
 
 function openResetPwd(uid: number) {
