@@ -65,6 +65,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { MERCHANT_API } from '@/api/endpoints'
+import { parseApiEnvelope, unwrapApiData } from '@/lib/apiEnvelope'
 import { merchantConsoleUrl } from '@/lib/http'
 import { saveMerchantAuth, saveMerchantSession } from '@/lib/merchantApi'
 import type { MerchantLoginResponse } from '@/types/merchant.api'
@@ -84,11 +85,14 @@ async function login() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value, password: password.value }),
     })
-    if (!resp.ok) {
-      error.value = `登录失败（${resp.status}）`
+    const text = await resp.text()
+    let data: MerchantLoginResponse
+    try {
+      data = unwrapApiData(parseApiEnvelope<MerchantLoginResponse>(text))
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '登录失败'
       return
     }
-    const data = (await resp.json()) as MerchantLoginResponse
     localStorage.setItem('merchant_email', email.value)
     saveMerchantAuth({ appId: data.app_id || '', apiSecret: localStorage.getItem('merchant_secret') || '' })
     saveMerchantSession({ token: data.token, expiresAt: data.expires_at, merchantId: data.merchant_id })

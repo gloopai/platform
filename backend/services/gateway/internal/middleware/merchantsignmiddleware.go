@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
-	"github.com/gloopai/pay/gateway/internal/openapi"
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -39,67 +39,67 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
+			apiresp.Fail(w, apiresp.CodeInvalidParams, "invalid params")
 			return
 		}
 		appID := params["app_id"]
 		if appID == "" {
-			openapi.Write(w, http.StatusBadRequest, "APP_ID_REQUIRED", "app_id required")
+			apiresp.Fail(w, apiresp.CodeAppIDRequired, "app_id required")
 			return
 		}
 		sign := params["sign"]
 		if sign == "" {
-			openapi.Write(w, http.StatusBadRequest, "SIGN_REQUIRED", "sign required")
+			apiresp.Fail(w, apiresp.CodeSignRequired, "sign required")
 			return
 		}
 		tsRaw := strings.TrimSpace(params["timestamp"])
 		if tsRaw == "" {
-			openapi.Write(w, http.StatusBadRequest, "TIMESTAMP_REQUIRED", "timestamp required")
+			apiresp.Fail(w, apiresp.CodeTimestampRequired, "timestamp required")
 			return
 		}
 		ts, err := strconv.ParseInt(tsRaw, 10, 64)
 		if err != nil {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_TIMESTAMP", "invalid timestamp")
+			apiresp.Fail(w, apiresp.CodeInvalidTimestamp, "invalid timestamp")
 			return
 		}
 		now := time.Now().Unix()
 		if ts < now-m.allowedSkewSeconds || ts > now+m.allowedSkewSeconds {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_TIMESTAMP", "timestamp out of allowed window")
+			apiresp.Fail(w, apiresp.CodeInvalidTimestamp, "timestamp out of allowed window")
 			return
 		}
 		nonce := strings.TrimSpace(params["nonce"])
 		if nonce == "" {
-			openapi.Write(w, http.StatusBadRequest, "NONCE_REQUIRED", "nonce required")
+			apiresp.Fail(w, apiresp.CodeNonceRequired, "nonce required")
 			return
 		}
 
 		auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{AppId: appID})
 		if err != nil {
 			if status.Code(err) == codes.NotFound {
-				openapi.Write(w, http.StatusUnauthorized, "MERCHANT_NOT_FOUND", "merchant not found")
+				apiresp.Fail(w, apiresp.CodeMerchantNotFound, "merchant not found")
 				return
 			}
-			openapi.Write(w, http.StatusInternalServerError, "INTERNAL_ERROR", "merchant lookup failed")
+			apiresp.Fail(w, apiresp.CodeInternal, "merchant lookup failed")
 			return
 		}
 		if auth.GetStatus() != 1 {
-			openapi.Write(w, http.StatusUnauthorized, "MERCHANT_DISABLED", "merchant disabled")
+			apiresp.Fail(w, apiresp.CodeMerchantDisabled, "merchant disabled")
 			return
 		}
 		clientHost := ClientHost(r, m.trustForwardedForIPs)
 		if !ipAllowed(clientHost, auth.GetIpWhitelist()) {
-			openapi.Write(w, http.StatusForbidden, "IP_NOT_ALLOWED", "ip not allowed")
+			apiresp.Fail(w, apiresp.CodeIPNotAllowed, "ip not allowed")
 			return
 		}
 
 		expect := Md5Sign(params, auth.GetAppSecret())
 		if !strings.EqualFold(expect, sign) {
-			openapi.Write(w, http.StatusUnauthorized, "INVALID_SIGN", "invalid sign")
+			apiresp.Fail(w, apiresp.CodeInvalidSign, "invalid sign")
 			return
 		}
 		merchantID := auth.GetMerchantId()
 		if merchantID == "" {
-			openapi.Write(w, http.StatusUnauthorized, "MERCHANT_NOT_FOUND", "merchant not found")
+			apiresp.Fail(w, apiresp.CodeMerchantNotFound, "merchant not found")
 			return
 		}
 		// Downstream business仍使用 merchant_id，因此在验签通过后写回参数集。
@@ -107,11 +107,11 @@ func (m *MerchantSignMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 		if m.replayGuard != nil {
 			ok, err := m.replayGuard.MarkSeen(r.Context(), merchantID, nonce, ts)
 			if err != nil {
-				openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "replay guard unavailable")
+				apiresp.Fail(w, apiresp.CodeUnavailable, "replay guard unavailable")
 				return
 			}
 			if !ok {
-				openapi.Write(w, http.StatusConflict, "REPLAY_REQUEST", "replay request rejected")
+				apiresp.Fail(w, apiresp.CodeReplayRequest, "replay request rejected")
 				return
 			}
 		}

@@ -2,6 +2,7 @@
  * HTTP 传输层：控制台 Token 请求 + 开放签名的 GET/POST。
  * 业务语义请放在 ../api/*.ts，避免页面直接拼路径。
  */
+import { parseApiEnvelope, unwrapApiData } from './apiEnvelope'
 import { loadMerchantAuth, loadMerchantToken } from './auth'
 import { md5Sign } from './signMd5'
 
@@ -38,8 +39,8 @@ export async function merchantConsoleGet<T>(
   }
   const url = qs.toString() ? `${path}?${qs.toString()}` : path
   const resp = await fetch(merchantConsoleUrl(url), { headers: { 'X-Merchant-Token': tok } })
-  if (!resp.ok) throw new Error(String(resp.status))
-  return (await resp.json()) as T
+  const text = await resp.text()
+  return unwrapApiData(parseApiEnvelope<T>(text))
 }
 
 export async function merchantConsolePut<T>(path: string, body?: Record<string, unknown>): Promise<T> {
@@ -49,8 +50,8 @@ export async function merchantConsolePut<T>(path: string, body?: Record<string, 
     headers: { 'Content-Type': 'application/json', 'X-Merchant-Token': tok },
     body: JSON.stringify(body || {}),
   })
-  if (!resp.ok) throw new Error(String(resp.status))
-  return (await resp.json()) as T
+  const text = await resp.text()
+  return unwrapApiData(parseApiEnvelope<T>(text))
 }
 
 export async function merchantConsolePost<T>(path: string, body?: Record<string, unknown>): Promise<T> {
@@ -60,8 +61,8 @@ export async function merchantConsolePost<T>(path: string, body?: Record<string,
     headers: { 'Content-Type': 'application/json', 'X-Merchant-Token': tok },
     body: JSON.stringify(body || {}),
   })
-  if (!resp.ok) throw new Error(String(resp.status))
-  return (await resp.json()) as T
+  const text = await resp.text()
+  return unwrapApiData(parseApiEnvelope<T>(text))
 }
 
 export async function signedGet<T>(
@@ -77,8 +78,8 @@ export async function signedGet<T>(
   const sign = md5Sign(p, auth.apiSecret)
   const qs = new URLSearchParams({ ...p, sign })
   const resp = await fetch(openAPIUrl(`${path}?${qs.toString()}`))
-  if (!resp.ok) throw new Error(String(resp.status))
-  return (await resp.json()) as T
+  const text = await resp.text()
+  return unwrapApiData(parseApiEnvelope<T>(text))
 }
 
 export async function signedPost<T>(
@@ -97,6 +98,6 @@ export async function signedPost<T>(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...p, sign }),
   })
-  if (!resp.ok) throw new Error(String(resp.status))
-  return (await resp.json()) as T
+  const text = await resp.text()
+  return unwrapApiData(parseApiEnvelope<T>(text))
 }

@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -15,9 +16,9 @@ func AdminListMerchantsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminListMerchants()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -26,15 +27,15 @@ func AdminCreateMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminCreateMerchantReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminCreateMerchant(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -43,15 +44,15 @@ func AdminUpdateMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpdateMerchantReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminUpdateMerchant(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -60,15 +61,15 @@ func AdminTransferPayinToPayoutHandler(svcCtx *svc.ServiceContext) http.HandlerF
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminTransferPayinToPayoutReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminMerchants(r.Context(), svcCtx)
 		resp, err := l.AdminTransferPayinToPayout(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }

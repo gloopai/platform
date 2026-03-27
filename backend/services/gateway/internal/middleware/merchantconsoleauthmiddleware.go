@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 )
 
@@ -36,18 +37,18 @@ func (m *MerchantConsoleAuthMiddleware) Handle(next http.HandlerFunc) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		tok := strings.TrimSpace(r.Header.Get("X-Merchant-Token"))
 		if tok == "" || strings.TrimSpace(m.jwtSecret) == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 		merchantID, err := shared.ParseMerchantJWT(m.jwtSecret, tok)
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 		if m.merchants != nil {
 			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantID})
 			if err != nil || auth.GetStatus() != 1 {
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 				return
 			}
 		}

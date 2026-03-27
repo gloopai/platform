@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/gateway/internal/openapi"
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -54,7 +54,7 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
+			apiresp.Fail(w, apiresp.CodeInvalidParams, "invalid params")
 			return
 		}
 		account := strings.TrimSpace(params["app_id"])
@@ -68,11 +68,11 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 		key := m.keyPrefix + ":openapi:" + ip + ":" + account
 		ok, err := m.limiter.Allow(r.Context(), key, m.limit, m.window)
 		if err != nil {
-			openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "rate limiter unavailable")
+			apiresp.Fail(w, apiresp.CodeUnavailable, "rate limiter unavailable")
 			return
 		}
 		if !ok {
-			openapi.Write(w, http.StatusTooManyRequests, "TOO_MANY_REQUESTS", "too many requests")
+			apiresp.Fail(w, apiresp.CodeTooManyRequests, "too many requests")
 			return
 		}
 		next(w, r)
@@ -101,7 +101,7 @@ func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
+			apiresp.Fail(w, apiresp.CodeInvalidParams, "invalid params")
 			return
 		}
 		account := strings.TrimSpace(params["email"])
@@ -118,11 +118,11 @@ func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFun
 		key := m.keyPrefix + ":login:" + r.URL.Path + ":" + ip + ":" + account
 		ok, err := m.limiter.Allow(r.Context(), key, m.limit, m.window)
 		if err != nil {
-			openapi.Write(w, http.StatusServiceUnavailable, "UNAVAILABLE", "rate limiter unavailable")
+			apiresp.Fail(w, apiresp.CodeUnavailable, "rate limiter unavailable")
 			return
 		}
 		if !ok {
-			openapi.Write(w, http.StatusTooManyRequests, "TOO_MANY_REQUESTS", "too many requests")
+			apiresp.Fail(w, apiresp.CodeTooManyRequests, "too many requests")
 			return
 		}
 		next(w, r)

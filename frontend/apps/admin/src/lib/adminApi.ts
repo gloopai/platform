@@ -1,3 +1,5 @@
+import { parseApiEnvelope, unwrapApiData } from './apiEnvelope'
+
 export type AdminSession = {
   token: string
   expiresAt: number
@@ -57,26 +59,14 @@ export async function adminRequest<T>(path: string, options: AdminRequestOptions
   }
 
   const resp = await fetch(adminApiUrl(path), { method, headers, body })
-  if (!resp.ok) {
-    const text = await resp.text()
-    let detail = ''
-    if (text.trim()) {
-      try {
-        const parsed = JSON.parse(text) as Record<string, unknown>
-        const msg = parsed.message ?? parsed.msg ?? parsed.error
-        if (typeof msg === 'string') detail = msg.trim()
-      } catch {
-        detail = text.trim()
-      }
-    }
-    throw new Error(detail ? `${resp.status}: ${detail}` : String(resp.status))
-  }
-
   const text = await resp.text()
-  if (!text.trim()) {
-    return {} as T
+  const env = parseApiEnvelope<T>(text)
+  try {
+    return unwrapApiData(env)
+  } catch (e) {
+    if (e instanceof Error) throw e
+    throw new Error(String(e))
   }
-  return JSON.parse(text) as T
 }
 
 export async function adminGet<T>(path: string): Promise<T> {

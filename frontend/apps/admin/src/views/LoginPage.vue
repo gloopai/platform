@@ -42,6 +42,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { parseApiEnvelope, unwrapApiData } from '../lib/apiEnvelope'
 import { adminApiUrl, saveAdminSession } from '../lib/adminApi'
 
 type AdminLoginResp = {
@@ -65,16 +66,14 @@ async function login() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username.value, password: password.value, mfa_code: mfaCode.value }),
     })
-    if (!resp.ok) {
-      try {
-        const e = (await resp.json()) as { message?: string; msg?: string; error?: string }
-        error.value = e.message || e.msg || e.error || `登录失败(${resp.status})`
-      } catch {
-        error.value = `登录失败(${resp.status})`
-      }
+    const text = await resp.text()
+    let data: AdminLoginResp
+    try {
+      data = unwrapApiData(parseApiEnvelope<AdminLoginResp>(text))
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '登录失败'
       return
     }
-    const data = (await resp.json()) as AdminLoginResp
     saveAdminSession({ token: data.token, expiresAt: data.expires_at })
     await router.replace('/stats')
   } catch {

@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/openapi"
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 )
 
 type openAPIParamsKeyType struct{}
@@ -38,10 +38,10 @@ func (m *OpenAPIParamsParseMiddleware) Handle(next http.HandlerFunc) http.Handle
 		params, err := parseParamsFromRequestWithLimit(r, m.maxBodyBytes)
 		if err != nil {
 			if errors.Is(err, errOpenAPIBodyTooLarge) {
-				openapi.Write(w, http.StatusRequestEntityTooLarge, "PAYLOAD_TOO_LARGE", "request body too large")
+				apiresp.Fail(w, apiresp.CodePayloadTooLarge, "request body too large")
 				return
 			}
-			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", "invalid params")
+			apiresp.Fail(w, apiresp.CodeInvalidParams, "invalid params")
 			return
 		}
 		ctx := context.WithValue(r.Context(), openAPIParamsContextKey, params)

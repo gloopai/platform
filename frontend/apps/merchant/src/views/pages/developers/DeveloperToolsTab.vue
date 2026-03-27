@@ -177,6 +177,7 @@
 import md5 from 'blueimp-md5'
 import { computed, ref, watch } from 'vue'
 import { OPEN_API } from '@/api/endpoints'
+import { apiEnvelopeErrorMessage, parseApiEnvelope, unwrapApiData } from '@/lib/apiEnvelope'
 import { NOTIFY_REASON_ROWS } from '@/config/notifyReasonCodes'
 import { DEMO_PAY_PRODUCT_OPTIONS } from '@/config/payProducts'
 
@@ -235,13 +236,12 @@ function md5Sign(params: Record<string, string>, secret: string): string {
   return md5(parts.join('&'))
 }
 
-function formatOpenApiError(status: number, bodyText: string): string {
+function formatOpenApiErrorBody(bodyText: string): string {
   try {
-    const j = JSON.parse(bodyText) as { code?: string; message?: string }
-    if (j?.code) return `${j.code}: ${j.message ?? ''}`
+    return apiEnvelopeErrorMessage(parseApiEnvelope(bodyText))
   } catch {
+    return bodyText.trim() || '请求失败'
   }
-  return bodyText.trim() || `HTTP ${status}`
 }
 
 function regenOrderNo() {
@@ -272,11 +272,12 @@ async function createOrder() {
       body: JSON.stringify({ ...params, sign }),
     })
     const text = await resp.text()
-    if (!resp.ok) {
-      error.value = `创建失败 — ${formatOpenApiError(resp.status, text)}`
+    try {
+      result.value = unwrapApiData(parseApiEnvelope<CreateOrderResp>(text))
+    } catch (e) {
+      error.value = `创建失败 — ${e instanceof Error ? e.message : formatOpenApiErrorBody(text)}`
       return
     }
-    result.value = JSON.parse(text) as CreateOrderResp
     queryOrderNo.value = result.value.order_no
     mockChannelId.value = result.value.channel_id || mockChannelId.value
     mockPaidAmount.value = amount.value
@@ -303,14 +304,11 @@ async function queryOpenOrder() {
     const endpoint = queryMode.value === 'payout' ? OPEN_API.queryPayoutOrder : OPEN_API.queryPayinOrder
     const resp = await fetch(`${endpoint}?${new URLSearchParams({ ...params, sign }).toString()}`)
     const text = await resp.text()
-    if (!resp.ok) {
-      queryError.value = formatOpenApiError(resp.status, text)
-      return
-    }
     try {
-      queryResultText.value = JSON.stringify(JSON.parse(text), null, 2)
-    } catch {
-      queryResultText.value = text
+      const env = parseApiEnvelope<unknown>(text)
+      queryResultText.value = JSON.stringify(unwrapApiData(env), null, 2)
+    } catch (e) {
+      queryError.value = e instanceof Error ? e.message : formatOpenApiErrorBody(text)
     }
   } catch {
     queryError.value = '网络错误'
@@ -337,11 +335,15 @@ async function mockNotify() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...params, sign }),
     })
-    if (!resp.ok) {
-      mockError.value = `回调失败(${resp.status})`
+    const text = await resp.text()
+    type UpstreamNotifyData = { ok: boolean; reason_code?: string; reason?: string }
+    let data: UpstreamNotifyData
+    try {
+      data = unwrapApiData(parseApiEnvelope<UpstreamNotifyData>(text))
+    } catch (e) {
+      mockError.value = e instanceof Error ? e.message : formatOpenApiErrorBody(text)
       return
     }
-    const data = (await resp.json()) as { ok: boolean; reason_code?: string; reason?: string }
     if (!data.ok) {
       mockError.value = `回调返回 ok=false: ${data.reason_code || 'UNKNOWN'}${data.reason ? ` (${data.reason})` : ''}`
       return

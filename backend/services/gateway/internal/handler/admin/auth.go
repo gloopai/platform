@@ -4,8 +4,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic"
-	"github.com/gloopai/pay/gateway/internal/openapi"
 	"github.com/gloopai/pay/gateway/internal/requestx"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -17,15 +17,15 @@ func AdminLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		r = requestx.Ensure(r, w)
 		var req types.AdminLoginReq
 		if err := httpx.Parse(r, &req); err != nil {
-			openapi.Write(w, http.StatusBadRequest, "INVALID_PARAMS", err.Error())
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminAuth(r.Context(), svcCtx)
 		resp, err := l.AdminLogin(&req)
 		if err != nil {
-			openapi.WriteFromErr(w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -36,9 +36,9 @@ func AdminLogoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewAdminAuth(r.Context(), svcCtx)
 		resp, err := l.AdminLogout(r.Header.Get("X-Admin-Token"))
 		if err != nil {
-			openapi.WriteFromErr(w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }

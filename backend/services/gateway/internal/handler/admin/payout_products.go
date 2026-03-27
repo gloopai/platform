@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -15,9 +16,9 @@ func AdminListPayoutProductsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminListPayoutProducts()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -26,15 +27,15 @@ func AdminCreatePayoutProductHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminCreatePayoutProductReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminCreatePayoutProduct(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -43,15 +44,15 @@ func AdminUpdatePayoutProductHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpdatePayoutProductReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayoutProduct(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -60,15 +61,15 @@ func AdminListPayoutProductBindingsHandler(svcCtx *svc.ServiceContext) http.Hand
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminListPayoutProductBindingsReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminListPayoutProductBindings(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -77,15 +78,15 @@ func AdminUpsertPayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpsertPayoutProductBindingReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpsertPayoutProductBinding(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -94,15 +95,15 @@ func AdminUpdatePayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpdatePayoutProductBindingReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminUpdatePayoutProductBinding(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -111,15 +112,15 @@ func AdminDeletePayoutProductBindingHandler(svcCtx *svc.ServiceContext) http.Han
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminDeletePayoutProductBindingReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewAdminPayinProducts(r.Context(), svcCtx)
 		resp, err := l.AdminDeletePayoutProductBinding(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }

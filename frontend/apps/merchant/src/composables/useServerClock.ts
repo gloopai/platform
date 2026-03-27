@@ -1,4 +1,5 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { parseApiEnvelope, unwrapApiData } from '@/lib/apiEnvelope'
 import { merchantConsoleUrl } from '@/lib/http'
 
 const offsetMs = ref(0)
@@ -9,10 +10,14 @@ let syncTimer: number | null = null
 async function syncServerClock() {
   try {
     const resp = await fetch(merchantConsoleUrl('/health'))
-    if (!resp.ok) return
-    const j = (await resp.json()) as { timestamp_ms?: number }
-    if (typeof j.timestamp_ms === 'number') {
-      offsetMs.value = j.timestamp_ms - Date.now()
+    const text = await resp.text()
+    try {
+      const data = unwrapApiData(parseApiEnvelope<{ timestamp_ms?: number }>(text))
+      if (typeof data.timestamp_ms === 'number') {
+        offsetMs.value = data.timestamp_ms - Date.now()
+      }
+    } catch {
+      /* ignore */
     }
   } catch {
   }

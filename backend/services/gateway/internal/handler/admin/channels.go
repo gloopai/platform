@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
@@ -15,9 +16,9 @@ func AdminListChannelsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminListChannels()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -26,16 +27,16 @@ func AdminCreateChannelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpsertChannelReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 
 		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminCreateChannel(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }
@@ -44,16 +45,16 @@ func AdminUpdateChannelHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpsertChannelReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 
 		l := logic.NewAdminChannels(r.Context(), svcCtx)
 		resp, err := l.AdminUpdateChannel(&req)
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			apiresp.WriteFromGRPC(w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			apiresp.OK(w, resp)
 		}
 	}
 }

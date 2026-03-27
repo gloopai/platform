@@ -250,6 +250,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { parseApiEnvelope, unwrapApiData } from '../lib/apiEnvelope'
 
 function trimTrailingSlash(s: string): string {
   return s.endsWith('/') ? s.slice(0, -1) : s
@@ -415,17 +416,6 @@ const redirectText = computed(() => {
   return `${redirectIn.value} 秒后自动跳转`
 })
 
-async function openApiErrorText(res: Response): Promise<string> {
-  const t = await res.text()
-  try {
-    const j = JSON.parse(t) as { code?: string; message?: string }
-    if (j?.code) return `${j.code}: ${j.message ?? ''}`
-  } catch {
-    /* ignore */
-  }
-  return t.trim() || `HTTP ${res.status}`
-}
-
 async function copyOrderNo() {
   if (!orderNo.value) return
   try {
@@ -445,10 +435,13 @@ async function copyOrderNo() {
 async function load() {
   if (!orderNo.value) return
   const res = await fetch(checkoutApiUrl(`/v1/terminal/order?order_no=${encodeURIComponent(orderNo.value)}`))
-  if (!res.ok) {
-    throw new Error(await openApiErrorText(res))
+  const text = await res.text()
+  let data: TerminalOrderPayload
+  try {
+    data = unwrapApiData(parseApiEnvelope<TerminalOrderPayload>(text))
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : '查询订单失败')
   }
-  const data = (await res.json()) as TerminalOrderPayload
   amount.value = data.order.amount
   currency.value = data.order.currency
   status.value = data.order.status
@@ -502,14 +495,15 @@ async function payNow() {
         payin_product_code: selectedMethod.value,
       }),
     })
-    if (!res.ok) {
-      error.value = await openApiErrorText(res)
+    const text = await res.text()
+    let data: { pay_url: string; qr_payload: string; pay_mode: string }
+    try {
+      data = unwrapApiData(
+        parseApiEnvelope<{ pay_url: string; qr_payload: string; pay_mode: string }>(text),
+      )
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : '支付请求失败'
       return
-    }
-    const data = (await res.json()) as {
-      pay_url: string
-      qr_payload: string
-      pay_mode: string
     }
     prepayPayload.value = data
     const httpUrl = data.pay_url.startsWith('http://') || data.pay_url.startsWith('https://')

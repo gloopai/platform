@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 )
 
@@ -32,7 +33,7 @@ func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tok := strings.TrimSpace(r.Header.Get("X-Admin-Token"))
 		if tok == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 		if m.masterToken != "" && tok == m.masterToken {
@@ -40,12 +41,12 @@ func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		if strings.TrimSpace(m.jwtSecret) == "" {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 		adminID, err := shared.ParseAdminJWT(m.jwtSecret, tok)
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 		ctx := context.WithValue(r.Context(), adminIdKey{}, adminID)
