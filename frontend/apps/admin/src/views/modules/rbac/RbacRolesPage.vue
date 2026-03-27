@@ -34,11 +34,11 @@
           <div class="border-t border-slate-100">
             <div v-if="loading" class="px-4 py-10 text-center text-sm text-slate-500">加载中…</div>
             <div v-else class="divide-y divide-slate-100">
-              <button
+              <div
                 v-for="r in roles"
                 :key="r.id"
                 type="button"
-                class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm transition hover:bg-slate-50"
+                class="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left text-sm transition hover:bg-slate-50"
                 :class="selectedRoleId === r.id ? 'bg-indigo-50' : ''"
                 @click="selectRole(r.id)"
               >
@@ -52,7 +52,7 @@
                 >
                   {{ r.status === 1 ? '启用' : '停用' }}
                 </span>
-              </button>
+              </div>
             </div>
           </div>
         </div>
