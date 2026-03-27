@@ -138,7 +138,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import MerchantIdPicker from '../../../components/MerchantIdPicker.vue'
 import { useUiDialog } from '../../../composables/useUiDialog'
 import { useUiToast } from '../../../composables/useUiToast'
@@ -147,6 +147,7 @@ import { adminGet, adminPost } from '../../../lib/adminApi'
 type AdminMerchantInfo = { merchant_id: string; payin_balance: number; available_balance: number; withdraw_usdt_address?: string }
 type AdminDisplaySettings = { country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number }
 
+const route = useRoute()
 const registerRefresh = inject('registerRefresh') as ((fn: () => void) => () => void) | undefined
 const withdrawSaving = ref(false)
 const fiatToUsdtRate = ref(7.2)
@@ -239,6 +240,18 @@ async function loadWithdrawContext() {
   merchantAvailableBalance.value = row?.available_balance ?? 0
 }
 
+function merchantIdFromRouteQuery(): string {
+  const q = route.query.merchant_id
+  if (typeof q === 'string') return q.trim()
+  if (Array.isArray(q) && q[0]) return String(q[0]).trim()
+  return ''
+}
+
+function applyMerchantFromRouteQuery() {
+  const mid = merchantIdFromRouteQuery()
+  if (mid) withdrawForm.value.merchant_id = mid
+}
+
 async function loadWithdrawBaseData() {
   try {
     const ds = await adminGet<AdminDisplaySettings>('/v1/admin/display_settings')
@@ -247,6 +260,7 @@ async function loadWithdrawBaseData() {
     fiatCode.value = (ds.currency_code || 'CNY').trim() || 'CNY'
     const mr = await adminGet<{ merchants: AdminMerchantInfo[] }>('/v1/admin/merchants')
     allMerchants.value = mr.merchants ?? []
+    applyMerchantFromRouteQuery()
     await loadWithdrawContext()
   } catch {
     merchantPayinBalance.value = 0
@@ -301,6 +315,14 @@ async function createWithdrawal() {
 watch(() => withdrawForm.value.merchant_id, () => {
   void loadWithdrawContext()
 })
+
+watch(
+  () => route.query.merchant_id,
+  () => {
+    applyMerchantFromRouteQuery()
+    void loadWithdrawContext()
+  },
+)
 
 let unregister: (() => void) | null = null
 onMounted(() => {

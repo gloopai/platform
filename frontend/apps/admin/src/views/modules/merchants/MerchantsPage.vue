@@ -47,21 +47,63 @@
             >
               <td class="px-4 py-3 font-mono font-semibold text-slate-900">{{ m.merchant_id }}</td>
               <td class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono text-slate-700">{{ m.email || '-' }}</span>
-                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.email, '邮箱')">复制</button>
+                <div class="flex items-center gap-1.5">
+                  <span class="min-w-0 font-mono text-slate-700">{{ m.email || '-' }}</span>
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-slate-400 transition-colors duration-150 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/40"
+                    title="复制邮箱"
+                    aria-label="复制邮箱"
+                    @click="copyValue(m.email, '邮箱')"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </td>
               <td class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono text-slate-700">{{ m.app_id || '-' }}</span>
-                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.app_id, 'AppID')">复制</button>
+                <div class="flex items-center gap-1.5">
+                  <span class="min-w-0 font-mono text-slate-700">{{ m.app_id || '-' }}</span>
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-slate-400 transition-colors duration-150 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/40"
+                    title="复制 AppID"
+                    aria-label="复制 AppID"
+                    @click="copyValue(m.app_id, 'AppID')"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </td>
               <td class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono text-slate-700">{{ maskedSecret(m.app_secret) }}</span>
-                  <button type="button" class="rounded border border-slate-200 px-2 py-0.5 text-[11px]" @click="copyValue(m.app_secret, '密钥')">复制</button>
+                <div class="flex items-center gap-1.5">
+                  <span class="min-w-0 font-mono text-slate-700">{{ maskedSecret(m.app_secret) }}</span>
+                  <button
+                    type="button"
+                    class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-slate-400 transition-colors duration-150 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/40"
+                    title="复制密钥"
+                    aria-label="复制密钥"
+                    @click="copyValue(m.app_secret, '密钥')"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatMoney(m.payin_balance) }}</td>
@@ -76,20 +118,34 @@
                 <span v-else class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">锁定</span>
               </td>
               <td class="sticky right-0 z-10 bg-white px-4 py-3 text-right">
-                <button
-                  type="button"
-                  class="mr-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
-                  @click="quickTransfer(m)"
-                >
-                  划转
-                </button>
-                <button
-                  type="button"
-                  class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
-                  @click="openEdit(m.merchant_id)"
-                >
-                  编辑
-                </button>
+                <div class="flex flex-wrap items-center justify-end gap-1.5">
+                  <RouterLink
+                    :to="{ path: '/settlement/withdrawals', query: { merchant_id: m.merchant_id } }"
+                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                  >
+                    提现
+                  </RouterLink>
+                  <RouterLink
+                    :to="{ path: '/merchants/deposit', query: { merchant_id: m.merchant_id } }"
+                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                  >
+                    充值
+                  </RouterLink>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
+                    @click="quickTransfer(m)"
+                  >
+                    划转
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 hover:border-slate-300"
+                    @click="openEdit(m.merchant_id)"
+                  >
+                    编辑
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -261,6 +317,7 @@
 
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { UiDrawer } from '../../../../../../shared/ui'

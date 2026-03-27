@@ -5,6 +5,7 @@ import AdminLayout from './views/AdminLayout.vue'
 import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.vue'
 import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
 import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
+import MerchantDepositPage from './views/modules/merchants/MerchantDepositPage.vue'
 import PayinProductsPage from './views/modules/pay-products/PayinProductsPage.vue'
 import PayoutProductsPage from './views/modules/pay-products/PayoutProductsPage.vue'
 import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
@@ -37,6 +38,7 @@ export const router = createRouter({
         { path: '', redirect: '/stats' },
         { path: 'stats', component: StatsPage },
         { path: 'merchants', component: MerchantsPage },
+        { path: 'merchants/deposit', component: MerchantDepositPage },
         { path: 'channels', component: ChannelsPage },
         { path: 'merchant-payin-products', component: PayinProductsPage },
         { path: 'merchant-payout-products', component: PayoutProductsPage },

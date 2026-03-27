@@ -184,3 +184,73 @@ func (a *AdminSettlement) AdminPayoutWithdrawal(req *types.AdminPayoutWithdrawal
 	}
 	return &types.AdminPayoutWithdrawalResp{Item: mapWithdrawal(r.GetItem())}, nil
 }
+
+func (a *AdminSettlement) AdminDeposit(req *types.AdminDepositReq) (*types.AdminDepositResp, error) {
+	merchantId := strings.TrimSpace(req.MerchantId)
+	if merchantId == "" {
+		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+	}
+	mr, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	if err != nil || mr.GetMerchant() == nil {
+		return nil, status.Error(codes.NotFound, "merchant not found")
+	}
+	mode := strings.ToLower(strings.TrimSpace(req.Mode))
+	if mode == "" {
+		mode = "fiat"
+	}
+	note := strings.TrimSpace(req.Note)
+
+	var fiatCents int64
+	var reason string
+
+	switch mode {
+	case "fiat":
+		if req.FiatAmountCents <= 0 {
+			return nil, status.Error(codes.InvalidArgument, "fiat_amount_cents must be positive")
+		}
+		fiatCents = req.FiatAmountCents
+		if note != "" {
+			reason = fmt.Sprintf("法币存入 | %s", note)
+		} else {
+			reason = "法币存入"
+		}
+	case "usdt":
+		ds, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
+		if err != nil {
+			return nil, err
+		}
+		rate := ds.GetFiatToUsdtRate()
+		if rate <= 0 {
+			return nil, status.Error(codes.FailedPrecondition, "invalid fiat_to_usdt_rate")
+		}
+		if req.UsdtAmountCents <= 0 {
+			return nil, status.Error(codes.InvalidArgument, "usdt_amount_cents must be positive")
+		}
+		fiatCents = int64(math.Floor(float64(req.UsdtAmountCents) * rate))
+		if fiatCents <= 0 {
+			return nil, status.Error(codes.InvalidArgument, "converted fiat amount is zero")
+		}
+		if note != "" {
+			reason = fmt.Sprintf("USDT存入(usdt分=%d)->法币分=%d | %s", req.UsdtAmountCents, fiatCents, note)
+		} else {
+			reason = fmt.Sprintf("USDT存入(usdt分=%d)->法币分=%d", req.UsdtAmountCents, fiatCents)
+		}
+	default:
+		return nil, status.Error(codes.InvalidArgument, "mode must be fiat or usdt")
+	}
+
+	r, err := a.svcCtx.SettleRpc.DepositAvailable(a.ctx, &settlepb.DepositAvailableReq{
+		MerchantId:      merchantId,
+		AmountFiatCents: fiatCents,
+		Reason:          reason,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &types.AdminDepositResp{
+		OrderNo:           r.GetOrderNo(),
+		AvailableBalance:  r.GetAvailableBalance(),
+		FiatCreditedCents: fiatCents,
+		Mode:              mode,
+	}, nil
+}

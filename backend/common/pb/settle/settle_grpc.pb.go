@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: proto/settle.proto
+// source: settle.proto
 
 package settle
 
@@ -22,6 +22,7 @@ const (
 	Settle_Credit_FullMethodName                = "/settle.Settle/Credit"
 	Settle_DebitPayout_FullMethodName           = "/settle.Settle/DebitPayout"
 	Settle_TransferPayinToPayout_FullMethodName = "/settle.Settle/TransferPayinToPayout"
+	Settle_DepositAvailable_FullMethodName      = "/settle.Settle/DepositAvailable"
 	Settle_ListFundLogs_FullMethodName          = "/settle.Settle/ListFundLogs"
 	Settle_CreateWithdrawal_FullMethodName      = "/settle.Settle/CreateWithdrawal"
 	Settle_ListWithdrawals_FullMethodName       = "/settle.Settle/ListWithdrawals"
@@ -36,6 +37,7 @@ type SettleClient interface {
 	Credit(ctx context.Context, in *CreditReq, opts ...grpc.CallOption) (*CreditResp, error)
 	DebitPayout(ctx context.Context, in *DebitPayoutReq, opts ...grpc.CallOption) (*DebitPayoutResp, error)
 	TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error)
+	DepositAvailable(ctx context.Context, in *DepositAvailableReq, opts ...grpc.CallOption) (*DepositAvailableResp, error)
 	ListFundLogs(ctx context.Context, in *ListFundLogsReq, opts ...grpc.CallOption) (*ListFundLogsResp, error)
 	CreateWithdrawal(ctx context.Context, in *CreateWithdrawalReq, opts ...grpc.CallOption) (*CreateWithdrawalResp, error)
 	ListWithdrawals(ctx context.Context, in *ListWithdrawalsReq, opts ...grpc.CallOption) (*ListWithdrawalsResp, error)
@@ -75,6 +77,16 @@ func (c *settleClient) TransferPayinToPayout(ctx context.Context, in *TransferPa
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TransferPayinToPayoutResp)
 	err := c.cc.Invoke(ctx, Settle_TransferPayinToPayout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settleClient) DepositAvailable(ctx context.Context, in *DepositAvailableReq, opts ...grpc.CallOption) (*DepositAvailableResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DepositAvailableResp)
+	err := c.cc.Invoke(ctx, Settle_DepositAvailable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +150,7 @@ type SettleServer interface {
 	Credit(context.Context, *CreditReq) (*CreditResp, error)
 	DebitPayout(context.Context, *DebitPayoutReq) (*DebitPayoutResp, error)
 	TransferPayinToPayout(context.Context, *TransferPayinToPayoutReq) (*TransferPayinToPayoutResp, error)
+	DepositAvailable(context.Context, *DepositAvailableReq) (*DepositAvailableResp, error)
 	ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error)
 	CreateWithdrawal(context.Context, *CreateWithdrawalReq) (*CreateWithdrawalResp, error)
 	ListWithdrawals(context.Context, *ListWithdrawalsReq) (*ListWithdrawalsResp, error)
@@ -161,6 +174,9 @@ func (UnimplementedSettleServer) DebitPayout(context.Context, *DebitPayoutReq) (
 }
 func (UnimplementedSettleServer) TransferPayinToPayout(context.Context, *TransferPayinToPayoutReq) (*TransferPayinToPayoutResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TransferPayinToPayout not implemented")
+}
+func (UnimplementedSettleServer) DepositAvailable(context.Context, *DepositAvailableReq) (*DepositAvailableResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DepositAvailable not implemented")
 }
 func (UnimplementedSettleServer) ListFundLogs(context.Context, *ListFundLogsReq) (*ListFundLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFundLogs not implemented")
@@ -248,6 +264,24 @@ func _Settle_TransferPayinToPayout_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SettleServer).TransferPayinToPayout(ctx, req.(*TransferPayinToPayoutReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Settle_DepositAvailable_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DepositAvailableReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettleServer).DepositAvailable(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Settle_DepositAvailable_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettleServer).DepositAvailable(ctx, req.(*DepositAvailableReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -362,6 +396,10 @@ var Settle_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Settle_TransferPayinToPayout_Handler,
 		},
 		{
+			MethodName: "DepositAvailable",
+			Handler:    _Settle_DepositAvailable_Handler,
+		},
+		{
 			MethodName: "ListFundLogs",
 			Handler:    _Settle_ListFundLogs_Handler,
 		},
@@ -383,5 +421,5 @@ var Settle_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/settle.proto",
+	Metadata: "settle.proto",
 }

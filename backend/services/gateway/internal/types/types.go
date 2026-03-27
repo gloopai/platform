@@ -889,6 +889,21 @@ type AdminSettlementLogsResp struct {
 	Logs []AdminSettlementLogItem `json:"logs"`
 }
 
+type AdminDepositReq struct {
+	MerchantId      string `json:"merchant_id"`
+	Mode            string `json:"mode,optional"` // fiat | usdt
+	FiatAmountCents int64  `json:"fiat_amount_cents,optional"`
+	UsdtAmountCents int64  `json:"usdt_amount_cents,optional"`
+	Note            string `json:"note,optional"`
+}
+
+type AdminDepositResp struct {
+	OrderNo           string `json:"order_no"`
+	AvailableBalance  int64  `json:"available_balance"`
+	FiatCreditedCents int64  `json:"fiat_credited_cents"`
+	Mode              string `json:"mode"`
+}
+
 type AdminWithdrawalItem struct {
 	WithdrawNo      string `json:"withdraw_no"`
 	MerchantId      string `json:"merchant_id"`

@@ -7,6 +7,11 @@ import (
 	"github.com/gloopai/pay/core/internal/logic"
 )
 
+func (s *SettleServer) DepositAvailable(ctx context.Context, in *settlepb.DepositAvailableReq) (*settlepb.DepositAvailableResp, error) {
+	l := logic.NewDepositAvailableLogic(ctx, s.svcCtx)
+	return l.DepositAvailable(in)
+}
+
 func (s *SettleServer) ListFundLogs(ctx context.Context, in *settlepb.ListFundLogsReq) (*settlepb.ListFundLogsResp, error) {
 	l := logic.NewListFundLogsLogic(ctx, s.svcCtx)
 	return l.ListFundLogs(in)

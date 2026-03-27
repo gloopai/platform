@@ -24,6 +24,7 @@
           <option value="ORDER_PAID">ORDER_PAID</option>
           <option value="PAYIN_TO_PAYOUT">PAYIN_TO_PAYOUT</option>
           <option value="PAYOUT_DEBIT">PAYOUT_DEBIT</option>
+          <option value="AVAILABLE_DEPOSIT">AVAILABLE_DEPOSIT</option>
         </select>
       </label>
       <label class="flex flex-col gap-1 text-sm">
@@ -172,7 +173,7 @@ const filteredLogs = computed(() => {
 function resolvedAccountType(x: SettlementLogItem): string {
   const a = (x.account_type || '').trim()
   if (a === 'available' || a === 'payin') return a
-  return x.change_type === 'PAYOUT_DEBIT' ? 'available' : 'payin'
+  return x.change_type === 'PAYOUT_DEBIT' || x.change_type === 'AVAILABLE_DEPOSIT' ? 'available' : 'payin'
 }
 
 function accountTypeLabel(code: string): string {
@@ -206,6 +207,7 @@ function changeTypeClass(t: string): string {
   if (t === 'ORDER_PAID') return 'bg-emerald-100 text-emerald-700'
   if (t === 'PAYIN_TO_PAYOUT') return 'bg-indigo-100 text-indigo-700'
   if (t === 'PAYOUT_DEBIT') return 'bg-rose-100 text-rose-700'
+  if (t === 'AVAILABLE_DEPOSIT') return 'bg-sky-100 text-sky-800'
   return 'bg-slate-100 text-slate-700'
 }
 

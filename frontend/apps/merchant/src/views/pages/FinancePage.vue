@@ -143,7 +143,7 @@ function accountTypeLabel(l: MerchantFundLogItem): string {
   const a = (l.account_type || '').trim()
   if (a === 'available') return '可用余额'
   if (a === 'payin') return '代收余额'
-  return l.change_type === 'PAYOUT_DEBIT' ? '可用余额' : '代收余额'
+  return l.change_type === 'PAYOUT_DEBIT' || l.change_type === 'AVAILABLE_DEPOSIT' ? '可用余额' : '代收余额'
 }
 
 async function reload() {

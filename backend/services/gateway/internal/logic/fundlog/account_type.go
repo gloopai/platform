@@ -6,7 +6,7 @@ import "strings"
 // payin = 代收余额, available = 可用余额.
 func AccountTypeFromChangeType(changeType string) string {
 	switch strings.ToUpper(strings.TrimSpace(changeType)) {
-	case "PAYOUT_DEBIT":
+	case "PAYOUT_DEBIT", "AVAILABLE_DEPOSIT":
 		return "available"
 	default:
 		return "payin"

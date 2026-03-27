@@ -122,7 +122,7 @@ ON DUPLICATE KEY UPDATE name = VALUES(name), status = VALUES(status);
 -- 顶层菜单：单页 + 分组
 INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
   (0, 'menu.stats', '系统概览', 'chart', 1, '/stats', 10),
-  (0, 'group.merchant', '商户与接入', 'briefcase', 2, NULL, 20),
+  (0, 'group.merchant', '商户管理', 'briefcase', 2, NULL, 20),
   (0, 'group.trade', '交易与资金', 'credit', 2, NULL, 30),
   (0, 'group.channel', '产品与通道', 'layers', 2, NULL, 40),
   (0, 'group.rbac', '权限与安全', 'shield', 2, NULL, 45),
@@ -145,7 +145,8 @@ SET @gid_rbac := (SELECT id FROM admin_menus WHERE menu_key = 'group.rbac' LIMIT
 SET @gid_system := (SELECT id FROM admin_menus WHERE menu_key = 'group.system' LIMIT 1);
 
 INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
-  (@gid_merchant, 'menu.merchants', '商户管理', '', 1, '/merchants', 10),
+  (@gid_merchant, 'menu.merchants', '商户列表', '', 1, '/merchants', 10),
+  (@gid_merchant, 'menu.merchant_deposit', '资金存入', '', 1, '/merchants/deposit', 15),
   (@gid_merchant, 'menu.settlement_logs', '资金流水', '', 1, '/settlement/logs', 20),
   (@gid_merchant, 'menu.settlement_withdrawals', '提现申请', '', 1, '/settlement/withdrawals', 30),
   (@gid_merchant, 'menu.settlement_withdrawals_list', '提现申请列表', '', 1, '/settlement/withdrawals/list', 35),
@@ -207,6 +208,7 @@ INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALU
   ('admin.merchants.read', '商户管理-读取', 'merchants', 'menu.merchants', 1),
   ('admin.merchants.write', '商户管理-写入', 'merchants', 'menu.merchants', 1),
   ('admin.merchants.transfer', '商户划转', 'merchants', 'menu.merchants', 1),
+  ('admin.merchants.deposit', '商户-资金存入', 'merchants', 'menu.merchant_deposit', 1),
 
   ('admin.payin_products.read', '代收产品-读取', 'products', 'menu.merchant_payin_products', 1),
   ('admin.payin_products.write', '代收产品-写入', 'products', 'menu.merchant_payin_products', 1),
@@ -286,6 +288,7 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('POST', '/v1/admin/settlement/withdrawals', 'admin.settlement.read', 1, ''),
   ('PUT', '/v1/admin/settlement/withdrawals/:id/review', 'admin.settlement.read', 1, ''),
   ('PUT', '/v1/admin/settlement/withdrawals/:id/payout', 'admin.settlement.read', 1, ''),
+  ('POST', '/v1/admin/settlement/deposit', 'admin.merchants.deposit', 1, ''),
 
   ('GET', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),
   ('POST', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),

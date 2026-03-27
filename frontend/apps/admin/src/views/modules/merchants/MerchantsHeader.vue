@@ -2,7 +2,7 @@
   <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
     <div class="flex items-start justify-between gap-3">
       <div>
-        <div class="text-sm font-semibold text-slate-900">商户管理</div>
+        <div class="text-sm font-semibold text-slate-900">商户列表</div>
         <div class="mt-1 text-sm text-slate-600">列表中点击「编辑」在抽屉中维护基本信息与代收/代付产品授权。</div>
       </div>
       <div class="flex items-center gap-2">

@@ -26,7 +26,7 @@
       to="/merchants"
       class="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
     >
-      <div class="text-sm font-semibold text-slate-900">商户管理</div>
+      <div class="text-sm font-semibold text-slate-900">商户列表</div>
       <p class="mt-2 text-sm text-slate-600">
         为商户分别勾选<strong>代收 / 代付</strong>可用产品并设置默认费率；白名单与开放模式规则见文档。
       </p>

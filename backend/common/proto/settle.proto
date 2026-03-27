@@ -7,6 +7,7 @@ service Settle {
   rpc Credit(CreditReq) returns(CreditResp);
   rpc DebitPayout(DebitPayoutReq) returns(DebitPayoutResp);
   rpc TransferPayinToPayout(TransferPayinToPayoutReq) returns(TransferPayinToPayoutResp);
+  rpc DepositAvailable(DepositAvailableReq) returns(DepositAvailableResp);
   rpc ListFundLogs(ListFundLogsReq) returns(ListFundLogsResp);
   rpc CreateWithdrawal(CreateWithdrawalReq) returns(CreateWithdrawalResp);
   rpc ListWithdrawals(ListWithdrawalsReq) returns(ListWithdrawalsResp);
@@ -48,6 +49,18 @@ message TransferPayinToPayoutResp {
   bool changed = 1;
   int64 payin_balance = 2;
   int64 available_balance = 3;
+}
+
+// 管理台/系统向商户可用余额入账（法币分）；资金流水 change_type = AVAILABLE_DEPOSIT
+message DepositAvailableReq {
+  string merchant_id = 1;
+  int64 amount_fiat_cents = 2;
+  string reason = 3;
+}
+
+message DepositAvailableResp {
+  string order_no = 1;
+  int64 available_balance = 2;
 }
 
 message ListFundLogsReq {

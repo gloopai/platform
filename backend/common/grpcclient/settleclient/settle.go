@@ -24,11 +24,14 @@ type (
 	ReviewWithdrawalResp      = settle.ReviewWithdrawalResp
 	PayoutWithdrawalReq       = settle.PayoutWithdrawalReq
 	PayoutWithdrawalResp      = settle.PayoutWithdrawalResp
+	DepositAvailableReq       = settle.DepositAvailableReq
+	DepositAvailableResp      = settle.DepositAvailableResp
 
 	Settle interface {
 		Credit(ctx context.Context, in *CreditReq, opts ...grpc.CallOption) (*CreditResp, error)
 		DebitPayout(ctx context.Context, in *DebitPayoutReq, opts ...grpc.CallOption) (*DebitPayoutResp, error)
 		TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error)
+		DepositAvailable(ctx context.Context, in *DepositAvailableReq, opts ...grpc.CallOption) (*DepositAvailableResp, error)
 		ListFundLogs(ctx context.Context, in *settle.ListFundLogsReq, opts ...grpc.CallOption) (*settle.ListFundLogsResp, error)
 		CreateWithdrawal(ctx context.Context, in *CreateWithdrawalReq, opts ...grpc.CallOption) (*CreateWithdrawalResp, error)
 		ListWithdrawals(ctx context.Context, in *ListWithdrawalsReq, opts ...grpc.CallOption) (*ListWithdrawalsResp, error)
@@ -59,6 +62,10 @@ func (m *defaultSettle) DebitPayout(ctx context.Context, in *DebitPayoutReq, opt
 
 func (m *defaultSettle) TransferPayinToPayout(ctx context.Context, in *TransferPayinToPayoutReq, opts ...grpc.CallOption) (*TransferPayinToPayoutResp, error) {
 	return m.client().TransferPayinToPayout(ctx, in, opts...)
+}
+
+func (m *defaultSettle) DepositAvailable(ctx context.Context, in *DepositAvailableReq, opts ...grpc.CallOption) (*DepositAvailableResp, error) {
+	return m.client().DepositAvailable(ctx, in, opts...)
 }
 
 func (m *defaultSettle) ListFundLogs(ctx context.Context, in *settle.ListFundLogsReq, opts ...grpc.CallOption) (*settle.ListFundLogsResp, error) {

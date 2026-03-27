@@ -170,6 +170,42 @@ VALUES (?, ?, 'PAYIN_TO_PAYOUT', ?, ?, ?, ?, NOW())
 	return changed, payinAfter, availableAfter, nil
 }
 
+// DepositAvailable 向商户可用余额增加法币分（amountCents），并写入 fund_logs（AVAILABLE_DEPOSIT）。
+func (s *SettleStore) DepositAvailable(ctx context.Context, merchantId string, amountCents int64, reason string) (orderNo string, availableAfter int64, err error) {
+	if amountCents <= 0 {
+		return "", 0, fmt.Errorf("invalid amount")
+	}
+	orderNo = fmt.Sprintf("DEP-%s-%d", merchantId, time.Now().UnixNano())
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var m struct {
+			AvailableBefore int64 `gorm:"column:available_balance"`
+		}
+		if err := tx.Table("merchants").
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("available_balance").
+			Where("merchant_id = ?", merchantId).
+			Limit(1).
+			Take(&m).Error; err != nil {
+			return err
+		}
+		availableAfter = m.AvailableBefore + amountCents
+		if err := tx.Exec(`UPDATE merchants SET available_balance = ?, updated_at = NOW() WHERE merchant_id = ?`, availableAfter, merchantId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec(`
+INSERT INTO fund_logs (merchant_id, order_no, change_type, amount, balance_before, balance_after, reason, created_at)
+VALUES (?, ?, 'AVAILABLE_DEPOSIT', ?, ?, ?, ?, NOW())
+`, merchantId, orderNo, amountCents, m.AvailableBefore, availableAfter, reason).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return "", 0, err
+	}
+	return orderNo, availableAfter, nil
+}
+
 type FundLogRow struct {
 	Id            int64
 	MerchantId    string

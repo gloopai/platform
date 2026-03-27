@@ -31,10 +31,11 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
   {
     kind: 'group',
     key: 'merchant',
-    label: '商户与接入',
+    label: '商户管理',
     icon: 'briefcase',
     children: [
-      { to: '/merchants', label: '商户管理' },
+      { to: '/merchants', label: '商户列表' },
+      { to: '/merchants/deposit', label: '资金存入' },
       { to: '/settlement/logs', label: '资金流水' },
       { to: '/settlement/withdrawals', label: '提现申请' },
       { to: '/settlement/withdrawals/list', label: '提现申请列表' },
@@ -92,7 +93,8 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
 /** 顶栏面包屑标题 */
 export const adminPathTitle: Record<string, string> = {
   '/stats': '系统概览',
-  '/merchants': '商户管理',
+  '/merchants': '商户列表',
+  '/merchants/deposit': '资金存入',
   '/merchant-payin-products': '代收产品',
   '/merchant-payout-products': '代付产品与通道',
   '/channels': '通道管理',
