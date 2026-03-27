@@ -190,10 +190,8 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 		passwordHash = existing.PasswordHash
 	}
 
+	// status: 0 = 锁定，1 = 启用。须与请求一致落库；不可把 0 当成「未传」否则永远无法锁定。
 	statusVal := in.GetStatus()
-	if statusVal == 0 {
-		statusVal = existing.Status
-	}
 
 	rec := &store.Merchant{
 		MerchantId:   merchantId,
