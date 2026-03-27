@@ -295,6 +295,7 @@ import { adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenu
 import { adminGet, adminPost, clearAdminSession, loadAdminIdentity, loadAdminToken, saveAdminIdentity } from '../lib/adminApi'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'
 import { useServerClock } from '../composables/useServerClock'
+import { useUiDialog } from '../composables/useUiDialog'
 
 type RefreshFn = () => void
 
@@ -302,6 +303,7 @@ const SIDEBAR_KEY = 'admin_sidebar_collapsed'
 
 const router = useRouter()
 const route = useRoute()
+const dialog = useUiDialog()
 const adminToken = ref(loadAdminToken())
 const adminIdentity = ref(loadAdminIdentity())
 const adminRoleLabel = ref('管理员')
@@ -470,6 +472,8 @@ function broadcastRefresh() {
 }
 
 async function logout() {
+  const ok = await dialog.confirm('确认退出当前登录账号？', '退出登录')
+  if (!ok) return
   userMenuOpen.value = false
   try {
     await adminPost<{ ok: boolean }>('/v1/admin/logout')
