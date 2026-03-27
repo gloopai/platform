@@ -67,6 +67,11 @@
       </label>
 
       <label class="col-span-12 grid gap-1">
+        <span class="text-xs font-medium text-slate-600">提现 USDT 地址</span>
+        <input v-model.trim="model.withdraw_usdt_address" class="rounded-md border border-slate-200 px-3 py-2 font-mono text-sm" />
+      </label>
+
+      <label class="col-span-12 grid gap-1">
         <span class="text-xs font-medium text-slate-600">IP 白名单</span>
         <textarea v-model="model.ip_whitelist" rows="5" class="rounded-md border border-slate-200 px-3 py-2 font-mono text-xs" />
       </label>

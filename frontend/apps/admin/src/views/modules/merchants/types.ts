@@ -21,6 +21,7 @@ export type AdminMerchantInfo = {
   notify_url: string
   return_url: string
   ip_whitelist: string
+  withdraw_usdt_address?: string
   payin_balance: number
   available_balance: number
   payin_product_ids?: number[]
@@ -38,6 +39,7 @@ export type MerchantForm = {
   notify_url: string
   return_url: string
   ip_whitelist: string
+  withdraw_usdt_address: string
 }
 
 export function emptyMerchantForm(): MerchantForm {
@@ -48,6 +50,7 @@ export function emptyMerchantForm(): MerchantForm {
     notify_url: '',
     return_url: '',
     ip_whitelist: '',
+    withdraw_usdt_address: '',
   }
 }
 
@@ -59,5 +62,6 @@ export function merchantToForm(m: AdminMerchantInfo): MerchantForm {
     notify_url: m.notify_url,
     return_url: m.return_url,
     ip_whitelist: m.ip_whitelist,
+    withdraw_usdt_address: m.withdraw_usdt_address || '',
   }
 }

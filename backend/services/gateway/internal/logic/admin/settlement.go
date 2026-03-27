@@ -58,23 +58,23 @@ func (a *AdminSettlement) AdminSettlementLogs(req *types.AdminSettlementLogsReq)
 
 func mapWithdrawal(x *settlepb.WithdrawalItem) types.AdminWithdrawalItem {
 	return types.AdminWithdrawalItem{
-		WithdrawNo:     x.GetWithdrawNo(),
-		MerchantId:     x.GetMerchantId(),
-		ApplyAmount:    x.GetApplyAmount(),
-		FeeAmount:      x.GetFeeAmount(),
-		NetAmount:      x.GetNetAmount(),
+		WithdrawNo:      x.GetWithdrawNo(),
+		MerchantId:      x.GetMerchantId(),
+		ApplyAmount:     x.GetApplyAmount(),
+		FeeAmount:       x.GetFeeAmount(),
+		NetAmount:       x.GetNetAmount(),
 		FiatDebitAmount: x.GetFiatDebitAmount(),
-		Status:         x.GetStatus(),
-		Currency:       "USDT",
-		ReceiveAccount: x.GetReceiveAccount(),
-		ReceiveName:    x.GetReceiveName(),
-		BankName:       x.GetBankName(),
-		ApplyNote:      x.GetApplyNote(),
-		ReviewNote:     x.GetReviewNote(),
-		PayoutNote:     x.GetPayoutNote(),
-		CreatedAt:      x.GetCreatedAt(),
-		ReviewedAt:     x.GetReviewedAt(),
-		PayoutedAt:     x.GetPayoutedAt(),
+		Status:          x.GetStatus(),
+		Currency:        "USDT",
+		ReceiveAccount:  x.GetReceiveAccount(),
+		ReceiveName:     x.GetReceiveName(),
+		BankName:        x.GetBankName(),
+		ApplyNote:       x.GetApplyNote(),
+		ReviewNote:      x.GetReviewNote(),
+		PayoutNote:      x.GetPayoutNote(),
+		CreatedAt:       x.GetCreatedAt(),
+		ReviewedAt:      x.GetReviewedAt(),
+		PayoutedAt:      x.GetPayoutedAt(),
 	}
 }
 
@@ -119,8 +119,18 @@ func (a *AdminSettlement) AdminCreateWithdrawal(req *types.AdminCreateWithdrawal
 	if err != nil || mr.GetMerchant() == nil {
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}
-	availableFiatCents := mr.GetMerchant().GetAvailableBalance()
-	maxApplyUsdtCents := int64(math.Floor(float64(availableFiatCents) / rate))
+	balanceSource := strings.ToUpper(strings.TrimSpace(req.BalanceSource))
+	sourceFiatCents := mr.GetMerchant().GetAvailableBalance()
+	switch balanceSource {
+	case "", "AVAILABLE":
+		balanceSource = "AVAILABLE"
+		sourceFiatCents = mr.GetMerchant().GetAvailableBalance()
+	case "PAYIN":
+		sourceFiatCents = mr.GetMerchant().GetPayinBalance()
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid balance_source")
+	}
+	maxApplyUsdtCents := int64(math.Floor(float64(sourceFiatCents) / rate))
 	if req.ApplyAmount > maxApplyUsdtCents {
 		return nil, status.Error(codes.FailedPrecondition, "withdraw amount exceeds max withdrawable usdt")
 	}
@@ -131,15 +141,15 @@ func (a *AdminSettlement) AdminCreateWithdrawal(req *types.AdminCreateWithdrawal
 		reason = "ADMIN_WITHDRAW_APPLY"
 	}
 	r, err := a.svcCtx.SettleRpc.CreateWithdrawal(a.ctx, &settlepb.CreateWithdrawalReq{
-		WithdrawNo:     withdrawNo,
-		MerchantId:     merchantId,
-		ApplyAmount:    req.ApplyAmount,
-		FeeAmount:      req.FeeAmount,
+		WithdrawNo:      withdrawNo,
+		MerchantId:      merchantId,
+		ApplyAmount:     req.ApplyAmount,
+		FeeAmount:       req.FeeAmount,
 		FiatDebitAmount: fiatDebitAmount,
-		ReceiveAccount: strings.TrimSpace(req.ReceiveAccount),
-		ReceiveName:    strings.TrimSpace(req.ReceiveName),
-		BankName:       strings.TrimSpace(req.BankName),
-		ApplyNote:      reason,
+		ReceiveAccount:  strings.TrimSpace(req.ReceiveAccount),
+		ReceiveName:     strings.TrimSpace(req.ReceiveName),
+		BankName:        strings.TrimSpace(req.BankName),
+		ApplyNote:       reason,
 	})
 	if err != nil {
 		return nil, err

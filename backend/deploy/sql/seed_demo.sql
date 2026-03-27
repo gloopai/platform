@@ -123,8 +123,8 @@ ON DUPLICATE KEY UPDATE name = VALUES(name), status = VALUES(status);
 INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
   (0, 'menu.stats', '系统概览', 'chart', 1, '/stats', 10),
   (0, 'group.merchant', '商户与接入', 'briefcase', 2, NULL, 20),
-  (0, 'group.channel', '通道与路由', 'layers', 2, NULL, 30),
-  (0, 'group.trade', '交易与资金', 'credit', 2, NULL, 40),
+  (0, 'group.trade', '交易与资金', 'credit', 2, NULL, 30),
+  (0, 'group.channel', '产品与通道', 'layers', 2, NULL, 40),
   (0, 'group.rbac', '权限与安全', 'shield', 2, NULL, 45),
   (0, 'group.system', '系统与运维', 'cog', 2, NULL, 50)
 ON DUPLICATE KEY UPDATE
@@ -146,18 +146,20 @@ SET @gid_system := (SELECT id FROM admin_menus WHERE menu_key = 'group.system' L
 
 INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
   (@gid_merchant, 'menu.merchants', '商户管理', '', 1, '/merchants', 10),
-  (@gid_merchant, 'menu.merchant_payin_products', '代收产品', '', 1, '/merchant-payin-products', 20),
-  (@gid_merchant, 'menu.merchant_payout_products', '代付产品', '', 1, '/merchant-payout-products', 30),
+  (@gid_merchant, 'menu.settlement_logs', '资金流水', '', 1, '/settlement/logs', 20),
+  (@gid_merchant, 'menu.settlement_withdrawals', '提现申请', '', 1, '/settlement/withdrawals', 30),
+  (@gid_merchant, 'menu.settlement_withdrawals_list', '提现申请列表', '', 1, '/settlement/withdrawals/list', 35),
 
-  (@gid_channel, 'menu.channels', '通道管理', '', 1, '/channels', 10),
-  (@gid_channel, 'menu.routing', '路由策略', '', 1, '/routing', 20),
-  (@gid_channel, 'menu.channel_health', '通道监控', '', 1, '/channel-health', 30),
+  (@gid_channel, 'menu.merchant_payin_products', '代收产品', '', 1, '/merchant-payin-products', 10),
+  (@gid_channel, 'menu.merchant_payout_products', '代付产品', '', 1, '/merchant-payout-products', 20),
+  (@gid_channel, 'menu.channels', '通道管理', '', 1, '/channels', 30),
+  (@gid_channel, 'menu.routing', '路由策略', '', 1, '/routing', 40),
+  (@gid_channel, 'menu.channel_health', '通道监控', '', 1, '/channel-health', 50),
 
   (@gid_trade, 'menu.payin_orders', '代收订单', '', 1, '/payin-orders', 10),
   (@gid_trade, 'menu.payout_orders', '代付订单', '', 1, '/payout-orders', 20),
   (@gid_trade, 'menu.refunds', '退款与差错', '', 1, '/refunds', 30),
   (@gid_trade, 'menu.reconcile', '对账中心', '', 1, '/reconcile', 40),
-  (@gid_trade, 'menu.settlement', '结算与提现', '', 1, '/settlement', 50),
 
   (@gid_rbac, 'menu.rbac_overview', '配置总览', '', 1, '/rbac/overview', 10),
   (@gid_rbac, 'menu.rbac_menus', '菜单管理', '', 1, '/rbac/menus', 15),
@@ -218,7 +220,7 @@ INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALU
   ('admin.orders.mock', '订单-模拟打款成功', 'orders', 'menu.payout_orders', 1),
   ('admin.refunds.read', '退款与差错-读取', 'refunds', 'menu.refunds', 1),
   ('admin.reconcile.read', '对账-读取', 'reconcile', 'menu.reconcile', 1),
-  ('admin.settlement.read', '结算-读取', 'settlement', 'menu.settlement', 1),
+  ('admin.settlement.read', '结算-读取', 'settlement', 'menu.settlement_withdrawals', 1),
 
   ('admin.system.read_settings', '系统管理-展示配置读取', 'system', 'menu.system', 1),
   ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 'menu.system', 1),
@@ -280,6 +282,10 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('GET', '/v1/admin/refunds', 'admin.refunds.read', 1, ''),
   ('GET', '/v1/admin/reconcile/day', 'admin.reconcile.read', 1, ''),
   ('GET', '/v1/admin/settlement/logs', 'admin.settlement.read', 1, ''),
+  ('GET', '/v1/admin/settlement/withdrawals', 'admin.settlement.read', 1, ''),
+  ('POST', '/v1/admin/settlement/withdrawals', 'admin.settlement.read', 1, ''),
+  ('PUT', '/v1/admin/settlement/withdrawals/:id/review', 'admin.settlement.read', 1, ''),
+  ('PUT', '/v1/admin/settlement/withdrawals/:id/payout', 'admin.settlement.read', 1, ''),
 
   ('GET', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),
   ('POST', '/v1/admin/admin_users', 'admin.admin_users.manage', 1, ''),

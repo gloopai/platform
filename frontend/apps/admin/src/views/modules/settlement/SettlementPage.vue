@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <div>
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">结算与提现</h1>
-      <p class="mt-1 max-w-3xl text-sm text-slate-600">当前版本已接入 USDT 提现申请全流程：申请、审核、手动打款后确认完成。</p>
+      <p class="mt-1 max-w-3xl text-sm text-slate-600">资金流水金额为系统配置的法币；提现按法币余额申请并换算为 USDT，审核后手动打款确认。</p>
       <p v-if="error" class="mt-2 text-sm text-rose-600">{{ error }}</p>
     </div>
 
@@ -81,16 +81,16 @@
       </div>
       <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
         <div class="text-xs text-slate-500">入账合计</div>
-        <div class="mt-1 text-lg font-semibold text-emerald-700">{{ formatAmount(summary.inflow) }}</div>
+        <div class="mt-1 text-lg font-semibold text-emerald-700">{{ formatLogMoney(summary.inflow) }}</div>
       </div>
       <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
         <div class="text-xs text-slate-500">出账合计</div>
-        <div class="mt-1 text-lg font-semibold text-rose-700">{{ formatAmount(-summary.outflowAbs) }}</div>
+        <div class="mt-1 text-lg font-semibold text-rose-700">{{ formatLogMoney(-summary.outflowAbs) }}</div>
       </div>
       <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
         <div class="text-xs text-slate-500">净变化</div>
         <div class="mt-1 text-lg font-semibold" :class="summary.net >= 0 ? 'text-emerald-700' : 'text-rose-700'">
-          {{ formatAmount(summary.net) }}
+          {{ formatLogMoney(summary.net) }}
         </div>
       </div>
     </div>
@@ -126,9 +126,9 @@
                   {{ x.change_type }}
                 </span>
               </td>
-              <td class="px-4 py-3 font-semibold" :class="x.amount >= 0 ? 'text-emerald-700' : 'text-rose-700'">{{ formatAmount(x.amount) }}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatAmount(x.balance_before) }}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatAmount(x.balance_after) }}</td>
+              <td class="px-4 py-3 font-semibold" :class="x.amount >= 0 ? 'text-emerald-700' : 'text-rose-700'">{{ formatLogMoney(x.amount) }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatLogMoney(x.balance_before) }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ formatLogMoney(x.balance_after) }}</td>
               <td class="px-4 py-3 text-slate-700">{{ x.reason || '—' }}</td>
             </tr>
           </tbody>
@@ -145,29 +145,56 @@
 
     <div v-show="activeTab === 'withdraw'" class="grid gap-4 lg:grid-cols-12">
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-4">
-        <div class="text-sm font-semibold text-slate-900">创建 USDT 提现申请</div>
+        <div class="text-sm font-semibold text-slate-900">创建提现申请</div>
         <div class="mt-4 grid gap-3">
           <label class="grid gap-1 text-xs font-medium text-slate-600">
-            商户 ID
-            <input v-model.trim="withdrawForm.merchant_id" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            商户（可搜索）
+            <input
+              v-model.trim="withdrawForm.merchant_id"
+              type="text"
+              list="withdraw-merchant-options"
+              placeholder="输入商户ID搜索"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            />
+            <datalist id="withdraw-merchant-options">
+              <option v-for="m in allMerchants" :key="m.merchant_id" :value="m.merchant_id" />
+            </datalist>
+          </label>
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-[12px] text-slate-700">
+            <div>当前代收余额：{{ formatFiat(merchantPayinBalance) }}</div>
+            <div class="mt-1">当前可用余额：{{ formatFiat(merchantAvailableBalance) }}</div>
+          </div>
+          <label class="grid gap-1 text-xs font-medium text-slate-600">
+            提现余额来源
+            <select v-model="withdrawForm.balance_source" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+              <option value="available">可用余额</option>
+              <option value="payin">代收余额</option>
+            </select>
           </label>
           <label class="grid gap-1 text-xs font-medium text-slate-600">
-            申请金额（USDT）
-            <input v-model.number="withdrawForm.apply_amount_yuan" type="number" min="0" step="0.01" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-            <span class="text-[11px] text-slate-500">当前可提现：{{ maxWithdrawUsdtText }}</span>
+            申请金额（{{ fiatCode }}，法币）
+            <input v-model.number="withdrawForm.apply_fiat_yuan" type="number" min="0" step="0.01" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            <span class="text-[11px] text-slate-500">系统汇率：1 USDT = {{ fiatToUsdtRate.toFixed(4) }} {{ fiatCode }}（来自系统配置）</span>
+            <span class="text-[11px] text-slate-500">可提现法币上限：{{ formatFiat(maxSourceFiatCents) }}（约合 {{ maxWithdrawUsdtText }}）</span>
           </label>
+          <div class="rounded-lg border border-indigo-100 bg-indigo-50/80 px-3 py-2 text-[12px] text-indigo-900">
+            <div class="font-medium">约合 USDT</div>
+            <div class="mt-0.5 font-mono text-sm">{{ applyUsdtDisplay }}</div>
+            <p v-if="applyUsdtCents <= 0 && withdrawForm.apply_fiat_yuan > 0" class="mt-1 text-[11px] text-amber-800">按当前汇率换算后 USDT 为 0，请提高法币金额。</p>
+          </div>
           <label class="grid gap-1 text-xs font-medium text-slate-600">
             手续费（USDT）
             <input v-model.number="withdrawForm.fee_amount_yuan" type="number" min="0" step="0.01" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
           </label>
-          <label class="grid gap-1 text-xs font-medium text-slate-600">
-            收款地址
-            <input v-model.trim="withdrawForm.receive_account" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-          </label>
-          <label class="grid gap-1 text-xs font-medium text-slate-600">
-            收款人
-            <input v-model.trim="withdrawForm.receive_name" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-          </label>
+          <div class="grid gap-1 text-xs font-medium text-slate-600">
+            <span>USDT 收款地址（商户配置，只读）</span>
+            <div
+              class="rounded-lg border px-3 py-2 text-sm leading-relaxed"
+              :class="merchantUsdtAddress ? 'border-slate-200 bg-slate-50 font-mono text-slate-800' : 'border-amber-200 bg-amber-50 text-amber-900'"
+            >
+              {{ merchantUsdtAddress || '未配置，请先在商户管理中填写 USDT 收款地址' }}
+            </div>
+          </div>
           <label class="grid gap-1 text-xs font-medium text-slate-600">
             链名称（如 TRC20）
             <input v-model.trim="withdrawForm.bank_name" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
@@ -179,7 +206,7 @@
           <button
             type="button"
             class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
-            :disabled="withdrawSaving || !withdrawForm.merchant_id || withdrawForm.apply_amount_yuan <= 0"
+            :disabled="withdrawSaving || !withdrawForm.merchant_id || !merchantUsdtAddress || withdrawForm.apply_fiat_yuan <= 0 || applyUsdtCents <= 0"
             @click="createWithdrawal"
           >
             {{ withdrawSaving ? '提交中...' : '提交申请' }}
@@ -222,8 +249,11 @@
               <tr v-for="w in withdrawals" v-else :key="w.withdraw_no" class="hover:bg-slate-50/80">
                 <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ w.withdraw_no }}</td>
                 <td class="px-4 py-3 font-medium text-slate-900">{{ w.merchant_id }}</td>
-                <td class="px-4 py-3 text-slate-700">{{ formatAmount(w.apply_amount) }}</td>
-                <td class="px-4 py-3 text-slate-700">{{ formatAmount(w.net_amount) }}</td>
+                <td class="px-4 py-3 text-slate-700">
+                  <div>{{ formatUsdt(w.apply_amount) }}</div>
+                  <div v-if="w.fiat_debit_amount" class="text-[11px] text-slate-500">扣款 {{ formatFiat(w.fiat_debit_amount) }}</div>
+                </td>
+                <td class="px-4 py-3 text-slate-700">{{ formatUsdt(w.net_amount) }}</td>
                 <td class="px-4 py-3">
                   <span class="rounded-full px-2 py-0.5 text-xs font-semibold" :class="withdrawStatusClass(w.status)">
                     {{ withdrawStatusText(w.status) }}
@@ -285,6 +315,7 @@ import { useClientPagination } from '../../../composables/useClientPagination'
 import { useUiDialog } from '../../../composables/useUiDialog'
 import { useUiToast } from '../../../composables/useUiToast'
 import { adminGet, adminPost, adminPut } from '../../../lib/adminApi'
+import { formatAdminMoney, loadAdminDisplaySettings } from '../../../lib/displaySettings'
 
 type SettlementLogItem = {
   id: number
@@ -303,6 +334,7 @@ type WithdrawalItem = {
   apply_amount: number
   fee_amount: number
   net_amount: number
+  fiat_debit_amount?: number
   status: number
   receive_account: string
   receive_name: string
@@ -312,9 +344,14 @@ type WithdrawalItem = {
 }
 type AdminMerchantInfo = {
   merchant_id: string
+  payin_balance: number
   available_balance: number
+  withdraw_usdt_address?: string
 }
 type AdminDisplaySettings = {
+  country_code: string
+  currency_code: string
+  currency_symbol: string
   fiat_to_usdt_rate: number
 }
 
@@ -331,23 +368,48 @@ const withdrawals = ref<WithdrawalItem[]>([])
 const withdrawLoading = ref(false)
 const withdrawSaving = ref(false)
 const fiatToUsdtRate = ref(7.2)
+const fiatSymbol = ref('¥')
+const fiatCode = ref('CNY')
 const merchantAvailableBalance = ref(0)
 const toast = useUiToast()
 const dialog = useUiDialog()
 const withdrawForm = ref({
   merchant_id: '',
-  apply_amount_yuan: 0,
+  balance_source: 'available' as 'available' | 'payin',
+  apply_fiat_yuan: 0,
   fee_amount_yuan: 0,
-  receive_account: '',
-  receive_name: '',
   bank_name: '',
   apply_note: '',
 })
+
+const merchantUsdtAddress = computed(() => {
+  const id = withdrawForm.value.merchant_id.trim()
+  if (!id) return ''
+  const row = allMerchants.value.find((x) => x.merchant_id === id)
+  return (row?.withdraw_usdt_address || '').trim()
+})
+const allMerchants = ref<AdminMerchantInfo[]>([])
+const merchantPayinBalance = ref(0)
+const maxSourceFiatCents = computed(() =>
+  withdrawForm.value.balance_source === 'payin' ? merchantPayinBalance.value : merchantAvailableBalance.value,
+)
+
 const maxWithdrawUsdtCents = computed(() => {
   if (fiatToUsdtRate.value <= 0) return 0
-  return Math.floor(merchantAvailableBalance.value / fiatToUsdtRate.value)
+  return Math.floor(maxSourceFiatCents.value / fiatToUsdtRate.value)
 })
 const maxWithdrawUsdtText = computed(() => `${(maxWithdrawUsdtCents.value / 100).toFixed(2)} USDT`)
+
+const applyFiatCents = computed(() => Math.round(withdrawForm.value.apply_fiat_yuan * 100))
+const applyUsdtCents = computed(() => {
+  if (fiatToUsdtRate.value <= 0) return 0
+  return Math.floor(applyFiatCents.value / fiatToUsdtRate.value)
+})
+const applyUsdtDisplay = computed(() => {
+  if (fiatToUsdtRate.value <= 0) return '—'
+  if (applyUsdtCents.value <= 0) return '0.00 USDT'
+  return `${(applyUsdtCents.value / 100).toFixed(2)} USDT`
+})
 
 const filteredLogs = computed(() => {
   const t = changeType.value.trim().toUpperCase()
@@ -387,10 +449,19 @@ function formatTs(ts: number): string {
       })
 }
 
-function formatAmount(cents: number): string {
+function formatLogMoney(cents: number): string {
+  return formatAdminMoney(cents)
+}
+
+function formatFiat(cents: number): string {
   const sign = cents < 0 ? '-' : ''
-  const abs = Math.abs(cents)
-  return `${sign}${(abs / 100).toFixed(2)} USDT`
+  const sym = fiatSymbol.value || '¥'
+  return `${sign}${sym} ${(Math.abs(cents) / 100).toFixed(2)}`
+}
+
+function formatUsdt(cents: number): string {
+  const sign = cents < 0 ? '-' : ''
+  return `${sign}${(Math.abs(cents) / 100).toFixed(2)} USDT`
 }
 
 function changeTypeClass(t: string): string {
@@ -486,56 +557,80 @@ async function loadWithdrawals() {
 async function loadWithdrawContext() {
   const merchant = withdrawForm.value.merchant_id.trim()
   if (!merchant) {
+    merchantPayinBalance.value = 0
     merchantAvailableBalance.value = 0
     return
   }
+  const row = allMerchants.value.find((x) => x.merchant_id === merchant)
+  merchantPayinBalance.value = row?.payin_balance ?? 0
+  merchantAvailableBalance.value = row?.available_balance ?? 0
+}
+
+async function loadWithdrawBaseData() {
   try {
     const ds = await adminGet<AdminDisplaySettings>('/v1/admin/display_settings')
     fiatToUsdtRate.value = ds.fiat_to_usdt_rate > 0 ? ds.fiat_to_usdt_rate : 7.2
+    fiatSymbol.value = (ds.currency_symbol || '¥').trim() || '¥'
+    fiatCode.value = (ds.currency_code || 'CNY').trim() || 'CNY'
     const mr = await adminGet<{ merchants: AdminMerchantInfo[] }>('/v1/admin/merchants')
-    const row = (mr.merchants ?? []).find((x) => x.merchant_id === merchant)
-    merchantAvailableBalance.value = row?.available_balance ?? 0
+    allMerchants.value = mr.merchants ?? []
+    await loadWithdrawContext()
   } catch {
+    merchantPayinBalance.value = 0
     merchantAvailableBalance.value = 0
   }
 }
 
 async function createWithdrawal() {
-  const applyAmount = Math.floor(withdrawForm.value.apply_amount_yuan * 100)
+  const applyAmount = applyUsdtCents.value
   const feeAmount = Math.floor(withdrawForm.value.fee_amount_yuan * 100)
-  if (applyAmount <= 0) return
+  const addr = merchantUsdtAddress.value
+  if (!addr) {
+    toast.error('该商户未配置 USDT 收款地址')
+    return
+  }
+  if (withdrawForm.value.apply_fiat_yuan <= 0) return
+  if (applyAmount <= 0) {
+    toast.error('按当前汇率换算后 USDT 为 0，请调整法币金额')
+    return
+  }
   if (feeAmount < 0 || feeAmount > applyAmount) {
-    toast.error('手续费不能大于申请金额')
+    toast.error('手续费不能大于申请金额（USDT）')
     return
   }
   if (applyAmount > maxWithdrawUsdtCents.value) {
-    toast.error(`超过可提现金额上限：${maxWithdrawUsdtText.value}`)
+    toast.error(`超过可提现金额上限：${maxWithdrawUsdtText.value}（${formatFiat(maxSourceFiatCents.value)}）`)
     return
   }
+  const ok = await dialog.confirm(
+    `确认提交提现申请？\n商户：${withdrawForm.value.merchant_id.trim()}\n余额来源：${withdrawForm.value.balance_source === 'payin' ? '代收余额' : '可用余额'}\n申请法币：${formatFiat(applyFiatCents.value)}\n约合：${(applyAmount / 100).toFixed(2)} USDT\n收款地址：${addr}`,
+    '提交确认',
+  )
+  if (!ok) return
   withdrawSaving.value = true
   try {
     await adminPost<{ item: WithdrawalItem }>('/v1/admin/settlement/withdrawals', {
       merchant_id: withdrawForm.value.merchant_id.trim(),
+      balance_source: withdrawForm.value.balance_source,
       apply_amount: applyAmount,
       fee_amount: feeAmount,
-      receive_account: withdrawForm.value.receive_account.trim(),
-      receive_name: withdrawForm.value.receive_name.trim(),
+      receive_account: addr,
+      receive_name: '',
       bank_name: withdrawForm.value.bank_name.trim(),
       apply_note: withdrawForm.value.apply_note.trim(),
     })
     toast.success('提现申请已创建，待审核')
     withdrawForm.value = {
       merchant_id: withdrawForm.value.merchant_id,
-      apply_amount_yuan: 0,
+      balance_source: withdrawForm.value.balance_source,
+      apply_fiat_yuan: 0,
       fee_amount_yuan: 0,
-      receive_account: '',
-      receive_name: '',
       bank_name: '',
       apply_note: '',
     }
     await loadWithdrawals()
     await load()
-    await loadWithdrawContext()
+    await loadWithdrawBaseData()
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     toast.error(`创建提现申请失败：${msg}`)
@@ -588,14 +683,15 @@ async function confirmPayout(w: WithdrawalItem) {
 
 let unregister: (() => void) | null = null
 onMounted(() => {
-  void load()
+  void loadAdminDisplaySettings().then(() => void load())
   void loadWithdrawals()
-  void loadWithdrawContext()
-  if (registerRefresh) unregister = registerRefresh(() => {
-    void load()
-    void loadWithdrawals()
-    void loadWithdrawContext()
-  })
+  void loadWithdrawBaseData()
+  if (registerRefresh)
+    unregister = registerRefresh(() => {
+      void loadAdminDisplaySettings().then(() => void load())
+      void loadWithdrawals()
+      void loadWithdrawBaseData()
+    })
 })
 onUnmounted(() => {
   if (unregister) unregister()

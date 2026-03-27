@@ -422,6 +422,7 @@ type AdminMerchantInfo struct {
 	NotifyUrl            string                `json:"notify_url"`
 	ReturnUrl            string                `json:"return_url"`
 	IpWhitelist          string                `json:"ip_whitelist"`
+	WithdrawUsdtAddress  string                `json:"withdraw_usdt_address"`
 	PayinBalance         int64                 `json:"payin_balance"`
 	AvailableBalance     int64                 `json:"available_balance"`
 	PayinProductIds      []int64               `json:"payin_product_ids"`
@@ -442,6 +443,7 @@ type AdminCreateMerchantReq struct {
 	NotifyUrl            string  `json:"notify_url,optional"`
 	ReturnUrl            string  `json:"return_url,optional"`
 	IpWhitelist          string  `json:"ip_whitelist,optional"`
+	WithdrawUsdtAddress  string  `json:"withdraw_usdt_address,optional"`
 	PayinProductIds      []int64 `json:"payin_product_ids,optional"`
 	PayoutProductIds     []int64 `json:"payout_product_ids,optional"`
 }
@@ -454,6 +456,7 @@ type AdminUpdateMerchantReq struct {
 	NotifyUrl            string                `json:"notify_url,optional"`
 	ReturnUrl            string                `json:"return_url,optional"`
 	IpWhitelist          string                `json:"ip_whitelist,optional"`
+	WithdrawUsdtAddress  string                `json:"withdraw_usdt_address,optional"`
 	ResetSecret          bool                  `json:"reset_secret,optional"`
 	ResetPassword        bool                  `json:"reset_password,optional"`
 	PayinProductIds      []int64               `json:"payin_product_ids,optional"`
@@ -915,6 +918,7 @@ type AdminSettlementWithdrawalsResp struct {
 
 type AdminCreateWithdrawalReq struct {
 	MerchantId     string `json:"merchant_id"`
+	BalanceSource  string `json:"balance_source,optional"`
 	ApplyAmount    int64  `json:"apply_amount"`
 	FeeAmount      int64  `json:"fee_amount"`
 	ReceiveAccount string `json:"receive_account"`

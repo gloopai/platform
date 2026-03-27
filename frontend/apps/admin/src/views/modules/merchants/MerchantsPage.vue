@@ -506,6 +506,7 @@ async function saveForm() {
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
+        withdraw_usdt_address: form.value.withdraw_usdt_address.trim(),
         payin_product_ids: [],
         payout_product_ids: [],
       })
@@ -527,6 +528,7 @@ async function saveForm() {
         notify_url: form.value.notify_url,
         return_url: form.value.return_url,
         ip_whitelist: form.value.ip_whitelist,
+        withdraw_usdt_address: form.value.withdraw_usdt_address.trim(),
         payin_grants: normalizedPayinGrants(selectedMerchant.value!),
         payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
       })
@@ -560,6 +562,7 @@ async function toggleLock() {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
+      withdraw_usdt_address: m.withdraw_usdt_address || '',
       payin_grants: normalizedPayinGrants(m),
       payout_grants: normalizedPayoutGrants(m),
     })
@@ -593,6 +596,7 @@ async function resetSecret() {
         notify_url: m.notify_url,
         return_url: m.return_url,
         ip_whitelist: m.ip_whitelist,
+        withdraw_usdt_address: m.withdraw_usdt_address || '',
         payin_grants: normalizedPayinGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
@@ -627,6 +631,7 @@ async function resetPassword() {
         notify_url: m.notify_url,
         return_url: m.return_url,
         ip_whitelist: m.ip_whitelist,
+        withdraw_usdt_address: m.withdraw_usdt_address || '',
         payin_grants: normalizedPayinGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
@@ -662,6 +667,7 @@ async function persistPayinProducts(newGrants: MerchantPayinGrant[]) {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
+      withdraw_usdt_address: m.withdraw_usdt_address || '',
       payin_grants: newGrants,
       payout_grants: normalizedPayoutGrants(m),
     })
@@ -692,6 +698,7 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
       notify_url: m.notify_url,
       return_url: m.return_url,
       ip_whitelist: m.ip_whitelist,
+      withdraw_usdt_address: m.withdraw_usdt_address || '',
       payin_grants: normalizedPayinGrants(m),
       payout_grants: newGrants,
     })

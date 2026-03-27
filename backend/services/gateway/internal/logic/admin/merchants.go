@@ -17,6 +17,37 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const withdrawUsdtMarkerPrefix = "#WITHDRAW_USDT:"
+
+func splitMerchantConfigIPWhitelist(raw string) (ipWhitelist string, withdrawUsdtAddress string) {
+	lines := strings.Split(raw, "\n")
+	kept := make([]string, 0, len(lines))
+	for _, ln := range lines {
+		s := strings.TrimSpace(ln)
+		if s == "" {
+			continue
+		}
+		if strings.HasPrefix(s, withdrawUsdtMarkerPrefix) {
+			withdrawUsdtAddress = strings.TrimSpace(strings.TrimPrefix(s, withdrawUsdtMarkerPrefix))
+			continue
+		}
+		kept = append(kept, s)
+	}
+	return strings.Join(kept, "\n"), withdrawUsdtAddress
+}
+
+func mergeMerchantConfigIPWhitelist(ipWhitelist string, withdrawUsdtAddress string) string {
+	ip, _ := splitMerchantConfigIPWhitelist(ipWhitelist)
+	addr := strings.TrimSpace(withdrawUsdtAddress)
+	if addr == "" {
+		return ip
+	}
+	if ip == "" {
+		return withdrawUsdtMarkerPrefix + addr
+	}
+	return ip + "\n" + withdrawUsdtMarkerPrefix + addr
+}
+
 // AdminMerchants 管理后台商户（入驻商户）与商户侧支付产品白名单。
 type AdminMerchants struct {
 	logx.Logger
@@ -65,6 +96,7 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		row.FeeFixedAmount = g.GetFeeFixedAmount()
 		pg = append(pg, row)
 	}
+	ipWhitelist, withdrawUsdtAddress := splitMerchantConfigIPWhitelist(m.GetIpWhitelist())
 	return types.AdminMerchantInfo{
 		MerchantId:           m.GetMerchantId(),
 		AppId:                m.GetAppId(),
@@ -75,7 +107,8 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
 		NotifyUrl:            m.GetNotifyUrl(),
 		ReturnUrl:            m.GetReturnUrl(),
-		IpWhitelist:          m.GetIpWhitelist(),
+		IpWhitelist:          ipWhitelist,
+		WithdrawUsdtAddress:  withdrawUsdtAddress,
 		PayinBalance:         m.GetPayinBalance(),
 		AvailableBalance:     m.GetAvailableBalance(),
 		PayinProductIds:      m.GetPayinProductIds(),
@@ -152,7 +185,7 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
 		NotifyUrl:            req.NotifyUrl,
 		ReturnUrl:            req.ReturnUrl,
-		IpWhitelist:          req.IpWhitelist,
+		IpWhitelist:          mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
 		PayinProductIds:      req.PayinProductIds,
 		PayoutProductIds:     req.PayoutProductIds,
 	})
@@ -203,7 +236,7 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
 		NotifyUrl:            req.NotifyUrl,
 		ReturnUrl:            req.ReturnUrl,
-		IpWhitelist:          req.IpWhitelist,
+		IpWhitelist:          mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
 	})
 	if err != nil {
 		return nil, err

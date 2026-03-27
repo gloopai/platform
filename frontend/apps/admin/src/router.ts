@@ -13,7 +13,9 @@ import PayoutOrdersPage from './views/modules/orders/PayoutOrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import RefundsPage from './views/modules/refunds/RefundsPage.vue'
 import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
-import SettlementPage from './views/modules/settlement/SettlementPage.vue'
+import SettlementLogsPage from './views/modules/settlement/SettlementLogsPage.vue'
+import SettlementWithdrawalsPage from './views/modules/settlement/SettlementWithdrawalsPage.vue'
+import SettlementWithdrawalListPage from './views/modules/settlement/SettlementWithdrawalListPage.vue'
 import StatsPage from './views/modules/stats/StatsPage.vue'
 import SystemPage from './views/modules/system/SystemPage.vue'
 import RbacLayout from './views/modules/rbac/RbacLayout.vue'
@@ -44,7 +46,10 @@ export const router = createRouter({
         { path: 'payout-orders', component: PayoutOrdersPage },
         { path: 'refunds', component: RefundsPage },
         { path: 'reconcile', component: ReconcilePage },
-        { path: 'settlement', component: SettlementPage },
+        { path: 'settlement', redirect: '/settlement/withdrawals' },
+        { path: 'settlement/logs', component: SettlementLogsPage },
+        { path: 'settlement/withdrawals', component: SettlementWithdrawalsPage },
+        { path: 'settlement/withdrawals/list', component: SettlementWithdrawalListPage },
         { path: 'system', component: SystemPage },
         { path: 'ops', component: OpsPage },
         {
