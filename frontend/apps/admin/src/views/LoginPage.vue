@@ -43,7 +43,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { parseApiEnvelope, unwrapApiData } from '../lib/apiEnvelope'
-import { adminApiUrl, saveAdminSession } from '../lib/adminApi'
+import { adminApiUrl, saveAdminIdentity, saveAdminSession } from '../lib/adminApi'
 
 type AdminLoginResp = {
   token: string
@@ -74,6 +74,7 @@ async function login() {
       error.value = e instanceof Error ? e.message : '登录失败'
       return
     }
+    saveAdminIdentity(username.value)
     saveAdminSession({ token: data.token, expiresAt: data.expires_at })
     await router.replace('/stats')
   } catch {

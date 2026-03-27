@@ -192,6 +192,9 @@ WHERE ar.code = 'super_admin'
 ON DUPLICATE KEY UPDATE menu_id = VALUES(menu_id);
 
 -- ---- 管理台操作权限点（接口/按钮级）；menu_key 对应侧栏项，便于按页面做配置总览 ----
+-- 网关侧栏/货币展示/登出：已对已登录用户放行（见 gateway adminSessionBaselineOK），无需再给每个角色勾
+-- admin.rbac.my_menu、admin.system.read_settings、admin.auth.logout。
+-- 访问「RBAC 总览、菜单管理、功能点、接口规则」等配置页及其接口：须具备 admin.rbac.manage（或由 super_admin 承担）。
 INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALUES
   ('admin.auth.logout', '退出登录', 'auth', 'menu.system', 1),
   ('admin.ops.read', '运维监控-读取', 'ops', 'menu.ops', 1),

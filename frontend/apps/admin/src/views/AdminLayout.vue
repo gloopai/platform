@@ -184,7 +184,7 @@
                 </span>
                 <div class="hidden text-left leading-tight sm:block">
                   <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
-                  <div class="text-[10px] text-slate-500">管理员</div>
+                  <div class="text-[10px] text-slate-500">{{ adminRoleLabel }}</div>
                 </div>
                 <svg
                   class="h-4 w-4 text-slate-400 transition"
@@ -291,8 +291,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, r
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
 import UiDialogHost from '../components/UiDialogHost.vue'
 import UiToastHost from '../components/UiToastHost.vue'
-import { adminPathTitle, defaultAdminMenu, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
-import { adminGet, adminPost, clearAdminSession, loadAdminToken } from '../lib/adminApi'
+import { adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
+import { adminGet, adminPost, clearAdminSession, loadAdminIdentity, loadAdminToken, saveAdminIdentity } from '../lib/adminApi'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'
 import { useServerClock } from '../composables/useServerClock'
 
@@ -303,9 +303,11 @@ const SIDEBAR_KEY = 'admin_sidebar_collapsed'
 const router = useRouter()
 const route = useRoute()
 const adminToken = ref(loadAdminToken())
+const adminIdentity = ref(loadAdminIdentity())
+const adminRoleLabel = ref('管理员')
 const { serverTimeText } = useServerClock()
 
-const menu = ref<AdminMenuEntry[]>(defaultAdminMenu)
+const menu = ref<AdminMenuEntry[]>([])
 
 type AvatarLink = { to: string; label: string; icon: string }
 const avatarLinks = ref<AvatarLink[]>([])
@@ -460,7 +462,7 @@ const flyoutGroup = computed((): AdminMenuGroup | null => {
   return e && e.kind === 'group' ? e : null
 })
 
-const displayName = computed(() => '管理员')
+const displayName = computed(() => adminIdentity.value || '管理员')
 const userInitial = computed(() => displayName.value.slice(0, 1).toUpperCase())
 
 function broadcastRefresh() {
@@ -521,6 +523,7 @@ function onWindowResizeOrScroll() {
 }
 
 onMounted(() => {
+  void loadMe()
   void loadAdminDisplaySettings()
   void loadMenu()
   document.addEventListener('click', onDocClick)
@@ -560,21 +563,45 @@ async function loadMenu() {
       sidebar = o.sidebar ?? null
       av = Array.isArray(o.avatar_links) ? o.avatar_links : []
     }
-    if (sidebar && sidebar.length) {
-      menu.value = sidebar
-      avatarLinks.value = av
-      syncOpenGroups()
-      const allowed = allowedPathsFromMenu(menu.value, avatarLinks.value)
-      try {
-        localStorage.setItem('admin_allowed_paths', JSON.stringify(allowed))
-      } catch {
-      }
-      if (allowed.length && !allowed.includes(route.path)) {
-        await router.replace(allowed[0])
-      }
+    menu.value = Array.isArray(sidebar) ? sidebar : []
+    avatarLinks.value = av
+    syncOpenGroups()
+    const allowed = allowedPathsFromMenu(menu.value, avatarLinks.value)
+    try {
+      localStorage.setItem('admin_allowed_paths', JSON.stringify(allowed))
+    } catch {
+    }
+    if (allowed.length && !allowed.includes(route.path)) {
+      await router.replace(allowed[0])
+    }
+    if (!allowed.length && route.path !== '/login') {
+      // No authorized menu path for this account: keep UI shell but hide sidebar entries.
+      await router.replace('/')
     }
   } catch {
-    // ignore: fallback to default menu
+    // Fail-safe: never fallback to full static menu when permission fetch fails.
+    menu.value = []
+    avatarLinks.value = []
+    syncOpenGroups()
+    try {
+      localStorage.setItem('admin_allowed_paths', JSON.stringify([]))
+    } catch {
+    }
+  }
+}
+
+async function loadMe() {
+  try {
+    const me = await adminGet<{ id: number; username: string; email: string; display_name: string; role: string }>('/v1/admin/me')
+    const next = (me.display_name || me.email || me.username || '').trim()
+    if (next) {
+      adminIdentity.value = next
+      saveAdminIdentity(next)
+    }
+    const role = (me.role || '').trim()
+    if (role) adminRoleLabel.value = role
+  } catch {
+    // keep local fallback identity
   }
 }
 </script>

@@ -62,6 +62,14 @@ func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		// 壳层会话：任意已登录管理员都需能拉侧栏菜单、展示类配置与退出，避免因未勾选
+		// admin.rbac.my_menu / admin.system.read_settings / admin.auth.logout 而无法使用后台。
+		// RBAC 配置类 GET（/rbac/menus、permissions、api_rules 等）仍走下方权限校验。
+		if adminSessionBaselineOK(r) {
+			next(w, r)
+			return
+		}
+
 		isSuper, keys, err := m.getPerms(r, adminID)
 		if err != nil {
 			http.Error(w, "forbidden", http.StatusForbidden)
@@ -87,6 +95,23 @@ func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		http.Error(w, "forbidden", http.StatusForbidden)
+	}
+}
+
+func adminSessionBaselineOK(r *http.Request) bool {
+	method := strings.ToUpper(strings.TrimSpace(r.Method))
+	path := strings.TrimSpace(r.URL.Path)
+	if method == http.MethodPost && path == "/v1/admin/logout" {
+		return true
+	}
+	if method != http.MethodGet {
+		return false
+	}
+	switch path {
+	case "/v1/admin/me", "/v1/admin/rbac/my_menu", "/v1/admin/display_settings":
+		return true
+	default:
+		return false
 	}
 }
 

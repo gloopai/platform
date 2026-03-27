@@ -50,6 +50,61 @@ func (a *AdminSystem) ListAdminUsers() (*types.AdminUsersResp, error) {
 	return &types.AdminUsersResp{Users: out}, nil
 }
 
+func (a *AdminSystem) GetAdminMe(adminID int64) (*types.AdminMeResp, error) {
+	if adminID <= 0 {
+		return nil, status.Error(codes.Unauthenticated, "unauthorized")
+	}
+	u, err := a.svcCtx.ServiceHub.GetAdminUserById(a.ctx, adminID)
+	if err != nil {
+		return nil, err
+	}
+	username := strings.TrimSpace(u.GetUsername())
+	email := ""
+	if strings.Contains(username, "@") {
+		email = username
+	}
+	display := email
+	if display == "" {
+		display = username
+	}
+	if display == "" {
+		display = "管理员"
+	}
+	roleName := ""
+	roleIDs, rerr := a.svcCtx.ServiceHub.GetAdminUserRoles(a.ctx, adminID)
+	if rerr == nil && len(roleIDs) > 0 {
+		allRoles, lerr := a.svcCtx.ServiceHub.ListAdminRoles(a.ctx)
+		if lerr == nil {
+			roleMap := make(map[int64]string, len(allRoles))
+			for _, rr := range allRoles {
+				if rr == nil {
+					continue
+				}
+				roleMap[rr.GetId()] = strings.TrimSpace(rr.GetName())
+			}
+			names := make([]string, 0, len(roleIDs))
+			for _, rid := range roleIDs {
+				if n := strings.TrimSpace(roleMap[rid]); n != "" {
+					names = append(names, n)
+				}
+			}
+			if len(names) > 0 {
+				roleName = strings.Join(names, "、")
+			}
+		}
+	}
+	if roleName == "" {
+		roleName = "管理员"
+	}
+	return &types.AdminMeResp{
+		ID:          u.GetId(),
+		Username:    username,
+		Email:       email,
+		DisplayName: display,
+		Role:        roleName,
+	}, nil
+}
+
 func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*types.AdminDisplaySettingsResp, error) {
 	row, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
 	if err != nil {

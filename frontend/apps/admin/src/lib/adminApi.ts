@@ -5,6 +5,8 @@ export type AdminSession = {
   expiresAt: number
 }
 
+const ADMIN_IDENTITY_KEY = 'admin_identity'
+
 function trimTrailingSlash(s: string): string {
   return s.endsWith('/') ? s.slice(0, -1) : s
 }
@@ -26,9 +28,23 @@ export function saveAdminSession(sess: AdminSession) {
   localStorage.setItem('admin_token_expires_at', String(sess.expiresAt))
 }
 
+export function loadAdminIdentity(): string {
+  return (localStorage.getItem(ADMIN_IDENTITY_KEY) || '').trim()
+}
+
+export function saveAdminIdentity(identity: string) {
+  const v = identity.trim()
+  if (!v) {
+    localStorage.removeItem(ADMIN_IDENTITY_KEY)
+    return
+  }
+  localStorage.setItem(ADMIN_IDENTITY_KEY, v)
+}
+
 export function clearAdminSession() {
   localStorage.removeItem('admin_token')
   localStorage.removeItem('admin_token_expires_at')
+  localStorage.removeItem(ADMIN_IDENTITY_KEY)
 }
 
 /** 与需登录后台接口统一的请求选项（自动带 X-Admin-Token；JSON body 自动序列化） */

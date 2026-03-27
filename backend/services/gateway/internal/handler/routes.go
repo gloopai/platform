@@ -197,6 +197,11 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/v1/admin/me",
+					Handler: adminhandler.AdminMeHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/v1/admin/channels",
 					Handler: adminhandler.AdminListChannelsHandler(serverCtx),
 				},

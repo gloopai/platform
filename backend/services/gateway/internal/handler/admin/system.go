@@ -6,6 +6,7 @@ import (
 
 	"github.com/gloopai/pay/gateway/internal/apiresp"
 	"github.com/gloopai/pay/gateway/internal/logic"
+	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -15,6 +16,23 @@ func AdminListUsersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := logic.NewAdminSystem(r.Context(), svcCtx)
 		resp, err := l.ListAdminUsers()
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
+func AdminMeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		adminID := middleware.AdminIdFromContext(r.Context())
+		if adminID <= 0 {
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
+			return
+		}
+		l := logic.NewAdminSystem(r.Context(), svcCtx)
+		resp, err := l.GetAdminMe(adminID)
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 		} else {
