@@ -119,7 +119,11 @@ fi
 
 echo "running. logs: ${LOG_DIR}"
 echo "urls:"
-print_url "gateway" "http://127.0.0.1:8080/"
+echo "  gateway HTTP (四路，见 backend/services/gateway/etc/gateway-api.yaml):"
+print_url "gateway-admin" "http://127.0.0.1:8080/  (Admin: /v1/admin/*, callback)"
+print_url "gateway-merchant" "http://127.0.0.1:8088/  (Merchant: /v1/merchant/*)"
+print_url "gateway-openapi" "http://127.0.0.1:8090/  (Open: /v1/payin|payout/*, 验签)"
+print_url "gateway-checkout" "http://127.0.0.1:8092/  (Checkout: /v1/terminal/*)"
 print_url "service-hub" "grpc://127.0.0.1:8094 (Consul: payment.rpc.service-hub)"
 print_url "portal" "http://127.0.0.1:5173/"
 print_url "checkout" "http://127.0.0.1:5174/?order_no=YOUR_ORDER_NO"
