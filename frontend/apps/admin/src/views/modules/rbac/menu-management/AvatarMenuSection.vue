@@ -10,9 +10,12 @@
     <div class="grid gap-6 lg:grid-cols-12">
       <div class="lg:col-span-4">
         <div class="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50/90 px-4 py-3">
-            <div class="text-sm font-semibold text-slate-800">头像菜单项</div>
-            <p class="mt-0.5 text-xs text-slate-500">按排序展示</p>
+          <div class="flex items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/90 px-4 py-3">
+            <div>
+              <div class="text-sm font-semibold text-slate-800">头像菜单项</div>
+              <p class="mt-0.5 text-xs text-slate-500">按排序展示</p>
+            </div>
+            <button type="button" class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40" :disabled="saving" @click="openCreateDialog">新建</button>
           </div>
           <div v-if="loading" class="px-4 py-10 text-center text-sm text-slate-500">加载中…</div>
           <div v-else class="max-h-[min(70vh,520px)] divide-y divide-slate-100 overflow-y-auto">
@@ -37,7 +40,7 @@
 
       <div class="lg:col-span-8 space-y-4">
         <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-          <div class="text-sm font-semibold text-slate-800">{{ form.id ? '编辑' : '新建' }}</div>
+          <div class="text-sm font-semibold text-slate-800">编辑</div>
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <label class="grid gap-1 text-xs font-medium text-slate-600">
               唯一键 menu_key
@@ -69,9 +72,6 @@
             >
               {{ saving ? '保存中…' : form.id ? '保存' : '创建' }}
             </button>
-            <button type="button" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700" :disabled="saving" @click="resetNewForm">
-              清空（新建）
-            </button>
             <button
               v-if="form.id"
               type="button"
@@ -93,11 +93,57 @@
         />
       </div>
     </div>
+
+    <Teleport to="body">
+      <div v-if="showCreateDialog" class="modal modal-open">
+        <div class="modal-box w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-slate-900">新建头像菜单</div>
+              <div class="mt-1 text-xs text-slate-500">创建后将自动选中，可继续配置权限与接口规则。</div>
+            </div>
+            <button type="button" class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50" :disabled="saving" @click="closeCreateDialog">关闭</button>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              唯一键 menu_key
+              <input v-model.trim="createForm.menu_key" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              显示名称
+              <input v-model.trim="createForm.label" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              图标 key
+              <input v-model.trim="createForm.icon" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="与侧栏一致，如 cog" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              排序
+              <input v-model.number="createForm.sort_order" type="number" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600 sm:col-span-2">
+              前端路由 path
+              <input v-model.trim="createForm.path" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
+            </label>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+            <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700" :disabled="saving" @click="closeCreateDialog">取消</button>
+            <button type="button" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40" :disabled="saving || !createForm.menu_key.trim() || !createForm.label.trim() || !createForm.path.trim()" @click="createMenu">{{ saving ? '创建中…' : '创建菜单' }}</button>
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="closeCreateDialog">close</button>
+        </form>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, Teleport } from 'vue'
 
 import { useUiDialog } from '../../../../composables/useUiDialog'
 import { useUiToast } from '../../../../composables/useUiToast'
@@ -114,6 +160,7 @@ const menus = ref<RbacAdminMenu[]>([])
 const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
 const selectedId = ref(0)
+const showCreateDialog = ref(false)
 
 const avatarMenus = computed(() =>
   [...menus.value]
@@ -132,6 +179,14 @@ const avatarScopeKeys = computed(() => {
 
 const form = reactive({
   id: 0,
+  menu_key: '',
+  label: '',
+  icon: '',
+  path: '',
+  sort_order: 10,
+})
+
+const createForm = reactive({
   menu_key: '',
   label: '',
   icon: '',
@@ -262,6 +317,62 @@ async function removeMenu() {
     const msg = e instanceof Error ? e.message : String(e)
     error.value = msg
     toast.error(`删除菜单失败：${msg}`)
+  } finally {
+    saving.value = false
+  }
+}
+
+
+
+function resetCreateForm() {
+  createForm.menu_key = ''
+  createForm.label = ''
+  createForm.icon = ''
+  createForm.path = ''
+  createForm.sort_order = (avatarMenus.value.length ? Math.max(...avatarMenus.value.map((x) => x.sort_order)) : 0) + 10
+}
+
+function openCreateDialog() {
+  resetCreateForm()
+  showCreateDialog.value = true
+}
+
+function closeCreateDialog() {
+  showCreateDialog.value = false
+}
+
+async function createMenu() {
+  saving.value = true
+  error.value = ''
+  const createKey = createForm.menu_key.trim()
+  try {
+    const body = {
+      parent_id: 0,
+      menu_key: createForm.menu_key,
+      label: createForm.label,
+      icon: createForm.icon,
+      kind: 1,
+      path: createForm.path,
+      sort_order: createForm.sort_order,
+      placement: 'avatar',
+    }
+    const resp = await adminPost<{ menu: RbacAdminMenu }>('/v1/admin/rbac/menus', body)
+    const saved = resp.menu || null
+    if (saved) {
+      const idx = menus.value.findIndex((x) => x.id === saved.id)
+      if (idx >= 0) menus.value[idx] = saved
+      else menus.value.unshift(saved)
+      selectRow(saved)
+    } else if (createKey) {
+      const m = menus.value.find((x) => x.menu_key === createKey)
+      if (m) selectRow(m)
+    }
+    closeCreateDialog()
+    toast.success('菜单已创建')
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    error.value = msg
+    toast.error(`创建菜单失败：${msg}`)
   } finally {
     saving.value = false
   }

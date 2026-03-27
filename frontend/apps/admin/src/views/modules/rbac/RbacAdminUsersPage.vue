@@ -212,8 +212,8 @@
     </div>
 
     <Teleport to="body">
-      <div v-if="showCreateDialog" class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/40 p-4">
-        <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+      <div v-if="showCreateDialog" class="modal modal-open">
+        <div class="modal-box w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
           <div class="flex items-start justify-between gap-3">
             <div>
               <div class="text-sm font-semibold text-slate-900">新建后台用户</div>
@@ -279,6 +279,9 @@
             </button>
           </div>
         </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="closeCreateDialog">close</button>
+        </form>
       </div>
     </Teleport>
   </div>

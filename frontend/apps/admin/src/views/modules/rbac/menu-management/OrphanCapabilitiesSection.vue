@@ -19,7 +19,7 @@
               placeholder="搜索…"
               class="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
             />
-            <button type="button" class="mt-2 w-full rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700" @click="startCreate">
+            <button type="button" class="mt-2 w-full rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-700" @click="openCreateDialog">
               ＋ 新建
             </button>
           </div>
@@ -42,11 +42,11 @@
 
       <div class="lg:col-span-8 space-y-4">
         <div v-if="!selected && !creating" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-16 text-center text-sm text-slate-500">
-          请选择左侧一项，或新建
+          请选择左侧一项进行编辑
         </div>
         <template v-else>
           <div class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-            <div class="text-sm font-semibold text-slate-900">{{ creating ? '新建能力' : '编辑能力' }}</div>
+            <div class="text-sm font-semibold text-slate-900">编辑能力</div>
             <p class="mt-1 text-xs text-slate-500">不绑定侧栏菜单的 perm_key，供接口规则与角色授权引用。</p>
             <div class="mt-4 grid gap-3 sm:grid-cols-2">
               <label class="grid gap-1 text-xs font-medium text-slate-600 sm:col-span-2">
@@ -55,7 +55,7 @@
                   v-model.trim="form.perm_key"
                   type="text"
                   class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
-                  :disabled="!creating"
+                  :disabled="true"
                 />
               </label>
               <label class="grid gap-1 text-xs font-medium text-slate-600">
@@ -81,7 +81,7 @@
                 :disabled="saving"
                 @click="savePerm"
               >
-                {{ saving ? '保存中…' : creating ? '创建' : '保存' }}
+                {{ saving ? '保存中…' : '保存' }}
               </button>
               <button
                 v-if="!creating && selected"
@@ -153,11 +153,80 @@
         </template>
       </div>
     </div>
+
+    <Teleport to="body">
+      <div v-if="showCreateDialog" class="modal modal-open">
+        <div class="modal-box w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-slate-900">新建能力</div>
+              <div class="mt-1 text-xs text-slate-500">创建未绑定侧栏菜单的权限点（menu_key 为空）。</div>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              :disabled="saving"
+              @click="closeCreateDialog"
+            >
+              关闭
+            </button>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <label class="grid gap-1 text-xs font-medium text-slate-600 sm:col-span-2">
+              perm_key（唯一）
+              <input
+                v-model.trim="form.perm_key"
+                type="text"
+                class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              名称
+              <input v-model.trim="form.label" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              内部分类（可选）
+              <input v-model.trim="form.category" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              状态
+              <select v-model.number="form.status" class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                <option :value="1">启用</option>
+                <option :value="0">停用</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              :disabled="saving"
+              @click="closeCreateDialog"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="saving || !form.perm_key.trim() || !form.label.trim()"
+              @click="savePerm"
+            >
+              {{ saving ? '创建中…' : '创建能力' }}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="closeCreateDialog">close</button>
+        </form>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, Teleport } from 'vue'
 
 import { useUiDialog } from '../../../../composables/useUiDialog'
 import { useUiToast } from '../../../../composables/useUiToast'
@@ -174,6 +243,7 @@ const permissions = ref<AdminPermission[]>([])
 const apiRules = ref<ApiRule[]>([])
 const selected = ref<AdminPermission | null>(null)
 const creating = ref(false)
+const showCreateDialog = ref(false)
 
 const form = reactive({
   id: 0,
@@ -231,6 +301,16 @@ function startCreate() {
   form.status = 1
 }
 
+function openCreateDialog() {
+  startCreate()
+  showCreateDialog.value = true
+}
+
+function closeCreateDialog() {
+  showCreateDialog.value = false
+  creating.value = false
+}
+
 async function load() {
   loading.value = true
   error.value = ''
@@ -273,6 +353,7 @@ async function savePerm() {
     }
     await load()
     creating.value = false
+    showCreateDialog.value = false
     const p = permissions.value.find((x) => x.perm_key === form.perm_key.trim())
     if (p) select(p)
     else selected.value = null

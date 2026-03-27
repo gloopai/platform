@@ -14,22 +14,10 @@
               type="button"
               class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
               :disabled="saving"
-              @click="createRole"
+              @click="openCreateRoleDialog"
             >
               新建
             </button>
-          </div>
-          <div class="p-4">
-            <div class="grid gap-2">
-              <label class="grid gap-1 text-xs font-medium text-slate-600">
-                角色编码（唯一）
-                <input v-model.trim="newRoleCode" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
-              </label>
-              <label class="grid gap-1 text-xs font-medium text-slate-600">
-                角色名称
-                <input v-model.trim="newRoleName" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
-              </label>
-            </div>
           </div>
           <div class="border-t border-slate-100">
             <div v-if="loading" class="px-4 py-10 text-center text-sm text-slate-500">加载中…</div>
@@ -269,6 +257,60 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="body">
+      <div v-if="showCreateRoleDialog" class="modal modal-open">
+        <div class="modal-box w-11/12 max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold text-slate-900">新建角色</div>
+              <div class="mt-1 text-xs text-slate-500">创建后可在右侧继续编辑角色信息并配置菜单与权限点。</div>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              :disabled="saving"
+              @click="closeCreateRoleDialog"
+            >
+              关闭
+            </button>
+          </div>
+
+          <div class="mt-4 grid gap-3">
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              角色编码（唯一）
+              <input v-model.trim="newRoleCode" type="text" class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm" />
+            </label>
+            <label class="grid gap-1 text-xs font-medium text-slate-600">
+              角色名称
+              <input v-model.trim="newRoleName" type="text" class="rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+            </label>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              :disabled="saving"
+              @click="closeCreateRoleDialog"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="saving || !newRoleCode.trim() || !newRoleName.trim()"
+              @click="createRole"
+            >
+              {{ saving ? '创建中…' : '创建角色' }}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="closeCreateRoleDialog">close</button>
+        </form>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -324,6 +366,7 @@ const selectedPermKeys = ref<string[]>([])
 
 const newRoleCode = ref('')
 const newRoleName = ref('')
+const showCreateRoleDialog = ref(false)
 
 const editRoleName = ref('')
 const editRoleStatus = ref(1)
@@ -558,8 +601,7 @@ async function createRole() {
   try {
     const resp = await adminPost<{ role: AdminRole }>('/v1/admin/rbac/roles', { code, name, status: 1 })
     const newId = resp.role?.id || 0
-    newRoleCode.value = ''
-    newRoleName.value = ''
+    closeCreateRoleDialog()
     await load(newId > 0 ? newId : undefined)
     toast.success('角色已创建')
   } catch (e) {
@@ -569,6 +611,16 @@ async function createRole() {
   } finally {
     saving.value = false
   }
+}
+
+function openCreateRoleDialog() {
+  showCreateRoleDialog.value = true
+}
+
+function closeCreateRoleDialog() {
+  showCreateRoleDialog.value = false
+  newRoleCode.value = ''
+  newRoleName.value = ''
 }
 
 async function deleteRole() {
