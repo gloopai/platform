@@ -31,8 +31,6 @@ message MerchantInfo {
   string merchant_id = 1;
   string app_secret = 2;
   int64 status = 3;
-  int64 default_payin_rate_bps = 4;
-  int64 default_payout_rate_bps = 5;
   string ip_whitelist = 6;
   int64 balance = 7;
   int64 frozen_balance = 8;
@@ -70,8 +68,6 @@ message GetAuthInfoResp {
   string notify_url = 4;
   string return_url = 5;
   int64 balance = 6;
-  int64 default_payin_rate_bps = 7;
-  int64 default_payout_rate_bps = 8;
   int64 payin_balance = 9;
   int64 available_balance = 10;
   string merchant_id = 11;
@@ -92,8 +88,6 @@ message CreateMerchantReq {
   string merchant_id = 1;
   string app_secret = 2;
   int64 status = 3;
-  int64 default_payin_rate_bps = 4;
-  int64 default_payout_rate_bps = 5;
   string notify_url = 6;
   string return_url = 7;
   string ip_whitelist = 8;
@@ -108,8 +102,6 @@ message UpdateMerchantReq {
   string merchant_id = 1;
   string app_secret = 2;
   int64 status = 3;
-  int64 default_payin_rate_bps = 4;
-  int64 default_payout_rate_bps = 5;
   string notify_url = 6;
   string return_url = 7;
   string ip_whitelist = 8;

@@ -16,8 +16,6 @@ export type AdminMerchantInfo = {
   email: string
   app_secret: string
   status: number
-  default_payin_rate_bps: number
-  default_payout_rate_bps: number
   notify_url: string
   return_url: string
   ip_whitelist: string

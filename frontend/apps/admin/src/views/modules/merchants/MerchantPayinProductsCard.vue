@@ -1,86 +1,94 @@
 <template>
-  <div
-    class="w-full bg-white p-6"
-    :class="embedded ? '' : 'rounded-2xl border border-slate-200 shadow-sm'"
-  >
+  <div class="w-full" :class="embedded ? '' : 'rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm'">
     <template v-if="!embedded">
-      <div class="text-sm font-semibold text-slate-900">支付产品绑定</div>
-      <p class="mt-1 text-xs text-slate-500">勾选开放给该商户收银台使用的支付产品；未绑定则收银台无可用支付方式。</p>
+      <div class="text-xs font-semibold text-slate-900">支付产品绑定</div>
+      <p class="mt-0.5 text-[11px] text-slate-500">开放给该商户收银台的代收产品；未绑定则无可用支付方式。</p>
     </template>
-    <p v-else class="text-xs text-slate-500">以下为该商户收银台可见的支付产品；未绑定则收银台无可用支付方式。</p>
+    <p v-else class="text-[11px] leading-snug text-slate-500">
+      收银台可见的代收产品；费率单位为 bps（万分比）。
+    </p>
 
-    <div v-if="loading" class="mt-4 text-sm text-slate-500">加载...</div>
-    <div v-else class="mt-4 max-h-72 overflow-auto rounded-lg border border-slate-100">
-      <table class="min-w-full text-left text-sm">
-        <thead class="sticky top-0 z-10 border-b border-slate-200 bg-white text-xs text-slate-500 shadow-sm">
-          <tr>
-            <th class="py-2 pr-3">产品</th>
-            <th class="py-2 pr-3">编码</th>
-            <th class="py-2 pr-3">费率(bps)</th>
-            <th class="sticky right-0 z-20 bg-white py-2">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in boundRows" :key="row.id" class="border-b border-slate-100">
-            <td class="py-2 pr-3 font-medium text-slate-900">{{ row.name }}</td>
-            <td class="py-2 pr-3 font-mono text-xs text-slate-600">{{ row.code }}</td>
-            <td class="py-2 pr-3">
-              <input
-                v-model.number="row.merchant_rate_bps"
-                type="number"
-                min="0"
-                class="w-24 rounded-md border border-slate-200 px-2 py-1 text-xs"
-                :disabled="saving"
-                @change="emitUpdate(row)"
-              />
-            </td>
-            <td class="sticky right-0 z-10 bg-white py-2">
+    <div v-if="loading" class="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50 py-6 text-center text-[11px] text-slate-500">
+      加载中…
+    </div>
+    <div v-else class="mt-3">
+      <div
+        v-if="boundRows.length"
+        class="custom-scrollbar max-h-72 space-y-2 overflow-y-auto pr-0.5"
+      >
+        <div
+          v-for="row in boundRows"
+          :key="row.id"
+          class="rounded-lg border border-slate-200/90 bg-slate-50/40 px-3 py-2.5 transition hover:border-slate-300/90"
+        >
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+              <div class="text-sm font-semibold text-slate-900">{{ row.name }}</div>
+              <div class="mt-0.5 inline-flex items-center gap-1.5">
+                <span class="rounded bg-slate-200/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-slate-700">
+                  {{ row.code }}
+                </span>
+              </div>
+            </div>
+            <div class="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+              <label class="flex items-center gap-1.5">
+                <span class="whitespace-nowrap text-[11px] text-slate-500">费率</span>
+                <input
+                  v-model.number="row.merchant_rate_bps"
+                  type="number"
+                  min="0"
+                  class="w-[4.5rem] rounded-md border border-slate-200 bg-white px-2 py-1 text-center font-mono text-xs tabular-nums text-slate-900"
+                  :disabled="saving"
+                  @change="emitUpdate(row)"
+                />
+                <span class="text-[11px] text-slate-400">bps</span>
+              </label>
               <button
                 type="button"
-                class="text-xs font-semibold text-rose-700 underline disabled:opacity-40"
+                class="rounded-md border border-rose-200/90 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-800 transition hover:bg-rose-100 disabled:opacity-40"
                 :disabled="saving"
                 @click="$emit('remove', row.id)"
               >
                 移除
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <div
-        v-if="!boundRows.length"
-        class="px-3 py-6 text-center text-sm text-slate-500"
+        v-else
+        class="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 py-8 text-center text-[11px] text-slate-500"
       >
-        尚未绑定任何支付产品
+        尚未绑定任何代收产品
       </div>
     </div>
 
-    <div class="mt-6 rounded-xl border border-dashed border-slate-200 p-4">
-      <div class="text-xs font-semibold text-slate-600">新增绑定</div>
-      <p class="mt-1 text-[11px] text-slate-500">仅显示未绑定的产品。</p>
-      <div class="mt-3 flex flex-wrap items-end gap-3">
-        <label class="grid min-w-[200px] flex-1 gap-1">
-          <span class="text-xs text-slate-500">支付产品</span>
+    <div class="mt-3 rounded-xl border border-slate-200/90 bg-slate-50/40 p-3">
+      <div class="text-[11px] font-semibold text-slate-800">新增绑定</div>
+      <p class="mt-0.5 text-[10px] text-slate-500">仅列出未绑定的产品。</p>
+      <div class="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-end">
+        <label class="min-w-0 flex-1 grid gap-0.5">
+          <span class="text-[11px] font-medium text-slate-600">支付产品</span>
           <select
             v-model.number="localPick"
-            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
+            class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm"
           >
             <option :value="0">请选择</option>
-            <option v-for="p in availableToAdd" :key="p.id" :value="p.id">
-              {{ p.code }} — {{ p.name }}
-            </option>
+            <option v-for="p in availableToAdd" :key="p.id" :value="p.id">{{ p.code }} — {{ p.name }}</option>
           </select>
         </label>
         <button
           type="button"
-          class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:opacity-40"
+          class="shrink-0 rounded-md bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-40"
           :disabled="saving || localPick <= 0"
           @click="emitAdd"
         >
-          {{ saving ? '提交...' : '添加' }}
+          {{ saving ? '提交…' : '添加' }}
         </button>
       </div>
-      <div v-if="bindError" class="mt-3 text-sm text-rose-700">{{ bindError }}</div>
+      <div v-if="bindError" class="mt-2 rounded-md border border-rose-200 bg-rose-50 px-2 py-1.5 text-[11px] text-rose-800">
+        {{ bindError }}
+      </div>
     </div>
   </div>
 </template>
@@ -150,3 +158,17 @@ function emitUpdate(row: { id: number; merchant_rate_bps: number }) {
   })
 }
 </script>
+
+<style scoped>
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgb(203 213 225);
+}
+</style>

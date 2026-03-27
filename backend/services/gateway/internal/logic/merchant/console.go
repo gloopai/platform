@@ -83,14 +83,12 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}
 	updated, err := c.svcCtx.MerchantRpc.UpdateMerchant(c.ctx, &merchantclient.UpdateMerchantReq{
-		MerchantId:           merchantId,
-		AppSecret:            m.GetAppSecret(),
-		Status:               m.GetStatus(),
-		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
-		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
-		NotifyUrl:            strings.TrimSpace(req.NotifyUrl),
-		ReturnUrl:            m.GetReturnUrl(),
-		IpWhitelist:          strings.TrimSpace(req.IpWhitelist),
+		MerchantId:  merchantId,
+		AppSecret:   m.GetAppSecret(),
+		Status:      m.GetStatus(),
+		NotifyUrl:   strings.TrimSpace(req.NotifyUrl),
+		ReturnUrl:   m.GetReturnUrl(),
+		IpWhitelist: strings.TrimSpace(req.IpWhitelist),
 	})
 	if err != nil {
 		return nil, err

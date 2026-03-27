@@ -2,9 +2,14 @@ package store
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"gorm.io/gorm"
 )
+
+const globalKeyMerchantNumericIDStart = "merchant_numeric_id_start"
 
 type Merchant struct {
 	ID                   int64
@@ -13,10 +18,8 @@ type Merchant struct {
 	Email                string
 	AppSecret            string
 	PasswordHash         string
-	Status               int64
-	DefaultPayinRateBps  int64
-	DefaultPayoutRateBps int64
-	IpWhitelist          string
+	Status       int64
+	IpWhitelist  string
 	PayinBalance         int64
 	AvailableBalance     int64
 	FrozenBalance        int64
@@ -45,8 +48,6 @@ email,
 api_secret AS app_secret,
 password_hash,
 status,
-default_payin_rate_bps,
-default_payout_rate_bps,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
 COALESCE(payin_balance, 0) AS payin_balance,
 COALESCE(available_balance, 0) AS available_balance,
@@ -75,8 +76,6 @@ email,
 api_secret AS app_secret,
 password_hash,
 status,
-default_payin_rate_bps,
-default_payout_rate_bps,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
 COALESCE(payin_balance, 0) AS payin_balance,
 COALESCE(available_balance, 0) AS available_balance,
@@ -105,8 +104,6 @@ email,
 api_secret AS app_secret,
 password_hash,
 status,
-default_payin_rate_bps,
-default_payout_rate_bps,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
 COALESCE(payin_balance, 0) AS payin_balance,
 COALESCE(available_balance, 0) AS available_balance,
@@ -129,7 +126,7 @@ func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]Merchant, err
 	}
 	var out []Merchant
 	if err := s.db.WithContext(ctx).Raw(`
-SELECT id, merchant_id, app_id, email, api_secret AS app_secret, password_hash, status, default_payin_rate_bps, default_payout_rate_bps,
+SELECT id, merchant_id, app_id, email, api_secret AS app_secret, password_hash, status,
        COALESCE(ip_whitelist,'') AS ip_whitelist,
        COALESCE(payin_balance, 0) AS payin_balance,
        COALESCE(available_balance, 0) AS available_balance,
@@ -146,19 +143,66 @@ LIMIT ?
 	return out, nil
 }
 
+// GetMerchantNumericIDFloor 从 global_settings 读取新建商户数字 ID 下限（含）；缺省或非法为 1。
+func (s *MerchantsStore) GetMerchantNumericIDFloor(ctx context.Context) (int64, error) {
+	var v string
+	if err := s.db.WithContext(ctx).Raw(`
+SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1
+`, globalKeyMerchantNumericIDStart).Scan(&v).Error; err != nil {
+		return 1, err
+	}
+	if strings.TrimSpace(v) == "" {
+		return 1, nil
+	}
+	n, err := strconv.ParseInt(strings.TrimSpace(v), 10, 64)
+	if err != nil || n < 1 {
+		return 1, nil
+	}
+	if n > 9999999999 {
+		return 9999999999, nil
+	}
+	return n, nil
+}
+
+// AllocNextMerchantNumericID 原子取下一个数字商户号；实际值为 max(上一值+1, floor)，floor 来自系统配置「起始号」。
+func (s *MerchantsStore) AllocNextMerchantNumericID(ctx context.Context, floor int64) (int64, error) {
+	if floor < 1 {
+		floor = 1
+	}
+	if floor > 9999999999 {
+		floor = 9999999999
+	}
+	var n int64
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		res := tx.Exec(`
+UPDATE merchant_numeric_seq
+SET next_id = LAST_INSERT_ID(GREATEST(next_id + 1, ?))
+WHERE slot = 1
+`, floor)
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected != 1 {
+			return fmt.Errorf("merchant_numeric_seq missing or not updated (need slot=1 row)")
+		}
+		return tx.Raw(`SELECT LAST_INSERT_ID()`).Scan(&n).Error
+	})
+	return n, err
+}
+
 func (s *MerchantsStore) Create(ctx context.Context, m *Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
-INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, default_payin_rate_bps, default_payout_rate_bps, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.DefaultPayinRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl).Error
+INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl).Error
 }
 
 func (s *MerchantsStore) UpdateByMerchantId(ctx context.Context, merchantId string, m *Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
 UPDATE merchants
-SET api_secret = ?, password_hash = ?, status = ?, default_payin_rate_bps = ?, default_payout_rate_bps = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, updated_at = NOW()
+SET api_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, updated_at = NOW()
 WHERE merchant_id = ?
-`, m.AppSecret, m.PasswordHash, m.Status, m.DefaultPayinRateBps, m.DefaultPayoutRateBps, m.IpWhitelist, m.NotifyUrl, m.ReturnUrl, merchantId).Error
+`, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.NotifyUrl, m.ReturnUrl, merchantId).Error
 }
 
 func (s *MerchantsStore) UpdatePasswordByMerchantId(ctx context.Context, merchantId string, passwordHash string) error {

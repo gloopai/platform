@@ -86,6 +86,8 @@ message GetDisplaySettingsResp {
   string currency_symbol = 3;
   double fiat_to_usdt_rate = 4;
   int64 admin_mfa_enabled = 5;
+  // 新建商户自动分配的数字型 merchant_id 起始值（含），1～9999999999；与序列表联用取 max(已发号+1, 起始值)
+  int64 merchant_numeric_id_start = 6;
 }
 
 message UpsertDisplaySettingsReq {
@@ -94,6 +96,7 @@ message UpsertDisplaySettingsReq {
   string currency_symbol = 3;
   double fiat_to_usdt_rate = 4;
   int64 admin_mfa_enabled = 5;
+  int64 merchant_numeric_id_start = 6;
 }
 
 message MarkPayoutSuccessReq {

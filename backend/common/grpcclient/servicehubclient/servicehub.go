@@ -34,7 +34,7 @@ type ServiceHub interface {
 	FindAdminUserByUsername(ctx context.Context, username string) (*AdminUser, error)
 	ListAdminUsers(ctx context.Context) ([]*AdminUserPublic, error)
 	GetDisplaySettings(ctx context.Context) (*GetDisplaySettingsResp, error)
-	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64) error
+	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64, merchantNumericIDStart int64) error
 	MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error)
 	MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error)
 
@@ -110,13 +110,14 @@ func (d *defaultClient) GetDisplaySettings(ctx context.Context) (*GetDisplaySett
 	return d.cli.GetDisplaySettings(ctx, &servicehub.GetDisplaySettingsReq{})
 }
 
-func (d *defaultClient) UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64) error {
+func (d *defaultClient) UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64, merchantNumericIDStart int64) error {
 	_, err := d.cli.UpsertDisplaySettings(ctx, &servicehub.UpsertDisplaySettingsReq{
-		CountryCode:     country,
-		CurrencyCode:    currency,
-		CurrencySymbol:  symbol,
-		FiatToUsdtRate:  fiatToUsdtRate,
-		AdminMfaEnabled: adminMfaEnabled,
+		CountryCode:            country,
+		CurrencyCode:           currency,
+		CurrencySymbol:         symbol,
+		FiatToUsdtRate:         fiatToUsdtRate,
+		AdminMfaEnabled:        adminMfaEnabled,
+		MerchantNumericIdStart: merchantNumericIDStart,
 	})
 	return err
 }

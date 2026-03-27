@@ -11,6 +11,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -98,23 +99,21 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 	}
 	ipWhitelist, withdrawUsdtAddress := splitMerchantConfigIPWhitelist(m.GetIpWhitelist())
 	return types.AdminMerchantInfo{
-		MerchantId:           m.GetMerchantId(),
-		AppId:                m.GetAppId(),
-		Email:                m.GetEmail(),
-		AppSecret:            m.GetAppSecret(),
-		Status:               m.GetStatus(),
-		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
-		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
-		NotifyUrl:            m.GetNotifyUrl(),
-		ReturnUrl:            m.GetReturnUrl(),
-		IpWhitelist:          ipWhitelist,
-		WithdrawUsdtAddress:  withdrawUsdtAddress,
-		PayinBalance:         m.GetPayinBalance(),
-		AvailableBalance:     m.GetAvailableBalance(),
-		PayinProductIds:      m.GetPayinProductIds(),
-		PayoutProductIds:     m.GetPayoutProductIds(),
-		PayinGrants:          cg,
-		PayoutGrants:         pg,
+		MerchantId:          m.GetMerchantId(),
+		AppId:               m.GetAppId(),
+		Email:               m.GetEmail(),
+		AppSecret:           m.GetAppSecret(),
+		Status:              m.GetStatus(),
+		NotifyUrl:           m.GetNotifyUrl(),
+		ReturnUrl:           m.GetReturnUrl(),
+		IpWhitelist:         ipWhitelist,
+		WithdrawUsdtAddress: withdrawUsdtAddress,
+		PayinBalance:        m.GetPayinBalance(),
+		AvailableBalance:    m.GetAvailableBalance(),
+		PayinProductIds:     m.GetPayinProductIds(),
+		PayoutProductIds:    m.GetPayoutProductIds(),
+		PayinGrants:         cg,
+		PayoutGrants:        pg,
 	}
 }
 
@@ -153,20 +152,30 @@ func (m *AdminMerchants) AdminListMerchants() (*types.AdminListMerchantsResp, er
 	return &types.AdminListMerchantsResp{Merchants: out}, nil
 }
 
+func (m *AdminMerchants) AdminMerchantEmailAvailable(req *types.AdminMerchantEmailAvailableReq) (*types.AdminMerchantEmailAvailableResp, error) {
+	email := strings.TrimSpace(strings.ToLower(req.Email))
+	if email == "" {
+		return nil, status.Error(codes.InvalidArgument, "email required")
+	}
+	_, err := m.svcCtx.MerchantRpc.GetAuthInfo(m.ctx, &merchantclient.GetAuthInfoReq{Email: email})
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return &types.AdminMerchantEmailAvailableResp{Available: true}, nil
+		}
+		return nil, err
+	}
+	return &types.AdminMerchantEmailAvailableResp{Available: false}, nil
+}
+
 func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) (*types.AdminUpsertMerchantResp, error) {
 	merchantId := strings.TrimSpace(req.MerchantId)
-	if merchantId == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
-	}
 	email := strings.TrimSpace(strings.ToLower(req.Email))
 	if email == "" {
 		return nil, status.Error(codes.InvalidArgument, "email required")
 	}
 
-	appID, err := newAppID()
-	if err != nil {
-		return nil, err
-	}
+	appID := uuid.NewString()
+	appSecret := uuid.NewString()
 	password, err := newMerchantPassword()
 	if err != nil {
 		return nil, err
@@ -176,18 +185,17 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 		return nil, err
 	}
 	r, err := m.svcCtx.MerchantRpc.CreateMerchant(m.ctx, &merchantclient.CreateMerchantReq{
-		MerchantId:           merchantId,
-		AppId:                appID,
-		Email:                email,
-		PasswordHash:         string(passwordHash),
-		Status:               1,
-		DefaultPayinRateBps:  req.DefaultPayinRateBps,
-		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
-		NotifyUrl:            req.NotifyUrl,
-		ReturnUrl:            req.ReturnUrl,
-		IpWhitelist:          mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
-		PayinProductIds:      req.PayinProductIds,
-		PayoutProductIds:     req.PayoutProductIds,
+		MerchantId:       merchantId,
+		AppId:            appID,
+		AppSecret:        appSecret,
+		Email:            email,
+		PasswordHash:     string(passwordHash),
+		Status:           1,
+		NotifyUrl:        req.NotifyUrl,
+		ReturnUrl:        req.ReturnUrl,
+		IpWhitelist:      mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
+		PayinProductIds:  req.PayinProductIds,
+		PayoutProductIds: req.PayoutProductIds,
 	})
 	if err != nil {
 		return nil, err
@@ -228,15 +236,13 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		generatedPassword = pwd
 	}
 	r, err := m.svcCtx.MerchantRpc.UpdateMerchant(m.ctx, &merchantclient.UpdateMerchantReq{
-		MerchantId:           merchantId,
-		AppSecret:            secret,
-		PasswordHash:         passwordHash,
-		Status:               req.Status,
-		DefaultPayinRateBps:  req.DefaultPayinRateBps,
-		DefaultPayoutRateBps: req.DefaultPayoutRateBps,
-		NotifyUrl:            req.NotifyUrl,
-		ReturnUrl:            req.ReturnUrl,
-		IpWhitelist:          mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
+		MerchantId:   merchantId,
+		AppSecret:    secret,
+		PasswordHash: passwordHash,
+		Status:       req.Status,
+		NotifyUrl:    req.NotifyUrl,
+		ReturnUrl:    req.ReturnUrl,
+		IpWhitelist:  mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
 	})
 	if err != nil {
 		return nil, err
@@ -368,17 +374,6 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		mi.PayoutGrants = append(mi.PayoutGrants, row)
 	}
 	return &types.AdminUpsertMerchantResp{Merchant: mi, GeneratedPassword: generatedPassword}, nil
-}
-
-func newAppID() (string, error) {
-	tok, err := shared.NewToken()
-	if err != nil {
-		return "", err
-	}
-	if len(tok) > 16 {
-		tok = tok[:16]
-	}
-	return fmt.Sprintf("app_%s", tok), nil
 }
 
 func newMerchantPassword() (string, error) {

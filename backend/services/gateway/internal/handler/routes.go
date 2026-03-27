@@ -221,6 +221,11 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: adminhandler.AdminListMerchantsHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/merchants/email_available",
+					Handler: adminhandler.AdminMerchantEmailAvailableHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodPost,
 					Path:    "/v1/admin/merchants",
 					Handler: adminhandler.AdminCreateMerchantHandler(serverCtx),

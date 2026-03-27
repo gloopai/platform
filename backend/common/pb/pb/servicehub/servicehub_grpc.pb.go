@@ -31,10 +31,27 @@ const (
 	ServiceHub_UpdateAdminRole_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminRole"
 	ServiceHub_DeleteAdminRole_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminRole"
 	ServiceHub_ListAdminMenus_FullMethodName          = "/servicehub.ServiceHub/ListAdminMenus"
+	ServiceHub_CreateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/CreateAdminMenu"
+	ServiceHub_UpdateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminMenu"
+	ServiceHub_DeleteAdminMenu_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminMenu"
 	ServiceHub_GetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRoleMenus"
 	ServiceHub_SetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/SetAdminRoleMenus"
 	ServiceHub_GetAdminUserRoles_FullMethodName       = "/servicehub.ServiceHub/GetAdminUserRoles"
 	ServiceHub_SetAdminUserRoles_FullMethodName       = "/servicehub.ServiceHub/SetAdminUserRoles"
+	ServiceHub_GetAdminRbacMyPerms_FullMethodName     = "/servicehub.ServiceHub/GetAdminRbacMyPerms"
+	ServiceHub_ListAdminPermissions_FullMethodName    = "/servicehub.ServiceHub/ListAdminPermissions"
+	ServiceHub_CreateAdminPermission_FullMethodName   = "/servicehub.ServiceHub/CreateAdminPermission"
+	ServiceHub_UpdateAdminPermission_FullMethodName   = "/servicehub.ServiceHub/UpdateAdminPermission"
+	ServiceHub_DeleteAdminPermission_FullMethodName   = "/servicehub.ServiceHub/DeleteAdminPermission"
+	ServiceHub_GetAdminRolePermKeys_FullMethodName    = "/servicehub.ServiceHub/GetAdminRolePermKeys"
+	ServiceHub_SetAdminRolePermKeys_FullMethodName    = "/servicehub.ServiceHub/SetAdminRolePermKeys"
+	ServiceHub_ListAdminApiRules_FullMethodName       = "/servicehub.ServiceHub/ListAdminApiRules"
+	ServiceHub_UpsertAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/UpsertAdminApiRule"
+	ServiceHub_DeleteAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/DeleteAdminApiRule"
+	ServiceHub_CreateAdminUser_FullMethodName         = "/servicehub.ServiceHub/CreateAdminUser"
+	ServiceHub_UpdateAdminUser_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminUser"
+	ServiceHub_DeleteAdminUser_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminUser"
+	ServiceHub_GetAdminUserById_FullMethodName        = "/servicehub.ServiceHub/GetAdminUserById"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
@@ -56,10 +73,30 @@ type ServiceHubClient interface {
 	UpdateAdminRole(ctx context.Context, in *UpdateAdminRoleReq, opts ...grpc.CallOption) (*UpdateAdminRoleResp, error)
 	DeleteAdminRole(ctx context.Context, in *DeleteAdminRoleReq, opts ...grpc.CallOption) (*DeleteAdminRoleResp, error)
 	ListAdminMenus(ctx context.Context, in *ListAdminMenusReq, opts ...grpc.CallOption) (*ListAdminMenusResp, error)
+	CreateAdminMenu(ctx context.Context, in *CreateAdminMenuReq, opts ...grpc.CallOption) (*CreateAdminMenuResp, error)
+	UpdateAdminMenu(ctx context.Context, in *UpdateAdminMenuReq, opts ...grpc.CallOption) (*UpdateAdminMenuResp, error)
+	DeleteAdminMenu(ctx context.Context, in *DeleteAdminMenuReq, opts ...grpc.CallOption) (*DeleteAdminMenuResp, error)
 	GetAdminRoleMenus(ctx context.Context, in *GetAdminRoleMenusReq, opts ...grpc.CallOption) (*GetAdminRoleMenusResp, error)
 	SetAdminRoleMenus(ctx context.Context, in *SetAdminRoleMenusReq, opts ...grpc.CallOption) (*SetAdminRoleMenusResp, error)
 	GetAdminUserRoles(ctx context.Context, in *GetAdminUserRolesReq, opts ...grpc.CallOption) (*GetAdminUserRolesResp, error)
 	SetAdminUserRoles(ctx context.Context, in *SetAdminUserRolesReq, opts ...grpc.CallOption) (*SetAdminUserRolesResp, error)
+	// ---- Admin RBAC permissions (action-level) ----
+	GetAdminRbacMyPerms(ctx context.Context, in *GetAdminRbacMyPermsReq, opts ...grpc.CallOption) (*GetAdminRbacMyPermsResp, error)
+	// ---- Admin RBAC config (UI-managed) ----
+	ListAdminPermissions(ctx context.Context, in *ListAdminPermissionsReq, opts ...grpc.CallOption) (*ListAdminPermissionsResp, error)
+	CreateAdminPermission(ctx context.Context, in *CreateAdminPermissionReq, opts ...grpc.CallOption) (*CreateAdminPermissionResp, error)
+	UpdateAdminPermission(ctx context.Context, in *UpdateAdminPermissionReq, opts ...grpc.CallOption) (*UpdateAdminPermissionResp, error)
+	DeleteAdminPermission(ctx context.Context, in *DeleteAdminPermissionReq, opts ...grpc.CallOption) (*DeleteAdminPermissionResp, error)
+	GetAdminRolePermKeys(ctx context.Context, in *GetAdminRolePermKeysReq, opts ...grpc.CallOption) (*GetAdminRolePermKeysResp, error)
+	SetAdminRolePermKeys(ctx context.Context, in *SetAdminRolePermKeysReq, opts ...grpc.CallOption) (*SetAdminRolePermKeysResp, error)
+	ListAdminApiRules(ctx context.Context, in *ListAdminApiRulesReq, opts ...grpc.CallOption) (*ListAdminApiRulesResp, error)
+	UpsertAdminApiRule(ctx context.Context, in *UpsertAdminApiRuleReq, opts ...grpc.CallOption) (*UpsertAdminApiRuleResp, error)
+	DeleteAdminApiRule(ctx context.Context, in *DeleteAdminApiRuleReq, opts ...grpc.CallOption) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
+	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error)
+	GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error)
 }
 
 type serviceHubClient struct {
@@ -190,6 +227,36 @@ func (c *serviceHubClient) ListAdminMenus(ctx context.Context, in *ListAdminMenu
 	return out, nil
 }
 
+func (c *serviceHubClient) CreateAdminMenu(ctx context.Context, in *CreateAdminMenuReq, opts ...grpc.CallOption) (*CreateAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminMenu(ctx context.Context, in *UpdateAdminMenuReq, opts ...grpc.CallOption) (*UpdateAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminMenu(ctx context.Context, in *DeleteAdminMenuReq, opts ...grpc.CallOption) (*DeleteAdminMenuResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminMenuResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceHubClient) GetAdminRoleMenus(ctx context.Context, in *GetAdminRoleMenusReq, opts ...grpc.CallOption) (*GetAdminRoleMenusResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAdminRoleMenusResp)
@@ -230,6 +297,146 @@ func (c *serviceHubClient) SetAdminUserRoles(ctx context.Context, in *SetAdminUs
 	return out, nil
 }
 
+func (c *serviceHubClient) GetAdminRbacMyPerms(ctx context.Context, in *GetAdminRbacMyPermsReq, opts ...grpc.CallOption) (*GetAdminRbacMyPermsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminRbacMyPermsResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetAdminRbacMyPerms_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListAdminPermissions(ctx context.Context, in *ListAdminPermissionsReq, opts ...grpc.CallOption) (*ListAdminPermissionsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAdminPermissionsResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListAdminPermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) CreateAdminPermission(ctx context.Context, in *CreateAdminPermissionReq, opts ...grpc.CallOption) (*CreateAdminPermissionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminPermissionResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminPermission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminPermission(ctx context.Context, in *UpdateAdminPermissionReq, opts ...grpc.CallOption) (*UpdateAdminPermissionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminPermissionResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminPermission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminPermission(ctx context.Context, in *DeleteAdminPermissionReq, opts ...grpc.CallOption) (*DeleteAdminPermissionResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminPermissionResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminPermission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) GetAdminRolePermKeys(ctx context.Context, in *GetAdminRolePermKeysReq, opts ...grpc.CallOption) (*GetAdminRolePermKeysResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminRolePermKeysResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetAdminRolePermKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) SetAdminRolePermKeys(ctx context.Context, in *SetAdminRolePermKeysReq, opts ...grpc.CallOption) (*SetAdminRolePermKeysResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetAdminRolePermKeysResp)
+	err := c.cc.Invoke(ctx, ServiceHub_SetAdminRolePermKeys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListAdminApiRules(ctx context.Context, in *ListAdminApiRulesReq, opts ...grpc.CallOption) (*ListAdminApiRulesResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAdminApiRulesResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListAdminApiRules_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpsertAdminApiRule(ctx context.Context, in *UpsertAdminApiRuleReq, opts ...grpc.CallOption) (*UpsertAdminApiRuleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpsertAdminApiRuleResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpsertAdminApiRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminApiRule(ctx context.Context, in *DeleteAdminApiRuleReq, opts ...grpc.CallOption) (*DeleteAdminApiRuleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminApiRuleResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminApiRule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminUserByIdResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetAdminUserById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceHubServer is the server API for ServiceHub service.
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
@@ -249,10 +456,30 @@ type ServiceHubServer interface {
 	UpdateAdminRole(context.Context, *UpdateAdminRoleReq) (*UpdateAdminRoleResp, error)
 	DeleteAdminRole(context.Context, *DeleteAdminRoleReq) (*DeleteAdminRoleResp, error)
 	ListAdminMenus(context.Context, *ListAdminMenusReq) (*ListAdminMenusResp, error)
+	CreateAdminMenu(context.Context, *CreateAdminMenuReq) (*CreateAdminMenuResp, error)
+	UpdateAdminMenu(context.Context, *UpdateAdminMenuReq) (*UpdateAdminMenuResp, error)
+	DeleteAdminMenu(context.Context, *DeleteAdminMenuReq) (*DeleteAdminMenuResp, error)
 	GetAdminRoleMenus(context.Context, *GetAdminRoleMenusReq) (*GetAdminRoleMenusResp, error)
 	SetAdminRoleMenus(context.Context, *SetAdminRoleMenusReq) (*SetAdminRoleMenusResp, error)
 	GetAdminUserRoles(context.Context, *GetAdminUserRolesReq) (*GetAdminUserRolesResp, error)
 	SetAdminUserRoles(context.Context, *SetAdminUserRolesReq) (*SetAdminUserRolesResp, error)
+	// ---- Admin RBAC permissions (action-level) ----
+	GetAdminRbacMyPerms(context.Context, *GetAdminRbacMyPermsReq) (*GetAdminRbacMyPermsResp, error)
+	// ---- Admin RBAC config (UI-managed) ----
+	ListAdminPermissions(context.Context, *ListAdminPermissionsReq) (*ListAdminPermissionsResp, error)
+	CreateAdminPermission(context.Context, *CreateAdminPermissionReq) (*CreateAdminPermissionResp, error)
+	UpdateAdminPermission(context.Context, *UpdateAdminPermissionReq) (*UpdateAdminPermissionResp, error)
+	DeleteAdminPermission(context.Context, *DeleteAdminPermissionReq) (*DeleteAdminPermissionResp, error)
+	GetAdminRolePermKeys(context.Context, *GetAdminRolePermKeysReq) (*GetAdminRolePermKeysResp, error)
+	SetAdminRolePermKeys(context.Context, *SetAdminRolePermKeysReq) (*SetAdminRolePermKeysResp, error)
+	ListAdminApiRules(context.Context, *ListAdminApiRulesReq) (*ListAdminApiRulesResp, error)
+	UpsertAdminApiRule(context.Context, *UpsertAdminApiRuleReq) (*UpsertAdminApiRuleResp, error)
+	DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
+	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error)
+	GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error)
 	mustEmbedUnimplementedServiceHubServer()
 }
 
@@ -299,6 +526,15 @@ func (UnimplementedServiceHubServer) DeleteAdminRole(context.Context, *DeleteAdm
 func (UnimplementedServiceHubServer) ListAdminMenus(context.Context, *ListAdminMenusReq) (*ListAdminMenusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdminMenus not implemented")
 }
+func (UnimplementedServiceHubServer) CreateAdminMenu(context.Context, *CreateAdminMenuReq) (*CreateAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminMenu not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminMenu(context.Context, *UpdateAdminMenuReq) (*UpdateAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminMenu not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminMenu(context.Context, *DeleteAdminMenuReq) (*DeleteAdminMenuResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminMenu not implemented")
+}
 func (UnimplementedServiceHubServer) GetAdminRoleMenus(context.Context, *GetAdminRoleMenusReq) (*GetAdminRoleMenusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdminRoleMenus not implemented")
 }
@@ -310,6 +546,48 @@ func (UnimplementedServiceHubServer) GetAdminUserRoles(context.Context, *GetAdmi
 }
 func (UnimplementedServiceHubServer) SetAdminUserRoles(context.Context, *SetAdminUserRolesReq) (*SetAdminUserRolesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAdminUserRoles not implemented")
+}
+func (UnimplementedServiceHubServer) GetAdminRbacMyPerms(context.Context, *GetAdminRbacMyPermsReq) (*GetAdminRbacMyPermsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminRbacMyPerms not implemented")
+}
+func (UnimplementedServiceHubServer) ListAdminPermissions(context.Context, *ListAdminPermissionsReq) (*ListAdminPermissionsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAdminPermissions not implemented")
+}
+func (UnimplementedServiceHubServer) CreateAdminPermission(context.Context, *CreateAdminPermissionReq) (*CreateAdminPermissionResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminPermission not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminPermission(context.Context, *UpdateAdminPermissionReq) (*UpdateAdminPermissionResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminPermission not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminPermission(context.Context, *DeleteAdminPermissionReq) (*DeleteAdminPermissionResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminPermission not implemented")
+}
+func (UnimplementedServiceHubServer) GetAdminRolePermKeys(context.Context, *GetAdminRolePermKeysReq) (*GetAdminRolePermKeysResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminRolePermKeys not implemented")
+}
+func (UnimplementedServiceHubServer) SetAdminRolePermKeys(context.Context, *SetAdminRolePermKeysReq) (*SetAdminRolePermKeysResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAdminRolePermKeys not implemented")
+}
+func (UnimplementedServiceHubServer) ListAdminApiRules(context.Context, *ListAdminApiRulesReq) (*ListAdminApiRulesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAdminApiRules not implemented")
+}
+func (UnimplementedServiceHubServer) UpsertAdminApiRule(context.Context, *UpsertAdminApiRuleReq) (*UpsertAdminApiRuleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpsertAdminApiRule not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminApiRule not implemented")
+}
+func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminUserById not implemented")
 }
 func (UnimplementedServiceHubServer) mustEmbedUnimplementedServiceHubServer() {}
 func (UnimplementedServiceHubServer) testEmbeddedByValue()                    {}
@@ -548,6 +826,60 @@ func _ServiceHub_ListAdminMenus_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_CreateAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminMenu(ctx, req.(*CreateAdminMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminMenu(ctx, req.(*UpdateAdminMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminMenuReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminMenu(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminMenu_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminMenu(ctx, req.(*DeleteAdminMenuReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceHub_GetAdminRoleMenus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAdminRoleMenusReq)
 	if err := dec(in); err != nil {
@@ -620,6 +952,258 @@ func _ServiceHub_SetAdminUserRoles_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_GetAdminRbacMyPerms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminRbacMyPermsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetAdminRbacMyPerms(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetAdminRbacMyPerms_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetAdminRbacMyPerms(ctx, req.(*GetAdminRbacMyPermsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListAdminPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdminPermissionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListAdminPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListAdminPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListAdminPermissions(ctx, req.(*ListAdminPermissionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_CreateAdminPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminPermissionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminPermission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminPermission(ctx, req.(*CreateAdminPermissionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminPermissionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminPermission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminPermission(ctx, req.(*UpdateAdminPermissionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminPermission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminPermissionReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminPermission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminPermission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminPermission(ctx, req.(*DeleteAdminPermissionReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_GetAdminRolePermKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminRolePermKeysReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetAdminRolePermKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetAdminRolePermKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetAdminRolePermKeys(ctx, req.(*GetAdminRolePermKeysReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_SetAdminRolePermKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAdminRolePermKeysReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).SetAdminRolePermKeys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_SetAdminRolePermKeys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).SetAdminRolePermKeys(ctx, req.(*SetAdminRolePermKeysReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListAdminApiRules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdminApiRulesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListAdminApiRules(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListAdminApiRules_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListAdminApiRules(ctx, req.(*ListAdminApiRulesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpsertAdminApiRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpsertAdminApiRuleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpsertAdminApiRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpsertAdminApiRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpsertAdminApiRule(ctx, req.(*UpsertAdminApiRuleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminApiRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminApiRuleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminApiRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminApiRule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminApiRule(ctx, req.(*DeleteAdminApiRuleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, req.(*CreateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, req.(*UpdateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, req.(*DeleteAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_GetAdminUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminUserByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetAdminUserById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, req.(*GetAdminUserByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceHub_ServiceDesc is the grpc.ServiceDesc for ServiceHub service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -676,6 +1260,18 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServiceHub_ListAdminMenus_Handler,
 		},
 		{
+			MethodName: "CreateAdminMenu",
+			Handler:    _ServiceHub_CreateAdminMenu_Handler,
+		},
+		{
+			MethodName: "UpdateAdminMenu",
+			Handler:    _ServiceHub_UpdateAdminMenu_Handler,
+		},
+		{
+			MethodName: "DeleteAdminMenu",
+			Handler:    _ServiceHub_DeleteAdminMenu_Handler,
+		},
+		{
 			MethodName: "GetAdminRoleMenus",
 			Handler:    _ServiceHub_GetAdminRoleMenus_Handler,
 		},
@@ -690,6 +1286,62 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetAdminUserRoles",
 			Handler:    _ServiceHub_SetAdminUserRoles_Handler,
+		},
+		{
+			MethodName: "GetAdminRbacMyPerms",
+			Handler:    _ServiceHub_GetAdminRbacMyPerms_Handler,
+		},
+		{
+			MethodName: "ListAdminPermissions",
+			Handler:    _ServiceHub_ListAdminPermissions_Handler,
+		},
+		{
+			MethodName: "CreateAdminPermission",
+			Handler:    _ServiceHub_CreateAdminPermission_Handler,
+		},
+		{
+			MethodName: "UpdateAdminPermission",
+			Handler:    _ServiceHub_UpdateAdminPermission_Handler,
+		},
+		{
+			MethodName: "DeleteAdminPermission",
+			Handler:    _ServiceHub_DeleteAdminPermission_Handler,
+		},
+		{
+			MethodName: "GetAdminRolePermKeys",
+			Handler:    _ServiceHub_GetAdminRolePermKeys_Handler,
+		},
+		{
+			MethodName: "SetAdminRolePermKeys",
+			Handler:    _ServiceHub_SetAdminRolePermKeys_Handler,
+		},
+		{
+			MethodName: "ListAdminApiRules",
+			Handler:    _ServiceHub_ListAdminApiRules_Handler,
+		},
+		{
+			MethodName: "UpsertAdminApiRule",
+			Handler:    _ServiceHub_UpsertAdminApiRule_Handler,
+		},
+		{
+			MethodName: "DeleteAdminApiRule",
+			Handler:    _ServiceHub_DeleteAdminApiRule_Handler,
+		},
+		{
+			MethodName: "CreateAdminUser",
+			Handler:    _ServiceHub_CreateAdminUser_Handler,
+		},
+		{
+			MethodName: "UpdateAdminUser",
+			Handler:    _ServiceHub_UpdateAdminUser_Handler,
+		},
+		{
+			MethodName: "DeleteAdminUser",
+			Handler:    _ServiceHub_DeleteAdminUser_Handler,
+		},
+		{
+			MethodName: "GetAdminUserById",
+			Handler:    _ServiceHub_GetAdminUserById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

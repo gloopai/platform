@@ -166,22 +166,26 @@
     <UiDrawer
       v-model="drawerOpen"
       :title="drawerTitle"
-      subtitle="保存后生效；代收/代付产品授权在下方分栏配置。"
+      subtitle="分段维护：基本资料、API、财务与代收/代付产品；保存将写入当前表单中的全部已填字段。"
       max-width-class="max-w-3xl"
     >
       <div v-if="drawerOpen" class="space-y-4">
-        <div class="flex flex-wrap border-b border-slate-200" role="tablist">
+        <div
+          class="inline-flex max-w-full flex-wrap gap-0.5 rounded-lg border border-slate-200/90 bg-slate-100 p-0.5 shadow-sm"
+          role="tablist"
+          aria-label="商户编辑"
+        >
           <button
             v-for="tab in detailTabs"
             :key="tab.key"
             type="button"
             role="tab"
             :aria-selected="rightTab === tab.key"
-            class="relative -mb-px border-b-2 px-3 pb-3 text-sm font-semibold transition md:px-4"
+            class="rounded-md px-2.5 py-1.5 text-xs font-semibold transition"
             :class="
               rightTab === tab.key
-                ? 'border-slate-900 text-slate-900'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80'
+                : 'text-slate-600 hover:text-slate-900'
             "
             @click="rightTab = tab.key"
           >
@@ -191,8 +195,52 @@
 
         <div v-show="rightTab === 'basic'" role="tabpanel">
           <MerchantFormCard
+            section="basic"
             v-model="form"
-            :is-new="isNew"
+            :is-new="false"
+            :merchant-info="selectedMerchant"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            :error="formError"
+            :can-save="canSaveForm"
+            :status-for-lock="form.status"
+            @save="saveForm"
+            @reset="resetForm"
+            @toggle-lock="toggleLock"
+            @reset-secret="resetSecret"
+            @reset-password="resetPassword"
+          />
+        </div>
+
+        <div v-show="rightTab === 'api'" role="tabpanel">
+          <MerchantFormCard
+            section="api"
+            v-model="form"
+            :is-new="false"
+            :merchant-info="selectedMerchant"
+            embedded
+            hide-footer-actions
+            :saving="saving"
+            :saved="saved"
+            :error="formError"
+            :can-save="canSaveForm"
+            :status-for-lock="form.status"
+            @save="saveForm"
+            @reset="resetForm"
+            @toggle-lock="toggleLock"
+            @reset-secret="resetSecret"
+            @reset-password="resetPassword"
+          />
+        </div>
+
+        <div v-show="rightTab === 'finance'" role="tabpanel">
+          <MerchantFormCard
+            section="finance"
+            v-model="form"
+            :is-new="false"
+            :merchant-info="selectedMerchant"
             embedded
             hide-footer-actions
             :saving="saving"
@@ -210,7 +258,7 @@
 
         <div v-show="rightTab === 'bindings_payin'" role="tabpanel">
           <MerchantPayinProductsCard
-            v-if="!isNew && selectedMerchant"
+            v-if="selectedMerchant"
             embedded
             :grants="selectedMerchant.payin_grants || []"
             :catalog="payinProducts"
@@ -221,14 +269,17 @@
             @add="addPayinProduct"
             @update="updatePayinGrant"
           />
-          <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
+          <p
+            v-else
+            class="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 px-3 py-6 text-center text-[11px] text-slate-500"
+          >
             请先保存商户基本信息后再配置代收产品。
           </p>
         </div>
 
         <div v-show="rightTab === 'bindings_payout'" role="tabpanel">
           <MerchantPayoutProductsCard
-            v-if="!isNew && selectedMerchant"
+            v-if="selectedMerchant"
             embedded
             :grants="selectedMerchant.payout_grants || []"
             :catalog="payoutProducts"
@@ -239,7 +290,10 @@
             @add="addPayoutProduct"
             @update="updatePayoutGrant"
           />
-          <p v-else class="rounded-lg border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500">
+          <p
+            v-else
+            class="rounded-lg border border-dashed border-slate-200 bg-slate-50/30 px-3 py-6 text-center text-[11px] text-slate-500"
+          >
             请先保存商户基本信息后再配置代付产品。
           </p>
         </div>
@@ -247,7 +301,7 @@
 
       <template #footer>
         <div class="flex flex-wrap items-center justify-start gap-3">
-          <template v-if="rightTab === 'basic'">
+          <template v-if="rightTab === 'basic' || rightTab === 'api' || rightTab === 'finance'">
             <button
               type="button"
               class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700"
@@ -274,6 +328,107 @@
         </div>
       </template>
     </UiDrawer>
+
+    <div v-if="createWizardOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
+      <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div class="border-b border-slate-200 px-5 py-4">
+          <div class="text-base font-semibold text-slate-900">
+            {{ createWizardStep === 'form' ? '新建商户' : '商户已创建' }}
+          </div>
+          <div class="mt-1 text-xs text-slate-500">
+            {{
+              createWizardStep === 'form'
+                ? '填写登录邮箱并校验可用后创建；系统会生成商户 ID、AppID、API Secret 与初始密码。'
+                : '请妥善保存以下凭据（关闭后 API Secret 与密码不会在界面完整展示）。'
+            }}
+          </div>
+        </div>
+
+        <div v-if="createWizardStep === 'form'" class="space-y-4 px-5 py-4">
+          <label class="grid gap-1">
+            <span class="text-xs font-medium text-slate-600">登录邮箱</span>
+            <input
+              v-model.trim="createEmail"
+              type="email"
+              autocomplete="off"
+              placeholder="name@example.com"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              @keydown.enter.prevent="checkCreateEmail"
+            />
+          </label>
+          <p v-if="emailCheckHint" class="text-xs" :class="emailCheckHintClass">{{ emailCheckHint }}</p>
+          <p v-if="createWizardError" class="text-xs text-rose-700">{{ createWizardError }}</p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              @click="closeCreateWizard"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-40"
+              :disabled="emailCheckSubmitting || !createEmail.trim()"
+              @click="checkCreateEmail"
+            >
+              {{ emailCheckSubmitting ? '检查中...' : '检查邮箱可用' }}
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+              :disabled="createSubmitting || !canSubmitCreate"
+              @click="submitCreateMerchant"
+            >
+              {{ createSubmitting ? '创建中...' : '创建商户' }}
+            </button>
+          </div>
+        </div>
+
+        <div v-else class="space-y-3 px-5 py-4">
+          <p class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-900">
+            建议立即将凭据发送给商户或保存至密管；可逐项复制或使用「一键复制全部」。
+          </p>
+          <div class="space-y-2">
+            <div
+              v-for="row in createCredentialRows"
+              :key="row.key"
+              class="rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="text-[11px] font-medium text-slate-600">{{ row.label }}</div>
+                  <div class="mt-0.5 break-all font-mono text-xs text-slate-900">{{ row.value || '—' }}</div>
+                </div>
+                <button
+                  type="button"
+                  class="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 hover:bg-slate-50"
+                  @click="copyValue(row.value, row.label)"
+                >
+                  复制
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+            <button
+              type="button"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700"
+              @click="copyAllCreateCredentials"
+            >
+              一键复制全部
+            </button>
+            <button
+              type="button"
+              class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white"
+              @click="finishCreateWizard"
+            >
+              完成
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div v-if="transferDialogOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
       <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-xl">
@@ -352,23 +507,36 @@ const transferAmount = ref(0)
 const transferLoading = ref(false)
 const transferMsg = ref('')
 
+const createWizardOpen = ref(false)
+const createWizardStep = ref<'form' | 'done'>('form')
+const createEmail = ref('')
+type EmailCheckStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'error'
+const emailCheckStatus = ref<EmailCheckStatus>('idle')
+const emailCheckSubmitting = ref(false)
+const emailCheckErrorDetail = ref('')
+const createSubmitting = ref(false)
+const createWizardError = ref('')
+const createDonePayload = ref<{ merchant: AdminMerchantInfo; generated_password?: string } | null>(null)
+
 const merchants = ref<AdminMerchantInfo[]>([])
 const payinProducts = ref<ProductRow[]>([])
 const payoutProducts = ref<ProductRow[]>([])
 const selectedMerchantId = ref<string | null>(null)
-const rightTab = ref<'basic' | 'bindings_payin' | 'bindings_payout'>('basic')
+type DetailTabKey = 'basic' | 'api' | 'finance' | 'bindings_payin' | 'bindings_payout'
+
+const rightTab = ref<DetailTabKey>('basic')
 const drawerOpen = ref(false)
 const searchQuery = ref('')
 
-const detailTabs = [
-  { key: 'basic' as const, label: '基本信息' },
-  { key: 'bindings_payin' as const, label: '代收产品' },
-  { key: 'bindings_payout' as const, label: '代付产品' },
+const detailTabs: { key: DetailTabKey; label: string }[] = [
+  { key: 'basic', label: '基本资料' },
+  { key: 'api', label: 'API 对接' },
+  { key: 'finance', label: '财务' },
+  { key: 'bindings_payin', label: '代收产品' },
+  { key: 'bindings_payout', label: '代付产品' },
 ]
 
 const form = ref<MerchantForm>(emptyMerchantForm())
-
-const isNew = computed(() => selectedMerchantId.value === null)
 
 const selectedMerchant = computed(() => {
   const id = selectedMerchantId.value
@@ -387,13 +555,52 @@ const transferInsufficient = computed(() => {
   return amountCent <= 0 || amountCent > (m.payin_balance ?? 0)
 })
 
-const drawerTitle = computed(() =>
-  isNew.value ? '新建商户' : `编辑商户 · ${form.value.merchant_id || ''}`,
+const drawerTitle = computed(() => `编辑商户 · ${form.value.merchant_id || ''}`)
+
+const canSaveForm = computed(() => true)
+
+const emailCheckHint = computed(() => {
+  switch (emailCheckStatus.value) {
+    case 'available':
+      return '该邮箱可用于创建新商户。'
+    case 'taken':
+      return '该邮箱已注册商户，请更换邮箱。'
+    case 'invalid':
+      return '请输入有效的邮箱地址。'
+    case 'error':
+      return emailCheckErrorDetail.value || '检查失败，请重试。'
+    default:
+      return ''
+  }
+})
+
+const emailCheckHintClass = computed(() => {
+  if (emailCheckStatus.value === 'available') return 'text-emerald-700'
+  if (
+    emailCheckStatus.value === 'taken' ||
+    emailCheckStatus.value === 'invalid' ||
+    emailCheckStatus.value === 'error'
+  ) {
+    return 'text-rose-700'
+  }
+  return 'text-slate-600'
+})
+
+const canSubmitCreate = computed(
+  () => emailCheckStatus.value === 'available' && createEmail.value.includes('@'),
 )
 
-const canSaveForm = computed(() => {
-  if (isNew.value) return !!form.value.merchant_id?.trim() && !!form.value.email?.trim()
-  return true
+const createCredentialRows = computed(() => {
+  const p = createDonePayload.value
+  if (!p) return [] as { key: string; label: string; value: string }[]
+  const m = p.merchant
+  return [
+    { key: 'merchant_id', label: '商户 ID', value: m.merchant_id },
+    { key: 'email', label: '登录邮箱', value: m.email || '' },
+    { key: 'app_id', label: 'AppID', value: m.app_id || '' },
+    { key: 'app_secret', label: 'API Secret', value: m.app_secret || '' },
+    { key: 'password', label: '登录密码', value: p.generated_password || '' },
+  ]
 })
 const transferCurrencyCode = computed(() => adminDisplaySettings.value.currency_code || 'CNY')
 
@@ -479,8 +686,7 @@ function applySelectedToForm() {
 function resetForm() {
   saved.value = false
   formError.value = ''
-  if (selectedMerchant.value) applySelectedToForm()
-  else form.value = emptyMerchantForm()
+  applySelectedToForm()
 }
 
 function openEdit(merchantId: string) {
@@ -492,14 +698,99 @@ function openEdit(merchantId: string) {
   drawerOpen.value = true
 }
 
+const emailLooksValid = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim())
+
 function openNew() {
-  selectedMerchantId.value = null
-  rightTab.value = 'basic'
-  form.value = emptyMerchantForm()
-  saved.value = false
-  formError.value = ''
-  drawerOpen.value = true
+  createWizardStep.value = 'form'
+  createEmail.value = ''
+  emailCheckStatus.value = 'idle'
+  emailCheckErrorDetail.value = ''
+  createWizardError.value = ''
+  createDonePayload.value = null
+  createWizardOpen.value = true
 }
+
+function closeCreateWizard() {
+  createWizardOpen.value = false
+}
+
+async function checkCreateEmail() {
+  const raw = createEmail.value.trim()
+  createWizardError.value = ''
+  emailCheckErrorDetail.value = ''
+  if (!raw) {
+    emailCheckStatus.value = 'invalid'
+    return
+  }
+  if (!emailLooksValid(raw)) {
+    emailCheckStatus.value = 'invalid'
+    return
+  }
+  emailCheckSubmitting.value = true
+  emailCheckStatus.value = 'checking'
+  try {
+    const q = new URLSearchParams({ email: raw.toLowerCase() })
+    const res = await adminGet<{ available: boolean }>(`/v1/admin/merchants/email_available?${q.toString()}`)
+    emailCheckStatus.value = res.available ? 'available' : 'taken'
+  } catch (e) {
+    emailCheckStatus.value = 'error'
+    emailCheckErrorDetail.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    emailCheckSubmitting.value = false
+  }
+}
+
+async function submitCreateMerchant() {
+  if (!canSubmitCreate.value) return
+  createWizardError.value = ''
+  createSubmitting.value = true
+  try {
+    const resp = await adminPost<{ merchant: AdminMerchantInfo; generated_password?: string }>('/v1/admin/merchants', {
+      email: createEmail.value.trim().toLowerCase(),
+      payin_product_ids: [],
+      payout_product_ids: [],
+    })
+    createDonePayload.value = {
+      merchant: resp.merchant,
+      generated_password: resp.generated_password,
+    }
+    createWizardStep.value = 'done'
+    toast.success('商户创建成功')
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    createWizardError.value = msg
+    toast.error(`创建失败：${msg}`)
+  } finally {
+    createSubmitting.value = false
+  }
+}
+
+async function copyAllCreateCredentials() {
+  const lines = createCredentialRows.value.map((r) => `${r.label}：${r.value}`)
+  const text = lines.join('\n')
+  if (!text.trim()) {
+    toast.error('没有可复制的内容')
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.success('全部凭据已复制')
+  } catch {
+    toast.error('复制失败')
+  }
+}
+
+async function finishCreateWizard() {
+  createWizardOpen.value = false
+  await reload()
+}
+
+watch(createEmail, () => {
+  if (emailCheckStatus.value !== 'idle') {
+    emailCheckStatus.value = 'idle'
+    emailCheckErrorDetail.value = ''
+  }
+})
 
 async function loadPayinProducts() {
   loadingProducts.value = true
@@ -549,54 +840,28 @@ async function reload() {
 }
 
 async function saveForm() {
+  const mid = selectedMerchant.value?.merchant_id
+  if (!mid) return
   saving.value = true
   formError.value = ''
   saved.value = false
-  const creating = isNew.value
   try {
-    if (creating) {
-      const resp = await adminPost<{ merchant: AdminMerchantInfo; generated_password?: string }>('/v1/admin/merchants', {
-        merchant_id: form.value.merchant_id.trim(),
-        email: form.value.email.trim(),
-        default_payin_rate_bps: 0,
-        default_payout_rate_bps: 0,
-        notify_url: form.value.notify_url,
-        return_url: form.value.return_url,
-        ip_whitelist: form.value.ip_whitelist,
-        withdraw_usdt_address: form.value.withdraw_usdt_address.trim(),
-        payin_product_ids: [],
-        payout_product_ids: [],
-      })
-      const row = resp.merchant
-      merchants.value.push(row)
-      merchants.value.sort((a, b) => a.merchant_id.localeCompare(b.merchant_id))
-      selectedMerchantId.value = row.merchant_id
-      rightTab.value = 'basic'
-      form.value = merchantToForm(row)
-      if (resp.generated_password) {
-        await copyValue(resp.generated_password, '初始密码')
-      }
-    } else {
-      const mid = selectedMerchant.value!.merchant_id
-      const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(mid)}`, {
-        status: form.value.status,
-        default_payin_rate_bps: selectedMerchant.value!.default_payin_rate_bps,
-        default_payout_rate_bps: selectedMerchant.value!.default_payout_rate_bps,
-        notify_url: form.value.notify_url,
-        return_url: form.value.return_url,
-        ip_whitelist: form.value.ip_whitelist,
-        withdraw_usdt_address: form.value.withdraw_usdt_address.trim(),
-        payin_grants: normalizedPayinGrants(selectedMerchant.value!),
-        payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
-      })
-      const row = resp.merchant
-      const idx = merchants.value.findIndex((m) => m.merchant_id === row.merchant_id)
-      if (idx >= 0) merchants.value[idx] = row
-      form.value = merchantToForm(row)
-    }
+    const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(mid)}`, {
+      status: form.value.status,
+      notify_url: form.value.notify_url,
+      return_url: form.value.return_url,
+      ip_whitelist: form.value.ip_whitelist,
+      withdraw_usdt_address: form.value.withdraw_usdt_address.trim(),
+      payin_grants: normalizedPayinGrants(selectedMerchant.value!),
+      payout_grants: normalizedPayoutGrants(selectedMerchant.value!),
+    })
+    const row = resp.merchant
+    const idx = merchants.value.findIndex((m) => m.merchant_id === row.merchant_id)
+    if (idx >= 0) merchants.value[idx] = row
+    form.value = merchantToForm(row)
     saved.value = true
     closeDrawer()
-    toast.success(creating ? '商户创建成功' : '编辑已保存')
+    toast.success('编辑已保存')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     formError.value = msg
@@ -614,12 +879,10 @@ async function toggleLock() {
     const target = m.status === 1 ? 0 : 1
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
       status: target,
-      default_payin_rate_bps: m.default_payin_rate_bps,
-      default_payout_rate_bps: m.default_payout_rate_bps,
-      notify_url: m.notify_url,
-      return_url: m.return_url,
-      ip_whitelist: m.ip_whitelist,
-      withdraw_usdt_address: m.withdraw_usdt_address || '',
+      notify_url: form.value.notify_url,
+      return_url: form.value.return_url,
+      ip_whitelist: form.value.ip_whitelist,
+      withdraw_usdt_address: form.value.withdraw_usdt_address.trim() || '',
       payin_grants: normalizedPayinGrants(m),
       payout_grants: normalizedPayoutGrants(m),
     })
@@ -647,13 +910,11 @@ async function resetSecret() {
       `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`,
       {
         reset_secret: true,
-        status: m.status,
-        default_payin_rate_bps: m.default_payin_rate_bps,
-        default_payout_rate_bps: m.default_payout_rate_bps,
-        notify_url: m.notify_url,
-        return_url: m.return_url,
-        ip_whitelist: m.ip_whitelist,
-        withdraw_usdt_address: m.withdraw_usdt_address || '',
+        status: form.value.status,
+        notify_url: form.value.notify_url,
+        return_url: form.value.return_url,
+        ip_whitelist: form.value.ip_whitelist,
+        withdraw_usdt_address: form.value.withdraw_usdt_address.trim() || '',
         payin_grants: normalizedPayinGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
@@ -682,13 +943,11 @@ async function resetPassword() {
       `/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`,
       {
         reset_password: true,
-        status: m.status,
-        default_payin_rate_bps: m.default_payin_rate_bps,
-        default_payout_rate_bps: m.default_payout_rate_bps,
-        notify_url: m.notify_url,
-        return_url: m.return_url,
-        ip_whitelist: m.ip_whitelist,
-        withdraw_usdt_address: m.withdraw_usdt_address || '',
+        status: form.value.status,
+        notify_url: form.value.notify_url,
+        return_url: form.value.return_url,
+        ip_whitelist: form.value.ip_whitelist,
+        withdraw_usdt_address: form.value.withdraw_usdt_address.trim() || '',
         payin_grants: normalizedPayinGrants(m),
         payout_grants: normalizedPayoutGrants(m),
       },
@@ -718,13 +977,11 @@ async function persistPayinProducts(newGrants: MerchantPayinGrant[]) {
   bindError.value = ''
   try {
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
-      status: m.status,
-      default_payin_rate_bps: m.default_payin_rate_bps,
-      default_payout_rate_bps: m.default_payout_rate_bps,
-      notify_url: m.notify_url,
-      return_url: m.return_url,
-      ip_whitelist: m.ip_whitelist,
-      withdraw_usdt_address: m.withdraw_usdt_address || '',
+      status: form.value.status,
+      notify_url: form.value.notify_url,
+      return_url: form.value.return_url,
+      ip_whitelist: form.value.ip_whitelist,
+      withdraw_usdt_address: form.value.withdraw_usdt_address.trim() || '',
       payin_grants: newGrants,
       payout_grants: normalizedPayoutGrants(m),
     })
@@ -749,13 +1006,11 @@ async function persistPayoutProducts(newGrants: MerchantPayoutGrant[]) {
   bindError.value = ''
   try {
     const resp = await adminPut<{ merchant: AdminMerchantInfo }>(`/v1/admin/merchants/${encodeURIComponent(m.merchant_id)}`, {
-      status: m.status,
-      default_payin_rate_bps: m.default_payin_rate_bps,
-      default_payout_rate_bps: m.default_payout_rate_bps,
-      notify_url: m.notify_url,
-      return_url: m.return_url,
-      ip_whitelist: m.ip_whitelist,
-      withdraw_usdt_address: m.withdraw_usdt_address || '',
+      status: form.value.status,
+      notify_url: form.value.notify_url,
+      return_url: form.value.return_url,
+      ip_whitelist: form.value.ip_whitelist,
+      withdraw_usdt_address: form.value.withdraw_usdt_address.trim() || '',
       payin_grants: normalizedPayinGrants(m),
       payout_grants: newGrants,
     })

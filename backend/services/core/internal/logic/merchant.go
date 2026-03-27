@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
@@ -15,6 +16,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
+
+// 10 位十进制 merchant_id 上限（含）：与 fmt %010d 一致
+const merchantNumericIDMax int64 = 9999999999
 
 type CreateMerchantLogic struct {
 	logx.Logger
@@ -33,7 +37,20 @@ func NewCreateMerchantLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cr
 func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (*merchantpb.UpsertMerchantResp, error) {
 	merchantId := strings.TrimSpace(in.GetMerchantId())
 	if merchantId == "" {
-		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
+		floor, ferr := l.svcCtx.Merchants.GetMerchantNumericIDFloor(l.ctx)
+		if ferr != nil {
+			l.Errorf("read merchant_numeric_id_start: %v", ferr)
+			floor = 1
+		}
+		n, err := l.svcCtx.Merchants.AllocNextMerchantNumericID(l.ctx, floor)
+		if err != nil {
+			l.Errorf("alloc merchant numeric id: %v", err)
+			return nil, status.Error(codes.Internal, "allocate merchant id failed")
+		}
+		if n > merchantNumericIDMax {
+			return nil, status.Error(codes.ResourceExhausted, "merchant id space exhausted")
+		}
+		merchantId = fmt.Sprintf("%010d", n)
 	}
 	appId := strings.TrimSpace(in.GetAppId())
 	if appId == "" {
@@ -63,19 +80,17 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	}
 
 	rec := &store.Merchant{
-		MerchantId:           merchantId,
-		AppId:                appId,
-		Email:                email,
-		AppSecret:            secret,
-		PasswordHash:         passwordHash,
-		Status:               statusVal,
-		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
-		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
-		IpWhitelist:          in.GetIpWhitelist(),
-		NotifyUrl:            in.GetNotifyUrl(),
-		ReturnUrl:            in.GetReturnUrl(),
-		PayinBalance:         0,
-		AvailableBalance:     0,
+		MerchantId:       merchantId,
+		AppId:            appId,
+		Email:            email,
+		AppSecret:        secret,
+		PasswordHash:     passwordHash,
+		Status:           statusVal,
+		IpWhitelist:      in.GetIpWhitelist(),
+		NotifyUrl:        in.GetNotifyUrl(),
+		ReturnUrl:        in.GetReturnUrl(),
+		PayinBalance:     0,
+		AvailableBalance: 0,
 	}
 	if err := l.svcCtx.Merchants.Create(l.ctx, rec); err != nil {
 		if strings.Contains(err.Error(), "Duplicate") {
@@ -181,17 +196,15 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	}
 
 	rec := &store.Merchant{
-		MerchantId:           merchantId,
-		AppId:                existing.AppId,
-		Email:                existing.Email,
-		AppSecret:            secret,
-		PasswordHash:         passwordHash,
-		Status:               statusVal,
-		DefaultPayinRateBps:  in.GetDefaultPayinRateBps(),
-		DefaultPayoutRateBps: in.GetDefaultPayoutRateBps(),
-		IpWhitelist:          in.GetIpWhitelist(),
-		NotifyUrl:            in.GetNotifyUrl(),
-		ReturnUrl:            in.GetReturnUrl(),
+		MerchantId:   merchantId,
+		AppId:        existing.AppId,
+		Email:        existing.Email,
+		AppSecret:    secret,
+		PasswordHash: passwordHash,
+		Status:       statusVal,
+		IpWhitelist:  in.GetIpWhitelist(),
+		NotifyUrl:    in.GetNotifyUrl(),
+		ReturnUrl:    in.GetReturnUrl(),
 	}
 	if err := l.svcCtx.Merchants.UpdateByMerchantId(l.ctx, merchantId, rec); err != nil {
 		return nil, err
@@ -282,19 +295,17 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		return nil, err
 	}
 	return &merchantpb.GetAuthInfoResp{
-		AppSecret:            m.AppSecret,
-		Status:               m.Status,
-		IpWhitelist:          m.IpWhitelist,
-		NotifyUrl:            m.NotifyUrl,
-		ReturnUrl:            m.ReturnUrl,
-		PayinBalance:         m.PayinBalance,
-		AvailableBalance:     m.AvailableBalance,
-		DefaultPayinRateBps:  m.DefaultPayinRateBps,
-		DefaultPayoutRateBps: m.DefaultPayoutRateBps,
-		MerchantId:           m.MerchantId,
-		AppId:                m.AppId,
-		Email:                m.Email,
-		PasswordHash:         m.PasswordHash,
+		AppSecret:        m.AppSecret,
+		Status:           m.Status,
+		IpWhitelist:      m.IpWhitelist,
+		NotifyUrl:        m.NotifyUrl,
+		ReturnUrl:        m.ReturnUrl,
+		PayinBalance:     m.PayinBalance,
+		AvailableBalance: m.AvailableBalance,
+		MerchantId:       m.MerchantId,
+		AppId:            m.AppId,
+		Email:            m.Email,
+		PasswordHash:     m.PasswordHash,
 	}, nil
 }
 
@@ -374,23 +385,21 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		pbPG = append(pbPG, row)
 	}
 	return &merchantpb.MerchantInfo{
-		MerchantId:           m.MerchantId,
-		AppId:                m.AppId,
-		Email:                m.Email,
-		AppSecret:            m.AppSecret,
-		Status:               m.Status,
-		DefaultPayinRateBps:  m.DefaultPayinRateBps,
-		DefaultPayoutRateBps: m.DefaultPayoutRateBps,
-		IpWhitelist:          m.IpWhitelist,
-		PayinBalance:         m.PayinBalance,
-		AvailableBalance:     m.AvailableBalance,
-		FrozenBalance:        m.FrozenBalance,
-		WithdrawnAmount:      m.WithdrawnAmount,
-		NotifyUrl:            m.NotifyUrl,
-		ReturnUrl:            m.ReturnUrl,
-		PayinProductIds:      payProductIds,
-		PayoutProductIds:     payoutProductIds,
-		PayinGrants:          pbCG,
-		PayoutGrants:         pbPG,
+		MerchantId:       m.MerchantId,
+		AppId:            m.AppId,
+		Email:            m.Email,
+		AppSecret:        m.AppSecret,
+		Status:           m.Status,
+		IpWhitelist:      m.IpWhitelist,
+		PayinBalance:     m.PayinBalance,
+		AvailableBalance: m.AvailableBalance,
+		FrozenBalance:    m.FrozenBalance,
+		WithdrawnAmount:  m.WithdrawnAmount,
+		NotifyUrl:        m.NotifyUrl,
+		ReturnUrl:        m.ReturnUrl,
+		PayinProductIds:  payProductIds,
+		PayoutProductIds: payoutProductIds,
+		PayinGrants:      pbCG,
+		PayoutGrants:     pbPG,
 	}
 }

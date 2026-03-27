@@ -110,12 +110,17 @@ func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*t
 	if err != nil {
 		return nil, err
 	}
+	start := row.GetMerchantNumericIdStart()
+	if start < 1 {
+		start = 1
+	}
 	return &types.AdminDisplaySettingsResp{
-		CountryCode:     row.GetCountryCode(),
-		CurrencyCode:    row.GetCurrencyCode(),
-		CurrencySymbol:  row.GetCurrencySymbol(),
-		FiatToUsdtRate:  row.GetFiatToUsdtRate(),
-		AdminMfaEnabled: row.GetAdminMfaEnabled(),
+		CountryCode:            row.GetCountryCode(),
+		CurrencyCode:           row.GetCurrencyCode(),
+		CurrencySymbol:         row.GetCurrencySymbol(),
+		FiatToUsdtRate:         row.GetFiatToUsdtRate(),
+		AdminMfaEnabled:        row.GetAdminMfaEnabled(),
+		MerchantNumericIdStart: start,
 	}, nil
 }
 
@@ -127,15 +132,30 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 	if country == "" || currency == "" || symbol == "" || rate <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol, fiat_to_usdt_rate required")
 	}
-	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol, rate, req.AdminMfaEnabled); err != nil {
+	start := req.MerchantNumericIdStart
+	if start == 0 {
+		cur, gerr := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
+		if gerr != nil {
+			return nil, gerr
+		}
+		start = cur.GetMerchantNumericIdStart()
+		if start < 1 {
+			start = 1
+		}
+	}
+	if start < 1 || start > 9999999999 {
+		return nil, status.Error(codes.InvalidArgument, "merchant_numeric_id_start must be 1..9999999999")
+	}
+	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol, rate, req.AdminMfaEnabled, start); err != nil {
 		return nil, err
 	}
 	return &types.AdminDisplaySettingsResp{
-		CountryCode:     country,
-		CurrencyCode:    currency,
-		CurrencySymbol:  symbol,
-		FiatToUsdtRate:  rate,
-		AdminMfaEnabled: req.AdminMfaEnabled,
+		CountryCode:            country,
+		CurrencyCode:           currency,
+		CurrencySymbol:         symbol,
+		FiatToUsdtRate:         rate,
+		AdminMfaEnabled:        req.AdminMfaEnabled,
+		MerchantNumericIdStart: start,
 	}, nil
 }
 

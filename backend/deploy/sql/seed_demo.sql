@@ -3,17 +3,17 @@ DELETE FROM merchant_payout_products WHERE merchant_id IN ('m_rate_mix', 'm_zero
 DELETE FROM merchant_payin_products WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
 DELETE FROM merchants WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
 
-INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, default_payin_rate_bps, default_payout_rate_bps, ip_whitelist, payin_balance, available_balance, notify_url)
+INSERT IGNORE INTO merchant_numeric_seq (slot, next_id) VALUES (1, 0);
+
+INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, notify_url)
 VALUES
-  ('m_demo', 'app_demo', 'demo@gloop.local', 'demo_secret', '$2y$10$SOjNfnPVS0lSBQ54v2TzpOT5WxR5VAvfkSxNytdMCpL52cohBqRpS', 1, 60, 80, '127.0.0.1', 100000, 100000, '')
+  ('m_demo', 'app_demo', 'demo@gloop.local', 'demo_secret', '$2y$10$SOjNfnPVS0lSBQ54v2TzpOT5WxR5VAvfkSxNytdMCpL52cohBqRpS', 1, '127.0.0.1', 100000, 100000, '')
 ON DUPLICATE KEY UPDATE
   app_id = VALUES(app_id),
   email = VALUES(email),
   api_secret = VALUES(api_secret),
   password_hash = VALUES(password_hash),
   status = VALUES(status),
-  default_payin_rate_bps = VALUES(default_payin_rate_bps),
-  default_payout_rate_bps = VALUES(default_payout_rate_bps),
   payin_balance = VALUES(payin_balance),
   available_balance = VALUES(available_balance),
   ip_whitelist = VALUES(ip_whitelist);
@@ -256,6 +256,7 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('PUT', '/v1/admin/channels/:id', 'admin.channels.write', 1, ''),
 
   ('GET', '/v1/admin/merchants', 'admin.merchants.read', 1, ''),
+  ('GET', '/v1/admin/merchants/email_available', 'admin.merchants.read', 1, ''),
   ('POST', '/v1/admin/merchants', 'admin.merchants.write', 1, ''),
   ('PUT', '/v1/admin/merchants/:merchant_id', 'admin.merchants.write', 1, ''),
   ('POST', '/v1/admin/merchants/:merchant_id/transfer_payin_to_payout', 'admin.merchants.transfer', 1, ''),
@@ -347,7 +348,8 @@ ON DUPLICATE KEY UPDATE perm_id = VALUES(perm_id);
 INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('country_code', 'CN'),
   ('currency_code', 'CNY'),
-  ('currency_symbol', '¥')
+  ('currency_symbol', '¥'),
+  ('merchant_numeric_id_start', '1')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 
 INSERT INTO payin_orders (

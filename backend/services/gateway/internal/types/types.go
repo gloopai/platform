@@ -413,23 +413,21 @@ type MerchantPayoutGrant struct {
 }
 
 type AdminMerchantInfo struct {
-	MerchantId           string                `json:"merchant_id"`
-	AppId                string                `json:"app_id"`
-	Email                string                `json:"email"`
-	AppSecret            string                `json:"app_secret"`
-	Status               int64                 `json:"status"`
-	DefaultPayinRateBps  int64                 `json:"default_payin_rate_bps"`
-	DefaultPayoutRateBps int64                 `json:"default_payout_rate_bps"`
-	NotifyUrl            string                `json:"notify_url"`
-	ReturnUrl            string                `json:"return_url"`
-	IpWhitelist          string                `json:"ip_whitelist"`
-	WithdrawUsdtAddress  string                `json:"withdraw_usdt_address"`
-	PayinBalance         int64                 `json:"payin_balance"`
-	AvailableBalance     int64                 `json:"available_balance"`
-	PayinProductIds      []int64               `json:"payin_product_ids"`
-	PayoutProductIds     []int64               `json:"payout_product_ids"`
-	PayinGrants          []MerchantPayinGrant  `json:"payin_grants"`
-	PayoutGrants         []MerchantPayoutGrant `json:"payout_grants"`
+	MerchantId          string                `json:"merchant_id"`
+	AppId               string                `json:"app_id"`
+	Email               string                `json:"email"`
+	AppSecret           string                `json:"app_secret"`
+	Status              int64                 `json:"status"`
+	NotifyUrl           string                `json:"notify_url"`
+	ReturnUrl           string                `json:"return_url"`
+	IpWhitelist         string                `json:"ip_whitelist"`
+	WithdrawUsdtAddress string                `json:"withdraw_usdt_address"`
+	PayinBalance        int64                 `json:"payin_balance"`
+	AvailableBalance    int64                 `json:"available_balance"`
+	PayinProductIds     []int64               `json:"payin_product_ids"`
+	PayoutProductIds    []int64               `json:"payout_product_ids"`
+	PayinGrants         []MerchantPayinGrant  `json:"payin_grants"`
+	PayoutGrants        []MerchantPayoutGrant `json:"payout_grants"`
 }
 
 type AdminListMerchantsResp struct {
@@ -437,33 +435,37 @@ type AdminListMerchantsResp struct {
 }
 
 type AdminCreateMerchantReq struct {
-	MerchantId           string  `json:"merchant_id"`
-	Email                string  `json:"email"`
-	DefaultPayinRateBps  int64   `json:"default_payin_rate_bps,optional"`
-	DefaultPayoutRateBps int64   `json:"default_payout_rate_bps,optional"`
-	NotifyUrl            string  `json:"notify_url,optional"`
-	ReturnUrl            string  `json:"return_url,optional"`
-	IpWhitelist          string  `json:"ip_whitelist,optional"`
-	WithdrawUsdtAddress  string  `json:"withdraw_usdt_address,optional"`
-	PayinProductIds      []int64 `json:"payin_product_ids,optional"`
-	PayoutProductIds     []int64 `json:"payout_product_ids,optional"`
+	MerchantId          string  `json:"merchant_id,optional"` // 留空则由服务端生成 UUID
+	Email               string  `json:"email"`
+	NotifyUrl           string  `json:"notify_url,optional"`
+	ReturnUrl           string  `json:"return_url,optional"`
+	IpWhitelist         string  `json:"ip_whitelist,optional"`
+	WithdrawUsdtAddress string  `json:"withdraw_usdt_address,optional"`
+	PayinProductIds     []int64 `json:"payin_product_ids,optional"`
+	PayoutProductIds    []int64 `json:"payout_product_ids,optional"`
+}
+
+type AdminMerchantEmailAvailableReq struct {
+	Email string `form:"email"`
+}
+
+type AdminMerchantEmailAvailableResp struct {
+	Available bool `json:"available"`
 }
 
 type AdminUpdateMerchantReq struct {
-	MerchantId           string                `path:"merchant_id"`
-	Status               int64                 `json:"status,optional"`
-	DefaultPayinRateBps  int64                 `json:"default_payin_rate_bps,optional"`
-	DefaultPayoutRateBps int64                 `json:"default_payout_rate_bps,optional"`
-	NotifyUrl            string                `json:"notify_url,optional"`
-	ReturnUrl            string                `json:"return_url,optional"`
-	IpWhitelist          string                `json:"ip_whitelist,optional"`
-	WithdrawUsdtAddress  string                `json:"withdraw_usdt_address,optional"`
-	ResetSecret          bool                  `json:"reset_secret,optional"`
-	ResetPassword        bool                  `json:"reset_password,optional"`
-	PayinProductIds      []int64               `json:"payin_product_ids,optional"`
-	PayoutProductIds     []int64               `json:"payout_product_ids,optional"`
-	PayinGrants          []MerchantPayinGrant  `json:"payin_grants,optional"`  // 若提供则覆盖代收白名单（含空数组）
-	PayoutGrants         []MerchantPayoutGrant `json:"payout_grants,optional"` // 若提供则覆盖代付白名单
+	MerchantId          string                `path:"merchant_id"`
+	Status              int64                 `json:"status,optional"`
+	NotifyUrl           string                `json:"notify_url,optional"`
+	ReturnUrl           string                `json:"return_url,optional"`
+	IpWhitelist         string                `json:"ip_whitelist,optional"`
+	WithdrawUsdtAddress string                `json:"withdraw_usdt_address,optional"`
+	ResetSecret         bool                  `json:"reset_secret,optional"`
+	ResetPassword       bool                  `json:"reset_password,optional"`
+	PayinProductIds     []int64               `json:"payin_product_ids,optional"`
+	PayoutProductIds    []int64               `json:"payout_product_ids,optional"`
+	PayinGrants         []MerchantPayinGrant  `json:"payin_grants,optional"`  // 若提供则覆盖代收白名单（含空数组）
+	PayoutGrants        []MerchantPayoutGrant `json:"payout_grants,optional"` // 若提供则覆盖代付白名单
 }
 
 type AdminUpsertMerchantResp struct {
@@ -809,19 +811,21 @@ type AdminDisplaySettingsReq struct {
 }
 
 type AdminDisplaySettingsUpdateReq struct {
-	CountryCode     string  `json:"country_code"`
-	CurrencyCode    string  `json:"currency_code"`
-	CurrencySymbol  string  `json:"currency_symbol"`
-	FiatToUsdtRate  float64 `json:"fiat_to_usdt_rate"`
-	AdminMfaEnabled int64   `json:"admin_mfa_enabled,optional"`
+	CountryCode               string  `json:"country_code"`
+	CurrencyCode              string  `json:"currency_code"`
+	CurrencySymbol            string  `json:"currency_symbol"`
+	FiatToUsdtRate            float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled           int64   `json:"admin_mfa_enabled,optional"`
+	MerchantNumericIdStart    int64   `json:"merchant_numeric_id_start,optional"` // 新建商户自动数字 ID 起始值（含），1～9999999999
 }
 
 type AdminDisplaySettingsResp struct {
-	CountryCode     string  `json:"country_code"`
-	CurrencyCode    string  `json:"currency_code"`
-	CurrencySymbol  string  `json:"currency_symbol"`
-	FiatToUsdtRate  float64 `json:"fiat_to_usdt_rate"`
-	AdminMfaEnabled int64   `json:"admin_mfa_enabled"`
+	CountryCode            string  `json:"country_code"`
+	CurrencyCode           string  `json:"currency_code"`
+	CurrencySymbol         string  `json:"currency_symbol"`
+	FiatToUsdtRate         float64 `json:"fiat_to_usdt_rate"`
+	AdminMfaEnabled        int64   `json:"admin_mfa_enabled"`
+	MerchantNumericIdStart int64   `json:"merchant_numeric_id_start"`
 }
 
 type AdminCreateUserReq struct {

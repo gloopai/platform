@@ -499,14 +499,21 @@ missing_mid_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/payout/order" -H "Co
 assert_http_error "${missing_mid_raw}" "400" "MERCHANT_ID_REQUIRED" "missing_merchant_id"
 
 echo "[17/18] cross-merchant isolation check (query should be ORDER_NOT_FOUND)"
-create_second_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/admin/merchants" -H "X-Admin-Token: ${admin_token}" -H "Content-Type: application/json" -d "{\"merchant_id\":\"${SECOND_MERCHANT_ID}\",\"api_secret\":\"${SECOND_MERCHANT_SECRET}\",\"ip_whitelist\":\"127.0.0.1\"}" -w $'\n%{http_code}')"
+second_email="e2e-guard-${RANDOM}@example.invalid"
+create_second_raw="$(curl -sS -X POST "${GATEWAY_BASE_URL}/v1/admin/merchants" -H "X-Admin-Token: ${admin_token}" -H "Content-Type: application/json" -d "{\"merchant_id\":\"${SECOND_MERCHANT_ID}\",\"email\":\"${second_email}\",\"ip_whitelist\":\"127.0.0.1\"}" -w $'\n%{http_code}')"
+create_second_body="${create_second_raw%$'\n'*}"
 create_second_status="${create_second_raw##*$'\n'}"
-if [[ "${create_second_status}" != "200" ]]; then
-  create_second_body="${create_second_raw%$'\n'*}"
+second_secret="${SECOND_MERCHANT_SECRET}"
+if [[ "${create_second_status}" == "200" ]]; then
+  parsed_secret="$(json_get "${create_second_body}" "merchant.app_secret")"
+  if [[ -n "${parsed_secret}" ]]; then
+    second_secret="${parsed_secret}"
+  fi
+else
   echo "  create second merchant status=${create_second_status} (may already exist), continue"
   echo "  create second merchant body=${create_second_body}"
 fi
-second_login_resp="$(curl -fsS -X POST "${GATEWAY_BASE_URL}/v1/merchant/login" -H "Content-Type: application/json" -d "{\"merchant_id\":\"${SECOND_MERCHANT_ID}\",\"api_secret\":\"${SECOND_MERCHANT_SECRET}\"}")"
+second_login_resp="$(curl -fsS -X POST "${GATEWAY_BASE_URL}/v1/merchant/login" -H "Content-Type: application/json" -d "{\"merchant_id\":\"${SECOND_MERCHANT_ID}\",\"api_secret\":\"${second_secret}\"}")"
 second_merchant_token="$(json_get "${second_login_resp}" "token")"
 if [[ -z "${second_merchant_token}" ]]; then
   echo "second merchant login failed: ${second_login_resp}"

@@ -74,11 +74,12 @@ func (s *ServiceHubServer) GetDisplaySettings(ctx context.Context, _ *servicehub
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &servicehub.GetDisplaySettingsResp{
-		CountryCode:     row.CountryCode,
-		CurrencyCode:    row.CurrencyCode,
-		CurrencySymbol:  row.CurrencySymbol,
-		FiatToUsdtRate:  row.FiatToUsdtRate,
-		AdminMfaEnabled: row.AdminMfaEnabled,
+		CountryCode:            row.CountryCode,
+		CurrencyCode:           row.CurrencyCode,
+		CurrencySymbol:         row.CurrencySymbol,
+		FiatToUsdtRate:         row.FiatToUsdtRate,
+		AdminMfaEnabled:        row.AdminMfaEnabled,
+		MerchantNumericIdStart: row.MerchantNumericIDStart,
 	}, nil
 }
 
@@ -90,21 +91,34 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 	if country == "" || currency == "" || symbol == "" || rate <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "country_code, currency_code, currency_symbol, fiat_to_usdt_rate required")
 	}
+	start := req.GetMerchantNumericIdStart()
+	if start == 0 {
+		cur, err := s.svcCtx.GlobalSettings.GetDisplaySettings(ctx)
+		if err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+		start = cur.MerchantNumericIDStart
+	}
+	if start < 1 || start > 9999999999 {
+		return nil, status.Error(codes.InvalidArgument, "merchant_numeric_id_start must be 1..9999999999")
+	}
 	if err := s.svcCtx.GlobalSettings.UpsertDisplaySettings(ctx, &store.GlobalDisplaySettings{
-		CountryCode:     country,
-		CurrencyCode:    currency,
-		CurrencySymbol:  symbol,
-		FiatToUsdtRate:  rate,
-		AdminMfaEnabled: req.GetAdminMfaEnabled(),
+		CountryCode:            country,
+		CurrencyCode:           currency,
+		CurrencySymbol:         symbol,
+		FiatToUsdtRate:         rate,
+		AdminMfaEnabled:        req.GetAdminMfaEnabled(),
+		MerchantNumericIDStart: start,
 	}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &servicehub.GetDisplaySettingsResp{
-		CountryCode:     country,
-		CurrencyCode:    currency,
-		CurrencySymbol:  symbol,
-		FiatToUsdtRate:  rate,
-		AdminMfaEnabled: req.GetAdminMfaEnabled(),
+		CountryCode:            country,
+		CurrencyCode:           currency,
+		CurrencySymbol:         symbol,
+		FiatToUsdtRate:         rate,
+		AdminMfaEnabled:        req.GetAdminMfaEnabled(),
+		MerchantNumericIdStart: start,
 	}, nil
 }
 

@@ -37,6 +37,21 @@
         </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
+          <label class="grid gap-1 text-sm sm:col-span-2">
+            <span class="text-xs font-medium text-slate-500">新建商户数字 ID 起始值</span>
+            <input
+              v-model.number="merchantNumericIdStart"
+              type="number"
+              min="1"
+              max="9999999999"
+              step="1"
+              class="rounded-lg border border-slate-200 px-3 py-2 font-mono text-sm"
+              placeholder="1"
+            />
+            <span class="text-[11px] font-normal text-slate-500">
+              自动分配 10 位商户号时的下限（含）。若序列表已超过此值，下一个号仍连续递增；仅在新号需「抬高」时改大并保存。
+            </span>
+          </label>
           <label class="grid gap-1 text-sm">
             <span class="text-xs font-medium text-slate-500">国家代码</span>
             <input
@@ -156,15 +171,21 @@ const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
 const fiatToUsdtRate = ref(7.2)
 const adminMfaEnabled = ref(false)
+const merchantNumericIdStart = ref(1)
 
-const canSave = computed(
-  () =>
+const canSave = computed(() => {
+  const floor = Number(merchantNumericIdStart.value)
+  const floorOk =
+    Number.isFinite(floor) && Number.isInteger(floor) && floor >= 1 && floor <= 9999999999
+  return (
     countryCode.value.trim().length > 0 &&
     currencyCode.value.trim().length > 0 &&
     currencySymbol.value.trim().length > 0 &&
     Number.isFinite(fiatToUsdtRate.value) &&
-    fiatToUsdtRate.value > 0,
-)
+    fiatToUsdtRate.value > 0 &&
+    floorOk
+  )
+})
 
 const ratePreview = computed(() => {
   const v = Number(fiatToUsdtRate.value)
@@ -176,12 +197,22 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const ds = await adminGet<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number; admin_mfa_enabled: number }>('/v1/admin/display_settings')
+    const ds = await adminGet<{
+      country_code: string
+      currency_code: string
+      currency_symbol: string
+      fiat_to_usdt_rate: number
+      admin_mfa_enabled: number
+      merchant_numeric_id_start?: number
+    }>('/v1/admin/display_settings')
     countryCode.value = ds.country_code || 'CN'
     currencyCode.value = ds.currency_code || 'CNY'
     currencySymbol.value = ds.currency_symbol || '¥'
     fiatToUsdtRate.value = ds.fiat_to_usdt_rate > 0 ? ds.fiat_to_usdt_rate : 7.2
     adminMfaEnabled.value = Number(ds.admin_mfa_enabled || 0) === 1
+    const st = Number(ds.merchant_numeric_id_start ?? 1)
+    merchantNumericIdStart.value =
+      Number.isFinite(st) && st >= 1 && st <= 9999999999 ? Math.floor(st) : 1
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     error.value = msg
@@ -197,12 +228,20 @@ async function saveDisplaySettings() {
   saved.value = false
   error.value = ''
   try {
-    const r = await adminPut<{ country_code: string; currency_code: string; currency_symbol: string; fiat_to_usdt_rate: number; admin_mfa_enabled: number }>('/v1/admin/display_settings', {
+    const r = await adminPut<{
+      country_code: string
+      currency_code: string
+      currency_symbol: string
+      fiat_to_usdt_rate: number
+      admin_mfa_enabled: number
+      merchant_numeric_id_start?: number
+    }>('/v1/admin/display_settings', {
       country_code: countryCode.value.trim().toUpperCase(),
       currency_code: currencyCode.value.trim().toUpperCase(),
       currency_symbol: currencySymbol.value.trim(),
       fiat_to_usdt_rate: fiatToUsdtRate.value,
       admin_mfa_enabled: adminMfaEnabled.value ? 1 : 0,
+      merchant_numeric_id_start: Math.floor(Number(merchantNumericIdStart.value)),
     })
     applyAdminDisplaySettings(r)
     countryCode.value = r.country_code
@@ -210,6 +249,9 @@ async function saveDisplaySettings() {
     currencySymbol.value = r.currency_symbol
     fiatToUsdtRate.value = r.fiat_to_usdt_rate
     adminMfaEnabled.value = Number(r.admin_mfa_enabled || 0) === 1
+    const rst = Number(r.merchant_numeric_id_start ?? 1)
+    merchantNumericIdStart.value =
+      Number.isFinite(rst) && rst >= 1 && rst <= 9999999999 ? Math.floor(rst) : 1
     saved.value = true
     toast.success('展示配置已保存')
   } catch (e) {

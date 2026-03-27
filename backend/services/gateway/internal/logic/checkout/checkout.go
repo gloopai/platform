@@ -302,7 +302,6 @@ func calcPayoutFeeSnapshot(m *merchantpb.MerchantInfo, payoutProductID int64, am
 	if m == nil || amount <= 0 || payoutProductID <= 0 {
 		return
 	}
-	feeRateBps = m.GetDefaultPayoutRateBps()
 	var matched *merchantpb.MerchantPayoutGrant
 	for _, g := range m.GetPayoutGrants() {
 		if g == nil || g.GetPayoutProductId() != payoutProductID {
@@ -667,7 +666,6 @@ func calcPayinFeeSnapshot(m *merchantpb.MerchantInfo, payinProductID, amount int
 	if m == nil || amount <= 0 {
 		return
 	}
-	feeRateBps = m.GetDefaultPayinRateBps()
 	for _, g := range m.GetPayinGrants() {
 		if g == nil || g.GetPayinProductId() != payinProductID {
 			continue

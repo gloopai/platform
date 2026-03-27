@@ -6,8 +6,6 @@ CREATE TABLE IF NOT EXISTS merchants (
   api_secret VARCHAR(128) NOT NULL,
   password_hash VARCHAR(128) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
-  default_payin_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收：未单独配置产品费率时使用',
-  default_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付：未单独配置产品费率时使用',
   ip_whitelist TEXT NULL,
   payin_balance BIGINT NOT NULL DEFAULT 0,
   available_balance BIGINT NOT NULL DEFAULT 0,
@@ -22,6 +20,16 @@ CREATE TABLE IF NOT EXISTS merchants (
   UNIQUE KEY uk_app_id (app_id),
   UNIQUE KEY uk_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 新商户数字型 merchant_id（10 位零填充）的原子自增序列；留空创建时由 Core 取号
+CREATE TABLE IF NOT EXISTS merchant_numeric_seq (
+  slot TINYINT UNSIGNED NOT NULL,
+  next_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (slot)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO merchant_numeric_seq (slot, next_id) VALUES (1, 0)
+ON DUPLICATE KEY UPDATE next_id = merchant_numeric_seq.next_id;
 
 -- 上游通道：可单独开通代收/代付能力；平台相对上游的费率在通道级配置
 CREATE TABLE IF NOT EXISTS channels (
@@ -110,13 +118,13 @@ CREATE TABLE IF NOT EXISTS payout_product_channels (
   CONSTRAINT fk_ppoc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 商户代收产品白名单；merchant_rate_bps NULL 表示使用 merchants.default_payin_rate_bps
+-- 商户代收产品白名单；merchant_rate_bps NULL 表示按 0 bps 计费（请在产品上显式配置费率）
 CREATE TABLE IF NOT EXISTS merchant_payin_products (
   merchant_id VARCHAR(64) NOT NULL,
   payin_product_id BIGINT UNSIGNED NOT NULL,
   enabled TINYINT NOT NULL DEFAULT 1,
   sort_order INT NOT NULL DEFAULT 0,
-  merchant_rate_bps INT NULL COMMENT '对该商户该代收产品的费率，NULL=用商户默认代收费率',
+  merchant_rate_bps INT NULL COMMENT '对该商户该代收产品的费率（bps），NULL 视为 0',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (merchant_id, payin_product_id),
@@ -131,7 +139,7 @@ CREATE TABLE IF NOT EXISTS merchant_payout_products (
   enabled TINYINT NOT NULL DEFAULT 1,
   sort_order INT NOT NULL DEFAULT 0,
   fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '1=比例 2=固定 3=固定+比例',
-  merchant_rate_bps INT NULL COMMENT '对该商户该代付产品的费率，NULL=用商户默认代付费率',
+  merchant_rate_bps INT NULL COMMENT '对该商户该代付产品的费率（bps），NULL 视为 0',
   fee_fixed_amount BIGINT NOT NULL DEFAULT 0 COMMENT '固定手续费（分）',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

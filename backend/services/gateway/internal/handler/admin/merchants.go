@@ -40,6 +40,23 @@ func AdminCreateMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func AdminMerchantEmailAvailableHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.AdminMerchantEmailAvailableReq
+		if err := httpx.Parse(r, &req); err != nil {
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
+			return
+		}
+		l := logic.NewAdminMerchants(r.Context(), svcCtx)
+		resp, err := l.AdminMerchantEmailAvailable(&req)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
 func AdminUpdateMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminUpdateMerchantReq

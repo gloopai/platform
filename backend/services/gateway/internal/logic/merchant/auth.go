@@ -104,15 +104,13 @@ func (a *MerchantAuth) MerchantChangePassword(req *types.MerchantChangePasswordR
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}
 	if _, err := a.svcCtx.MerchantRpc.UpdateMerchant(a.ctx, &merchantclient.UpdateMerchantReq{
-		MerchantId:           merchantId,
-		AppSecret:            m.GetAppSecret(),
-		Status:               m.GetStatus(),
-		DefaultPayinRateBps:  m.GetDefaultPayinRateBps(),
-		DefaultPayoutRateBps: m.GetDefaultPayoutRateBps(),
-		NotifyUrl:            m.GetNotifyUrl(),
-		ReturnUrl:            m.GetReturnUrl(),
-		IpWhitelist:          m.GetIpWhitelist(),
-		PasswordHash:         string(hash),
+		MerchantId:   merchantId,
+		AppSecret:    m.GetAppSecret(),
+		Status:       m.GetStatus(),
+		NotifyUrl:    m.GetNotifyUrl(),
+		ReturnUrl:    m.GetReturnUrl(),
+		IpWhitelist:  m.GetIpWhitelist(),
+		PasswordHash: string(hash),
 	}); err != nil {
 		return nil, err
 	}
