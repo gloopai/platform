@@ -22,9 +22,7 @@ import json
 import secrets
 import sys
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 from typing import Any
 
 API_CODE_SUCCESS = 2000
@@ -75,38 +73,56 @@ def _conn_error_hint(url: str, err: BaseException) -> str:
     )
 
 
-def _post_json(url: str, body: dict[str, Any], timeout: float = 30.0) -> tuple[int, str]:
-    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=data,
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Connection": "close",
-        },
-        method="POST",
-    )
+def _http_request(
+    method: str,
+    url: str,
+    *,
+    body: bytes | None = None,
+    timeout: float = 30.0,
+) -> tuple[int, str]:
+    """用 http.client 发请求。Python 3.13+ 上 urllib.request.urlopen 对本地 HTTP 常误报 RemoteDisconnected。"""
+    parsed = urllib.parse.urlparse(url)
+    scheme = (parsed.scheme or "http").lower()
+    if scheme not in ("http", "https"):
+        sys.stderr.write(f"不支持的 URL scheme: {scheme!r}（仅支持 http/https）\n")
+        raise SystemExit(1)
+    host = parsed.hostname
+    if not host:
+        sys.stderr.write(f"非法 URL: {url}\n")
+        raise SystemExit(1)
+    port = parsed.port
+    if port is None:
+        port = 443 if scheme == "https" else 80
+    path = parsed.path or "/"
+    if parsed.query:
+        path += "?" + parsed.query
+
+    headers: dict[str, str] = {"Accept": "application/json", "Connection": "close"}
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+
+    Conn = http.client.HTTPSConnection if scheme == "https" else http.client.HTTPConnection
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.getcode(), resp.read().decode("utf-8")
-    except urllib.error.HTTPError as e:
-        return e.code, e.read().decode("utf-8")
-    except (urllib.error.URLError, http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, OSError) as e:
+        conn = Conn(host, port, timeout=timeout)
+        try:
+            conn.request(method, path, body=body, headers=headers)
+            resp = conn.getresponse()
+            text = resp.read().decode("utf-8")
+            return resp.status, text
+        finally:
+            conn.close()
+    except (http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, TimeoutError, OSError) as e:
         sys.stderr.write(_conn_error_hint(url, e))
         raise SystemExit(1) from None
+
+
+def _post_json(url: str, body: dict[str, Any], timeout: float = 30.0) -> tuple[int, str]:
+    data = json.dumps(body, ensure_ascii=False).encode("utf-8")
+    return _http_request("POST", url, body=data, timeout=timeout)
 
 
 def _get(url: str, timeout: float = 30.0) -> tuple[int, str]:
-    req = urllib.request.Request(url, headers={"Accept": "application/json", "Connection": "close"}, method="GET")
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.getcode(), resp.read().decode("utf-8")
-    except urllib.error.HTTPError as e:
-        return e.code, e.read().decode("utf-8")
-    except (urllib.error.URLError, http.client.RemoteDisconnected, ConnectionResetError, BrokenPipeError, OSError) as e:
-        sys.stderr.write(_conn_error_hint(url, e))
-        raise SystemExit(1) from None
+    return _http_request("GET", url, timeout=timeout)
 
 
 def parse_envelope(text: str) -> tuple[bool, int | None, str, dict[str, Any]]:
