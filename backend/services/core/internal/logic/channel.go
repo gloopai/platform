@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	channelpb "github.com/gloopai/pay/common/pb/channel"
-	"github.com/gloopai/pay/trade/internal/svc"
+	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

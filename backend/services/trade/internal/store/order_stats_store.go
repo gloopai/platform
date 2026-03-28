@@ -101,16 +101,16 @@ WHERE `+where+`
 		ClosedCount:  tRow.ClosedCount,
 	}
 
+	// 产品展示名由 core Channel 服务维护；此处仅按订单上的 product_code 聚合（避免 trade 直连 catalog 表）。
 	prodRows, err := s.db.WithContext(ctx).Raw(`
 SELECT
   COALESCE(NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)'),
-  MAX(COALESCE(pp.name, NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)')),
+  MAX(COALESCE(NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)')),
   COUNT(*),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN COALESCE(o.paid_amount, o.amount) ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 2 THEN 1 ELSE 0 END), 0)
 FROM payin_orders o
-LEFT JOIN payin_products pp ON pp.code = o.payin_product_code
 WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`
 GROUP BY COALESCE(NULLIF(TRIM(o.payin_product_code), ''), '(未指定产品)')
@@ -136,13 +136,12 @@ ORDER BY 4 DESC, 3 DESC
 	chRows, err := s.db.WithContext(ctx).Raw(`
 SELECT
   o.channel_id,
-  COALESCE(MAX(c.name), IF(o.channel_id = 0, '未路由', CONCAT('通道#', o.channel_id))),
+  IF(o.channel_id = 0, '未路由', CONCAT('通道#', o.channel_id)),
   COUNT(*),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN COALESCE(o.paid_amount, o.amount) ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 1 THEN 1 ELSE 0 END), 0),
   COALESCE(SUM(CASE WHEN o.status = 2 THEN 1 ELSE 0 END), 0)
 FROM payin_orders o
-LEFT JOIN channels c ON c.id = o.channel_id
 WHERE o.created_at >= ? AND o.created_at < ?
 `+merchantCondAlias+`
 GROUP BY o.channel_id

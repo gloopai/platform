@@ -1,39 +1,29 @@
 package svc
 
 import (
-	"context"
-
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/channeldriver/mockpsp"
 	"github.com/gloopai/pay/channeldriver/mockpsp2"
-	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
+	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/trade/internal/config"
-	"github.com/gloopai/pay/trade/internal/kvcache"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/redis/go-redis/v9"
+	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
-	Config                config.Config
-	Gorm                  *gorm.DB
-	Redis                 *redis.Client
-	PayOrders             *store.PayinOrdersStore
-	PayoutOrders          *store.PayoutOrdersStore
-	Channels              *store.ChannelsStore
-	MerchantPayinProducts *store.MerchantPayinProductsStore
-	PayinProducts         *store.PayinProductsStore
-	PayoutProducts        *store.PayoutProductsStore
-	OrderStats            *store.OrderStatsStore
-	RoutingSummary        *store.RoutingSummaryStore
-	NotifyLogs            *store.NotifyLogsStore
-	RuntimeConfig         *consulx.ConfigStore
-	ChannelSnapshot       *kvcache.ChannelSnapshot
-	PayinProductSnapshot  *kvcache.PayinProductSnapshot
-	PayoutProductSnapshot *kvcache.PayoutProductSnapshot
-	ChannelDrivers        *channeldriver.Registry
+	Config         config.Config
+	Gorm           *gorm.DB
+	Redis          *redis.Client
+	PayOrders      *store.PayinOrdersStore
+	PayoutOrders   *store.PayoutOrdersStore
+	OrderStats     *store.OrderStatsStore
+	NotifyLogs     *store.NotifyLogsStore
+	ChannelDrivers *channeldriver.Registry
+	ChannelRpc     channelclient.Channel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -52,40 +42,19 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Password: c.BizRedis.Password,
 		DB:       c.BizRedis.DB,
 	})
-	var runtimeCfg *consulx.ConfigStore
-	var channelSnap *kvcache.ChannelSnapshot
-	var payinProdSnap *kvcache.PayinProductSnapshot
-	var payoutProdSnap *kvcache.PayoutProductSnapshot
-	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
-		cfg.Start()
-		runtimeCfg = cfg
-		channelSnap = kvcache.NewChannelSnapshot(cfg)
-		channelSnap.Start(context.Background())
-		payinProdSnap = kvcache.NewPayinProductSnapshot(cfg)
-		payinProdSnap.Start(context.Background())
-		payoutProdSnap = kvcache.NewPayoutProductSnapshot(cfg)
-		payoutProdSnap.Start(context.Background())
-	}
+	coreCli := zrpc.MustNewClient(c.CoreRpc)
 	reg := channeldriver.NewRegistry()
 	_ = mockpsp.RegisterAll(reg, mockpsp.New(mockpsp.DefaultDriverKey))
 	_ = mockpsp2.RegisterAll(reg, mockpsp2.New(mockpsp2.DefaultDriverKey))
 	return &ServiceContext{
-		Config:                c,
-		Gorm:                  gdb,
-		Redis:                 rdb,
-		PayOrders:             store.NewPayinOrdersStore(gdb),
-		PayoutOrders:          store.NewPayoutOrdersStore(gdb),
-		Channels:              store.NewChannelsStore(gdb),
-		MerchantPayinProducts: store.NewMerchantPayinProductsStore(gdb),
-		PayinProducts:         store.NewPayinProductsStore(gdb),
-		PayoutProducts:        store.NewPayoutProductsStore(gdb),
-		OrderStats:            store.NewOrderStatsStore(gdb),
-		RoutingSummary:        store.NewRoutingSummaryStore(gdb),
-		NotifyLogs:            store.NewNotifyLogsStore(gdb),
-		RuntimeConfig:         runtimeCfg,
-		ChannelSnapshot:       channelSnap,
-		PayinProductSnapshot:  payinProdSnap,
-		PayoutProductSnapshot: payoutProdSnap,
-		ChannelDrivers:        reg,
+		Config:         c,
+		Gorm:           gdb,
+		Redis:          rdb,
+		PayOrders:      store.NewPayinOrdersStore(gdb),
+		PayoutOrders:   store.NewPayoutOrdersStore(gdb),
+		OrderStats:     store.NewOrderStatsStore(gdb),
+		NotifyLogs:     store.NewNotifyLogsStore(gdb),
+		ChannelDrivers: reg,
+		ChannelRpc:     channelclient.NewChannel(coreCli),
 	}
 }

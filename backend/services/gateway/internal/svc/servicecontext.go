@@ -160,7 +160,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 		OrderRpc:    orderclient.NewOrder(tradeCli),
 		SettleRpc:   settleclient.NewSettle(coreCli),
-		ChannelRpc:  channelclient.NewChannel(tradeCli),
+		ChannelRpc:  channelclient.NewChannel(coreCli),
 		MerchantRpc: merchantclient.NewMerchant(coreCli),
 
 		NsqProducer:    producer,

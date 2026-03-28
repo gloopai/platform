@@ -4,6 +4,8 @@ import "github.com/zeromicro/go-zero/zrpc"
 
 type Config struct {
 	zrpc.RpcServerConf
+	// CoreRpc 用于通道/支付产品等配置读接口（Channel gRPC 已注册在 core）。
+	CoreRpc zrpc.RpcClientConf `json:",optional"`
 	Timezone string `json:",optional"`
 	Mysql    struct {
 		DataSource string

@@ -12,8 +12,8 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/common/model"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	orderpb "github.com/gloopai/pay/common/pb/order"
-	"github.com/gloopai/pay/trade/internal/kvcache"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/gloopai/pay/trade/internal/svc"
 	"github.com/go-sql-driver/mysql"
@@ -517,18 +517,23 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.InvalidArgument, "payin_product_code required")
 	}
 
-	ok, err := l.svcCtx.MerchantPayinProducts.MerchantHasPayinProductCode(l.ctx, rec.MerchantId, code)
+	mh, err := l.svcCtx.ChannelRpc.MerchantHasPayinProductCode(l.ctx, &channelpb.MerchantHasPayinProductCodeReq{
+		MerchantId:       rec.MerchantId,
+		PayinProductCode: code,
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "check merchant pay products failed")
 	}
-	if !ok {
+	if !mh.GetOk() {
 		return nil, status.Error(codes.PermissionDenied, "payin_product not enabled for this merchant")
 	}
 
-	chID, payPID, err := l.svcCtx.Channels.Route(l.ctx, code, rec.Amount)
+	route, err := l.svcCtx.ChannelRpc.Route(l.ctx, &channelpb.RouteReq{Amount: rec.Amount, PayinType: code})
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
 	}
+	chID := route.GetChannelId()
+	payPID := route.GetPayinProductId()
 	if chID <= 0 {
 		return nil, status.Error(codes.FailedPrecondition, "no available channel")
 	}
@@ -572,16 +577,20 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *model.OrderRecord, 
 
 // terminalPaySurface uses channeldriver when channels.payin_type matches a registered driver and Upstream.CheckoutNotifyBaseURL is set; otherwise legacy gateway_url / mock surface.
 func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, orderNo string, rec *model.OrderRecord) (*orderpb.PrepareTerminalPayResp, error) {
-	chRow, err := l.svcCtx.Channels.AdminGetByID(l.ctx, chID)
+	gch, err := l.svcCtx.ChannelRpc.GetChannel(l.ctx, &channelpb.GetChannelReq{ChannelId: chID})
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
-	dk := strings.TrimSpace(chRow.PayinType)
-	gw := chRow.GatewayUrl
-	mer := chRow.ChannelMerchantNo
-	sig := chRow.SignSecret
-	rsa := chRow.RsaPrivateKey
-	cfgJSON := kvcache.PickChannelConfig(l.svcCtx.ChannelSnapshot, chRow.ID, chRow.ChannelConfig)
+	chRow := gch.GetChannel()
+	if chRow == nil {
+		return nil, status.Error(codes.Internal, "load channel failed")
+	}
+	dk := strings.TrimSpace(chRow.GetPayinType())
+	gw := chRow.GetGatewayUrl()
+	mer := chRow.GetChannelMerchantNo()
+	sig := chRow.GetSignSecret()
+	rsa := chRow.GetRsaPrivateKey()
+	cfgJSON := chRow.GetChannelConfig()
 	if uc := strings.TrimSpace(cfgJSON); uc != "" {
 		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
 		if jg != "" {
@@ -601,8 +610,8 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 	if notifyBase != "" && dk != "" {
 		if drv, derr := l.svcCtx.ChannelDrivers.Payin(dk); derr == nil {
 			cfg := channeldriver.ConfigFromDriverKey(
-				chRow.ID, dk, gw, mer, sig, rsa,
-				chRow.SupportsPayin, chRow.SupportsPayout,
+				chRow.GetId(), dk, gw, mer, sig, rsa,
+				chRow.GetSupportsPayin(), chRow.GetSupportsPayout(),
 			)
 			notifyURL := fmt.Sprintf("%s/v1/callback/upstream/payin?channel_id=%d&order_no=%s",
 				strings.TrimRight(notifyBase, "/"), chID, url.QueryEscape(orderNo))
@@ -678,7 +687,11 @@ func (l *AdminTodayOverviewLogic) AdminTodayOverview(*orderpb.AdminTodayOverview
 	if err != nil {
 		return nil, err
 	}
-	rs, _ := l.svcCtx.RoutingSummary.Get(l.ctx)
+	var enabledCh, fused int64
+	if rs, rerr := l.svcCtx.ChannelRpc.GetRoutingSummary(l.ctx, &channelpb.GetRoutingSummaryReq{}); rerr == nil && rs != nil {
+		enabledCh = rs.GetEnabledChannels()
+		fused = rs.GetFusedChannels()
+	}
 
 	totals := &orderpb.AdminStatsTotals{
 		OrderCount:             tot.OrderCount,
@@ -724,8 +737,8 @@ func (l *AdminTodayOverviewLogic) AdminTodayOverview(*orderpb.AdminTodayOverview
 		Totals:          totals,
 		ByPayinProduct:  outProd,
 		ByChannel:       outCh,
-		EnabledChannels: rs.EnabledChannels,
-		FusedChannels:   rs.FusedChannels,
+		EnabledChannels: enabledCh,
+		FusedChannels:   fused,
 	}, nil
 }
 

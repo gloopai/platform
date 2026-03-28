@@ -8,7 +8,7 @@ import (
 	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 
-	"github.com/gloopai/pay/trade/internal/kvcache"
+	"github.com/gloopai/pay/core/internal/kvcache"
 )
 
 type PayinProductsStore struct {

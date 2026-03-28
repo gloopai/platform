@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/gloopai/pay/common/consulx"
+	channelpb "github.com/gloopai/pay/common/pb/channel"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	settlepb "github.com/gloopai/pay/common/pb/settle"
 	"github.com/gloopai/pay/common/timex"
@@ -45,6 +46,7 @@ func main() {
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		merchantpb.RegisterMerchantServer(grpcServer, server.NewMerchantServer(ctx))
 		settlepb.RegisterSettleServer(grpcServer, server.NewSettleServer(ctx))
+		channelpb.RegisterChannelServer(grpcServer, server.NewChannelServer(ctx))
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}

@@ -10,9 +10,10 @@ import (
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
-	"github.com/gloopai/pay/trade/internal/logic"
-	"github.com/gloopai/pay/trade/internal/store"
-	"github.com/gloopai/pay/trade/internal/svc"
+	"github.com/gloopai/pay/core/internal/kvcache"
+	"github.com/gloopai/pay/core/internal/logic"
+	"github.com/gloopai/pay/core/internal/store"
+	"github.com/gloopai/pay/core/internal/svc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -195,9 +196,10 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 		}
 		return nil, err
 	}
-	// 通道整行快照以库表为准；Consul 存 JSON 快照，内存反序列化为结构体，用于 OpenAPI 热路径（PrepareTerminalPay / 网关 GetSignSecret）。
-	// 商户、代收/代付产品同理：管理台写库并同步整行快照 KV。
-	return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
+	// 单条查询：channel_config 优先合并 Consul 快照（与下单/回调热路径一致）。
+	effective := *ch
+	effective.ChannelConfig = kvcache.PickChannelConfig(s.svcCtx.ChannelSnapshot, ch.ID, ch.ChannelConfig)
+	return &channelpb.GetChannelResp{Channel: toChannelRow(&effective)}, nil
 }
 
 func (s *ChannelServer) ListChannels(ctx context.Context, _ *channelpb.ListChannelsReq) (*channelpb.ListChannelsResp, error) {

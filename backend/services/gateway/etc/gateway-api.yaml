@@ -5,7 +5,7 @@ ServiceName: gateway
 #   8088  MerchantServer  /v1/merchant/*
 #   8090  OpenAPIServer   /v1/payin|payout/*（验签）、/v1/callback/*（通道回调，无商户验签）
 #   8092  CheckoutServer  /v1/terminal/*（收银终端）
-# gRPC（见各 rpc 等）：trade :8081、core :8084、service-hub :8094
+# gRPC：trade :8081（订单）、core :8084（商户/结算/通道与支付产品）、service-hub :8094
 AdminServer:
   Name: gateway-admin-api
   Host: 0.0.0.0
