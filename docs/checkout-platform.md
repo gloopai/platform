@@ -15,7 +15,7 @@
 npm run dev:checkout
 ```
 
-默认开发服务器见 `frontend/apps/checkout/vite.config.ts`：`/v1` 代理到本机网关 `http://127.0.0.1:8080`，便于联调终端接口。
+默认开发服务器见 `frontend/apps/checkout/vite.config.ts`：`/v1/terminal` 与 `/health` 代理到本机网关 **CheckoutServer** `http://127.0.0.1:8092`（与 `backend/services/gateway/etc/gateway-api.yaml` 中 `CheckoutServer.Port` 一致），便于联调收银台终端接口。
 
 ---
 

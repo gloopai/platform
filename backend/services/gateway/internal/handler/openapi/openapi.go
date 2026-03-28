@@ -1,4 +1,4 @@
-// 收银台终端与上游回调（挂 AdminServer / CheckoutServer）
+// 商户签名 OpenAPI：代收/代付下单与查询、余额查询（挂 OpenAPIServer）
 package handler
 
 import (
@@ -12,17 +12,17 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func CreateOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
-		var req types.UpstreamNotifyReq
+		var req types.CreateOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		resp, err := l.UpstreamNotify(&req)
+		resp, err := l.CreateOrder(&req)
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 		} else {
@@ -31,25 +31,17 @@ func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
-func UpstreamPayinNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func QueryOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
-		l := logic.NewCheckout(r.Context(), svcCtx)
-		l.UpstreamPayinNotify(w, r)
-	}
-}
-
-func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		r = requestx.Ensure(r, w)
-		var req types.TerminalOrderReq
+		var req types.QueryOrderReq
 		if err := httpx.Parse(r, &req); err != nil {
 			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		resp, err := l.TerminalOrder(&req)
+		resp, err := l.QueryOrder(&req)
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 		} else {
@@ -58,16 +50,54 @@ func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
-func TerminalPayHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func CreatePayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
-		var req types.TerminalPayReq
+		var req types.CreatePayinOrderReq
+		if err := httpx.Parse(r, &req); err != nil {
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
+			return
+		}
+
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		resp, err := l.CreatePayoutOrder(&req)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
+func QueryPayoutOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
+		var req types.QueryOrderReq
+		if err := httpx.Parse(r, &req); err != nil {
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
+			return
+		}
+
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		resp, err := l.QueryPayoutOrder(&req)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
+func QueryMerchantBalanceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
+		var req types.MerchantBalanceQueryReq
 		if err := httpx.Parse(r, &req); err != nil {
 			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		resp, err := l.TerminalPay(&req)
+		resp, err := l.QueryMerchantBalance(&req)
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 		} else {

@@ -42,6 +42,8 @@
 
 别名 **`@/`** 指向 `src/`，见 `vite.config.ts` 与 `tsconfig.app.json`。
 
+**本地 `npm run dev` 时的反向代理**（`frontend/apps/merchant/vite.config.ts`）：网关按端口拆成多路 HTTP 服务，开发代理需把路径指到正确端口。开放接口与商户控制台共用 `/v1/merchant` 前缀时，须把 **`/v1/merchant/balance/query`（签名）** 指到 **OpenAPI 8090**，把 **`/v1/merchant/*`（控制台 Token）** 指到 **MerchantServer 8088**，因此配置里 **更长前缀写在前面**；`/v1/callback/notify` 在 **AdminServer 8080**，`/v1/callback/upstream` 在 **CheckoutServer 8092**。
+
 订单相关接口中的 **`pay_product_code`** 表示对外「支付产品」编码（与开放 API `pay_type` 一致），与内部 `channel_id`（上游实例）不同，见 [`通道与支付产品.md`](./通道与支付产品.md)。
 
 ---
@@ -65,8 +67,8 @@
 
 在 **`api/endpoints.ts`** 的 `OPEN_API` 中维护：
 
-- `POST /v1/pay/order` — 下单
-- `GET /v1/pay/query` — 查单（签名同开放平台，见开发页「查单联调」）
+- `POST /v1/payin/order` — 下单
+- `GET /v1/payin/query` / `GET /v1/payout/query` — 查单（签名同开放平台，见开发页「查单联调」）
 - `POST /v1/callback/notify` — 模拟上游回调（开发页）
 
 `DevelopersPage.vue` 中已改为引用 `OPEN_API`，避免硬编码散落。

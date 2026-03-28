@@ -9,6 +9,7 @@ import (
 	adminhandler "github.com/gloopai/pay/gateway/internal/handler/admin"
 	checkouthandler "github.com/gloopai/pay/gateway/internal/handler/checkout"
 	merchanthandler "github.com/gloopai/pay/gateway/internal/handler/merchant"
+	openapihandler "github.com/gloopai/pay/gateway/internal/handler/openapi"
 	"github.com/gloopai/pay/gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -47,27 +48,27 @@ func RegisterOpenAPIHandlers(server *rest.Server, serverCtx *svc.ServiceContext)
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/payin/order",
-					Handler: checkouthandler.CreateOrderHandler(serverCtx),
+					Handler: openapihandler.CreateOrderHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
 					Path:    "/v1/payout/order",
-					Handler: checkouthandler.CreatePayoutOrderHandler(serverCtx),
+					Handler: openapihandler.CreatePayoutOrderHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/payin/query",
-					Handler: checkouthandler.QueryOrderHandler(serverCtx),
+					Handler: openapihandler.QueryOrderHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/payout/query",
-					Handler: checkouthandler.QueryPayoutOrderHandler(serverCtx),
+					Handler: openapihandler.QueryPayoutOrderHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodGet,
 					Path:    "/v1/merchant/balance/query",
-					Handler: checkouthandler.QueryMerchantBalanceHandler(serverCtx),
+					Handler: openapihandler.QueryMerchantBalanceHandler(serverCtx),
 				},
 			}...,
 		),
