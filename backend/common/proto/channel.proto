@@ -7,6 +7,9 @@ service Channel {
   rpc Route(RouteReq) returns(RouteResp);
   rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
 
+  // 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+  rpc GetChannel(GetChannelReq) returns (GetChannelResp);
+
   rpc ListChannels(ListChannelsReq) returns (ListChannelsResp);
   rpc CreateChannel(UpsertChannelReq) returns (UpsertChannelResp);
   rpc UpdateChannel(UpsertChannelReq) returns (UpsertChannelResp);
@@ -54,6 +57,14 @@ message GetSignSecretResp {
 }
 
 message ListChannelsReq {}
+
+message GetChannelReq {
+  int64 channel_id = 1;
+}
+
+message GetChannelResp {
+  ChannelRow channel = 1;
+}
 
 message ChannelRow {
   int64 id = 1;

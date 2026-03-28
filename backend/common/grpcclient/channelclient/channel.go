@@ -19,6 +19,7 @@ type (
 		Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
 		GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 
+		GetChannel(ctx context.Context, in *channel.GetChannelReq, opts ...grpc.CallOption) (*channel.GetChannelResp, error)
 		ListChannels(ctx context.Context, in *channel.ListChannelsReq, opts ...grpc.CallOption) (*channel.ListChannelsResp, error)
 		CreateChannel(ctx context.Context, in *channel.UpsertChannelReq, opts ...grpc.CallOption) (*channel.UpsertChannelResp, error)
 		UpdateChannel(ctx context.Context, in *channel.UpsertChannelReq, opts ...grpc.CallOption) (*channel.UpsertChannelResp, error)
@@ -65,6 +66,10 @@ func (m *defaultChannel) Route(ctx context.Context, in *RouteReq, opts ...grpc.C
 
 func (m *defaultChannel) GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error) {
 	return m.client().GetSignSecret(ctx, in, opts...)
+}
+
+func (m *defaultChannel) GetChannel(ctx context.Context, in *channel.GetChannelReq, opts ...grpc.CallOption) (*channel.GetChannelResp, error) {
+	return m.client().GetChannel(ctx, in, opts...)
 }
 
 func (m *defaultChannel) ListChannels(ctx context.Context, in *channel.ListChannelsReq, opts ...grpc.CallOption) (*channel.ListChannelsResp, error) {

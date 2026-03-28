@@ -90,6 +90,20 @@ func payoutBindingToProto(b *store.PayoutProductBindingAdmin) *channelpb.AdminPa
 	}
 }
 
+func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChannelReq) (*channelpb.GetChannelResp, error) {
+	if req.GetChannelId() <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "channel_id required")
+	}
+	ch, err := s.svcCtx.Channels.AdminGetByID(ctx, req.GetChannelId())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "channel not found")
+		}
+		return nil, err
+	}
+	return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
+}
+
 func (s *ChannelServer) ListChannels(ctx context.Context, _ *channelpb.ListChannelsReq) (*channelpb.ListChannelsResp, error) {
 	items, err := s.svcCtx.Channels.AdminList(ctx)
 	if err != nil {

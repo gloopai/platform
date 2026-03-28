@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/channeldriver"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/gateway/internal/requestx"
@@ -24,19 +26,17 @@ func (c *Checkout) UpstreamPayoutNotify(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	list, err := c.svcCtx.ChannelRpc.ListChannels(c.ctx, &channelpb.ListChannelsReq{})
+	gch, err := c.svcCtx.ChannelRpc.GetChannel(c.ctx, &channelpb.GetChannelReq{ChannelId: channelID})
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_payout list_channels err=%v", reqID, err)
+		if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
+			http.Error(w, "channel not found", http.StatusNotFound)
+			return
+		}
+		c.Errorf("request_id=%s action=upstream_payout get_channel err=%v", reqID, err)
 		http.Error(w, "internal", http.StatusInternalServerError)
 		return
 	}
-	var chRow *channelpb.ChannelRow
-	for _, row := range list.GetChannels() {
-		if row.GetId() == channelID {
-			chRow = row
-			break
-		}
-	}
+	chRow := gch.GetChannel()
 	if chRow == nil {
 		c.Errorf("request_id=%s action=upstream_payout channel_not_found id=%d", reqID, channelID)
 		http.Error(w, "channel not found", http.StatusNotFound)

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Channel_Route_FullMethodName                           = "/channel.Channel/Route"
 	Channel_GetSignSecret_FullMethodName                   = "/channel.Channel/GetSignSecret"
+	Channel_GetChannel_FullMethodName                      = "/channel.Channel/GetChannel"
 	Channel_ListChannels_FullMethodName                    = "/channel.Channel/ListChannels"
 	Channel_CreateChannel_FullMethodName                   = "/channel.Channel/CreateChannel"
 	Channel_UpdateChannel_FullMethodName                   = "/channel.Channel/UpdateChannel"
@@ -51,6 +52,8 @@ const (
 type ChannelClient interface {
 	Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
+	// 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+	GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error)
 	ListChannels(ctx context.Context, in *ListChannelsReq, opts ...grpc.CallOption) (*ListChannelsResp, error)
 	CreateChannel(ctx context.Context, in *UpsertChannelReq, opts ...grpc.CallOption) (*UpsertChannelResp, error)
 	UpdateChannel(ctx context.Context, in *UpsertChannelReq, opts ...grpc.CallOption) (*UpsertChannelResp, error)
@@ -97,6 +100,16 @@ func (c *channelClient) GetSignSecret(ctx context.Context, in *GetSignSecretReq,
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetSignSecretResp)
 	err := c.cc.Invoke(ctx, Channel_GetSignSecret_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetChannelResp)
+	err := c.cc.Invoke(ctx, Channel_GetChannel_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -329,6 +342,8 @@ func (c *channelClient) AdminDeletePayoutProductBinding(ctx context.Context, in 
 type ChannelServer interface {
 	Route(context.Context, *RouteReq) (*RouteResp, error)
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
+	// 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+	GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error)
 	ListChannels(context.Context, *ListChannelsReq) (*ListChannelsResp, error)
 	CreateChannel(context.Context, *UpsertChannelReq) (*UpsertChannelResp, error)
 	UpdateChannel(context.Context, *UpsertChannelReq) (*UpsertChannelResp, error)
@@ -366,6 +381,9 @@ func (UnimplementedChannelServer) Route(context.Context, *RouteReq) (*RouteResp,
 }
 func (UnimplementedChannelServer) GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSignSecret not implemented")
+}
+func (UnimplementedChannelServer) GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChannel not implemented")
 }
 func (UnimplementedChannelServer) ListChannels(context.Context, *ListChannelsReq) (*ListChannelsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListChannels not implemented")
@@ -486,6 +504,24 @@ func _Channel_GetSignSecret_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChannelServer).GetSignSecret(ctx, req.(*GetSignSecretReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_GetChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChannelReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).GetChannel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_GetChannel_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).GetChannel(ctx, req.(*GetChannelReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -900,6 +936,10 @@ var Channel_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSignSecret",
 			Handler:    _Channel_GetSignSecret_Handler,
+		},
+		{
+			MethodName: "GetChannel",
+			Handler:    _Channel_GetChannel_Handler,
 		},
 		{
 			MethodName: "ListChannels",
