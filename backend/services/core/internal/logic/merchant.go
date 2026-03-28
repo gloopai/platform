@@ -4,11 +4,15 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/gloopai/pay/common/consulx"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	"github.com/gloopai/pay/core/internal/kvcache"
+	"github.com/gloopai/pay/core/internal/merchantcfg"
 	"github.com/gloopai/pay/core/internal/store"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -79,6 +83,10 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		statusVal = 1
 	}
 
+	mc := strings.TrimSpace(in.GetMerchantConfig())
+	if err := validateMerchantConfigJSON(mc); err != nil {
+		return nil, err
+	}
 	rec := &store.Merchant{
 		MerchantId:       merchantId,
 		AppId:            appId,
@@ -89,6 +97,7 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 		IpWhitelist:      in.GetIpWhitelist(),
 		NotifyUrl:        in.GetNotifyUrl(),
 		ReturnUrl:        in.GetReturnUrl(),
+		MerchantConfig:   mc,
 		PayinBalance:     0,
 		AvailableBalance: 0,
 	}
@@ -123,6 +132,7 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
 	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
+	syncMerchantConfigKV(l.ctx, l.svcCtx.RuntimeConfig, merchantId, created.MerchantConfig)
 	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids, pids, payinGrants, pg)}, nil
 }
 
@@ -193,16 +203,24 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	// status: 0 = 锁定，1 = 启用。须与请求一致落库；不可把 0 当成「未传」否则永远无法锁定。
 	statusVal := in.GetStatus()
 
+	merchantCfg := existing.MerchantConfig
+	if in.MerchantConfig != nil {
+		merchantCfg = strings.TrimSpace(*in.MerchantConfig)
+		if err := validateMerchantConfigJSON(merchantCfg); err != nil {
+			return nil, err
+		}
+	}
 	rec := &store.Merchant{
-		MerchantId:   merchantId,
-		AppId:        existing.AppId,
-		Email:        existing.Email,
-		AppSecret:    secret,
-		PasswordHash: passwordHash,
-		Status:       statusVal,
-		IpWhitelist:  in.GetIpWhitelist(),
-		NotifyUrl:    in.GetNotifyUrl(),
-		ReturnUrl:    in.GetReturnUrl(),
+		MerchantId:     merchantId,
+		AppId:          existing.AppId,
+		Email:          existing.Email,
+		AppSecret:      secret,
+		PasswordHash:   passwordHash,
+		Status:         statusVal,
+		IpWhitelist:    in.GetIpWhitelist(),
+		NotifyUrl:      in.GetNotifyUrl(),
+		ReturnUrl:      in.GetReturnUrl(),
+		MerchantConfig: merchantCfg,
 	}
 	if err := l.svcCtx.Merchants.UpdateByMerchantId(l.ctx, merchantId, rec); err != nil {
 		return nil, err
@@ -216,6 +234,7 @@ func (l *UpdateMerchantLogic) UpdateMerchant(in *merchantpb.UpdateMerchantReq) (
 	pids, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutProductIDs(l.ctx, merchantId)
 	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
+	syncMerchantConfigKV(l.ctx, l.svcCtx.RuntimeConfig, merchantId, updated.MerchantConfig)
 	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(updated, ids, pids, payinGrants, pg)}, nil
 }
 
@@ -292,8 +311,10 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		}
 		return nil, err
 	}
+	cfgJSON := kvcache.PickMerchantConfig(l.svcCtx.MerchantConfig, m.MerchantId, m.MerchantConfig)
+	appSecret := merchantcfg.AppSecretFromMergedJSON(m.AppSecret, cfgJSON)
 	return &merchantpb.GetAuthInfoResp{
-		AppSecret:        m.AppSecret,
+		AppSecret:        appSecret,
 		Status:           m.Status,
 		IpWhitelist:      m.IpWhitelist,
 		NotifyUrl:        m.NotifyUrl,
@@ -399,5 +420,34 @@ func toMerchantInfo(m *store.Merchant, payProductIds, payoutProductIds []int64, 
 		PayoutProductIds: payoutProductIds,
 		PayinGrants:      pbCG,
 		PayoutGrants:     pbPG,
+		MerchantConfig:   m.MerchantConfig,
 	}
+}
+
+func validateMerchantConfigJSON(s string) error {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var v interface{}
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return status.Error(codes.InvalidArgument, "merchant_config must be valid JSON")
+	}
+	return nil
+}
+
+func syncMerchantConfigKV(ctx context.Context, store *consulx.ConfigStore, merchantID, configJSON string) {
+	if store == nil || strings.TrimSpace(merchantID) == "" {
+		return
+	}
+	key := consulx.MerchantConfigKVKey(merchantID)
+	if key == "" {
+		return
+	}
+	configJSON = strings.TrimSpace(configJSON)
+	if configJSON == "" {
+		_ = store.Delete(ctx, key)
+		return
+	}
+	_ = store.PutBytes(ctx, key, []byte(configJSON))
 }

@@ -53,3 +53,44 @@ func ConfigFromDriverKey(channelID int64, driverKey, gatewayBaseURL, appID, sign
 		SupportsPayout:   payout,
 	}
 }
+
+// LegacyChannelFields holds split DB columns when channels.channel_config was empty (legacy layout).
+type LegacyChannelFields struct {
+	GatewayURL        string
+	ChannelMerchantNo string
+	SignSecret        string
+	RSAPrivateKey     string
+}
+
+// ChannelConfigJSONForAPI returns the channel_config blob for admin APIs: prefer the stored JSON;
+// if empty, synthesize a JSON object from legacy split columns (migration / old admin).
+func ChannelConfigJSONForAPI(channelConfig string, leg LegacyChannelFields) string {
+	channelConfig = strings.TrimSpace(channelConfig)
+	if channelConfig != "" {
+		return channelConfig
+	}
+	legMap := map[string]string{
+		"gateway_url":         strings.TrimSpace(leg.GatewayURL),
+		"channel_merchant_no": strings.TrimSpace(leg.ChannelMerchantNo),
+		"sign_secret":         strings.TrimSpace(leg.SignSecret),
+		"rsa_private_key":     strings.TrimSpace(leg.RSAPrivateKey),
+	}
+	b, err := json.Marshal(legMap)
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
+
+// ValidateChannelConfigJSON returns an error if s is non-empty and not valid JSON.
+func ValidateChannelConfigJSON(s string) error {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var v interface{}
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return fmt.Errorf("channel_config must be valid JSON")
+	}
+	return nil
+}

@@ -49,6 +49,8 @@ message MerchantInfo {
   repeated MerchantPayoutGrant payout_grants = 15;
   string app_id = 18;
   string email = 19;
+  // 商户侧自由 JSON（与 Consul 双写；OpenAPI 验签等热路径可优先读内存缓存）
+  string merchant_config = 20;
 }
 
 message GetMerchantReq {
@@ -100,6 +102,7 @@ message CreateMerchantReq {
   string app_id = 11;
   string email = 12;
   string password_hash = 13;
+  string merchant_config = 14;
 }
 
 message UpdateMerchantReq {
@@ -110,6 +113,7 @@ message UpdateMerchantReq {
   string return_url = 7;
   string ip_whitelist = 8;
   string password_hash = 9;
+  optional string merchant_config = 10;
 }
 
 message UpsertMerchantResp {

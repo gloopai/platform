@@ -35,11 +35,12 @@ func (p *AdminPayinProducts) AdminListPayinProducts() (*types.AdminListPayinProd
 	out := make([]types.AdminPayinProductInfo, 0, len(r.GetProducts()))
 	for _, row := range r.GetProducts() {
 		out = append(out, types.AdminPayinProductInfo{
-			Id:        row.GetId(),
-			Code:      row.GetCode(),
-			Name:      row.GetName(),
-			SortOrder: row.GetSortOrder(),
-			Enabled:   row.GetEnabled(),
+			Id:            row.GetId(),
+			Code:          row.GetCode(),
+			Name:          row.GetName(),
+			SortOrder:     row.GetSortOrder(),
+			Enabled:       row.GetEnabled(),
+			ProductConfig: row.GetProductConfig(),
 		})
 	}
 	return &types.AdminListPayinProductsResp{Products: out}, nil
@@ -56,6 +57,7 @@ func (p *AdminPayinProducts) AdminCreatePayinProduct(req *types.AdminCreatePayin
 	}
 	resp, err := p.svcCtx.ChannelRpc.AdminCreatePayinProduct(p.ctx, &channelpb.AdminCreatePayinProductReq{
 		Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
+		ProductConfig: strings.TrimSpace(req.ProductConfig),
 	})
 	if err != nil {
 		return nil, err
@@ -64,6 +66,7 @@ func (p *AdminPayinProducts) AdminCreatePayinProduct(req *types.AdminCreatePayin
 	return &types.AdminUpsertPayinProductResp{
 		Product: types.AdminPayinProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
+			ProductConfig: pr.GetProductConfig(),
 		},
 	}, nil
 }
@@ -79,6 +82,7 @@ func (p *AdminPayinProducts) AdminUpdatePayinProduct(req *types.AdminUpdatePayin
 	}
 	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayinProduct(p.ctx, &channelpb.AdminUpdatePayinProductReq{
 		Id: req.Id, Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
+		ProductConfig: strings.TrimSpace(req.ProductConfig),
 	})
 	if err != nil {
 		return nil, err
@@ -87,6 +91,7 @@ func (p *AdminPayinProducts) AdminUpdatePayinProduct(req *types.AdminUpdatePayin
 	return &types.AdminUpsertPayinProductResp{
 		Product: types.AdminPayinProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
+			ProductConfig: pr.GetProductConfig(),
 		},
 	}, nil
 }
@@ -165,6 +170,7 @@ func (p *AdminPayinProducts) AdminListPayoutProducts() (*types.AdminListPayoutPr
 	for _, row := range r.GetProducts() {
 		out = append(out, types.AdminPayoutProductInfo{
 			Id: row.GetId(), Code: row.GetCode(), Name: row.GetName(), SortOrder: row.GetSortOrder(), Enabled: row.GetEnabled(),
+			ProductConfig: row.GetProductConfig(),
 		})
 	}
 	return &types.AdminListPayoutProductsResp{Products: out}, nil
@@ -178,6 +184,7 @@ func (p *AdminPayinProducts) AdminCreatePayoutProduct(req *types.AdminCreatePayo
 	}
 	resp, err := p.svcCtx.ChannelRpc.AdminCreatePayoutProduct(p.ctx, &channelpb.AdminCreatePayoutProductReq{
 		Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
+		ProductConfig: strings.TrimSpace(req.ProductConfig),
 	})
 	if err != nil {
 		return nil, err
@@ -186,6 +193,7 @@ func (p *AdminPayinProducts) AdminCreatePayoutProduct(req *types.AdminCreatePayo
 	return &types.AdminUpsertPayoutProductResp{
 		Product: types.AdminPayoutProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
+			ProductConfig: pr.GetProductConfig(),
 		},
 	}, nil
 }
@@ -201,6 +209,7 @@ func (p *AdminPayinProducts) AdminUpdatePayoutProduct(req *types.AdminUpdatePayo
 	}
 	resp, err := p.svcCtx.ChannelRpc.AdminUpdatePayoutProduct(p.ctx, &channelpb.AdminUpdatePayoutProductReq{
 		Id: req.Id, Code: code, Name: name, SortOrder: req.SortOrder, Enabled: req.Enabled,
+		ProductConfig: strings.TrimSpace(req.ProductConfig),
 	})
 	if err != nil {
 		return nil, err
@@ -209,6 +218,7 @@ func (p *AdminPayinProducts) AdminUpdatePayoutProduct(req *types.AdminUpdatePayo
 	return &types.AdminUpsertPayoutProductResp{
 		Product: types.AdminPayoutProductInfo{
 			Id: pr.GetId(), Code: pr.GetCode(), Name: pr.GetName(), SortOrder: pr.GetSortOrder(), Enabled: pr.GetEnabled(),
+			ProductConfig: pr.GetProductConfig(),
 		},
 	}, nil
 }

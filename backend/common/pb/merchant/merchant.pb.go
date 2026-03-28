@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: proto/merchant.proto
+// source: merchant.proto
 
 package merchant
 
@@ -22,16 +22,17 @@ const (
 )
 
 type MerchantPayinGrant struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	PayinProductId  int64                  `protobuf:"varint,1,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
-	MerchantRateBps *int64                 `protobuf:"varint,2,opt,name=merchant_rate_bps,json=merchantRateBps,proto3,oneof" json:"merchant_rate_bps,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PayinProductId int64                  `protobuf:"varint,1,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
+	// 对客代收比例：万分比整数 (= round(百分数×100))；与订单 fee_rate_bps 同语义
+	MerchantRateBps *int64 `protobuf:"varint,2,opt,name=merchant_rate_bps,json=merchantRateBps,proto3,oneof" json:"merchant_rate_bps,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *MerchantPayinGrant) Reset() {
 	*x = MerchantPayinGrant{}
-	mi := &file_proto_merchant_proto_msgTypes[0]
+	mi := &file_merchant_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +44,7 @@ func (x *MerchantPayinGrant) String() string {
 func (*MerchantPayinGrant) ProtoMessage() {}
 
 func (x *MerchantPayinGrant) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[0]
+	mi := &file_merchant_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +57,7 @@ func (x *MerchantPayinGrant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MerchantPayinGrant.ProtoReflect.Descriptor instead.
 func (*MerchantPayinGrant) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{0}
+	return file_merchant_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MerchantPayinGrant) GetPayinProductId() int64 {
@@ -76,16 +77,19 @@ func (x *MerchantPayinGrant) GetMerchantRateBps() int64 {
 type MerchantPayoutGrant struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	PayoutProductId int64                  `protobuf:"varint,1,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
-	MerchantRateBps *int64                 `protobuf:"varint,2,opt,name=merchant_rate_bps,json=merchantRateBps,proto3,oneof" json:"merchant_rate_bps,omitempty"`
-	FeeMode         int64                  `protobuf:"varint,3,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`                        // 1=RATE_ONLY 2=FIXED_ONLY 3=FIXED_PLUS_RATE
-	FeeFixedAmount  int64                  `protobuf:"varint,4,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"` // 分
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// 对客代付比例部分：万分比整数 (= round(百分数×100))；与订单 fee_rate_bps 同语义
+	MerchantRateBps *int64 `protobuf:"varint,2,opt,name=merchant_rate_bps,json=merchantRateBps,proto3,oneof" json:"merchant_rate_bps,omitempty"`
+	// 计费模式：1=仅比例 2=仅固定 3=固定+比例（与订单 fee_mode 一致）
+	FeeMode int64 `protobuf:"varint,3,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	// 对客代付固定部分（分）；与订单 fee_fixed_amount 同语义
+	FeeFixedAmount int64 `protobuf:"varint,4,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MerchantPayoutGrant) Reset() {
 	*x = MerchantPayoutGrant{}
-	mi := &file_proto_merchant_proto_msgTypes[1]
+	mi := &file_merchant_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -97,7 +101,7 @@ func (x *MerchantPayoutGrant) String() string {
 func (*MerchantPayoutGrant) ProtoMessage() {}
 
 func (x *MerchantPayoutGrant) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[1]
+	mi := &file_merchant_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -110,7 +114,7 @@ func (x *MerchantPayoutGrant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MerchantPayoutGrant.ProtoReflect.Descriptor instead.
 func (*MerchantPayoutGrant) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{1}
+	return file_merchant_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MerchantPayoutGrant) GetPayoutProductId() int64 {
@@ -160,13 +164,15 @@ type MerchantInfo struct {
 	PayoutGrants     []*MerchantPayoutGrant `protobuf:"bytes,15,rep,name=payout_grants,json=payoutGrants,proto3" json:"payout_grants,omitempty"`
 	AppId            string                 `protobuf:"bytes,18,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	Email            string                 `protobuf:"bytes,19,opt,name=email,proto3" json:"email,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// 商户侧自由 JSON（与 Consul 双写；OpenAPI 验签等热路径可优先读内存缓存）
+	MerchantConfig string `protobuf:"bytes,20,opt,name=merchant_config,json=merchantConfig,proto3" json:"merchant_config,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MerchantInfo) Reset() {
 	*x = MerchantInfo{}
-	mi := &file_proto_merchant_proto_msgTypes[2]
+	mi := &file_merchant_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -178,7 +184,7 @@ func (x *MerchantInfo) String() string {
 func (*MerchantInfo) ProtoMessage() {}
 
 func (x *MerchantInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[2]
+	mi := &file_merchant_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -191,7 +197,7 @@ func (x *MerchantInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MerchantInfo.ProtoReflect.Descriptor instead.
 func (*MerchantInfo) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{2}
+	return file_merchant_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MerchantInfo) GetMerchantId() string {
@@ -313,6 +319,13 @@ func (x *MerchantInfo) GetEmail() string {
 	return ""
 }
 
+func (x *MerchantInfo) GetMerchantConfig() string {
+	if x != nil {
+		return x.MerchantConfig
+	}
+	return ""
+}
+
 type GetMerchantReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
@@ -322,7 +335,7 @@ type GetMerchantReq struct {
 
 func (x *GetMerchantReq) Reset() {
 	*x = GetMerchantReq{}
-	mi := &file_proto_merchant_proto_msgTypes[3]
+	mi := &file_merchant_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +347,7 @@ func (x *GetMerchantReq) String() string {
 func (*GetMerchantReq) ProtoMessage() {}
 
 func (x *GetMerchantReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[3]
+	mi := &file_merchant_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +360,7 @@ func (x *GetMerchantReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMerchantReq.ProtoReflect.Descriptor instead.
 func (*GetMerchantReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{3}
+	return file_merchant_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetMerchantReq) GetMerchantId() string {
@@ -366,7 +379,7 @@ type GetMerchantResp struct {
 
 func (x *GetMerchantResp) Reset() {
 	*x = GetMerchantResp{}
-	mi := &file_proto_merchant_proto_msgTypes[4]
+	mi := &file_merchant_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -378,7 +391,7 @@ func (x *GetMerchantResp) String() string {
 func (*GetMerchantResp) ProtoMessage() {}
 
 func (x *GetMerchantResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[4]
+	mi := &file_merchant_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +404,7 @@ func (x *GetMerchantResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMerchantResp.ProtoReflect.Descriptor instead.
 func (*GetMerchantResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{4}
+	return file_merchant_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetMerchantResp) GetMerchant() *MerchantInfo {
@@ -412,7 +425,7 @@ type GetAuthInfoReq struct {
 
 func (x *GetAuthInfoReq) Reset() {
 	*x = GetAuthInfoReq{}
-	mi := &file_proto_merchant_proto_msgTypes[5]
+	mi := &file_merchant_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -424,7 +437,7 @@ func (x *GetAuthInfoReq) String() string {
 func (*GetAuthInfoReq) ProtoMessage() {}
 
 func (x *GetAuthInfoReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[5]
+	mi := &file_merchant_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -437,7 +450,7 @@ func (x *GetAuthInfoReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthInfoReq.ProtoReflect.Descriptor instead.
 func (*GetAuthInfoReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{5}
+	return file_merchant_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetAuthInfoReq) GetMerchantId() string {
@@ -481,7 +494,7 @@ type GetAuthInfoResp struct {
 
 func (x *GetAuthInfoResp) Reset() {
 	*x = GetAuthInfoResp{}
-	mi := &file_proto_merchant_proto_msgTypes[6]
+	mi := &file_merchant_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -493,7 +506,7 @@ func (x *GetAuthInfoResp) String() string {
 func (*GetAuthInfoResp) ProtoMessage() {}
 
 func (x *GetAuthInfoResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[6]
+	mi := &file_merchant_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +519,7 @@ func (x *GetAuthInfoResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthInfoResp.ProtoReflect.Descriptor instead.
 func (*GetAuthInfoResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{6}
+	return file_merchant_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetAuthInfoResp) GetAppSecret() string {
@@ -602,7 +615,7 @@ type ListMerchantsReq struct {
 
 func (x *ListMerchantsReq) Reset() {
 	*x = ListMerchantsReq{}
-	mi := &file_proto_merchant_proto_msgTypes[7]
+	mi := &file_merchant_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +627,7 @@ func (x *ListMerchantsReq) String() string {
 func (*ListMerchantsReq) ProtoMessage() {}
 
 func (x *ListMerchantsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[7]
+	mi := &file_merchant_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -627,7 +640,7 @@ func (x *ListMerchantsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantsReq.ProtoReflect.Descriptor instead.
 func (*ListMerchantsReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{7}
+	return file_merchant_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListMerchantsReq) GetLimit() int64 {
@@ -646,7 +659,7 @@ type ListMerchantsResp struct {
 
 func (x *ListMerchantsResp) Reset() {
 	*x = ListMerchantsResp{}
-	mi := &file_proto_merchant_proto_msgTypes[8]
+	mi := &file_merchant_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -658,7 +671,7 @@ func (x *ListMerchantsResp) String() string {
 func (*ListMerchantsResp) ProtoMessage() {}
 
 func (x *ListMerchantsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[8]
+	mi := &file_merchant_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -671,7 +684,7 @@ func (x *ListMerchantsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantsResp.ProtoReflect.Descriptor instead.
 func (*ListMerchantsResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{8}
+	return file_merchant_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListMerchantsResp) GetMerchants() []*MerchantInfo {
@@ -694,13 +707,14 @@ type CreateMerchantReq struct {
 	AppId            string                 `protobuf:"bytes,11,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	Email            string                 `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
 	PasswordHash     string                 `protobuf:"bytes,13,opt,name=password_hash,json=passwordHash,proto3" json:"password_hash,omitempty"`
+	MerchantConfig   string                 `protobuf:"bytes,14,opt,name=merchant_config,json=merchantConfig,proto3" json:"merchant_config,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateMerchantReq) Reset() {
 	*x = CreateMerchantReq{}
-	mi := &file_proto_merchant_proto_msgTypes[9]
+	mi := &file_merchant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -712,7 +726,7 @@ func (x *CreateMerchantReq) String() string {
 func (*CreateMerchantReq) ProtoMessage() {}
 
 func (x *CreateMerchantReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[9]
+	mi := &file_merchant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -725,7 +739,7 @@ func (x *CreateMerchantReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMerchantReq.ProtoReflect.Descriptor instead.
 func (*CreateMerchantReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{9}
+	return file_merchant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateMerchantReq) GetMerchantId() string {
@@ -805,22 +819,30 @@ func (x *CreateMerchantReq) GetPasswordHash() string {
 	return ""
 }
 
+func (x *CreateMerchantReq) GetMerchantConfig() string {
+	if x != nil {
+		return x.MerchantConfig
+	}
+	return ""
+}
+
 type UpdateMerchantReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	AppSecret     string                 `protobuf:"bytes,2,opt,name=app_secret,json=appSecret,proto3" json:"app_secret,omitempty"`
-	Status        int64                  `protobuf:"varint,3,opt,name=status,proto3" json:"status,omitempty"`
-	NotifyUrl     string                 `protobuf:"bytes,6,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
-	ReturnUrl     string                 `protobuf:"bytes,7,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
-	IpWhitelist   string                 `protobuf:"bytes,8,opt,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`
-	PasswordHash  string                 `protobuf:"bytes,9,opt,name=password_hash,json=passwordHash,proto3" json:"password_hash,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId     string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	AppSecret      string                 `protobuf:"bytes,2,opt,name=app_secret,json=appSecret,proto3" json:"app_secret,omitempty"`
+	Status         int64                  `protobuf:"varint,3,opt,name=status,proto3" json:"status,omitempty"`
+	NotifyUrl      string                 `protobuf:"bytes,6,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
+	ReturnUrl      string                 `protobuf:"bytes,7,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
+	IpWhitelist    string                 `protobuf:"bytes,8,opt,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`
+	PasswordHash   string                 `protobuf:"bytes,9,opt,name=password_hash,json=passwordHash,proto3" json:"password_hash,omitempty"`
+	MerchantConfig *string                `protobuf:"bytes,10,opt,name=merchant_config,json=merchantConfig,proto3,oneof" json:"merchant_config,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateMerchantReq) Reset() {
 	*x = UpdateMerchantReq{}
-	mi := &file_proto_merchant_proto_msgTypes[10]
+	mi := &file_merchant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -832,7 +854,7 @@ func (x *UpdateMerchantReq) String() string {
 func (*UpdateMerchantReq) ProtoMessage() {}
 
 func (x *UpdateMerchantReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[10]
+	mi := &file_merchant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -845,7 +867,7 @@ func (x *UpdateMerchantReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateMerchantReq.ProtoReflect.Descriptor instead.
 func (*UpdateMerchantReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{10}
+	return file_merchant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateMerchantReq) GetMerchantId() string {
@@ -897,6 +919,13 @@ func (x *UpdateMerchantReq) GetPasswordHash() string {
 	return ""
 }
 
+func (x *UpdateMerchantReq) GetMerchantConfig() string {
+	if x != nil && x.MerchantConfig != nil {
+		return *x.MerchantConfig
+	}
+	return ""
+}
+
 type UpsertMerchantResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Merchant      *MerchantInfo          `protobuf:"bytes,1,opt,name=merchant,proto3" json:"merchant,omitempty"`
@@ -906,7 +935,7 @@ type UpsertMerchantResp struct {
 
 func (x *UpsertMerchantResp) Reset() {
 	*x = UpsertMerchantResp{}
-	mi := &file_proto_merchant_proto_msgTypes[11]
+	mi := &file_merchant_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +947,7 @@ func (x *UpsertMerchantResp) String() string {
 func (*UpsertMerchantResp) ProtoMessage() {}
 
 func (x *UpsertMerchantResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[11]
+	mi := &file_merchant_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,7 +960,7 @@ func (x *UpsertMerchantResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertMerchantResp.ProtoReflect.Descriptor instead.
 func (*UpsertMerchantResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{11}
+	return file_merchant_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpsertMerchantResp) GetMerchant() *MerchantInfo {
@@ -951,7 +980,7 @@ type ReplaceMerchantPayinProductsReq struct {
 
 func (x *ReplaceMerchantPayinProductsReq) Reset() {
 	*x = ReplaceMerchantPayinProductsReq{}
-	mi := &file_proto_merchant_proto_msgTypes[12]
+	mi := &file_merchant_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -963,7 +992,7 @@ func (x *ReplaceMerchantPayinProductsReq) String() string {
 func (*ReplaceMerchantPayinProductsReq) ProtoMessage() {}
 
 func (x *ReplaceMerchantPayinProductsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[12]
+	mi := &file_merchant_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -976,7 +1005,7 @@ func (x *ReplaceMerchantPayinProductsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceMerchantPayinProductsReq.ProtoReflect.Descriptor instead.
 func (*ReplaceMerchantPayinProductsReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{12}
+	return file_merchant_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ReplaceMerchantPayinProductsReq) GetMerchantId() string {
@@ -1002,7 +1031,7 @@ type ReplaceMerchantPayinProductsResp struct {
 
 func (x *ReplaceMerchantPayinProductsResp) Reset() {
 	*x = ReplaceMerchantPayinProductsResp{}
-	mi := &file_proto_merchant_proto_msgTypes[13]
+	mi := &file_merchant_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1014,7 +1043,7 @@ func (x *ReplaceMerchantPayinProductsResp) String() string {
 func (*ReplaceMerchantPayinProductsResp) ProtoMessage() {}
 
 func (x *ReplaceMerchantPayinProductsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[13]
+	mi := &file_merchant_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1027,7 +1056,7 @@ func (x *ReplaceMerchantPayinProductsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceMerchantPayinProductsResp.ProtoReflect.Descriptor instead.
 func (*ReplaceMerchantPayinProductsResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{13}
+	return file_merchant_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ReplaceMerchantPayinProductsResp) GetOk() bool {
@@ -1047,7 +1076,7 @@ type ReplaceMerchantPayoutProductsReq struct {
 
 func (x *ReplaceMerchantPayoutProductsReq) Reset() {
 	*x = ReplaceMerchantPayoutProductsReq{}
-	mi := &file_proto_merchant_proto_msgTypes[14]
+	mi := &file_merchant_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1059,7 +1088,7 @@ func (x *ReplaceMerchantPayoutProductsReq) String() string {
 func (*ReplaceMerchantPayoutProductsReq) ProtoMessage() {}
 
 func (x *ReplaceMerchantPayoutProductsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[14]
+	mi := &file_merchant_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1072,7 +1101,7 @@ func (x *ReplaceMerchantPayoutProductsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplaceMerchantPayoutProductsReq.ProtoReflect.Descriptor instead.
 func (*ReplaceMerchantPayoutProductsReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{14}
+	return file_merchant_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ReplaceMerchantPayoutProductsReq) GetMerchantId() string {
@@ -1098,7 +1127,7 @@ type ReplaceMerchantPayoutProductsResp struct {
 
 func (x *ReplaceMerchantPayoutProductsResp) Reset() {
 	*x = ReplaceMerchantPayoutProductsResp{}
-	mi := &file_proto_merchant_proto_msgTypes[15]
+	mi := &file_merchant_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1139,7 @@ func (x *ReplaceMerchantPayoutProductsResp) String() string {
 func (*ReplaceMerchantPayoutProductsResp) ProtoMessage() {}
 
 func (x *ReplaceMerchantPayoutProductsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[15]
+	mi := &file_merchant_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1152,7 @@ func (x *ReplaceMerchantPayoutProductsResp) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ReplaceMerchantPayoutProductsResp.ProtoReflect.Descriptor instead.
 func (*ReplaceMerchantPayoutProductsResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{15}
+	return file_merchant_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ReplaceMerchantPayoutProductsResp) GetOk() bool {
@@ -1142,7 +1171,7 @@ type ListMerchantPayinProductIdsReq struct {
 
 func (x *ListMerchantPayinProductIdsReq) Reset() {
 	*x = ListMerchantPayinProductIdsReq{}
-	mi := &file_proto_merchant_proto_msgTypes[16]
+	mi := &file_merchant_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1154,7 +1183,7 @@ func (x *ListMerchantPayinProductIdsReq) String() string {
 func (*ListMerchantPayinProductIdsReq) ProtoMessage() {}
 
 func (x *ListMerchantPayinProductIdsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[16]
+	mi := &file_merchant_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1167,7 +1196,7 @@ func (x *ListMerchantPayinProductIdsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantPayinProductIdsReq.ProtoReflect.Descriptor instead.
 func (*ListMerchantPayinProductIdsReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{16}
+	return file_merchant_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListMerchantPayinProductIdsReq) GetMerchantId() string {
@@ -1186,7 +1215,7 @@ type ListMerchantPayinProductIdsResp struct {
 
 func (x *ListMerchantPayinProductIdsResp) Reset() {
 	*x = ListMerchantPayinProductIdsResp{}
-	mi := &file_proto_merchant_proto_msgTypes[17]
+	mi := &file_merchant_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1227,7 @@ func (x *ListMerchantPayinProductIdsResp) String() string {
 func (*ListMerchantPayinProductIdsResp) ProtoMessage() {}
 
 func (x *ListMerchantPayinProductIdsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[17]
+	mi := &file_merchant_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1240,7 @@ func (x *ListMerchantPayinProductIdsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantPayinProductIdsResp.ProtoReflect.Descriptor instead.
 func (*ListMerchantPayinProductIdsResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{17}
+	return file_merchant_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListMerchantPayinProductIdsResp) GetGrants() []*MerchantPayinGrant {
@@ -1230,7 +1259,7 @@ type ListMerchantPayoutProductIdsReq struct {
 
 func (x *ListMerchantPayoutProductIdsReq) Reset() {
 	*x = ListMerchantPayoutProductIdsReq{}
-	mi := &file_proto_merchant_proto_msgTypes[18]
+	mi := &file_merchant_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1242,7 +1271,7 @@ func (x *ListMerchantPayoutProductIdsReq) String() string {
 func (*ListMerchantPayoutProductIdsReq) ProtoMessage() {}
 
 func (x *ListMerchantPayoutProductIdsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[18]
+	mi := &file_merchant_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1255,7 +1284,7 @@ func (x *ListMerchantPayoutProductIdsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantPayoutProductIdsReq.ProtoReflect.Descriptor instead.
 func (*ListMerchantPayoutProductIdsReq) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{18}
+	return file_merchant_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListMerchantPayoutProductIdsReq) GetMerchantId() string {
@@ -1274,7 +1303,7 @@ type ListMerchantPayoutProductIdsResp struct {
 
 func (x *ListMerchantPayoutProductIdsResp) Reset() {
 	*x = ListMerchantPayoutProductIdsResp{}
-	mi := &file_proto_merchant_proto_msgTypes[19]
+	mi := &file_merchant_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1286,7 +1315,7 @@ func (x *ListMerchantPayoutProductIdsResp) String() string {
 func (*ListMerchantPayoutProductIdsResp) ProtoMessage() {}
 
 func (x *ListMerchantPayoutProductIdsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_merchant_proto_msgTypes[19]
+	mi := &file_merchant_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1299,7 +1328,7 @@ func (x *ListMerchantPayoutProductIdsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMerchantPayoutProductIdsResp.ProtoReflect.Descriptor instead.
 func (*ListMerchantPayoutProductIdsResp) Descriptor() ([]byte, []int) {
-	return file_proto_merchant_proto_rawDescGZIP(), []int{19}
+	return file_merchant_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListMerchantPayoutProductIdsResp) GetGrants() []*MerchantPayoutGrant {
@@ -1309,11 +1338,11 @@ func (x *ListMerchantPayoutProductIdsResp) GetGrants() []*MerchantPayoutGrant {
 	return nil
 }
 
-var File_proto_merchant_proto protoreflect.FileDescriptor
+var File_merchant_proto protoreflect.FileDescriptor
 
-const file_proto_merchant_proto_rawDesc = "" +
+const file_merchant_proto_rawDesc = "" +
 	"\n" +
-	"\x14proto/merchant.proto\x12\bmerchant\"\x85\x01\n" +
+	"\x0emerchant.proto\x12\bmerchant\"\x85\x01\n" +
 	"\x12MerchantPayinGrant\x12(\n" +
 	"\x10payin_product_id\x18\x01 \x01(\x03R\x0epayinProductId\x12/\n" +
 	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01B\x14\n" +
@@ -1323,7 +1352,7 @@ const file_proto_merchant_proto_rawDesc = "" +
 	"\x11merchant_rate_bps\x18\x02 \x01(\x03H\x00R\x0fmerchantRateBps\x88\x01\x01\x12\x19\n" +
 	"\bfee_mode\x18\x03 \x01(\x03R\afeeMode\x12(\n" +
 	"\x10fee_fixed_amount\x18\x04 \x01(\x03R\x0efeeFixedAmountB\x14\n" +
-	"\x12_merchant_rate_bps\"\x91\x05\n" +
+	"\x12_merchant_rate_bps\"\xba\x05\n" +
 	"\fMerchantInfo\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -1346,7 +1375,8 @@ const file_proto_merchant_proto_rawDesc = "" +
 	"\fpayin_grants\x18\x0e \x03(\v2\x1c.merchant.MerchantPayinGrantR\vpayinGrants\x12B\n" +
 	"\rpayout_grants\x18\x0f \x03(\v2\x1d.merchant.MerchantPayoutGrantR\fpayoutGrants\x12\x15\n" +
 	"\x06app_id\x18\x12 \x01(\tR\x05appId\x12\x14\n" +
-	"\x05email\x18\x13 \x01(\tR\x05email\"1\n" +
+	"\x05email\x18\x13 \x01(\tR\x05email\x12'\n" +
+	"\x0fmerchant_config\x18\x14 \x01(\tR\x0emerchantConfig\"1\n" +
 	"\x0eGetMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\"E\n" +
@@ -1378,7 +1408,7 @@ const file_proto_merchant_proto_rawDesc = "" +
 	"\x10ListMerchantsReq\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x03R\x05limit\"I\n" +
 	"\x11ListMerchantsResp\x124\n" +
-	"\tmerchants\x18\x01 \x03(\v2\x16.merchant.MerchantInfoR\tmerchants\"\xf8\x02\n" +
+	"\tmerchants\x18\x01 \x03(\v2\x16.merchant.MerchantInfoR\tmerchants\"\xa1\x03\n" +
 	"\x11CreateMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -1395,7 +1425,8 @@ const file_proto_merchant_proto_rawDesc = "" +
 	" \x03(\x03R\x10payoutProductIds\x12\x15\n" +
 	"\x06app_id\x18\v \x01(\tR\x05appId\x12\x14\n" +
 	"\x05email\x18\f \x01(\tR\x05email\x12#\n" +
-	"\rpassword_hash\x18\r \x01(\tR\fpasswordHash\"\xf1\x01\n" +
+	"\rpassword_hash\x18\r \x01(\tR\fpasswordHash\x12'\n" +
+	"\x0fmerchant_config\x18\x0e \x01(\tR\x0emerchantConfig\"\xb3\x02\n" +
 	"\x11UpdateMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x1d\n" +
@@ -1407,7 +1438,10 @@ const file_proto_merchant_proto_rawDesc = "" +
 	"\n" +
 	"return_url\x18\a \x01(\tR\treturnUrl\x12!\n" +
 	"\fip_whitelist\x18\b \x01(\tR\vipWhitelist\x12#\n" +
-	"\rpassword_hash\x18\t \x01(\tR\fpasswordHash\"H\n" +
+	"\rpassword_hash\x18\t \x01(\tR\fpasswordHash\x12,\n" +
+	"\x0fmerchant_config\x18\n" +
+	" \x01(\tH\x00R\x0emerchantConfig\x88\x01\x01B\x12\n" +
+	"\x10_merchant_config\"H\n" +
 	"\x12UpsertMerchantResp\x122\n" +
 	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant\"x\n" +
 	"\x1fReplaceMerchantPayinProductsReq\x12\x1f\n" +
@@ -1444,19 +1478,19 @@ const file_proto_merchant_proto_rawDesc = "" +
 	"\x1cListMerchantPayoutProductIds\x12).merchant.ListMerchantPayoutProductIdsReq\x1a*.merchant.ListMerchantPayoutProductIdsRespB4Z2github.com/gloopai/pay/common/pb/merchant;merchantb\x06proto3"
 
 var (
-	file_proto_merchant_proto_rawDescOnce sync.Once
-	file_proto_merchant_proto_rawDescData []byte
+	file_merchant_proto_rawDescOnce sync.Once
+	file_merchant_proto_rawDescData []byte
 )
 
-func file_proto_merchant_proto_rawDescGZIP() []byte {
-	file_proto_merchant_proto_rawDescOnce.Do(func() {
-		file_proto_merchant_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_merchant_proto_rawDesc), len(file_proto_merchant_proto_rawDesc)))
+func file_merchant_proto_rawDescGZIP() []byte {
+	file_merchant_proto_rawDescOnce.Do(func() {
+		file_merchant_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_merchant_proto_rawDesc), len(file_merchant_proto_rawDesc)))
 	})
-	return file_proto_merchant_proto_rawDescData
+	return file_merchant_proto_rawDescData
 }
 
-var file_proto_merchant_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
-var file_proto_merchant_proto_goTypes = []any{
+var file_merchant_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_merchant_proto_goTypes = []any{
 	(*MerchantPayinGrant)(nil),                // 0: merchant.MerchantPayinGrant
 	(*MerchantPayoutGrant)(nil),               // 1: merchant.MerchantPayoutGrant
 	(*MerchantInfo)(nil),                      // 2: merchant.MerchantInfo
@@ -1478,7 +1512,7 @@ var file_proto_merchant_proto_goTypes = []any{
 	(*ListMerchantPayoutProductIdsReq)(nil),   // 18: merchant.ListMerchantPayoutProductIdsReq
 	(*ListMerchantPayoutProductIdsResp)(nil),  // 19: merchant.ListMerchantPayoutProductIdsResp
 }
-var file_proto_merchant_proto_depIdxs = []int32{
+var file_merchant_proto_depIdxs = []int32{
 	0,  // 0: merchant.MerchantInfo.payin_grants:type_name -> merchant.MerchantPayinGrant
 	1,  // 1: merchant.MerchantInfo.payout_grants:type_name -> merchant.MerchantPayoutGrant
 	2,  // 2: merchant.GetMerchantResp.merchant:type_name -> merchant.MerchantInfo
@@ -1513,28 +1547,29 @@ var file_proto_merchant_proto_depIdxs = []int32{
 	0,  // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_proto_merchant_proto_init() }
-func file_proto_merchant_proto_init() {
-	if File_proto_merchant_proto != nil {
+func init() { file_merchant_proto_init() }
+func file_merchant_proto_init() {
+	if File_merchant_proto != nil {
 		return
 	}
-	file_proto_merchant_proto_msgTypes[0].OneofWrappers = []any{}
-	file_proto_merchant_proto_msgTypes[1].OneofWrappers = []any{}
+	file_merchant_proto_msgTypes[0].OneofWrappers = []any{}
+	file_merchant_proto_msgTypes[1].OneofWrappers = []any{}
+	file_merchant_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_merchant_proto_rawDesc), len(file_proto_merchant_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_merchant_proto_rawDesc), len(file_merchant_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_merchant_proto_goTypes,
-		DependencyIndexes: file_proto_merchant_proto_depIdxs,
-		MessageInfos:      file_proto_merchant_proto_msgTypes,
+		GoTypes:           file_merchant_proto_goTypes,
+		DependencyIndexes: file_merchant_proto_depIdxs,
+		MessageInfos:      file_merchant_proto_msgTypes,
 	}.Build()
-	File_proto_merchant_proto = out.File
-	file_proto_merchant_proto_goTypes = nil
-	file_proto_merchant_proto_depIdxs = nil
+	File_merchant_proto = out.File
+	file_merchant_proto_goTypes = nil
+	file_merchant_proto_depIdxs = nil
 }

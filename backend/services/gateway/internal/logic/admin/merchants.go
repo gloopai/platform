@@ -114,6 +114,7 @@ func toAdminMerchantInfo(m *merchantpb.MerchantInfo) types.AdminMerchantInfo {
 		PayoutProductIds:    m.GetPayoutProductIds(),
 		PayinGrants:         cg,
 		PayoutGrants:        pg,
+		MerchantConfig:      m.GetMerchantConfig(),
 	}
 }
 
@@ -196,6 +197,7 @@ func (m *AdminMerchants) AdminCreateMerchant(req *types.AdminCreateMerchantReq) 
 		IpWhitelist:      mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
 		PayinProductIds:  req.PayinProductIds,
 		PayoutProductIds: req.PayoutProductIds,
+		MerchantConfig:   strings.TrimSpace(req.MerchantConfig),
 	})
 	if err != nil {
 		return nil, err
@@ -235,7 +237,7 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		passwordHash = string(hash)
 		generatedPassword = pwd
 	}
-	r, err := m.svcCtx.MerchantRpc.UpdateMerchant(m.ctx, &merchantclient.UpdateMerchantReq{
+	upd := &merchantclient.UpdateMerchantReq{
 		MerchantId:   merchantId,
 		AppSecret:    secret,
 		PasswordHash: passwordHash,
@@ -243,7 +245,12 @@ func (m *AdminMerchants) AdminUpdateMerchant(req *types.AdminUpdateMerchantReq) 
 		NotifyUrl:    req.NotifyUrl,
 		ReturnUrl:    req.ReturnUrl,
 		IpWhitelist:  mergeMerchantConfigIPWhitelist(req.IpWhitelist, req.WithdrawUsdtAddress),
-	})
+	}
+	if req.MerchantConfig != nil {
+		v := strings.TrimSpace(*req.MerchantConfig)
+		upd.MerchantConfig = &v
+	}
+	r, err := m.svcCtx.MerchantRpc.UpdateMerchant(m.ctx, upd)
 	if err != nil {
 		return nil, err
 	}

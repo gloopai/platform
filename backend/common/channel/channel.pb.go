@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: channel.proto
+// source: proto/channel.proto
 
 package channel
 
@@ -31,7 +31,7 @@ type RouteReq struct {
 
 func (x *RouteReq) Reset() {
 	*x = RouteReq{}
-	mi := &file_channel_proto_msgTypes[0]
+	mi := &file_proto_channel_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *RouteReq) String() string {
 func (*RouteReq) ProtoMessage() {}
 
 func (x *RouteReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[0]
+	mi := &file_proto_channel_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *RouteReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteReq.ProtoReflect.Descriptor instead.
 func (*RouteReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{0}
+	return file_proto_channel_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *RouteReq) GetAmount() int64 {
@@ -83,7 +83,7 @@ type RouteResp struct {
 
 func (x *RouteResp) Reset() {
 	*x = RouteResp{}
-	mi := &file_channel_proto_msgTypes[1]
+	mi := &file_proto_channel_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -95,7 +95,7 @@ func (x *RouteResp) String() string {
 func (*RouteResp) ProtoMessage() {}
 
 func (x *RouteResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[1]
+	mi := &file_proto_channel_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -108,7 +108,7 @@ func (x *RouteResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteResp.ProtoReflect.Descriptor instead.
 func (*RouteResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{1}
+	return file_proto_channel_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RouteResp) GetChannelId() int64 {
@@ -134,7 +134,7 @@ type GetSignSecretReq struct {
 
 func (x *GetSignSecretReq) Reset() {
 	*x = GetSignSecretReq{}
-	mi := &file_channel_proto_msgTypes[2]
+	mi := &file_proto_channel_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -146,7 +146,7 @@ func (x *GetSignSecretReq) String() string {
 func (*GetSignSecretReq) ProtoMessage() {}
 
 func (x *GetSignSecretReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[2]
+	mi := &file_proto_channel_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -159,7 +159,7 @@ func (x *GetSignSecretReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSignSecretReq.ProtoReflect.Descriptor instead.
 func (*GetSignSecretReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{2}
+	return file_proto_channel_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetSignSecretReq) GetChannelId() int64 {
@@ -178,7 +178,7 @@ type GetSignSecretResp struct {
 
 func (x *GetSignSecretResp) Reset() {
 	*x = GetSignSecretResp{}
-	mi := &file_channel_proto_msgTypes[3]
+	mi := &file_proto_channel_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -190,7 +190,7 @@ func (x *GetSignSecretResp) String() string {
 func (*GetSignSecretResp) ProtoMessage() {}
 
 func (x *GetSignSecretResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[3]
+	mi := &file_proto_channel_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -203,7 +203,7 @@ func (x *GetSignSecretResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSignSecretResp.ProtoReflect.Descriptor instead.
 func (*GetSignSecretResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{3}
+	return file_proto_channel_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetSignSecretResp) GetSignSecret() string {
@@ -221,7 +221,7 @@ type ListChannelsReq struct {
 
 func (x *ListChannelsReq) Reset() {
 	*x = ListChannelsReq{}
-	mi := &file_channel_proto_msgTypes[4]
+	mi := &file_proto_channel_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +233,7 @@ func (x *ListChannelsReq) String() string {
 func (*ListChannelsReq) ProtoMessage() {}
 
 func (x *ListChannelsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[4]
+	mi := &file_proto_channel_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +246,7 @@ func (x *ListChannelsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsReq.ProtoReflect.Descriptor instead.
 func (*ListChannelsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{4}
+	return file_proto_channel_proto_rawDescGZIP(), []int{4}
 }
 
 type GetChannelReq struct {
@@ -258,7 +258,7 @@ type GetChannelReq struct {
 
 func (x *GetChannelReq) Reset() {
 	*x = GetChannelReq{}
-	mi := &file_channel_proto_msgTypes[5]
+	mi := &file_proto_channel_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -270,7 +270,7 @@ func (x *GetChannelReq) String() string {
 func (*GetChannelReq) ProtoMessage() {}
 
 func (x *GetChannelReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[5]
+	mi := &file_proto_channel_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -283,7 +283,7 @@ func (x *GetChannelReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChannelReq.ProtoReflect.Descriptor instead.
 func (*GetChannelReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{5}
+	return file_proto_channel_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetChannelReq) GetChannelId() int64 {
@@ -302,7 +302,7 @@ type GetChannelResp struct {
 
 func (x *GetChannelResp) Reset() {
 	*x = GetChannelResp{}
-	mi := &file_channel_proto_msgTypes[6]
+	mi := &file_proto_channel_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -314,7 +314,7 @@ func (x *GetChannelResp) String() string {
 func (*GetChannelResp) ProtoMessage() {}
 
 func (x *GetChannelResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[6]
+	mi := &file_proto_channel_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -327,7 +327,7 @@ func (x *GetChannelResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChannelResp.ProtoReflect.Descriptor instead.
 func (*GetChannelResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{6}
+	return file_proto_channel_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetChannelResp) GetChannel() *ChannelRow {
@@ -369,7 +369,7 @@ type ChannelRow struct {
 
 func (x *ChannelRow) Reset() {
 	*x = ChannelRow{}
-	mi := &file_channel_proto_msgTypes[7]
+	mi := &file_proto_channel_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -381,7 +381,7 @@ func (x *ChannelRow) String() string {
 func (*ChannelRow) ProtoMessage() {}
 
 func (x *ChannelRow) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[7]
+	mi := &file_proto_channel_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -394,7 +394,7 @@ func (x *ChannelRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelRow.ProtoReflect.Descriptor instead.
 func (*ChannelRow) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{7}
+	return file_proto_channel_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ChannelRow) GetId() int64 {
@@ -539,7 +539,7 @@ type ListChannelsResp struct {
 
 func (x *ListChannelsResp) Reset() {
 	*x = ListChannelsResp{}
-	mi := &file_channel_proto_msgTypes[8]
+	mi := &file_proto_channel_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +551,7 @@ func (x *ListChannelsResp) String() string {
 func (*ListChannelsResp) ProtoMessage() {}
 
 func (x *ListChannelsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[8]
+	mi := &file_proto_channel_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +564,7 @@ func (x *ListChannelsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelsResp.ProtoReflect.Descriptor instead.
 func (*ListChannelsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{8}
+	return file_proto_channel_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListChannelsResp) GetChannels() []*ChannelRow {
@@ -602,7 +602,7 @@ type UpsertChannelReq struct {
 
 func (x *UpsertChannelReq) Reset() {
 	*x = UpsertChannelReq{}
-	mi := &file_channel_proto_msgTypes[9]
+	mi := &file_proto_channel_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +614,7 @@ func (x *UpsertChannelReq) String() string {
 func (*UpsertChannelReq) ProtoMessage() {}
 
 func (x *UpsertChannelReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[9]
+	mi := &file_proto_channel_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -627,7 +627,7 @@ func (x *UpsertChannelReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertChannelReq.ProtoReflect.Descriptor instead.
 func (*UpsertChannelReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{9}
+	return file_proto_channel_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpsertChannelReq) GetId() int64 {
@@ -772,7 +772,7 @@ type UpsertChannelResp struct {
 
 func (x *UpsertChannelResp) Reset() {
 	*x = UpsertChannelResp{}
-	mi := &file_channel_proto_msgTypes[10]
+	mi := &file_proto_channel_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -784,7 +784,7 @@ func (x *UpsertChannelResp) String() string {
 func (*UpsertChannelResp) ProtoMessage() {}
 
 func (x *UpsertChannelResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[10]
+	mi := &file_proto_channel_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +797,7 @@ func (x *UpsertChannelResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertChannelResp.ProtoReflect.Descriptor instead.
 func (*UpsertChannelResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{10}
+	return file_proto_channel_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpsertChannelResp) GetChannel() *ChannelRow {
@@ -815,7 +815,7 @@ type GetRoutingSummaryReq struct {
 
 func (x *GetRoutingSummaryReq) Reset() {
 	*x = GetRoutingSummaryReq{}
-	mi := &file_channel_proto_msgTypes[11]
+	mi := &file_proto_channel_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +827,7 @@ func (x *GetRoutingSummaryReq) String() string {
 func (*GetRoutingSummaryReq) ProtoMessage() {}
 
 func (x *GetRoutingSummaryReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[11]
+	mi := &file_proto_channel_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +840,7 @@ func (x *GetRoutingSummaryReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRoutingSummaryReq.ProtoReflect.Descriptor instead.
 func (*GetRoutingSummaryReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{11}
+	return file_proto_channel_proto_rawDescGZIP(), []int{11}
 }
 
 type GetRoutingSummaryResp struct {
@@ -861,7 +861,7 @@ type GetRoutingSummaryResp struct {
 
 func (x *GetRoutingSummaryResp) Reset() {
 	*x = GetRoutingSummaryResp{}
-	mi := &file_channel_proto_msgTypes[12]
+	mi := &file_proto_channel_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -873,7 +873,7 @@ func (x *GetRoutingSummaryResp) String() string {
 func (*GetRoutingSummaryResp) ProtoMessage() {}
 
 func (x *GetRoutingSummaryResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[12]
+	mi := &file_proto_channel_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -886,7 +886,7 @@ func (x *GetRoutingSummaryResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRoutingSummaryResp.ProtoReflect.Descriptor instead.
 func (*GetRoutingSummaryResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{12}
+	return file_proto_channel_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetRoutingSummaryResp) GetAlgorithmKey() string {
@@ -969,7 +969,7 @@ type ListTerminalPayinProductsReq struct {
 
 func (x *ListTerminalPayinProductsReq) Reset() {
 	*x = ListTerminalPayinProductsReq{}
-	mi := &file_channel_proto_msgTypes[13]
+	mi := &file_proto_channel_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -981,7 +981,7 @@ func (x *ListTerminalPayinProductsReq) String() string {
 func (*ListTerminalPayinProductsReq) ProtoMessage() {}
 
 func (x *ListTerminalPayinProductsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[13]
+	mi := &file_proto_channel_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -994,7 +994,7 @@ func (x *ListTerminalPayinProductsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTerminalPayinProductsReq.ProtoReflect.Descriptor instead.
 func (*ListTerminalPayinProductsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{13}
+	return file_proto_channel_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListTerminalPayinProductsReq) GetMerchantId() string {
@@ -1021,7 +1021,7 @@ type PayinProductOption struct {
 
 func (x *PayinProductOption) Reset() {
 	*x = PayinProductOption{}
-	mi := &file_channel_proto_msgTypes[14]
+	mi := &file_proto_channel_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1033,7 +1033,7 @@ func (x *PayinProductOption) String() string {
 func (*PayinProductOption) ProtoMessage() {}
 
 func (x *PayinProductOption) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[14]
+	mi := &file_proto_channel_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1046,7 +1046,7 @@ func (x *PayinProductOption) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PayinProductOption.ProtoReflect.Descriptor instead.
 func (*PayinProductOption) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{14}
+	return file_proto_channel_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *PayinProductOption) GetCode() string {
@@ -1072,7 +1072,7 @@ type ListTerminalPayinProductsResp struct {
 
 func (x *ListTerminalPayinProductsResp) Reset() {
 	*x = ListTerminalPayinProductsResp{}
-	mi := &file_channel_proto_msgTypes[15]
+	mi := &file_proto_channel_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1084,7 +1084,7 @@ func (x *ListTerminalPayinProductsResp) String() string {
 func (*ListTerminalPayinProductsResp) ProtoMessage() {}
 
 func (x *ListTerminalPayinProductsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[15]
+	mi := &file_proto_channel_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1097,7 +1097,7 @@ func (x *ListTerminalPayinProductsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTerminalPayinProductsResp.ProtoReflect.Descriptor instead.
 func (*ListTerminalPayinProductsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{15}
+	return file_proto_channel_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListTerminalPayinProductsResp) GetProducts() []*PayinProductOption {
@@ -1117,7 +1117,7 @@ type MerchantHasPayinProductCodeReq struct {
 
 func (x *MerchantHasPayinProductCodeReq) Reset() {
 	*x = MerchantHasPayinProductCodeReq{}
-	mi := &file_channel_proto_msgTypes[16]
+	mi := &file_proto_channel_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1129,7 +1129,7 @@ func (x *MerchantHasPayinProductCodeReq) String() string {
 func (*MerchantHasPayinProductCodeReq) ProtoMessage() {}
 
 func (x *MerchantHasPayinProductCodeReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[16]
+	mi := &file_proto_channel_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1142,7 +1142,7 @@ func (x *MerchantHasPayinProductCodeReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MerchantHasPayinProductCodeReq.ProtoReflect.Descriptor instead.
 func (*MerchantHasPayinProductCodeReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{16}
+	return file_proto_channel_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *MerchantHasPayinProductCodeReq) GetMerchantId() string {
@@ -1168,7 +1168,7 @@ type MerchantHasPayinProductCodeResp struct {
 
 func (x *MerchantHasPayinProductCodeResp) Reset() {
 	*x = MerchantHasPayinProductCodeResp{}
-	mi := &file_channel_proto_msgTypes[17]
+	mi := &file_proto_channel_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1180,7 +1180,7 @@ func (x *MerchantHasPayinProductCodeResp) String() string {
 func (*MerchantHasPayinProductCodeResp) ProtoMessage() {}
 
 func (x *MerchantHasPayinProductCodeResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[17]
+	mi := &file_proto_channel_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1193,7 +1193,7 @@ func (x *MerchantHasPayinProductCodeResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MerchantHasPayinProductCodeResp.ProtoReflect.Descriptor instead.
 func (*MerchantHasPayinProductCodeResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{17}
+	return file_proto_channel_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *MerchantHasPayinProductCodeResp) GetOk() bool {
@@ -1214,7 +1214,7 @@ type ResolveLockedChannelForMerchantReq struct {
 
 func (x *ResolveLockedChannelForMerchantReq) Reset() {
 	*x = ResolveLockedChannelForMerchantReq{}
-	mi := &file_channel_proto_msgTypes[18]
+	mi := &file_proto_channel_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1226,7 +1226,7 @@ func (x *ResolveLockedChannelForMerchantReq) String() string {
 func (*ResolveLockedChannelForMerchantReq) ProtoMessage() {}
 
 func (x *ResolveLockedChannelForMerchantReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[18]
+	mi := &file_proto_channel_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1239,7 +1239,7 @@ func (x *ResolveLockedChannelForMerchantReq) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ResolveLockedChannelForMerchantReq.ProtoReflect.Descriptor instead.
 func (*ResolveLockedChannelForMerchantReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{18}
+	return file_proto_channel_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ResolveLockedChannelForMerchantReq) GetMerchantId() string {
@@ -1273,7 +1273,7 @@ type ResolveLockedChannelForMerchantResp struct {
 
 func (x *ResolveLockedChannelForMerchantResp) Reset() {
 	*x = ResolveLockedChannelForMerchantResp{}
-	mi := &file_channel_proto_msgTypes[19]
+	mi := &file_proto_channel_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1285,7 +1285,7 @@ func (x *ResolveLockedChannelForMerchantResp) String() string {
 func (*ResolveLockedChannelForMerchantResp) ProtoMessage() {}
 
 func (x *ResolveLockedChannelForMerchantResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[19]
+	mi := &file_proto_channel_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1298,7 +1298,7 @@ func (x *ResolveLockedChannelForMerchantResp) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ResolveLockedChannelForMerchantResp.ProtoReflect.Descriptor instead.
 func (*ResolveLockedChannelForMerchantResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{19}
+	return file_proto_channel_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ResolveLockedChannelForMerchantResp) GetPayinProductId() int64 {
@@ -1324,7 +1324,7 @@ type GetPayinProductDisplayNameReq struct {
 
 func (x *GetPayinProductDisplayNameReq) Reset() {
 	*x = GetPayinProductDisplayNameReq{}
-	mi := &file_channel_proto_msgTypes[20]
+	mi := &file_proto_channel_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1336,7 +1336,7 @@ func (x *GetPayinProductDisplayNameReq) String() string {
 func (*GetPayinProductDisplayNameReq) ProtoMessage() {}
 
 func (x *GetPayinProductDisplayNameReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[20]
+	mi := &file_proto_channel_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1349,7 @@ func (x *GetPayinProductDisplayNameReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPayinProductDisplayNameReq.ProtoReflect.Descriptor instead.
 func (*GetPayinProductDisplayNameReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{20}
+	return file_proto_channel_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetPayinProductDisplayNameReq) GetCode() string {
@@ -1368,7 +1368,7 @@ type GetPayinProductDisplayNameResp struct {
 
 func (x *GetPayinProductDisplayNameResp) Reset() {
 	*x = GetPayinProductDisplayNameResp{}
-	mi := &file_channel_proto_msgTypes[21]
+	mi := &file_proto_channel_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1380,7 @@ func (x *GetPayinProductDisplayNameResp) String() string {
 func (*GetPayinProductDisplayNameResp) ProtoMessage() {}
 
 func (x *GetPayinProductDisplayNameResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[21]
+	mi := &file_proto_channel_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1393,7 @@ func (x *GetPayinProductDisplayNameResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPayinProductDisplayNameResp.ProtoReflect.Descriptor instead.
 func (*GetPayinProductDisplayNameResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{21}
+	return file_proto_channel_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetPayinProductDisplayNameResp) GetName() string {
@@ -1411,7 +1411,7 @@ type AdminListPayinProductsReq struct {
 
 func (x *AdminListPayinProductsReq) Reset() {
 	*x = AdminListPayinProductsReq{}
-	mi := &file_channel_proto_msgTypes[22]
+	mi := &file_proto_channel_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1423,7 +1423,7 @@ func (x *AdminListPayinProductsReq) String() string {
 func (*AdminListPayinProductsReq) ProtoMessage() {}
 
 func (x *AdminListPayinProductsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[22]
+	mi := &file_proto_channel_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1436,7 +1436,7 @@ func (x *AdminListPayinProductsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminListPayinProductsReq.ProtoReflect.Descriptor instead.
 func (*AdminListPayinProductsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{22}
+	return file_proto_channel_proto_rawDescGZIP(), []int{22}
 }
 
 type AdminPayinProductRow struct {
@@ -1453,7 +1453,7 @@ type AdminPayinProductRow struct {
 
 func (x *AdminPayinProductRow) Reset() {
 	*x = AdminPayinProductRow{}
-	mi := &file_channel_proto_msgTypes[23]
+	mi := &file_proto_channel_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1465,7 +1465,7 @@ func (x *AdminPayinProductRow) String() string {
 func (*AdminPayinProductRow) ProtoMessage() {}
 
 func (x *AdminPayinProductRow) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[23]
+	mi := &file_proto_channel_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1478,7 +1478,7 @@ func (x *AdminPayinProductRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPayinProductRow.ProtoReflect.Descriptor instead.
 func (*AdminPayinProductRow) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{23}
+	return file_proto_channel_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *AdminPayinProductRow) GetId() int64 {
@@ -1532,7 +1532,7 @@ type AdminListPayinProductsResp struct {
 
 func (x *AdminListPayinProductsResp) Reset() {
 	*x = AdminListPayinProductsResp{}
-	mi := &file_channel_proto_msgTypes[24]
+	mi := &file_proto_channel_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1544,7 +1544,7 @@ func (x *AdminListPayinProductsResp) String() string {
 func (*AdminListPayinProductsResp) ProtoMessage() {}
 
 func (x *AdminListPayinProductsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[24]
+	mi := &file_proto_channel_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1557,7 +1557,7 @@ func (x *AdminListPayinProductsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminListPayinProductsResp.ProtoReflect.Descriptor instead.
 func (*AdminListPayinProductsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{24}
+	return file_proto_channel_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *AdminListPayinProductsResp) GetProducts() []*AdminPayinProductRow {
@@ -1580,7 +1580,7 @@ type AdminCreatePayinProductReq struct {
 
 func (x *AdminCreatePayinProductReq) Reset() {
 	*x = AdminCreatePayinProductReq{}
-	mi := &file_channel_proto_msgTypes[25]
+	mi := &file_proto_channel_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1592,7 +1592,7 @@ func (x *AdminCreatePayinProductReq) String() string {
 func (*AdminCreatePayinProductReq) ProtoMessage() {}
 
 func (x *AdminCreatePayinProductReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[25]
+	mi := &file_proto_channel_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1605,7 +1605,7 @@ func (x *AdminCreatePayinProductReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminCreatePayinProductReq.ProtoReflect.Descriptor instead.
 func (*AdminCreatePayinProductReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{25}
+	return file_proto_channel_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *AdminCreatePayinProductReq) GetCode() string {
@@ -1657,7 +1657,7 @@ type AdminUpdatePayinProductReq struct {
 
 func (x *AdminUpdatePayinProductReq) Reset() {
 	*x = AdminUpdatePayinProductReq{}
-	mi := &file_channel_proto_msgTypes[26]
+	mi := &file_proto_channel_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1669,7 +1669,7 @@ func (x *AdminUpdatePayinProductReq) String() string {
 func (*AdminUpdatePayinProductReq) ProtoMessage() {}
 
 func (x *AdminUpdatePayinProductReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[26]
+	mi := &file_proto_channel_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1682,7 +1682,7 @@ func (x *AdminUpdatePayinProductReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdatePayinProductReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayinProductReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{26}
+	return file_proto_channel_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *AdminUpdatePayinProductReq) GetId() int64 {
@@ -1736,7 +1736,7 @@ type AdminUpsertPayinProductResp struct {
 
 func (x *AdminUpsertPayinProductResp) Reset() {
 	*x = AdminUpsertPayinProductResp{}
-	mi := &file_channel_proto_msgTypes[27]
+	mi := &file_proto_channel_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1748,7 +1748,7 @@ func (x *AdminUpsertPayinProductResp) String() string {
 func (*AdminUpsertPayinProductResp) ProtoMessage() {}
 
 func (x *AdminUpsertPayinProductResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[27]
+	mi := &file_proto_channel_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1761,7 +1761,7 @@ func (x *AdminUpsertPayinProductResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpsertPayinProductResp.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayinProductResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{27}
+	return file_proto_channel_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AdminUpsertPayinProductResp) GetProduct() *AdminPayinProductRow {
@@ -1780,7 +1780,7 @@ type AdminListPayinProductBindingsReq struct {
 
 func (x *AdminListPayinProductBindingsReq) Reset() {
 	*x = AdminListPayinProductBindingsReq{}
-	mi := &file_channel_proto_msgTypes[28]
+	mi := &file_proto_channel_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1792,7 +1792,7 @@ func (x *AdminListPayinProductBindingsReq) String() string {
 func (*AdminListPayinProductBindingsReq) ProtoMessage() {}
 
 func (x *AdminListPayinProductBindingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[28]
+	mi := &file_proto_channel_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1805,7 +1805,7 @@ func (x *AdminListPayinProductBindingsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminListPayinProductBindingsReq.ProtoReflect.Descriptor instead.
 func (*AdminListPayinProductBindingsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{28}
+	return file_proto_channel_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AdminListPayinProductBindingsReq) GetPayinProductId() int64 {
@@ -1829,7 +1829,7 @@ type AdminPayinProductBindingRow struct {
 
 func (x *AdminPayinProductBindingRow) Reset() {
 	*x = AdminPayinProductBindingRow{}
-	mi := &file_channel_proto_msgTypes[29]
+	mi := &file_proto_channel_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1841,7 +1841,7 @@ func (x *AdminPayinProductBindingRow) String() string {
 func (*AdminPayinProductBindingRow) ProtoMessage() {}
 
 func (x *AdminPayinProductBindingRow) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[29]
+	mi := &file_proto_channel_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1854,7 +1854,7 @@ func (x *AdminPayinProductBindingRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPayinProductBindingRow.ProtoReflect.Descriptor instead.
 func (*AdminPayinProductBindingRow) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{29}
+	return file_proto_channel_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *AdminPayinProductBindingRow) GetId() int64 {
@@ -1908,7 +1908,7 @@ type AdminListPayinProductBindingsResp struct {
 
 func (x *AdminListPayinProductBindingsResp) Reset() {
 	*x = AdminListPayinProductBindingsResp{}
-	mi := &file_channel_proto_msgTypes[30]
+	mi := &file_proto_channel_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1920,7 +1920,7 @@ func (x *AdminListPayinProductBindingsResp) String() string {
 func (*AdminListPayinProductBindingsResp) ProtoMessage() {}
 
 func (x *AdminListPayinProductBindingsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[30]
+	mi := &file_proto_channel_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1933,7 +1933,7 @@ func (x *AdminListPayinProductBindingsResp) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AdminListPayinProductBindingsResp.ProtoReflect.Descriptor instead.
 func (*AdminListPayinProductBindingsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{30}
+	return file_proto_channel_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *AdminListPayinProductBindingsResp) GetBindings() []*AdminPayinProductBindingRow {
@@ -1955,7 +1955,7 @@ type AdminUpsertPayinProductBindingReq struct {
 
 func (x *AdminUpsertPayinProductBindingReq) Reset() {
 	*x = AdminUpsertPayinProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[31]
+	mi := &file_proto_channel_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1967,7 +1967,7 @@ func (x *AdminUpsertPayinProductBindingReq) String() string {
 func (*AdminUpsertPayinProductBindingReq) ProtoMessage() {}
 
 func (x *AdminUpsertPayinProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[31]
+	mi := &file_proto_channel_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1980,7 +1980,7 @@ func (x *AdminUpsertPayinProductBindingReq) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AdminUpsertPayinProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayinProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{31}
+	return file_proto_channel_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *AdminUpsertPayinProductBindingReq) GetPayinProductId() int64 {
@@ -2020,7 +2020,7 @@ type AdminUpsertPayinProductBindingResp struct {
 
 func (x *AdminUpsertPayinProductBindingResp) Reset() {
 	*x = AdminUpsertPayinProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[32]
+	mi := &file_proto_channel_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2032,7 +2032,7 @@ func (x *AdminUpsertPayinProductBindingResp) String() string {
 func (*AdminUpsertPayinProductBindingResp) ProtoMessage() {}
 
 func (x *AdminUpsertPayinProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[32]
+	mi := &file_proto_channel_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2045,7 +2045,7 @@ func (x *AdminUpsertPayinProductBindingResp) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminUpsertPayinProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayinProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{32}
+	return file_proto_channel_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *AdminUpsertPayinProductBindingResp) GetBinding() *AdminPayinProductBindingRow {
@@ -2066,7 +2066,7 @@ type AdminUpdatePayinProductBindingReq struct {
 
 func (x *AdminUpdatePayinProductBindingReq) Reset() {
 	*x = AdminUpdatePayinProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[33]
+	mi := &file_proto_channel_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2078,7 +2078,7 @@ func (x *AdminUpdatePayinProductBindingReq) String() string {
 func (*AdminUpdatePayinProductBindingReq) ProtoMessage() {}
 
 func (x *AdminUpdatePayinProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[33]
+	mi := &file_proto_channel_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2091,7 +2091,7 @@ func (x *AdminUpdatePayinProductBindingReq) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AdminUpdatePayinProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayinProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{33}
+	return file_proto_channel_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *AdminUpdatePayinProductBindingReq) GetId() int64 {
@@ -2124,7 +2124,7 @@ type AdminUpdatePayinProductBindingResp struct {
 
 func (x *AdminUpdatePayinProductBindingResp) Reset() {
 	*x = AdminUpdatePayinProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[34]
+	mi := &file_proto_channel_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2136,7 +2136,7 @@ func (x *AdminUpdatePayinProductBindingResp) String() string {
 func (*AdminUpdatePayinProductBindingResp) ProtoMessage() {}
 
 func (x *AdminUpdatePayinProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[34]
+	mi := &file_proto_channel_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2149,7 +2149,7 @@ func (x *AdminUpdatePayinProductBindingResp) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminUpdatePayinProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayinProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{34}
+	return file_proto_channel_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *AdminUpdatePayinProductBindingResp) GetBinding() *AdminPayinProductBindingRow {
@@ -2168,7 +2168,7 @@ type AdminDeletePayinProductBindingReq struct {
 
 func (x *AdminDeletePayinProductBindingReq) Reset() {
 	*x = AdminDeletePayinProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[35]
+	mi := &file_proto_channel_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2180,7 +2180,7 @@ func (x *AdminDeletePayinProductBindingReq) String() string {
 func (*AdminDeletePayinProductBindingReq) ProtoMessage() {}
 
 func (x *AdminDeletePayinProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[35]
+	mi := &file_proto_channel_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2193,7 +2193,7 @@ func (x *AdminDeletePayinProductBindingReq) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AdminDeletePayinProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminDeletePayinProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{35}
+	return file_proto_channel_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AdminDeletePayinProductBindingReq) GetId() int64 {
@@ -2212,7 +2212,7 @@ type AdminDeletePayinProductBindingResp struct {
 
 func (x *AdminDeletePayinProductBindingResp) Reset() {
 	*x = AdminDeletePayinProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[36]
+	mi := &file_proto_channel_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2224,7 +2224,7 @@ func (x *AdminDeletePayinProductBindingResp) String() string {
 func (*AdminDeletePayinProductBindingResp) ProtoMessage() {}
 
 func (x *AdminDeletePayinProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[36]
+	mi := &file_proto_channel_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2237,7 +2237,7 @@ func (x *AdminDeletePayinProductBindingResp) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminDeletePayinProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminDeletePayinProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{36}
+	return file_proto_channel_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *AdminDeletePayinProductBindingResp) GetOk() bool {
@@ -2255,7 +2255,7 @@ type AdminListPayoutProductsReq struct {
 
 func (x *AdminListPayoutProductsReq) Reset() {
 	*x = AdminListPayoutProductsReq{}
-	mi := &file_channel_proto_msgTypes[37]
+	mi := &file_proto_channel_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2267,7 +2267,7 @@ func (x *AdminListPayoutProductsReq) String() string {
 func (*AdminListPayoutProductsReq) ProtoMessage() {}
 
 func (x *AdminListPayoutProductsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[37]
+	mi := &file_proto_channel_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2280,7 +2280,7 @@ func (x *AdminListPayoutProductsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminListPayoutProductsReq.ProtoReflect.Descriptor instead.
 func (*AdminListPayoutProductsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{37}
+	return file_proto_channel_proto_rawDescGZIP(), []int{37}
 }
 
 type AdminPayoutProductRow struct {
@@ -2297,7 +2297,7 @@ type AdminPayoutProductRow struct {
 
 func (x *AdminPayoutProductRow) Reset() {
 	*x = AdminPayoutProductRow{}
-	mi := &file_channel_proto_msgTypes[38]
+	mi := &file_proto_channel_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2309,7 +2309,7 @@ func (x *AdminPayoutProductRow) String() string {
 func (*AdminPayoutProductRow) ProtoMessage() {}
 
 func (x *AdminPayoutProductRow) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[38]
+	mi := &file_proto_channel_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2322,7 +2322,7 @@ func (x *AdminPayoutProductRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPayoutProductRow.ProtoReflect.Descriptor instead.
 func (*AdminPayoutProductRow) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{38}
+	return file_proto_channel_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *AdminPayoutProductRow) GetId() int64 {
@@ -2376,7 +2376,7 @@ type AdminListPayoutProductsResp struct {
 
 func (x *AdminListPayoutProductsResp) Reset() {
 	*x = AdminListPayoutProductsResp{}
-	mi := &file_channel_proto_msgTypes[39]
+	mi := &file_proto_channel_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2388,7 +2388,7 @@ func (x *AdminListPayoutProductsResp) String() string {
 func (*AdminListPayoutProductsResp) ProtoMessage() {}
 
 func (x *AdminListPayoutProductsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[39]
+	mi := &file_proto_channel_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2401,7 +2401,7 @@ func (x *AdminListPayoutProductsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminListPayoutProductsResp.ProtoReflect.Descriptor instead.
 func (*AdminListPayoutProductsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{39}
+	return file_proto_channel_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *AdminListPayoutProductsResp) GetProducts() []*AdminPayoutProductRow {
@@ -2424,7 +2424,7 @@ type AdminCreatePayoutProductReq struct {
 
 func (x *AdminCreatePayoutProductReq) Reset() {
 	*x = AdminCreatePayoutProductReq{}
-	mi := &file_channel_proto_msgTypes[40]
+	mi := &file_proto_channel_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2436,7 +2436,7 @@ func (x *AdminCreatePayoutProductReq) String() string {
 func (*AdminCreatePayoutProductReq) ProtoMessage() {}
 
 func (x *AdminCreatePayoutProductReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[40]
+	mi := &file_proto_channel_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2449,7 +2449,7 @@ func (x *AdminCreatePayoutProductReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminCreatePayoutProductReq.ProtoReflect.Descriptor instead.
 func (*AdminCreatePayoutProductReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{40}
+	return file_proto_channel_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *AdminCreatePayoutProductReq) GetCode() string {
@@ -2501,7 +2501,7 @@ type AdminUpdatePayoutProductReq struct {
 
 func (x *AdminUpdatePayoutProductReq) Reset() {
 	*x = AdminUpdatePayoutProductReq{}
-	mi := &file_channel_proto_msgTypes[41]
+	mi := &file_proto_channel_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2513,7 +2513,7 @@ func (x *AdminUpdatePayoutProductReq) String() string {
 func (*AdminUpdatePayoutProductReq) ProtoMessage() {}
 
 func (x *AdminUpdatePayoutProductReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[41]
+	mi := &file_proto_channel_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2526,7 +2526,7 @@ func (x *AdminUpdatePayoutProductReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpdatePayoutProductReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayoutProductReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{41}
+	return file_proto_channel_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *AdminUpdatePayoutProductReq) GetId() int64 {
@@ -2580,7 +2580,7 @@ type AdminUpsertPayoutProductResp struct {
 
 func (x *AdminUpsertPayoutProductResp) Reset() {
 	*x = AdminUpsertPayoutProductResp{}
-	mi := &file_channel_proto_msgTypes[42]
+	mi := &file_proto_channel_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2592,7 +2592,7 @@ func (x *AdminUpsertPayoutProductResp) String() string {
 func (*AdminUpsertPayoutProductResp) ProtoMessage() {}
 
 func (x *AdminUpsertPayoutProductResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[42]
+	mi := &file_proto_channel_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2605,7 +2605,7 @@ func (x *AdminUpsertPayoutProductResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUpsertPayoutProductResp.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayoutProductResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{42}
+	return file_proto_channel_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AdminUpsertPayoutProductResp) GetProduct() *AdminPayoutProductRow {
@@ -2624,7 +2624,7 @@ type AdminListPayoutProductBindingsReq struct {
 
 func (x *AdminListPayoutProductBindingsReq) Reset() {
 	*x = AdminListPayoutProductBindingsReq{}
-	mi := &file_channel_proto_msgTypes[43]
+	mi := &file_proto_channel_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2636,7 +2636,7 @@ func (x *AdminListPayoutProductBindingsReq) String() string {
 func (*AdminListPayoutProductBindingsReq) ProtoMessage() {}
 
 func (x *AdminListPayoutProductBindingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[43]
+	mi := &file_proto_channel_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2649,7 +2649,7 @@ func (x *AdminListPayoutProductBindingsReq) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use AdminListPayoutProductBindingsReq.ProtoReflect.Descriptor instead.
 func (*AdminListPayoutProductBindingsReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{43}
+	return file_proto_channel_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AdminListPayoutProductBindingsReq) GetPayoutProductId() int64 {
@@ -2673,7 +2673,7 @@ type AdminPayoutProductBindingRow struct {
 
 func (x *AdminPayoutProductBindingRow) Reset() {
 	*x = AdminPayoutProductBindingRow{}
-	mi := &file_channel_proto_msgTypes[44]
+	mi := &file_proto_channel_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2685,7 +2685,7 @@ func (x *AdminPayoutProductBindingRow) String() string {
 func (*AdminPayoutProductBindingRow) ProtoMessage() {}
 
 func (x *AdminPayoutProductBindingRow) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[44]
+	mi := &file_proto_channel_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2698,7 +2698,7 @@ func (x *AdminPayoutProductBindingRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPayoutProductBindingRow.ProtoReflect.Descriptor instead.
 func (*AdminPayoutProductBindingRow) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{44}
+	return file_proto_channel_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *AdminPayoutProductBindingRow) GetId() int64 {
@@ -2752,7 +2752,7 @@ type AdminListPayoutProductBindingsResp struct {
 
 func (x *AdminListPayoutProductBindingsResp) Reset() {
 	*x = AdminListPayoutProductBindingsResp{}
-	mi := &file_channel_proto_msgTypes[45]
+	mi := &file_proto_channel_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2764,7 +2764,7 @@ func (x *AdminListPayoutProductBindingsResp) String() string {
 func (*AdminListPayoutProductBindingsResp) ProtoMessage() {}
 
 func (x *AdminListPayoutProductBindingsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[45]
+	mi := &file_proto_channel_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2777,7 +2777,7 @@ func (x *AdminListPayoutProductBindingsResp) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminListPayoutProductBindingsResp.ProtoReflect.Descriptor instead.
 func (*AdminListPayoutProductBindingsResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{45}
+	return file_proto_channel_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *AdminListPayoutProductBindingsResp) GetBindings() []*AdminPayoutProductBindingRow {
@@ -2799,7 +2799,7 @@ type AdminUpsertPayoutProductBindingReq struct {
 
 func (x *AdminUpsertPayoutProductBindingReq) Reset() {
 	*x = AdminUpsertPayoutProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[46]
+	mi := &file_proto_channel_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2811,7 +2811,7 @@ func (x *AdminUpsertPayoutProductBindingReq) String() string {
 func (*AdminUpsertPayoutProductBindingReq) ProtoMessage() {}
 
 func (x *AdminUpsertPayoutProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[46]
+	mi := &file_proto_channel_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2824,7 +2824,7 @@ func (x *AdminUpsertPayoutProductBindingReq) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminUpsertPayoutProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayoutProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{46}
+	return file_proto_channel_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *AdminUpsertPayoutProductBindingReq) GetPayoutProductId() int64 {
@@ -2864,7 +2864,7 @@ type AdminUpsertPayoutProductBindingResp struct {
 
 func (x *AdminUpsertPayoutProductBindingResp) Reset() {
 	*x = AdminUpsertPayoutProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[47]
+	mi := &file_proto_channel_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2876,7 +2876,7 @@ func (x *AdminUpsertPayoutProductBindingResp) String() string {
 func (*AdminUpsertPayoutProductBindingResp) ProtoMessage() {}
 
 func (x *AdminUpsertPayoutProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[47]
+	mi := &file_proto_channel_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2889,7 +2889,7 @@ func (x *AdminUpsertPayoutProductBindingResp) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use AdminUpsertPayoutProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminUpsertPayoutProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{47}
+	return file_proto_channel_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *AdminUpsertPayoutProductBindingResp) GetBinding() *AdminPayoutProductBindingRow {
@@ -2910,7 +2910,7 @@ type AdminUpdatePayoutProductBindingReq struct {
 
 func (x *AdminUpdatePayoutProductBindingReq) Reset() {
 	*x = AdminUpdatePayoutProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[48]
+	mi := &file_proto_channel_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2922,7 +2922,7 @@ func (x *AdminUpdatePayoutProductBindingReq) String() string {
 func (*AdminUpdatePayoutProductBindingReq) ProtoMessage() {}
 
 func (x *AdminUpdatePayoutProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[48]
+	mi := &file_proto_channel_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2935,7 +2935,7 @@ func (x *AdminUpdatePayoutProductBindingReq) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminUpdatePayoutProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayoutProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{48}
+	return file_proto_channel_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *AdminUpdatePayoutProductBindingReq) GetId() int64 {
@@ -2968,7 +2968,7 @@ type AdminUpdatePayoutProductBindingResp struct {
 
 func (x *AdminUpdatePayoutProductBindingResp) Reset() {
 	*x = AdminUpdatePayoutProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[49]
+	mi := &file_proto_channel_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2980,7 +2980,7 @@ func (x *AdminUpdatePayoutProductBindingResp) String() string {
 func (*AdminUpdatePayoutProductBindingResp) ProtoMessage() {}
 
 func (x *AdminUpdatePayoutProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[49]
+	mi := &file_proto_channel_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2993,7 +2993,7 @@ func (x *AdminUpdatePayoutProductBindingResp) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use AdminUpdatePayoutProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminUpdatePayoutProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{49}
+	return file_proto_channel_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *AdminUpdatePayoutProductBindingResp) GetBinding() *AdminPayoutProductBindingRow {
@@ -3012,7 +3012,7 @@ type AdminDeletePayoutProductBindingReq struct {
 
 func (x *AdminDeletePayoutProductBindingReq) Reset() {
 	*x = AdminDeletePayoutProductBindingReq{}
-	mi := &file_channel_proto_msgTypes[50]
+	mi := &file_proto_channel_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3024,7 +3024,7 @@ func (x *AdminDeletePayoutProductBindingReq) String() string {
 func (*AdminDeletePayoutProductBindingReq) ProtoMessage() {}
 
 func (x *AdminDeletePayoutProductBindingReq) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[50]
+	mi := &file_proto_channel_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3037,7 +3037,7 @@ func (x *AdminDeletePayoutProductBindingReq) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use AdminDeletePayoutProductBindingReq.ProtoReflect.Descriptor instead.
 func (*AdminDeletePayoutProductBindingReq) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{50}
+	return file_proto_channel_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *AdminDeletePayoutProductBindingReq) GetId() int64 {
@@ -3056,7 +3056,7 @@ type AdminDeletePayoutProductBindingResp struct {
 
 func (x *AdminDeletePayoutProductBindingResp) Reset() {
 	*x = AdminDeletePayoutProductBindingResp{}
-	mi := &file_channel_proto_msgTypes[51]
+	mi := &file_proto_channel_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3068,7 +3068,7 @@ func (x *AdminDeletePayoutProductBindingResp) String() string {
 func (*AdminDeletePayoutProductBindingResp) ProtoMessage() {}
 
 func (x *AdminDeletePayoutProductBindingResp) ProtoReflect() protoreflect.Message {
-	mi := &file_channel_proto_msgTypes[51]
+	mi := &file_proto_channel_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3081,7 +3081,7 @@ func (x *AdminDeletePayoutProductBindingResp) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use AdminDeletePayoutProductBindingResp.ProtoReflect.Descriptor instead.
 func (*AdminDeletePayoutProductBindingResp) Descriptor() ([]byte, []int) {
-	return file_channel_proto_rawDescGZIP(), []int{51}
+	return file_proto_channel_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *AdminDeletePayoutProductBindingResp) GetOk() bool {
@@ -3091,11 +3091,11 @@ func (x *AdminDeletePayoutProductBindingResp) GetOk() bool {
 	return false
 }
 
-var File_channel_proto protoreflect.FileDescriptor
+var File_proto_channel_proto protoreflect.FileDescriptor
 
-const file_channel_proto_rawDesc = "" +
+const file_proto_channel_proto_rawDesc = "" +
 	"\n" +
-	"\rchannel.proto\x12\achannel\"A\n" +
+	"\x13proto/channel.proto\x12\achannel\"A\n" +
 	"\bRouteReq\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x1d\n" +
 	"\n" +
@@ -3359,19 +3359,19 @@ const file_channel_proto_rawDesc = "" +
 	"\x1fAdminDeletePayoutProductBinding\x12+.channel.AdminDeletePayoutProductBindingReq\x1a,.channel.AdminDeletePayoutProductBindingRespB2Z0github.com/gloopai/pay/common/pb/channel;channelb\x06proto3"
 
 var (
-	file_channel_proto_rawDescOnce sync.Once
-	file_channel_proto_rawDescData []byte
+	file_proto_channel_proto_rawDescOnce sync.Once
+	file_proto_channel_proto_rawDescData []byte
 )
 
-func file_channel_proto_rawDescGZIP() []byte {
-	file_channel_proto_rawDescOnce.Do(func() {
-		file_channel_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_channel_proto_rawDesc), len(file_channel_proto_rawDesc)))
+func file_proto_channel_proto_rawDescGZIP() []byte {
+	file_proto_channel_proto_rawDescOnce.Do(func() {
+		file_proto_channel_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_channel_proto_rawDesc), len(file_proto_channel_proto_rawDesc)))
 	})
-	return file_channel_proto_rawDescData
+	return file_proto_channel_proto_rawDescData
 }
 
-var file_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
-var file_channel_proto_goTypes = []any{
+var file_proto_channel_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+var file_proto_channel_proto_goTypes = []any{
 	(*RouteReq)(nil),                            // 0: channel.RouteReq
 	(*RouteResp)(nil),                           // 1: channel.RouteResp
 	(*GetSignSecretReq)(nil),                    // 2: channel.GetSignSecretReq
@@ -3425,7 +3425,7 @@ var file_channel_proto_goTypes = []any{
 	(*AdminDeletePayoutProductBindingReq)(nil),  // 50: channel.AdminDeletePayoutProductBindingReq
 	(*AdminDeletePayoutProductBindingResp)(nil), // 51: channel.AdminDeletePayoutProductBindingResp
 }
-var file_channel_proto_depIdxs = []int32{
+var file_proto_channel_proto_depIdxs = []int32{
 	7,  // 0: channel.GetChannelResp.channel:type_name -> channel.ChannelRow
 	7,  // 1: channel.ListChannelsResp.channels:type_name -> channel.ChannelRow
 	7,  // 2: channel.UpsertChannelResp.channel:type_name -> channel.ChannelRow
@@ -3497,26 +3497,26 @@ var file_channel_proto_depIdxs = []int32{
 	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_channel_proto_init() }
-func file_channel_proto_init() {
-	if File_channel_proto != nil {
+func init() { file_proto_channel_proto_init() }
+func file_proto_channel_proto_init() {
+	if File_proto_channel_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_channel_proto_rawDesc), len(file_channel_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_channel_proto_rawDesc), len(file_proto_channel_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   52,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_channel_proto_goTypes,
-		DependencyIndexes: file_channel_proto_depIdxs,
-		MessageInfos:      file_channel_proto_msgTypes,
+		GoTypes:           file_proto_channel_proto_goTypes,
+		DependencyIndexes: file_proto_channel_proto_depIdxs,
+		MessageInfos:      file_proto_channel_proto_msgTypes,
 	}.Build()
-	File_channel_proto = out.File
-	file_channel_proto_goTypes = nil
-	file_channel_proto_depIdxs = nil
+	File_proto_channel_proto = out.File
+	file_proto_channel_proto_goTypes = nil
+	file_proto_channel_proto_depIdxs = nil
 }

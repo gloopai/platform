@@ -1,9 +1,12 @@
 package svc
 
 import (
+	"context"
+
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/core/internal/config"
+	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -17,6 +20,7 @@ type ServiceContext struct {
 	MerchantPayoutProducts *store.MerchantPayoutProductsStore
 	Settle                 *store.SettleStore
 	RuntimeConfig          *consulx.ConfigStore
+	MerchantConfig         *kvcache.MerchantConfig
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -30,9 +34,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 	var runtimeCfg *consulx.ConfigStore
+	var merchantCfg *kvcache.MerchantConfig
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
+		merchantCfg = kvcache.NewMerchantConfig(cfg)
+		merchantCfg.Start(context.Background())
 	}
 	return &ServiceContext{
 		Config:                 c,
@@ -42,5 +49,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(gdb),
 		Settle:                 store.NewSettleStore(gdb),
 		RuntimeConfig:          runtimeCfg,
+		MerchantConfig:         merchantCfg,
 	}
 }

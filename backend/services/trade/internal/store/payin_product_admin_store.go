@@ -10,11 +10,12 @@ import (
 
 // PayinProductAdmin 管理台支付产品行。
 type PayinProductAdmin struct {
-	ID        int64
-	Code      string
-	Name      string
-	SortOrder int64
-	Enabled   bool
+	ID            int64
+	Code          string
+	Name          string
+	SortOrder     int64
+	Enabled       bool
+	ProductConfig string
 }
 
 // PayinProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
@@ -30,7 +31,7 @@ type PayinProductBindingAdmin struct {
 // AdminListAllPayinProducts 全部支付产品（含停用）。
 func (s *PayinProductsStore) AdminListAllPayinProducts(ctx context.Context) ([]PayinProductAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled
+SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config
 FROM payin_products
 ORDER BY sort_order ASC, id ASC
 `).Rows()
@@ -42,7 +43,7 @@ ORDER BY sort_order ASC, id ASC
 	for rows.Next() {
 		var p PayinProductAdmin
 		var en int
-		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en); err != nil {
+		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en, &p.ProductConfig); err != nil {
 			return nil, err
 		}
 		p.Enabled = en == 1
@@ -58,10 +59,11 @@ func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64)
 		Code      string `gorm:"column:code"`
 		Name      string `gorm:"column:name"`
 		SortOrder int64  `gorm:"column:sort_order"`
-		Enabled   int    `gorm:"column:enabled"`
+		Enabled         int    `gorm:"column:enabled"`
+		ProductConfig   string `gorm:"column:product_config"`
 	}
 	tx := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMIT 1
+SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config FROM payin_products WHERE id = ? LIMIT 1
 `, id).Scan(&r)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -70,23 +72,24 @@ SELECT id, code, name, sort_order, enabled FROM payin_products WHERE id = ? LIMI
 		return nil, gorm.ErrRecordNotFound
 	}
 	return &PayinProductAdmin{
-		ID:        r.ID,
-		Code:      r.Code,
-		Name:      r.Name,
-		SortOrder: r.SortOrder,
-		Enabled:   r.Enabled == 1,
+		ID:            r.ID,
+		Code:          r.Code,
+		Name:          r.Name,
+		SortOrder:     r.SortOrder,
+		Enabled:       r.Enabled == 1,
+		ProductConfig: r.ProductConfig,
 	}, nil
 }
 
 // AdminCreatePayinProduct 新建；code 唯一。
-func (s *PayinProductsStore) AdminCreatePayinProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
+func (s *PayinProductsStore) AdminCreatePayinProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool, productConfig string) (int64, error) {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
-`, code, name, sortOrder, en)
+INSERT INTO payin_products (code, name, sort_order, enabled, product_config) VALUES (?, ?, ?, ?, ?)
+`, code, name, sortOrder, en, productConfig)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -100,14 +103,14 @@ INSERT INTO payin_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
 }
 
 // AdminUpdatePayinProduct 更新。
-func (s *PayinProductsStore) AdminUpdatePayinProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
+func (s *PayinProductsStore) AdminUpdatePayinProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool, productConfig string) error {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated_at = NOW() WHERE id = ?
-`, code, name, sortOrder, en, id)
+UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, product_config = ?, updated_at = NOW() WHERE id = ?
+`, code, name, sortOrder, en, productConfig, id)
 	if tx.Error != nil {
 		return tx.Error
 	}

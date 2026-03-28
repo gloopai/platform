@@ -71,6 +71,18 @@ func ConfigFieldsFromChannelJSON(raw string) (gatewayURL, merchantNo, signSecret
 	return base.ConfigFieldsFromChannelJSON(raw)
 }
 
+type LegacyChannelFields = base.LegacyChannelFields
+
+// ChannelConfigJSONForAPI prefers the channel_config column; if empty, builds JSON from legacy split columns.
+func ChannelConfigJSONForAPI(channelConfig string, leg LegacyChannelFields) string {
+	return base.ChannelConfigJSONForAPI(channelConfig, leg)
+}
+
+// ValidateChannelConfigJSON checks non-empty blobs are valid JSON (admin save).
+func ValidateChannelConfigJSON(s string) error {
+	return base.ValidateChannelConfigJSON(s)
+}
+
 // NotifyContentType returns the HTTP Content-Type for the response body returned to the PSP.
 func NotifyContentType(drv any) string { return base.NotifyContentType(drv) }
 

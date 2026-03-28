@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
+
+	"github.com/gloopai/pay/trade/internal/kvcache"
 )
 
 // PayinProductOption 收银台展示的支付产品（与 payin_products 一致，按订单金额过滤可用通道）。
@@ -222,18 +224,20 @@ func (s *PayinProductsStore) ResolveLockedChannelForMerchant(ctx context.Context
 	return r.PayProductID, r.Code, nil
 }
 
-// GetPayinProductDisplayName 按 code 取展示名，不存在则返回 code。
-func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, code string) (string, error) {
+// GetPayinProductDisplayName 按 code 取展示名；优先 Consul 内存中的 product_config（display_name），否则库表 name，不存在则返回 code。
+func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, code string, cfgCache *kvcache.PayinProductConfig) (string, error) {
 	code = strings.TrimSpace(code)
 	if code == "" {
 		return "", nil
 	}
 	var r struct {
-		Name string `gorm:"column:name"`
+		ID            int64  `gorm:"column:id"`
+		Name          string `gorm:"column:name"`
+		ProductConfig string `gorm:"column:product_config"`
 	}
 	tx := s.db.WithContext(ctx).
 		Table("payin_products").
-		Select("COALESCE(NULLIF(TRIM(name), ''), code) AS name").
+		Select("id, COALESCE(NULLIF(TRIM(name), ''), code) AS name, COALESCE(product_config,'') AS product_config").
 		Where("code = ? AND enabled = 1", code).
 		Limit(1).
 		Take(&r)
@@ -242,6 +246,10 @@ func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, cod
 			return code, nil
 		}
 		return "", tx.Error
+	}
+	merged := kvcache.PickPayinProductConfig(cfgCache, r.ID, r.ProductConfig)
+	if dn := kvcache.DisplayNameFromProductJSON(merged); dn != "" {
+		return dn, nil
 	}
 	return r.Name, nil
 }

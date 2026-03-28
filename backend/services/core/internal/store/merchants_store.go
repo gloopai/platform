@@ -29,6 +29,7 @@ type Merchant struct {
 	WithdrawnAmount      int64
 	NotifyUrl            string
 	ReturnUrl            string
+	MerchantConfig       string
 }
 
 type MerchantsStore struct {
@@ -57,7 +58,8 @@ COALESCE(available_balance, 0) AS available_balance,
 COALESCE(frozen_balance, 0) AS frozen_balance,
 COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
 COALESCE(notify_url,'') AS notify_url,
-COALESCE(return_url,'') AS return_url`).
+COALESCE(return_url,'') AS return_url,
+COALESCE(merchant_config,'') AS merchant_config`).
 		Where("merchant_id = ?", merchantId).
 		Limit(1).
 		Take(&m)
@@ -85,7 +87,8 @@ COALESCE(available_balance, 0) AS available_balance,
 COALESCE(frozen_balance, 0) AS frozen_balance,
 COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
 COALESCE(notify_url,'') AS notify_url,
-COALESCE(return_url,'') AS return_url`).
+COALESCE(return_url,'') AS return_url,
+COALESCE(merchant_config,'') AS merchant_config`).
 		Where("app_id = ?", appId).
 		Limit(1).
 		Take(&m)
@@ -113,7 +116,8 @@ COALESCE(available_balance, 0) AS available_balance,
 COALESCE(frozen_balance, 0) AS frozen_balance,
 COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
 COALESCE(notify_url,'') AS notify_url,
-COALESCE(return_url,'') AS return_url`).
+COALESCE(return_url,'') AS return_url,
+COALESCE(merchant_config,'') AS merchant_config`).
 		Where("email = ?", email).
 		Limit(1).
 		Take(&m)
@@ -136,7 +140,8 @@ SELECT id, merchant_id, app_id, email, api_secret AS app_secret, password_hash, 
        COALESCE(frozen_balance, 0) AS frozen_balance,
        COALESCE(withdrawn_amount, 0) AS withdrawn_amount,
        COALESCE(notify_url,'') AS notify_url,
-       COALESCE(return_url,'') AS return_url
+       COALESCE(return_url,'') AS return_url,
+       COALESCE(merchant_config,'') AS merchant_config
 FROM merchants
 ORDER BY id DESC
 LIMIT ?
@@ -195,17 +200,17 @@ WHERE slot = 1
 
 func (s *MerchantsStore) Create(ctx context.Context, m *Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
-INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl).Error
+INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, merchant_config, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl, m.MerchantConfig).Error
 }
 
 func (s *MerchantsStore) UpdateByMerchantId(ctx context.Context, merchantId string, m *Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
 UPDATE merchants
-SET api_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, updated_at = NOW()
+SET api_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, merchant_config = ?, updated_at = NOW()
 WHERE merchant_id = ?
-`, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.NotifyUrl, m.ReturnUrl, merchantId).Error
+`, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.NotifyUrl, m.ReturnUrl, m.MerchantConfig, merchantId).Error
 }
 
 func (s *MerchantsStore) UpdatePasswordByMerchantId(ctx context.Context, merchantId string, passwordHash string) error {

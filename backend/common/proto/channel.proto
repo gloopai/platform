@@ -189,6 +189,7 @@ message AdminPayinProductRow {
   string name = 3;
   int64 sort_order = 4;
   bool enabled = 5;
+  string product_config = 6;
 }
 
 message AdminListPayinProductsResp {
@@ -200,6 +201,7 @@ message AdminCreatePayinProductReq {
   string name = 2;
   int64 sort_order = 3;
   bool enabled = 4;
+  string product_config = 5;
 }
 
 message AdminUpdatePayinProductReq {
@@ -208,6 +210,7 @@ message AdminUpdatePayinProductReq {
   string name = 3;
   int64 sort_order = 4;
   bool enabled = 5;
+  string product_config = 6;
 }
 
 message AdminUpsertPayinProductResp {
@@ -274,6 +277,7 @@ message AdminPayoutProductRow {
   string name = 3;
   int64 sort_order = 4;
   bool enabled = 5;
+  string product_config = 6;
 }
 
 message AdminListPayoutProductsResp {
@@ -285,6 +289,7 @@ message AdminCreatePayoutProductReq {
   string name = 2;
   int64 sort_order = 3;
   bool enabled = 4;
+  string product_config = 5;
 }
 
 message AdminUpdatePayoutProductReq {
@@ -293,6 +298,7 @@ message AdminUpdatePayoutProductReq {
   string name = 3;
   int64 sort_order = 4;
   bool enabled = 5;
+  string product_config = 6;
 }
 
 message AdminUpsertPayoutProductResp {

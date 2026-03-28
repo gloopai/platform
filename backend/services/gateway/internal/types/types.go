@@ -413,6 +413,7 @@ type AdminMerchantInfo struct {
 	PayoutProductIds    []int64               `json:"payout_product_ids"`
 	PayinGrants         []MerchantPayinGrant  `json:"payin_grants"`
 	PayoutGrants        []MerchantPayoutGrant `json:"payout_grants"`
+	MerchantConfig      string                `json:"merchant_config,omitempty"`
 }
 
 type AdminListMerchantsResp struct {
@@ -428,6 +429,7 @@ type AdminCreateMerchantReq struct {
 	WithdrawUsdtAddress string  `json:"withdraw_usdt_address,optional"`
 	PayinProductIds     []int64 `json:"payin_product_ids,optional"`
 	PayoutProductIds    []int64 `json:"payout_product_ids,optional"`
+	MerchantConfig      string  `json:"merchant_config,optional"`
 }
 
 type AdminMerchantEmailAvailableReq struct {
@@ -451,6 +453,7 @@ type AdminUpdateMerchantReq struct {
 	PayoutProductIds    []int64               `json:"payout_product_ids,optional"`
 	PayinGrants         []MerchantPayinGrant  `json:"payin_grants,optional"`  // 若提供则覆盖代收白名单（含空数组）
 	PayoutGrants        []MerchantPayoutGrant `json:"payout_grants,optional"` // 若提供则覆盖代付白名单
+	MerchantConfig      *string               `json:"merchant_config,optional"`
 }
 
 type AdminUpsertMerchantResp struct {
@@ -473,11 +476,12 @@ type AdminTransferPayinToPayoutResp struct {
 // --- 支付产品（对外 code）与上游通道绑定 ---
 
 type AdminPayinProductInfo struct {
-	Id        int64  `json:"id"`
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order"`
-	Enabled   bool   `json:"enabled"`
+	Id            int64  `json:"id"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order"`
+	Enabled       bool   `json:"enabled"`
+	ProductConfig string `json:"product_config,omitempty"`
 }
 
 type AdminListPayinProductsResp struct {
@@ -485,10 +489,11 @@ type AdminListPayinProductsResp struct {
 }
 
 type AdminCreatePayinProductReq struct {
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order,optional"`
-	Enabled   bool   `json:"enabled,optional"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order,optional"`
+	Enabled       bool   `json:"enabled,optional"`
+	ProductConfig string `json:"product_config,optional"`
 }
 
 type AdminUpsertPayinProductResp struct {
@@ -496,11 +501,12 @@ type AdminUpsertPayinProductResp struct {
 }
 
 type AdminUpdatePayinProductReq struct {
-	Id        int64  `path:"id"`
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order,optional"`
-	Enabled   bool   `json:"enabled,optional"`
+	Id            int64  `path:"id"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order,optional"`
+	Enabled       bool   `json:"enabled,optional"`
+	ProductConfig string `json:"product_config,optional"`
 }
 
 type AdminPayinProductBindingInfo struct {
@@ -552,11 +558,12 @@ type AdminDeletePayinProductBindingResp struct {
 // --- 代付产品（对外 code）与上游通道绑定 ---
 
 type AdminPayoutProductInfo struct {
-	Id        int64  `json:"id"`
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order"`
-	Enabled   bool   `json:"enabled"`
+	Id            int64  `json:"id"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order"`
+	Enabled       bool   `json:"enabled"`
+	ProductConfig string `json:"product_config,omitempty"`
 }
 
 type AdminListPayoutProductsResp struct {
@@ -564,10 +571,11 @@ type AdminListPayoutProductsResp struct {
 }
 
 type AdminCreatePayoutProductReq struct {
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order,optional"`
-	Enabled   bool   `json:"enabled,optional"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order,optional"`
+	Enabled       bool   `json:"enabled,optional"`
+	ProductConfig string `json:"product_config,optional"`
 }
 
 type AdminUpsertPayoutProductResp struct {
@@ -575,11 +583,12 @@ type AdminUpsertPayoutProductResp struct {
 }
 
 type AdminUpdatePayoutProductReq struct {
-	Id        int64  `path:"id"`
-	Code      string `json:"code"`
-	Name      string `json:"name"`
-	SortOrder int64  `json:"sort_order,optional"`
-	Enabled   bool   `json:"enabled,optional"`
+	Id            int64  `path:"id"`
+	Code          string `json:"code"`
+	Name          string `json:"name"`
+	SortOrder     int64  `json:"sort_order,optional"`
+	Enabled       bool   `json:"enabled,optional"`
+	ProductConfig string `json:"product_config,optional"`
 }
 
 type AdminPayoutProductBindingInfo struct {

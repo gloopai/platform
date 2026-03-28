@@ -18,11 +18,12 @@ func NewPayoutProductsStore(db *gorm.DB) *PayoutProductsStore {
 }
 
 type PayoutProductAdmin struct {
-	ID        int64
-	Code      string
-	Name      string
-	SortOrder int64
-	Enabled   bool
+	ID            int64
+	Code          string
+	Name          string
+	SortOrder     int64
+	Enabled       bool
+	ProductConfig string
 }
 
 type PayoutProductBindingAdmin struct {
@@ -36,7 +37,7 @@ type PayoutProductBindingAdmin struct {
 
 func (s *PayoutProductsStore) AdminListAllPayoutProducts(ctx context.Context) ([]PayoutProductAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled FROM payout_products ORDER BY sort_order ASC, id ASC
+SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config FROM payout_products ORDER BY sort_order ASC, id ASC
 `).Rows()
 	if err != nil {
 		return nil, err
@@ -46,7 +47,7 @@ SELECT id, code, name, sort_order, enabled FROM payout_products ORDER BY sort_or
 	for rows.Next() {
 		var p PayoutProductAdmin
 		var en int
-		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en); err != nil {
+		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en, &p.ProductConfig); err != nil {
 			return nil, err
 		}
 		p.Enabled = en == 1
@@ -61,10 +62,11 @@ func (s *PayoutProductsStore) AdminGetPayoutProduct(ctx context.Context, id int6
 		Code      string `gorm:"column:code"`
 		Name      string `gorm:"column:name"`
 		SortOrder int64  `gorm:"column:sort_order"`
-		Enabled   int    `gorm:"column:enabled"`
+		Enabled         int    `gorm:"column:enabled"`
+		ProductConfig   string `gorm:"column:product_config"`
 	}
 	tx := s.db.WithContext(ctx).Raw(`
-SELECT id, code, name, sort_order, enabled FROM payout_products WHERE id = ? LIMIT 1
+SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config FROM payout_products WHERE id = ? LIMIT 1
 `, id).Scan(&r)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -72,17 +74,17 @@ SELECT id, code, name, sort_order, enabled FROM payout_products WHERE id = ? LIM
 	if tx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &PayoutProductAdmin{ID: r.ID, Code: r.Code, Name: r.Name, SortOrder: r.SortOrder, Enabled: r.Enabled == 1}, nil
+	return &PayoutProductAdmin{ID: r.ID, Code: r.Code, Name: r.Name, SortOrder: r.SortOrder, Enabled: r.Enabled == 1, ProductConfig: r.ProductConfig}, nil
 }
 
-func (s *PayoutProductsStore) AdminCreatePayoutProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool) (int64, error) {
+func (s *PayoutProductsStore) AdminCreatePayoutProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool, productConfig string) (int64, error) {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-INSERT INTO payout_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?)
-`, code, name, sortOrder, en)
+INSERT INTO payout_products (code, name, sort_order, enabled, product_config) VALUES (?, ?, ?, ?, ?)
+`, code, name, sortOrder, en, productConfig)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
@@ -95,14 +97,14 @@ INSERT INTO payout_products (code, name, sort_order, enabled) VALUES (?, ?, ?, ?
 	return rid.ID, nil
 }
 
-func (s *PayoutProductsStore) AdminUpdatePayoutProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool) error {
+func (s *PayoutProductsStore) AdminUpdatePayoutProduct(ctx context.Context, id int64, code, name string, sortOrder int64, enabled bool, productConfig string) error {
 	en := 0
 	if enabled {
 		en = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-UPDATE payout_products SET code = ?, name = ?, sort_order = ?, enabled = ?, updated_at = NOW() WHERE id = ?
-`, code, name, sortOrder, en, id)
+UPDATE payout_products SET code = ?, name = ?, sort_order = ?, enabled = ?, product_config = ?, updated_at = NOW() WHERE id = ?
+`, code, name, sortOrder, en, productConfig, id)
 	if tx.Error != nil {
 		return tx.Error
 	}
