@@ -21,7 +21,6 @@ type notifyPayload struct {
 	Amount          int64  `json:"amount"`
 	Currency        string `json:"currency"`
 	Status          int32  `json:"status"`
-	ChannelID       int64  `json:"channel_id"`
 	PaidAmount      int64  `json:"paid_amount"`
 	UpstreamTradeNo string `json:"upstream_trade_no"`
 	Sign            string `json:"sign"`
@@ -54,7 +53,7 @@ func main() {
 			ok = strings.EqualFold(expect, p.Sign)
 		}
 
-		log.Printf("notify received at=%s order_no=%s merchant_id=%s status=%d paid_amount=%d channel_id=%d verify=%v", time.Now().Format(time.RFC3339), p.OrderNo, p.MerchantID, p.Status, p.PaidAmount, p.ChannelID, ok)
+		log.Printf("notify received at=%s order_no=%s merchant_id=%s status=%d paid_amount=%d verify=%v", time.Now().Format(time.RFC3339), p.OrderNo, p.MerchantID, p.Status, p.PaidAmount, ok)
 		b, _ := json.MarshalIndent(p, "", "  ")
 		fmt.Printf("payload:\n%s\n", string(b))
 
@@ -80,7 +79,6 @@ func signForPayload(p notifyPayload, secret string) string {
 		"amount":            strconv.FormatInt(p.Amount, 10),
 		"currency":          p.Currency,
 		"status":            strconv.FormatInt(int64(p.Status), 10),
-		"channel_id":        strconv.FormatInt(p.ChannelID, 10),
 		"paid_amount":       strconv.FormatInt(p.PaidAmount, 10),
 		"upstream_trade_no": p.UpstreamTradeNo,
 	}

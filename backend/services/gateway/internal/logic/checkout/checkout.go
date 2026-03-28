@@ -37,36 +37,38 @@ func NewCheckout(ctx context.Context, svcCtx *svc.ServiceContext) *Checkout {
 	}
 }
 
+// openAPIRejectChannelIDParam rejects signed JSON/query that still carries channel_id.
+// Merchants integrate with the platform only; upstream PSP routing is internal.
+func openAPIRejectChannelIDParam(ctx context.Context) error {
+	p, ok := middleware.OpenAPIParamsFromContext(ctx)
+	if !ok {
+		return nil
+	}
+	v := strings.TrimSpace(p["channel_id"])
+	if v == "" || v == "0" {
+		return nil
+	}
+	return status.Error(codes.InvalidArgument, "channel_id is not allowed on OpenAPI; upstream routing is determined by the platform")
+}
+
 func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
+	if err := openAPIRejectChannelIDParam(c.ctx); err != nil {
+		return nil, err
+	}
 	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
 	if err != nil {
 		return nil, err
 	}
 	payinType := strings.TrimSpace(req.PayinType)
-	channelID := req.ChannelId
 
 	var (
-		route            *channelclient.RouteResp
 		payinProductCode string
 		channelLocked    int32
 		cid              int64
 		ppid             int64
 	)
 
-	switch {
-	case channelID > 0:
-		rl, err := c.svcCtx.ChannelRpc.ResolveLockedChannelForMerchant(c.ctx, &channelpb.ResolveLockedChannelForMerchantReq{
-			MerchantId: merchantID, ChannelId: channelID, Amount: req.Amount,
-		})
-		if err != nil {
-			return nil, status.Error(codes.FailedPrecondition, err.Error())
-		}
-		channelLocked = 1
-		cid = channelID
-		ppid = rl.GetPayinProductId()
-		payinProductCode = rl.GetPayinProductCode()
-
-	case payinType != "":
+	if payinType != "" {
 		has, err := c.svcCtx.ChannelRpc.MerchantHasPayinProductCode(c.ctx, &channelpb.MerchantHasPayinProductCodeReq{
 			MerchantId: merchantID, PayinProductCode: payinType,
 		})
@@ -76,7 +78,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		if !has.GetOk() {
 			return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
 		}
-		route, err = c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
+		route, err := c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
 			Amount:    req.Amount,
 			PayinType: payinType,
 		})
@@ -87,8 +89,7 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		ppid = route.GetPayinProductId()
 		payinProductCode = payinType
 		channelLocked = 0
-
-	default:
+	} else {
 		cid, ppid = 0, 0
 		payinProductCode = ""
 		channelLocked = 0
@@ -133,8 +134,6 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 	return &types.CreateOrderResp{
 		OrderNo:          orderInfo.GetOrderNo(),
 		Status:           orderInfo.GetStatus(),
-		ChannelId:        orderInfo.GetChannelId(),
-		PayinProductId:   orderInfo.GetPayinProductId(),
 		PayinProductCode: orderInfo.GetPayinProductCode(),
 		CheckoutUrl:      checkoutURL,
 		ChannelLocked:    orderInfo.GetChannelLocked(),
@@ -164,8 +163,6 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 			Amount:           o.GetAmount(),
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
-			ChannelId:        o.GetChannelId(),
-			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
@@ -182,6 +179,9 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 }
 
 func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.CreateOrderResp, error) {
+	if err := openAPIRejectChannelIDParam(c.ctx); err != nil {
+		return nil, err
+	}
 	reqID := requestx.FromContext(c.ctx)
 	merchantID, err := c.resolveMerchantID(req.AppId, req.MerchantId)
 	if err != nil {
@@ -246,7 +246,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 		Amount:            req.Amount,
 		Currency:          req.Currency,
 		NotifyUrl:         req.NotifyUrl,
-		ChannelId:         req.ChannelId,
+		ChannelId:         0,
 		PayoutProductId:   payoutProductID,
 		PayoutProductCode: payoutCode,
 		FeeMode:           feeMode,
@@ -289,8 +289,6 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 	return &types.CreateOrderResp{
 		OrderNo:          o.GetOrderNo(),
 		Status:           o.GetStatus(),
-		ChannelId:        o.GetChannelId(),
-		PayinProductId:   o.GetPayinProductId(),
 		PayinProductCode: o.GetPayinProductCode(),
 		CheckoutUrl:      "",
 		ChannelLocked:    0,
@@ -367,8 +365,6 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 			Amount:           o.GetAmount(),
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
-			ChannelId:        o.GetChannelId(),
-			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			PaidAmount:       o.GetPaidAmount(),
 			FeeMode:          o.GetFeeMode(),
@@ -461,8 +457,6 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			Amount:           o.GetAmount(),
 			Currency:         o.GetCurrency(),
 			Status:           o.GetStatus(),
-			ChannelId:        o.GetChannelId(),
-			PayinProductId:   o.GetPayinProductId(),
 			PayinProductCode: o.GetPayinProductCode(),
 			ChannelLocked:    o.GetChannelLocked(),
 			PaidAmount:       o.GetPaidAmount(),
@@ -515,8 +509,6 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 		return nil, err
 	}
 	return &types.TerminalPayResp{
-		ChannelId:        r.GetChannelId(),
-		PayinProductId:   r.GetPayinProductId(),
 		PayinProductCode: r.GetPayinProductCode(),
 		PayUrl:           r.GetPayUrl(),
 		QrPayload:        r.GetQrPayload(),

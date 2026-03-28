@@ -16,11 +16,14 @@
 
 ## 成功返回
 
+上游通道由平台内部路由，接口不返回 `channel_id`。成功时包含 `order_no`、`status`、`payin_product_code`（若已确定）、`checkout_url` 等。
+
 ```json
 {
   "order_no": "PO202603231234560001",
   "status": 0,
-  "channel_id": 1,
+  "payin_product_code": "mock",
+  "channel_locked": 0,
   "checkout_url": "http://127.0.0.1:5174/?order_no=PO202603231234560001"
 }
 ```
@@ -40,3 +43,7 @@
 
 - `REPLAY_REQUEST`：相同 `merchant_id + nonce + timestamp` 重复请求
 - `TOO_MANY_REQUESTS`：触发限流
+
+## 异步通知（支付成功等）
+
+平台向 `notify_url` 投递的 JSON **不包含** `channel_id`（上游路由为平台内部信息）。参与签名的字段与业务字段以 `notice-consumer` 实现为准，一般包含 `order_no`、`merchant_id`、`merchant_order_no`、`amount`、`currency`、`status`、`paid_amount`、`upstream_trade_no`（平台侧交易参考号）、`sign`。

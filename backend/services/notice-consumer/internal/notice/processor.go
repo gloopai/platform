@@ -130,7 +130,6 @@ type orderRow struct {
 	Amount          int64
 	Currency        string
 	Status          int32
-	ChannelId       int64
 	UpstreamTradeNo string
 	PaidAmount      int64
 }
@@ -156,7 +155,7 @@ func loadOrder(ctx context.Context, db *gorm.DB, orderNo string) (*orderRow, err
 	var o orderRow
 	tx := db.WithContext(ctx).
 		Table("orders").
-		Select("order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, COALESCE(upstream_trade_no,'') AS upstream_trade_no, paid_amount").
+		Select("order_no, merchant_id, merchant_order_no, amount, currency, status, COALESCE(upstream_trade_no,'') AS upstream_trade_no, paid_amount").
 		Where("order_no = ?", orderNo).
 		Limit(1).
 		Take(&o)
@@ -174,7 +173,6 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 		"amount":            strconv.FormatInt(o.Amount, 10),
 		"currency":          o.Currency,
 		"status":            strconv.FormatInt(int64(o.Status), 10),
-		"channel_id":        strconv.FormatInt(o.ChannelId, 10),
 		"paid_amount":       strconv.FormatInt(o.PaidAmount, 10),
 		"upstream_trade_no": o.UpstreamTradeNo,
 	}
@@ -186,7 +184,6 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 		"amount":            o.Amount,
 		"currency":          o.Currency,
 		"status":            o.Status,
-		"channel_id":        o.ChannelId,
 		"paid_amount":       o.PaidAmount,
 		"upstream_trade_no": o.UpstreamTradeNo,
 		"sign":              sign,

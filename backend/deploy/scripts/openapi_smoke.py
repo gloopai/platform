@@ -3,6 +3,7 @@
 OpenAPI 联调脚本：代收/代付下单与查单、余额（gateway OpenAPIServer，默认 :8090）。
 
 - 签名与 gateway internal/middleware/sign_md5.go 的 Md5Sign 一致。
+- 代收/代付创建接口不允许携带 channel_id（上游路由由平台决定）；请勿在请求体中包含该字段。
 - 业务成功以统一 JSON 信封 code=2000 为准（与 apiresp.CodeSuccess 一致）。
 
 主入口（默认 `run` = health/余额 + 代收 3 笔 + 代付 3 笔 + 向 checkout 投递 mock 上游通知，覆盖成功/处理中/失败）：
@@ -14,7 +15,7 @@ OpenAPI 联调脚本：代收/代付下单与查单、余额（gateway OpenAPISe
 
     python3 openapi_smoke.py notify-sim
 
-需同时可访问 OpenAPI（默认 8090）与 Checkout（默认 8092）；通道参数见 --checkout-base / --channel-id / --channel-sign-secret。
+需同时可访问 OpenAPI（默认 8090）与 Checkout（默认 8092）。seed_demo 仅保留 mock-psp-alt：代收/代付上游回调均为 mock_psp_alt 的 MD5+snake_case；--channel-id 与 --payout-channel-id 一般同为 `SELECT id FROM channels WHERE name='mock-psp-alt'`（空库常为 1，删过旧 mock-psp 后常为 2）。
 
 单步子命令仍可用：payin-create / payout-create / payin-query / payout-query / balance / check
 """
@@ -23,7 +24,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import hmac
 import http.client
 import json
 import secrets
@@ -36,7 +36,7 @@ API_CODE_SUCCESS = 2000
 
 
 def md5_sign(params: dict[str, str], secret: str) -> str:
-    keys = sorted(k.lower() for k in params if k.lower() != "sign")
+    keys = sorted(k.lower() for k in params if k.lower() not in ("sign", "signature"))
     parts: list[str] = []
     for k in keys:
         v = (params.get(k) or "").strip()
@@ -55,11 +55,16 @@ def random_merchant_order_no(prefix: str) -> str:
     return f"{prefix}-{int(time.time() * 1000)}-{secrets.token_hex(4)}"
 
 
-def mock_hmac_sign(secret: str, fields: dict[str, str]) -> str:
-    """与 mockpsp.SignHMAC 一致：排除 sign，键名排序，k=v&k2=v2，HMAC-SHA256(secret, canonical) hex。"""
-    keys = sorted(k for k in fields if k != "sign")
-    canonical = "&".join(f"{k}={fields[k]}" for k in keys)
-    return hmac.new(secret.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+def _payin_notify_state_word(status: str) -> str:
+    """mock_psp_alt 代收异步 state：PENDING/SUCCESS/FAIL；兼容旧脚本 1/2/3。"""
+    s = status.strip().upper()
+    if s in ("1", "PROCESSING", "PENDING"):
+        return "PENDING"
+    if s in ("2", "SUCCESS"):
+        return "SUCCESS"
+    if s in ("3", "FAIL", "FAILED"):
+        return "FAIL"
+    return s
 
 
 def build_mock_payin_notify(
@@ -70,25 +75,41 @@ def build_mock_payin_notify(
     status: str,
     amount_minor: int,
 ) -> dict[str, Any]:
-    """status: mock 原始串 1=处理中 2=成功 3=失败（与 mockpsp payinStatusString 一致）。"""
+    """
+    mock_psp_alt（mockpsp2）代收异步：snake_case + MD5（与 channeldriver/mockpsp2.VerifyPayinNotify 一致）。
+    若通道仍为 mock_psp（mock-psp），需改用 camelCase+HMAC，勿与此混用。
+    """
     ts = str(int(time.time() * 1000))
     amt = str(amount_minor)
-    fields = {
-        "timestamp": ts,
-        "orderNo": platform_order_no,
-        "sysOrderNo": sys_order_no,
-        "status": status,
+    st = _payin_notify_state_word(status)
+    sign_params: dict[str, str] = {
         "amount": amt,
+        "event_time": ts,
+        "merchant_ref": platform_order_no,
+        "state": st,
+        "txn_id": sys_order_no,
     }
-    sig = mock_hmac_sign(channel_secret, fields)
+    sig = md5_sign(sign_params, channel_secret)
     return {
-        "timestamp": ts,
-        "sign": sig,
-        "orderNo": platform_order_no,
-        "sysOrderNo": sys_order_no,
-        "status": status,
+        "merchant_ref": platform_order_no,
+        "txn_id": sys_order_no,
+        "state": st,
         "amount": amt,
+        "event_time": ts,
+        "signature": sig,
     }
+
+
+def _payout_notify_state_word(status: str) -> str:
+    """mock_psp_alt（mockpsp2）用 PROCESSING/SUCCESS/FAIL；兼容旧脚本 1/2/3。"""
+    s = status.strip().upper()
+    if s in ("1", "PROCESSING"):
+        return "PROCESSING"
+    if s in ("2", "SUCCESS"):
+        return "SUCCESS"
+    if s in ("3", "FAIL", "FAILED"):
+        return "FAIL"
+    return s
 
 
 def build_mock_payout_notify(
@@ -100,25 +121,31 @@ def build_mock_payout_notify(
     amount_minor: int,
     reference_no: str,
 ) -> dict[str, Any]:
+    """
+    mock_psp_alt 代付异步：snake_case + MD5（与 channeldriver/mockpsp2.VerifyPayoutNotify 一致）。
+    mock_psp（仅 mock-psp）为 camelCase+HMAC，勿混用。
+    """
     ts = str(int(time.time() * 1000))
     amt = str(amount_minor)
-    fields = {
-        "orderNo": platform_order_no,
-        "sysOrderNo": sys_order_no,
-        "status": status,
+    pst = _payout_notify_state_word(status)
+    br = reference_no.strip()
+    sign_params: dict[str, str] = {
         "amount": amt,
-        "referenceNo": reference_no,
-        "timestamp": ts,
+        "bank_reference": br,
+        "event_time": ts,
+        "merchant_ref": platform_order_no,
+        "payout_state": pst,
+        "txn_id": sys_order_no,
     }
-    sig = mock_hmac_sign(channel_secret, fields)
+    sig = md5_sign(sign_params, channel_secret)
     return {
-        "orderNo": platform_order_no,
-        "sysOrderNo": sys_order_no,
-        "status": status,
+        "merchant_ref": platform_order_no,
+        "txn_id": sys_order_no,
+        "payout_state": pst,
         "amount": amt,
-        "referenceNo": reference_no,
-        "timestamp": ts,
-        "sign": sig,
+        "bank_reference": reference_no,
+        "event_time": ts,
+        "signature": sig,
     }
 
 
@@ -249,6 +276,15 @@ def is_api_success(http_code: int, text: str) -> tuple[bool, int | None, str, di
     if not ok:
         return False, code, msg, data
     return True, code, msg, data
+
+
+def api_error_hint(http_code: int, raw: str, ok: bool, code: int | None, msg: str) -> str:
+    """业务失败时附加说明（常见：4223 无可用通道需跑 seed、4013 验签、4091 重放、5003 Redis）。"""
+    if ok:
+        return ""
+    if http_code != 200:
+        return f" | {raw[:500]!r}" if raw.strip() else f" | HTTP {http_code} 空 body"
+    return f" | code={code} msg={msg!r}"
 
 
 def _signed_flat_to_payin_json(flat: dict[str, str]) -> dict[str, Any]:
@@ -386,13 +422,16 @@ def _append_step(lines: list[str], failed: list[bool], name: str, ok: bool, deta
 
 def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]]:
     """
-    代收 3 笔 + 代付 3 笔，分别投递上游异步通知（mock_psp HMAC），覆盖成功/处理中/失败。
-    不含 health/余额；需 args 含 base、checkout_base、channel_id、channel_sign_secret 等。
+    代收 3 笔 + 代付 3 笔，分别投递上游异步通知（mock_psp_alt / MD5），覆盖成功/处理中/失败。
+    代收回调：channel_id + channel_sign_secret；代付：payout_channel_id + payout_channel_sign_secret。
+    seed 仅 mock-psp-alt 时两组参数常相同（见 --channel-id / --payout-channel-id）。
     """
     base = args.base.rstrip("/")
     checkout = args.checkout_base.rstrip("/")
     cid = args.channel_id
     chsec = args.channel_sign_secret
+    payout_cid = getattr(args, "payout_channel_id", cid)
+    payout_chsec = getattr(args, "payout_channel_sign_secret", chsec)
     app_id = args.app_id
     secret = args.secret
     payin_amt = args.payin_amount
@@ -415,9 +454,13 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payin_type=args.payin_type,
     )
-    ok_c, _, _, pdata = is_api_success(pc, pt)
+    ok_c, code_c, msg_c, pdata = is_api_success(pc, pt)
     pno_ok = str(pdata.get("order_no") or "") if pdata else ""
-    step("POST payin (success case)", ok_c and bool(pno_ok), f"merchant_order_no={mo_ok} order_no={pno_ok}")
+    step(
+        "POST payin (success case)",
+        ok_c and bool(pno_ok),
+        f"merchant_order_no={mo_ok} order_no={pno_ok}{api_error_hint(pc, pt, ok_c, code_c, msg_c)}",
+    )
     if ok_c and pno_ok:
         body = build_mock_payin_notify(
             chsec,
@@ -443,9 +486,13 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payin_type=args.payin_type,
     )
-    ok_c2, _, _, pd2 = is_api_success(pc2, pt2)
+    ok_c2, code_c2, msg_c2, pd2 = is_api_success(pc2, pt2)
     pno_pr = str(pd2.get("order_no") or "") if pd2 else ""
-    step("POST payin (processing case)", ok_c2 and bool(pno_pr), f"order_no={pno_pr}")
+    step(
+        "POST payin (processing case)",
+        ok_c2 and bool(pno_pr),
+        f"order_no={pno_pr}{api_error_hint(pc2, pt2, ok_c2, code_c2, msg_c2)}",
+    )
     if ok_c2 and pno_pr:
         body2 = build_mock_payin_notify(
             chsec,
@@ -471,9 +518,13 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payin_type=args.payin_type,
     )
-    ok_c3, _, _, pd3 = is_api_success(pc3, pt3)
+    ok_c3, code_c3, msg_c3, pd3 = is_api_success(pc3, pt3)
     pno_f = str(pd3.get("order_no") or "") if pd3 else ""
-    step("POST payin (failed-notify case)", ok_c3 and bool(pno_f), f"order_no={pno_f}")
+    step(
+        "POST payin (failed-notify case)",
+        ok_c3 and bool(pno_f),
+        f"order_no={pno_f}{api_error_hint(pc3, pt3, ok_c3, code_c3, msg_c3)}",
+    )
     if ok_c3 and pno_f:
         body3 = build_mock_payin_notify(
             chsec,
@@ -500,19 +551,23 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payout_product_code=args.payout_product_code,
     )
-    pok, _, _, pod = is_api_success(poc, pot)
+    pok, code_po, msg_po, pod = is_api_success(poc, pot)
     po_no = str(pod.get("order_no") or "") if pod else ""
-    step("POST payout (success case)", pok and bool(po_no), f"merchant_order_no={mp_ok} order_no={po_no}")
+    step(
+        "POST payout (success case)",
+        pok and bool(po_no),
+        f"merchant_order_no={mp_ok} order_no={po_no}{api_error_hint(poc, pot, pok, code_po, msg_po)}",
+    )
     if pok and po_no:
         pb = build_mock_payout_notify(
-            chsec,
+            payout_chsec,
             platform_order_no=po_no,
             sys_order_no=f"MOCK-NP-POK-{po_no}",
             status="2",
             amount_minor=payout_amt,
             reference_no="UTR-OK-001",
         )
-        phc, pht = post_upstream_json(checkout, "payout", cid, po_no, pb)
+        phc, pht = post_upstream_json(checkout, "payout", payout_cid, po_no, pb)
         pb_ok = phc == 200 and pht.strip() == "SUCCESS"
         step("upstream payout notify status=2 (success)", pb_ok, f"HTTP {phc} body={pht.strip()!r}")
         pst = query_order_status(base, app_id, secret, payin=False, order_no=po_no)
@@ -529,19 +584,23 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payout_product_code=args.payout_product_code,
     )
-    pok2, _, _, pod2 = is_api_success(poc2, pot2)
+    pok2, code_po2, msg_po2, pod2 = is_api_success(poc2, pot2)
     po_pr = str(pod2.get("order_no") or "") if pod2 else ""
-    step("POST payout (processing case)", pok2 and bool(po_pr), f"order_no={po_pr}")
+    step(
+        "POST payout (processing case)",
+        pok2 and bool(po_pr),
+        f"order_no={po_pr}{api_error_hint(poc2, pot2, pok2, code_po2, msg_po2)}",
+    )
     if pok2 and po_pr:
         pb2 = build_mock_payout_notify(
-            chsec,
+            payout_chsec,
             platform_order_no=po_pr,
             sys_order_no=f"MOCK-NP-PPR-{po_pr}",
             status="1",
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc2, pht2 = post_upstream_json(checkout, "payout", cid, po_pr, pb2)
+        phc2, pht2 = post_upstream_json(checkout, "payout", payout_cid, po_pr, pb2)
         pb2_ok = phc2 == 200 and pht2.strip() == "SUCCESS"
         step("upstream payout notify status=1 (processing ACK)", pb2_ok, f"HTTP {phc2} body={pht2.strip()!r}")
         pst2 = query_order_status(base, app_id, secret, payin=False, order_no=po_pr)
@@ -558,19 +617,23 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
         currency=args.currency,
         payout_product_code=args.payout_product_code,
     )
-    pok3, _, _, pod3 = is_api_success(poc3, pot3)
+    pok3, code_po3, msg_po3, pod3 = is_api_success(poc3, pot3)
     po_fl = str(pod3.get("order_no") or "") if pod3 else ""
-    step("POST payout (failed case)", pok3 and bool(po_fl), f"order_no={po_fl}")
+    step(
+        "POST payout (failed case)",
+        pok3 and bool(po_fl),
+        f"order_no={po_fl}{api_error_hint(poc3, pot3, pok3, code_po3, msg_po3)}",
+    )
     if pok3 and po_fl:
         pb3 = build_mock_payout_notify(
-            chsec,
+            payout_chsec,
             platform_order_no=po_fl,
             sys_order_no=f"MOCK-NP-PFL-{po_fl}",
             status="3",
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc3, pht3 = post_upstream_json(checkout, "payout", cid, po_fl, pb3)
+        phc3, pht3 = post_upstream_json(checkout, "payout", payout_cid, po_fl, pb3)
         pb3_ok = phc3 == 200 and pht3.strip() == "SUCCESS"
         step("upstream payout notify status=3 (failed)", pb3_ok, f"HTTP {phc3} body={pht3.strip()!r}")
         pst3 = query_order_status(base, app_id, secret, payin=False, order_no=po_fl)
@@ -598,7 +661,16 @@ def cmd_notify_sim(args: argparse.Namespace) -> int:
     lines.extend(slines)
     failed[0] = failed[0] or nf
 
-    print("OpenAPI + upstream notify simulation —", base, "| checkout", checkout, "| channel_id", cid)
+    print(
+        "OpenAPI + upstream notify simulation —",
+        base,
+        "| checkout",
+        checkout,
+        "| payin_ch",
+        cid,
+        "| payout_ch",
+        getattr(args, "payout_channel_id", cid),
+    )
     for ln in lines:
         print(ln)
     if failed[0]:
@@ -643,7 +715,16 @@ def cmd_run_all(args: argparse.Namespace) -> int:
         bal2 = f"available={adata.get('available_balance')}"
     step("GET /v1/merchant/balance/query (after)", ok, f"{msg} {bal2}".strip())
 
-    print("OpenAPI smoke —", base, "| checkout", checkout, "| channel_id", cid)
+    print(
+        "OpenAPI smoke —",
+        base,
+        "| checkout",
+        checkout,
+        "| payin_ch",
+        cid,
+        "| payout_ch",
+        getattr(args, "payout_channel_id", cid),
+    )
     for ln in lines:
         print(ln)
     if failed[0]:
@@ -760,11 +841,29 @@ def main() -> int:
         default="http://127.0.0.1:8092",
         help="gateway CheckoutServer，用于 POST /v1/callback/upstream/payin|payout",
     )
-    s0.add_argument("--channel-id", type=int, default=1, help="channels.id（seed 一般为 1）")
+    s0.add_argument(
+        "--channel-id",
+        type=int,
+        default=1,
+        help="代收上游回调 ?channel_id=（mock-psp-alt 的 id；删过旧 mock-psp 后常为 2）",
+    )
     s0.add_argument(
         "--channel-sign-secret",
-        default="channel_secret",
-        help="通道 sign_secret，与 HMAC 验签一致（seed: channel_secret）",
+        default="channel_secret_alt",
+        help="mock-psp-alt 的 sign_secret（与 MD5 验签一致，seed: channel_secret_alt）",
+    )
+    s0.add_argument(
+        "--payout-channel-id",
+        type=int,
+        default=1,
+        dest="payout_channel_id",
+        help="代付上游回调 ?channel_id=（通常与 --channel-id 相同）",
+    )
+    s0.add_argument(
+        "--payout-channel-sign-secret",
+        default="channel_secret_alt",
+        dest="payout_channel_sign_secret",
+        help="代付 mock-psp-alt 的 sign_secret（seed: channel_secret_alt）",
     )
     s0.add_argument("--payin-amount", type=int, default=100, dest="payin_amount")
     s0.add_argument("--payout-amount", type=int, default=100, dest="payout_amount")
@@ -809,23 +908,36 @@ def main() -> int:
 
     s7 = sub.add_parser(
         "notify-sim",
-        help="多笔代收/代付 + 向 checkout 投递 mock_psp 上游回调（HMAC），覆盖成功/处理中/失败",
+        help="多笔代收/代付 + 向 checkout 投递 mock_psp_alt 上游回调（MD5），覆盖成功/处理中/失败",
     )
     s7.add_argument(
         "--checkout-base",
         default="http://127.0.0.1:8092",
-        help="gateway CheckoutServer 基址（与 seed channels 的 mock_psp 一致），默认 8092",
+        help="gateway CheckoutServer 基址，默认 8092",
     )
     s7.add_argument(
         "--channel-id",
         type=int,
         default=1,
-        help="channels.id（seed_demo 通常为 1，若不对请查库）",
+        help="代收：mock-psp-alt 的 channels.id（不对则查库）",
     )
     s7.add_argument(
         "--channel-sign-secret",
-        default="channel_secret",
-        help="通道 sign_secret，与 channels 表一致（seed: channel_secret）",
+        default="channel_secret_alt",
+        help="mock-psp-alt sign_secret（seed: channel_secret_alt）",
+    )
+    s7.add_argument(
+        "--payout-channel-id",
+        type=int,
+        default=1,
+        dest="payout_channel_id",
+        help="代付：通常与 --channel-id 相同",
+    )
+    s7.add_argument(
+        "--payout-channel-sign-secret",
+        default="channel_secret_alt",
+        dest="payout_channel_sign_secret",
+        help="代付：mock-psp-alt 的 sign_secret（seed: channel_secret_alt）",
     )
     s7.add_argument("--payin-amount", type=int, default=100, dest="payin_amount")
     s7.add_argument("--payout-amount", type=int, default=100, dest="payout_amount")

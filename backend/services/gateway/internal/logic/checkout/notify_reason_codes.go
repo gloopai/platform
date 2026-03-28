@@ -8,6 +8,7 @@ const (
 	NotifyCodeOrderNotFound         = "ORDER_NOT_FOUND"
 	NotifyCodeOrderNotPending       = "ORDER_NOT_PENDING"
 	NotifyCodeReplayPayloadMismatch = "REPLAY_PAYLOAD_MISMATCH"
+	NotifyCodeChannelMismatch       = "CHANNEL_MISMATCH"
 	NotifyCodeMarkPaidFailed        = "MARK_PAID_FAILED"
 	NotifyCodeMarkPaidRace          = "MARK_PAID_RACE"
 	NotifyCodeMarkPaidRaceMismatch  = "MARK_PAID_RACE_MISMATCH"

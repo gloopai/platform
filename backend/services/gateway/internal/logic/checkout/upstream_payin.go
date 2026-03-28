@@ -119,6 +119,11 @@ func (c *Checkout) upstreamNotifyCore(reqID string, req *types.UpstreamNotifyReq
 	o := getResp.GetOrder()
 	c.Infof("request_id=%s action=upstream_notify_core order_no=%s merchant_id=%s paid_amount=%d channel_id=%d", reqID, req.OrderNo, o.GetMerchantId(), req.PaidAmount, req.ChannelId)
 
+	if o.GetChannelId() != req.ChannelId {
+		c.Errorf("request_id=%s action=upstream_notify_core channel_mismatch order_no=%s order_ch=%d notify_ch=%d", reqID, req.OrderNo, o.GetChannelId(), req.ChannelId)
+		return notifyFail(NotifyCodeChannelMismatch, "notify channel does not match order channel"), nil
+	}
+
 	if o.GetStatus() == 1 {
 		if samePaidSnapshot(o, req) {
 			return c.settlePaidOrderAndNotify(reqID, o, req, NotifyCodeIdempotentReplayAccepted, "idempotent replay accepted")

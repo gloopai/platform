@@ -55,12 +55,12 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayinProductId, nullIfEmpty(rec.PayinProductCode), rec.ChannelLocked, rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.ReturnUrl, rec.NotifyUrl).Error
 }
 
-func (s *PayinOrdersStore) MarkPaid(ctx context.Context, orderNo string, paidAmount int64, upstreamTradeNo string, channelId int64) (bool, error) {
+func (s *PayinOrdersStore) MarkPaid(ctx context.Context, orderNo string, paidAmount int64, upstreamTradeNo string) (bool, error) {
 	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payin_orders
-SET status = ?, paid_amount = ?, upstream_trade_no = ?, channel_id = ?, updated_at = NOW()
+SET status = ?, paid_amount = ?, upstream_trade_no = ?, updated_at = NOW()
 WHERE order_no = ? AND status = ?
-`, OrderStatusPaid, paidAmount, upstreamTradeNo, channelId, orderNo, OrderStatusPending)
+`, OrderStatusPaid, paidAmount, upstreamTradeNo, orderNo, OrderStatusPending)
 	return tx.RowsAffected > 0, tx.Error
 }
 

@@ -22,7 +22,7 @@
     "amount": 1000,
     "currency": "CNY",
     "status": 1,
-    "channel_id": 1,
+    "payin_product_code": "mock",
     "notify_url": "https://merchant.example.com/notify",
     "upstream_trade_no": "UP-20260323-0001"
   }

@@ -17,6 +17,15 @@ type openAPIParamsKeyType struct{}
 
 var openAPIParamsContextKey = openAPIParamsKeyType{}
 
+// OpenAPIParamsFromContext returns merged query+JSON params set by OpenAPIParamsParseMiddleware.
+func OpenAPIParamsFromContext(ctx context.Context) (map[string]string, bool) {
+	p, ok := ctx.Value(openAPIParamsContextKey).(map[string]string)
+	if !ok || p == nil {
+		return nil, false
+	}
+	return p, true
+}
+
 const defaultMaxOpenAPIBodyBytes int64 = 262144
 
 var errOpenAPIBodyTooLarge = errors.New("request body too large")

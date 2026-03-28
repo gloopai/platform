@@ -105,7 +105,7 @@
 
         <div class="px-5 py-5 sm:px-6">
           <p class="text-sm font-semibold text-slate-900">选择支付方式</p>
-          <p v-if="channelLocked" class="mt-1 text-xs text-slate-500">商户已指定支付通道，不可更换其他方式。</p>
+          <p v-if="channelLocked" class="mt-1 text-xs text-slate-500">商户已指定支付方式，不可更换其他选项。</p>
           <div class="mt-3 grid gap-2" role="radiogroup" aria-label="支付方式">
             <button
               v-for="m in methodsSorted"

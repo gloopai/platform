@@ -134,10 +134,16 @@ func (s *PayoutOrdersStore) AdminList(ctx context.Context, merchantId, keyword s
 	}
 	args = append(args, limit, offset)
 	tx := s.db.WithContext(ctx).Raw(`
-SELECT po.order_no, po.merchant_id, po.merchant_order_no, po.amount, po.currency, po.status, po.channel_id, po.payout_product_id AS payin_product_id, COALESCE(po.payout_product_code,'') AS payin_product_code, 0 AS channel_locked, po.paid_amount, po.fee_mode, po.fee_rate_bps, po.fee_fixed_amount, po.fee_amount, po.net_amount, '' AS return_url, po.notify_url, COALESCE(po.upstream_trade_no,''), po.created_at, po.updated_at,
-  COALESCE(c.name,'') AS channel_name
+SELECT po.order_no, po.merchant_id, po.merchant_order_no, po.amount, po.currency, po.status, po.channel_id, po.payout_product_id AS payin_product_id, COALESCE(po.payout_product_code,'') AS payin_product_code, 0 AS channel_locked, po.paid_amount, po.fee_mode, po.fee_rate_bps, po.fee_fixed_amount, po.fee_amount, po.net_amount, '' AS return_url, po.notify_url, COALESCE(po.upstream_trade_no,'') AS upstream_trade_no, po.created_at, po.updated_at,
+  COALESCE(
+    NULLIF(TRIM(COALESCE(c.name,'')),''),
+    (SELECT GROUP_CONCAT(DISTINCT ch.name ORDER BY ch.name SEPARATOR ', ')
+     FROM payout_product_channels ppc
+     INNER JOIN channels ch ON ch.id = ppc.channel_id
+     WHERE ppc.payout_product_id = po.payout_product_id AND ppc.enabled = 1)
+  ) AS channel_name
 FROM payout_orders po
-LEFT JOIN channels c ON c.id = po.channel_id
+LEFT JOIN channels c ON c.id = po.channel_id AND po.channel_id > 0
 `+where+` ORDER BY po.created_at DESC LIMIT ? OFFSET ?`, args...).Scan(&out)
 	if tx.Error != nil {
 		return nil, 0, tx.Error

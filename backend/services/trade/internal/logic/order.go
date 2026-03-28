@@ -260,7 +260,18 @@ func (l *MarkPaidLogic) MarkPaid(in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp
 		return nil, status.Error(codes.InvalidArgument, "paid_amount must be positive")
 	}
 
-	changed, err := l.svcCtx.PayOrders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetUpstreamTradeNo(), in.GetChannelId())
+	rec, err := l.svcCtx.PayOrders.FindByOrderNo(l.ctx, in.GetOrderNo())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "order not found")
+		}
+		return nil, status.Error(codes.Internal, "get order failed")
+	}
+	if rec.ChannelId != in.GetChannelId() {
+		return nil, status.Error(codes.FailedPrecondition, "channel mismatch")
+	}
+
+	changed, err := l.svcCtx.PayOrders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetUpstreamTradeNo())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mark paid failed")
 	}

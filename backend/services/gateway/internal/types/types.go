@@ -13,7 +13,6 @@ type CreateOrderReq struct {
 	ReturnUrl       string `json:"return_url,optional"`
 	NotifyUrl       string `json:"notify_url,optional"`
 	PayinType       string `json:"payin_type,optional"`
-	ChannelId       int64  `json:"channel_id,optional"`
 	Timestamp       int64  `json:"timestamp,optional"`
 	Nonce           string `json:"nonce,optional"`
 	Sign            string `json:"sign"`
@@ -27,7 +26,6 @@ type CreatePayinOrderReq struct {
 	Currency          string `json:"currency,optional"`
 	NotifyUrl         string `json:"notify_url,optional"`
 	PayinType         string `json:"payout_type,optional"`
-	ChannelId         int64  `json:"channel_id,optional"`
 	PayinProductId    int64  `json:"payin_product_id,optional"`
 	PayoutProductCode string `json:"payout_product_code,optional"`
 	FeeMode           int64  `json:"fee_mode,optional"`
@@ -43,8 +41,6 @@ type CreatePayinOrderReq struct {
 type CreateOrderResp struct {
 	OrderNo          string `json:"order_no"`
 	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
-	PayinProductId   int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	CheckoutUrl      string `json:"checkout_url"`
 	ChannelLocked    int32  `json:"channel_locked"`
@@ -57,8 +53,6 @@ type OrderInfo struct {
 	Amount           int64  `json:"amount"`
 	Currency         string `json:"currency"`
 	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
-	PayinProductId   int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PayinProductName string `json:"payin_product_name"`
 	ChannelLocked    int32  `json:"channel_locked"`
@@ -121,8 +115,6 @@ type TerminalPayReq struct {
 }
 
 type TerminalPayResp struct {
-	ChannelId        int64  `json:"channel_id"`
-	PayinProductId   int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PayUrl           string `json:"pay_url"`
 	QrPayload        string `json:"qr_payload"`
@@ -284,7 +276,6 @@ type MerchantOrderItem struct {
 	Amount           int64  `json:"amount"`
 	Currency         string `json:"currency"`
 	Status           int32  `json:"status"`
-	ChannelId        int64  `json:"channel_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PayinProductName string `json:"payin_product_name"`
 	PaidAmount       int64  `json:"paid_amount"`

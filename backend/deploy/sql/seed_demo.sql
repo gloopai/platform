@@ -36,12 +36,13 @@ DELETE ppc FROM payout_product_channels ppc
   WHERE pp.code = 'wallet';
 DELETE FROM payout_products WHERE code = 'wallet';
 
+-- 演示环境仅保留 mock-psp-alt（mock_psp_alt / MD5）；旧库若曾插入 mock-psp，下方会删绑定与通道行
 INSERT INTO channels (
   name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
-  ('mock-psp', 'mock_psp', '', 'mock_app_id', '', 'channel_secret', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0)
+  ('mock-psp-alt', 'mock_psp_alt', '', 'alt_app_id', '', 'channel_secret_alt', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0)
 ON DUPLICATE KEY UPDATE
   sign_secret = VALUES(sign_secret),
   supports_payin = VALUES(supports_payin),
@@ -55,6 +56,14 @@ ON DUPLICATE KEY UPDATE
   weight = VALUES(weight),
   payin_type = VALUES(payin_type);
 
+DELETE ppc FROM payin_product_channels ppc
+  INNER JOIN channels c ON c.id = ppc.channel_id
+  WHERE c.name = 'mock-psp';
+DELETE ppc FROM payout_product_channels ppc
+  INNER JOIN channels c ON c.id = ppc.channel_id
+  WHERE c.name = 'mock-psp';
+DELETE FROM channels WHERE name = 'mock-psp';
+
 INSERT INTO payin_products (code, name, sort_order, enabled) VALUES
   ('mock', 'Mock支付', 10, 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
@@ -66,15 +75,16 @@ ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), en
 INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enabled)
 SELECT pp.id, c.id, 100, 1
 FROM payin_products pp
-JOIN channels c ON c.name = 'mock-psp'
+JOIN channels c ON c.name = 'mock-psp-alt'
 WHERE pp.code = 'mock'
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
+-- 主代付产品 bank_card 仅绑 mock-psp-alt（演示脚本回调用 channel_secret_alt；channels.id 以库为准）
 INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, enabled)
 SELECT pp.id, c.id, 100, 1
 FROM payout_products pp
-CROSS JOIN channels c
-WHERE pp.code = 'bank_card' AND c.name IN ('mock-psp') AND c.supports_payout = 1
+JOIN channels c ON c.name = 'mock-psp-alt' AND c.supports_payout = 1
+WHERE pp.code = 'bank_card'
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
 INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
@@ -111,21 +121,7 @@ ON DUPLICATE KEY UPDATE
   merchant_rate_bps = VALUES(merchant_rate_bps),
   fee_fixed_amount = VALUES(fee_fixed_amount);
 
--- 第二条上游 mock（mock_psp_alt）：snake_case + MD5 签名，与 mock_psp 并行；产品 mock_alt / bank_card_alt 仅绑该通道，便于定向测试
--- 使用 WHERE + 子查询，避免 IDE 将「DELETE alias FROM … JOIN」误判为无 WHERE 的全表删除
-DELETE FROM payin_product_channels
-WHERE channel_id IN (SELECT id FROM channels WHERE name = 'mock-psp-alt');
-DELETE FROM payout_product_channels
-WHERE channel_id IN (SELECT id FROM channels WHERE name = 'mock-psp-alt');
-DELETE FROM channels WHERE name = 'mock-psp-alt';
-
-INSERT INTO channels (
-  name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
-  supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
-)
-VALUES
-  ('mock-psp-alt', 'mock_psp_alt', '', 'alt_app_id', '', 'channel_secret_alt', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0);
-
+-- 定向测试：mock_alt / bank_card_alt 仅绑 mock-psp-alt（通道已在上方插入）
 INSERT INTO payin_products (code, name, sort_order, enabled) VALUES
   ('mock_alt', 'Mock(Alt)', 15, 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
@@ -423,7 +419,7 @@ SELECT
   '', '', 'UP-C-DEMO-001'
 FROM channels c
 JOIN payin_products pp ON pp.code = 'mock'
-WHERE c.name = 'mock-psp'
+WHERE c.name = 'mock-psp-alt'
 ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);
 
 -- 与 C-DEMO-001 一致：已支付代收应对应一笔 ORDER_PAID（入账金额 = net_amount），否则不变量检查会报错
@@ -444,5 +440,5 @@ SELECT
   '', 'UP-P-DEMO-001'
 FROM channels c
 JOIN payout_products pp ON pp.code = 'bank_card'
-WHERE c.name = 'mock-psp'
+WHERE c.name = 'mock-psp-alt'
 ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);

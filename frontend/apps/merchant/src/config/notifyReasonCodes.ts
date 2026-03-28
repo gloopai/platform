@@ -9,8 +9,8 @@ export type NotifyReasonRow = {
  * 与 docs/开放API错误码.md、docs/端到端联调一遍.md 保持一致。
  */
 export const NOTIFY_REASON_ROWS: NotifyReasonRow[] = [
-  { code: 'INVALID_NOTIFY_PARAMS', meaning: '回调参数缺失/非法', action: '检查 order_no/channel_id/paid_amount/upstream_trade_no' },
-  { code: 'CHANNEL_NOT_FOUND', meaning: '通道不存在或签名密钥不可查', action: '校验 channel_id 与通道配置' },
+  { code: 'INVALID_NOTIFY_PARAMS', meaning: '回调参数缺失/非法', action: '检查 order_no/paid_amount/upstream_trade_no 等' },
+  { code: 'CHANNEL_NOT_FOUND', meaning: '（平台侧）上游验签配置异常', action: '属平台与 PSP 联调问题，非商户集成参数' },
   { code: 'INVALID_SIGN', meaning: '回调签名错误', action: '校验签名算法与 channel_sign_secret' },
   { code: 'ORDER_NOT_FOUND', meaning: '平台订单不存在', action: '校验 order_no 是否平台单号' },
   { code: 'ORDER_NOT_PENDING', meaning: '订单非待支付状态', action: '仅待支付订单可置成功' },

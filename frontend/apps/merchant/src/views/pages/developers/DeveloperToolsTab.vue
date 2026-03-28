@@ -88,10 +88,13 @@
         <h2 class="text-sm font-semibold text-slate-900">模拟上游回调</h2>
       </div>
       <p class="mt-2 text-sm text-slate-600">调用 <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">/v1/callback/notify</code>，验证支付成功回调。</p>
+      <p class="mt-2 text-xs text-slate-500">
+        开放下单接口不暴露上游通道；此处 <code class="rounded bg-slate-100 px-1 font-mono">channel_id</code> 仅用于在平台内模拟 PSP 回调（与 <code class="font-mono">channels.id</code> / seed 一致），非商户订单参数。
+      </p>
 
       <div class="mt-6 grid grid-cols-12 gap-4">
         <label class="col-span-12 grid gap-1.5 md:col-span-4">
-          <span class="text-xs font-medium text-slate-600">channel_id</span>
+          <span class="text-xs font-medium text-slate-600">channel_id（联调模拟）</span>
           <input v-model.number="mockChannelId" type="number" min="1" class="input-merchant tabular-nums" />
         </label>
         <label class="col-span-12 grid gap-1.5 md:col-span-4">
@@ -184,7 +187,8 @@ import { DEMO_PAY_PRODUCT_OPTIONS } from '@/config/payProducts'
 type CreateOrderResp = {
   order_no: string
   status: number
-  channel_id: number
+  payin_product_code?: string
+  channel_locked?: number
   checkout_url: string
 }
 
@@ -279,7 +283,6 @@ async function createOrder() {
       return
     }
     queryOrderNo.value = result.value.order_no
-    mockChannelId.value = result.value.channel_id || mockChannelId.value
     mockPaidAmount.value = amount.value
     mockOk.value = false
     mockError.value = ''
