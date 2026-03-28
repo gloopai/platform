@@ -117,6 +117,8 @@ message OrderInfo {
   int64 fee_fixed_amount = 19;
   int64 fee_amount = 20;
   int64 net_amount = 21;
+  // 通道展示名（管理台列表等场景；来自 channels.name）
+  string channel_name = 22;
 }
 
 message ListOrdersReq {

@@ -31,13 +31,16 @@ type CreatePayoutOrderReq struct {
 	ChannelId         int64                  `protobuf:"varint,6,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	PayoutProductId   int64                  `protobuf:"varint,7,opt,name=payout_product_id,json=payoutProductId,proto3" json:"payout_product_id,omitempty"`
 	PayoutProductCode string                 `protobuf:"bytes,8,opt,name=payout_product_code,json=payoutProductCode,proto3" json:"payout_product_code,omitempty"`
-	FeeMode           int64                  `protobuf:"varint,9,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
-	FeeRateBps        int64                  `protobuf:"varint,10,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
-	FeeFixedAmount    int64                  `protobuf:"varint,11,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
-	FeeAmount         int64                  `protobuf:"varint,12,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
-	NetAmount         int64                  `protobuf:"varint,13,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// 下单快照：计费模式 1=仅比例 2=仅固定 3=固定+比例
+	FeeMode int64 `protobuf:"varint,9,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	// 对客比例：万分比整数 (= round(百分数×100))；fee_fen = amount_fen * bps / 10000
+	FeeRateBps int64 `protobuf:"varint,10,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
+	// 对客固定部分（分）
+	FeeFixedAmount int64 `protobuf:"varint,11,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	FeeAmount      int64 `protobuf:"varint,12,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount      int64 `protobuf:"varint,13,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreatePayoutOrderReq) Reset() {
@@ -175,7 +178,8 @@ type CreateOrderReq struct {
 	PayinProductId   int64                  `protobuf:"varint,10,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
 	PayinProductCode string                 `protobuf:"bytes,11,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
 	// 下单时由网关/交易写入：商户 API 指定通道时为 1
-	ChannelLocked  int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	ChannelLocked int32 `protobuf:"varint,12,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
+	// 下单快照，语义同 CreatePayoutOrderReq / OrderInfo
 	FeeMode        int64 `protobuf:"varint,13,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
 	FeeRateBps     int64 `protobuf:"varint,14,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
 	FeeFixedAmount int64 `protobuf:"varint,15,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
@@ -620,13 +624,18 @@ type OrderInfo struct {
 	PayinProductId   int64                  `protobuf:"varint,14,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
 	PayinProductCode string                 `protobuf:"bytes,15,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
 	ChannelLocked    int32                  `protobuf:"varint,16,opt,name=channel_locked,json=channelLocked,proto3" json:"channel_locked,omitempty"`
-	FeeMode          int64                  `protobuf:"varint,17,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
-	FeeRateBps       int64                  `protobuf:"varint,18,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
-	FeeFixedAmount   int64                  `protobuf:"varint,19,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
-	FeeAmount        int64                  `protobuf:"varint,20,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
-	NetAmount        int64                  `protobuf:"varint,21,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// 计费模式：1=仅比例 2=仅固定 3=固定+比例
+	FeeMode int64 `protobuf:"varint,17,opt,name=fee_mode,json=feeMode,proto3" json:"fee_mode,omitempty"`
+	// 对客比例：万分比整数 (= round(百分数×100))，下单快照
+	FeeRateBps int64 `protobuf:"varint,18,opt,name=fee_rate_bps,json=feeRateBps,proto3" json:"fee_rate_bps,omitempty"`
+	// 对客固定部分（分），下单快照
+	FeeFixedAmount int64 `protobuf:"varint,19,opt,name=fee_fixed_amount,json=feeFixedAmount,proto3" json:"fee_fixed_amount,omitempty"`
+	FeeAmount      int64 `protobuf:"varint,20,opt,name=fee_amount,json=feeAmount,proto3" json:"fee_amount,omitempty"`
+	NetAmount      int64 `protobuf:"varint,21,opt,name=net_amount,json=netAmount,proto3" json:"net_amount,omitempty"`
+	// 通道展示名（管理台列表等场景；来自 channels.name）
+	ChannelName   string `protobuf:"bytes,22,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OrderInfo) Reset() {
@@ -804,6 +813,13 @@ func (x *OrderInfo) GetNetAmount() int64 {
 		return x.NetAmount
 	}
 	return 0
+}
+
+func (x *OrderInfo) GetChannelName() string {
+	if x != nil {
+		return x.ChannelName
+	}
+	return ""
 }
 
 type ListOrdersReq struct {
@@ -2117,7 +2133,7 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\xcb\x05\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\xee\x05\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -2150,7 +2166,8 @@ const file_order_proto_rawDesc = "" +
 	"\n" +
 	"fee_amount\x18\x14 \x01(\x03R\tfeeAmount\x12\x1d\n" +
 	"\n" +
-	"net_amount\x18\x15 \x01(\x03R\tnetAmount\"\x90\x01\n" +
+	"net_amount\x18\x15 \x01(\x03R\tnetAmount\x12!\n" +
+	"\fchannel_name\x18\x16 \x01(\tR\vchannelName\"\x90\x01\n" +
 	"\rListOrdersReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x18\n" +

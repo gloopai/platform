@@ -41,6 +41,8 @@ type OrderRecord struct {
 	NetAmount       int64
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+	// 仅管理台列表等带 JOIN channels 的查询填充；其余路径为空
+	ChannelName string `gorm:"column:channel_name"`
 }
 
 type rowScanner interface {

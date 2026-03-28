@@ -298,5 +298,6 @@ func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
 		NotifyUrl:        rec.NotifyUrl,
 		UpstreamTradeNo:  rec.UpstreamTradeNo,
 		PaidAmount:       rec.PaidAmount,
+		ChannelName:      rec.ChannelName,
 	}
 }

@@ -77,6 +77,7 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 			Currency:        o.GetCurrency(),
 			Status:          o.GetStatus(),
 			ChannelId:       o.GetChannelId(),
+			ChannelName:     o.GetChannelName(),
 			PayinProductId:    o.GetPayinProductId(),
 			PayinProductCode:  o.GetPayinProductCode(),
 			PaidAmount:      o.GetPaidAmount(),

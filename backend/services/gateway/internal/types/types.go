@@ -718,6 +718,7 @@ type AdminOrderRow struct {
 	Currency         string `json:"currency"`
 	Status           int32  `json:"status"`
 	ChannelId        int64  `json:"channel_id"`
+	ChannelName      string `json:"channel_name"`
 	PayinProductId   int64  `json:"payin_product_id"`
 	PayinProductCode string `json:"payin_product_code"`
 	PaidAmount       int64  `json:"paid_amount"`

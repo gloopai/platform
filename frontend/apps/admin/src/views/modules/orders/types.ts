@@ -7,6 +7,8 @@ export type AdminOrderRow = {
   currency: string
   status: number
   channel_id: number
+  /** 来自 channels.name，管理台列表展示用 */
+  channel_name?: string
   payin_product_id: number
   payin_product_code: string
   paid_amount: number

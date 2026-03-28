@@ -117,7 +117,14 @@
                   {{ o.payin_product_code || '—' }}
                 </div>
               </td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-600">#{{ o.channel_id }}</td>
+              <td class="max-w-[12rem] px-4 py-3">
+                <div
+                  class="truncate text-xs text-slate-800"
+                  :title="o.channel_name ? `#${o.channel_id}` : ''"
+                >
+                  {{ channelDisplay(o) }}
+                </div>
+              </td>
               <td class="max-w-[12rem] px-4 py-3">
                 <div
                   class="truncate text-xs text-slate-600"
@@ -205,6 +212,13 @@ function statusClass(s: number) {
   if (s === 0) return 'bg-amber-100 text-amber-900'
   if (s === 2 || s === 3) return 'bg-rose-100 text-rose-800'
   return 'bg-slate-100 text-slate-700'
+}
+
+function channelDisplay(o: AdminOrderRow) {
+  const name = (o.channel_name || '').trim()
+  if (name) return name
+  if (o.channel_id > 0) return `#${o.channel_id}`
+  return '—'
 }
 
 function buildQuery(): string {

@@ -129,8 +129,34 @@ func (s *PayinOrdersStore) AdminList(ctx context.Context, merchantId, keyword st
 		return nil, 0, err
 	}
 	var out []OrderRecord
-	if err := q.Order("created_at DESC").Limit(int(limit)).Offset(int(offset)).Find(&out).Error; err != nil {
-		return nil, 0, err
+	args := []any{}
+	where := "WHERE 1=1"
+	if merchantId != "" {
+		where += " AND o.merchant_id = ?"
+		args = append(args, merchantId)
+	}
+	if keyword != "" {
+		where += " AND (o.order_no = ? OR o.merchant_order_no = ? OR o.merchant_id = ?)"
+		args = append(args, keyword, keyword, keyword)
+	}
+	if status >= 0 {
+		where += " AND o.status = ?"
+		args = append(args, status)
+	}
+	args = append(args, limit, offset)
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT o.order_no, o.merchant_id, o.merchant_order_no, o.amount, o.currency, o.status, o.channel_id,
+  o.payin_product_id, COALESCE(o.payin_product_code,'') AS payin_product_code, o.channel_locked,
+  o.paid_amount, o.fee_mode, o.fee_rate_bps, o.fee_fixed_amount, o.fee_amount, o.net_amount,
+  COALESCE(o.return_url,'') AS return_url, COALESCE(o.notify_url,'') AS notify_url,
+  COALESCE(o.upstream_trade_no,'') AS upstream_trade_no,
+  o.created_at, o.updated_at,
+  COALESCE(c.name,'') AS channel_name
+FROM payin_orders o
+LEFT JOIN channels c ON c.id = o.channel_id
+`+where+` ORDER BY o.created_at DESC LIMIT ? OFFSET ?`, args...).Scan(&out)
+	if tx.Error != nil {
+		return nil, 0, tx.Error
 	}
 	return out, total, nil
 }
