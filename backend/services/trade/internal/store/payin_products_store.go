@@ -5,16 +5,11 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 
 	"github.com/gloopai/pay/trade/internal/kvcache"
 )
-
-// PayinProductOption 收银台展示的支付产品（与 payin_products 一致，按订单金额过滤可用通道）。
-type PayinProductOption struct {
-	Code string
-	Name string
-}
 
 type PayinProductsStore struct {
 	db *gorm.DB
@@ -42,7 +37,7 @@ func (s *PayinProductsStore) MerchantPayWhitelistStrict(ctx context.Context, mer
 }
 
 // ListTerminalPayinProducts 收银台用：已配置白名单则只展示白名单内可用产品；未配置则与 ListAvailableForAmount 一致。
-func (s *PayinProductsStore) ListTerminalPayinProducts(ctx context.Context, merchantID string, amount int64) ([]PayinProductOption, error) {
+func (s *PayinProductsStore) ListTerminalPayinProducts(ctx context.Context, merchantID string, amount int64) ([]model.PayinProductOption, error) {
 	strict, err := s.MerchantPayWhitelistStrict(ctx, merchantID)
 	if err != nil {
 		return nil, err
@@ -54,7 +49,7 @@ func (s *PayinProductsStore) ListTerminalPayinProducts(ctx context.Context, merc
 }
 
 // ListAvailableForAmount 返回：至少有一条可用上游通道、且金额在通道限额内的支付产品。
-func (s *PayinProductsStore) ListAvailableForAmount(ctx context.Context, amount int64) ([]PayinProductOption, error) {
+func (s *PayinProductsStore) ListAvailableForAmount(ctx context.Context, amount int64) ([]model.PayinProductOption, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT DISTINCT pp.code, pp.name
 FROM payin_products pp
@@ -71,9 +66,9 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	}
 	defer rows.Close()
 
-	var out []PayinProductOption
+	var out []model.PayinProductOption
 	for rows.Next() {
-		var o PayinProductOption
+		var o model.PayinProductOption
 		if err := rows.Scan(&o.Code, &o.Name); err != nil {
 			return nil, err
 		}
@@ -89,7 +84,7 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	return s.listLegacyChannelPayinTypes(ctx, amount)
 }
 
-func (s *PayinProductsStore) listLegacyChannelPayinTypes(ctx context.Context, amount int64) ([]PayinProductOption, error) {
+func (s *PayinProductsStore) listLegacyChannelPayinTypes(ctx context.Context, amount int64) ([]model.PayinProductOption, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT DISTINCT COALESCE(NULLIF(TRIM(payin_type), ''), 'mock')
 FROM channels
@@ -103,13 +98,13 @@ ORDER BY 1
 	}
 	defer rows.Close()
 
-	var out []PayinProductOption
+	var out []model.PayinProductOption
 	for rows.Next() {
 		var code string
 		if err := rows.Scan(&code); err != nil {
 			return nil, err
 		}
-		out = append(out, PayinProductOption{Code: code, Name: code})
+		out = append(out, model.PayinProductOption{Code: code, Name: code})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -118,7 +113,7 @@ ORDER BY 1
 }
 
 // ListAvailableForMerchantAndAmount 商户白名单内、且金额满足通道限额的支付产品（未配置白名单时请用 ListTerminalPayinProducts）。
-func (s *PayinProductsStore) ListAvailableForMerchantAndAmount(ctx context.Context, merchantID string, amount int64) ([]PayinProductOption, error) {
+func (s *PayinProductsStore) ListAvailableForMerchantAndAmount(ctx context.Context, merchantID string, amount int64) ([]model.PayinProductOption, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return nil, nil
@@ -140,9 +135,9 @@ ORDER BY mpp.sort_order ASC, pp.sort_order ASC, pp.id ASC
 	}
 	defer rows.Close()
 
-	var out []PayinProductOption
+	var out []model.PayinProductOption
 	for rows.Next() {
-		var o PayinProductOption
+		var o model.PayinProductOption
 		if err := rows.Scan(&o.Code, &o.Name); err != nil {
 			return nil, err
 		}
@@ -225,7 +220,7 @@ func (s *PayinProductsStore) ResolveLockedChannelForMerchant(ctx context.Context
 }
 
 // GetPayinProductDisplayName 按 code 取展示名；优先 Consul 内存中的 product_config（display_name），否则库表 name，不存在则返回 code。
-func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, code string, cfgCache *kvcache.PayinProductConfig) (string, error) {
+func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, code string, cfgCache *kvcache.PayinProductSnapshot) (string, error) {
 	code = strings.TrimSpace(code)
 	if code == "" {
 		return "", nil
@@ -250,6 +245,13 @@ func (s *PayinProductsStore) GetPayinProductDisplayName(ctx context.Context, cod
 	merged := kvcache.PickPayinProductConfig(cfgCache, r.ID, r.ProductConfig)
 	if dn := kvcache.DisplayNameFromProductJSON(merged); dn != "" {
 		return dn, nil
+	}
+	if cfgCache != nil {
+		if snap, ok := cfgCache.Get(r.ID); ok && snap != nil {
+			if n := strings.TrimSpace(snap.Name); n != "" {
+				return n, nil
+			}
+		}
 	}
 	return r.Name, nil
 }

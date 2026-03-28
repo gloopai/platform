@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
@@ -17,25 +18,7 @@ func NewPayoutProductsStore(db *gorm.DB) *PayoutProductsStore {
 	return &PayoutProductsStore{db: db}
 }
 
-type PayoutProductAdmin struct {
-	ID            int64
-	Code          string
-	Name          string
-	SortOrder     int64
-	Enabled       bool
-	ProductConfig string
-}
-
-type PayoutProductBindingAdmin struct {
-	ID              int64
-	PayoutProductID int64
-	ChannelID       int64
-	ChannelName     string
-	Weight          int64
-	Enabled         bool
-}
-
-func (s *PayoutProductsStore) AdminListAllPayoutProducts(ctx context.Context) ([]PayoutProductAdmin, error) {
+func (s *PayoutProductsStore) AdminListAllPayoutProducts(ctx context.Context) ([]model.PayoutProductAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config FROM payout_products ORDER BY sort_order ASC, id ASC
 `).Rows()
@@ -43,9 +26,9 @@ SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS produ
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayoutProductAdmin
+	var out []model.PayoutProductAdmin
 	for rows.Next() {
-		var p PayoutProductAdmin
+		var p model.PayoutProductAdmin
 		var en int
 		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en, &p.ProductConfig); err != nil {
 			return nil, err
@@ -56,7 +39,7 @@ SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS produ
 	return out, rows.Err()
 }
 
-func (s *PayoutProductsStore) AdminGetPayoutProduct(ctx context.Context, id int64) (*PayoutProductAdmin, error) {
+func (s *PayoutProductsStore) AdminGetPayoutProduct(ctx context.Context, id int64) (*model.PayoutProductAdmin, error) {
 	var r struct {
 		ID        int64  `gorm:"column:id"`
 		Code      string `gorm:"column:code"`
@@ -74,7 +57,7 @@ SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS produ
 	if tx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &PayoutProductAdmin{ID: r.ID, Code: r.Code, Name: r.Name, SortOrder: r.SortOrder, Enabled: r.Enabled == 1, ProductConfig: r.ProductConfig}, nil
+	return &model.PayoutProductAdmin{ID: r.ID, Code: r.Code, Name: r.Name, SortOrder: r.SortOrder, Enabled: r.Enabled == 1, ProductConfig: r.ProductConfig}, nil
 }
 
 func (s *PayoutProductsStore) AdminCreatePayoutProduct(ctx context.Context, code, name string, sortOrder int64, enabled bool, productConfig string) (int64, error) {
@@ -114,7 +97,7 @@ UPDATE payout_products SET code = ?, name = ?, sort_order = ?, enabled = ?, prod
 	return nil
 }
 
-func (s *PayoutProductsStore) AdminListPayoutBindings(ctx context.Context, payoutProductID int64) ([]PayoutProductBindingAdmin, error) {
+func (s *PayoutProductsStore) AdminListPayoutBindings(ctx context.Context, payoutProductID int64) ([]model.PayoutProductBindingAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT ppc.id, ppc.payout_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payout_product_channels ppc
@@ -126,9 +109,9 @@ ORDER BY ppc.id ASC
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayoutProductBindingAdmin
+	var out []model.PayoutProductBindingAdmin
 	for rows.Next() {
-		var b PayoutProductBindingAdmin
+		var b model.PayoutProductBindingAdmin
 		var en int
 		if err := rows.Scan(&b.ID, &b.PayoutProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
 			return nil, err
@@ -191,7 +174,7 @@ UPDATE payout_product_channels SET weight = ?, enabled = ?, updated_at = NOW() W
 	return nil
 }
 
-func (s *PayoutProductsStore) AdminGetPayoutBindingByID(ctx context.Context, bindingID int64) (*PayoutProductBindingAdmin, error) {
+func (s *PayoutProductsStore) AdminGetPayoutBindingByID(ctx context.Context, bindingID int64) (*model.PayoutProductBindingAdmin, error) {
 	var r struct {
 		ID              int64  `gorm:"column:id"`
 		PayoutProductID int64  `gorm:"column:payout_product_id"`
@@ -217,7 +200,7 @@ WHERE ppc.id = ? LIMIT 1
 	if tx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &PayoutProductBindingAdmin{
+	return &model.PayoutProductBindingAdmin{
 		ID:              r.ID,
 		PayoutProductID: r.PayoutProductID,
 		ChannelID:       r.ChannelID,

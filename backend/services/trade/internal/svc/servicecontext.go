@@ -30,9 +30,9 @@ type ServiceContext struct {
 	RoutingSummary        *store.RoutingSummaryStore
 	NotifyLogs            *store.NotifyLogsStore
 	RuntimeConfig         *consulx.ConfigStore
-	ChannelConfig         *kvcache.ChannelConfig
-	PayinProductConfig    *kvcache.PayinProductConfig
-	PayoutProductConfig   *kvcache.PayoutProductConfig
+	ChannelSnapshot       *kvcache.ChannelSnapshot
+	PayinProductSnapshot  *kvcache.PayinProductSnapshot
+	PayoutProductSnapshot *kvcache.PayoutProductSnapshot
 	ChannelDrivers        *channeldriver.Registry
 }
 
@@ -53,18 +53,18 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		DB:       c.BizRedis.DB,
 	})
 	var runtimeCfg *consulx.ConfigStore
-	var channelCfgCache *kvcache.ChannelConfig
-	var payinProdCfg *kvcache.PayinProductConfig
-	var payoutProdCfg *kvcache.PayoutProductConfig
+	var channelSnap *kvcache.ChannelSnapshot
+	var payinProdSnap *kvcache.PayinProductSnapshot
+	var payoutProdSnap *kvcache.PayoutProductSnapshot
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
-		channelCfgCache = kvcache.NewChannelConfig(cfg)
-		channelCfgCache.Start(context.Background())
-		payinProdCfg = kvcache.NewPayinProductConfig(cfg)
-		payinProdCfg.Start(context.Background())
-		payoutProdCfg = kvcache.NewPayoutProductConfig(cfg)
-		payoutProdCfg.Start(context.Background())
+		channelSnap = kvcache.NewChannelSnapshot(cfg)
+		channelSnap.Start(context.Background())
+		payinProdSnap = kvcache.NewPayinProductSnapshot(cfg)
+		payinProdSnap.Start(context.Background())
+		payoutProdSnap = kvcache.NewPayoutProductSnapshot(cfg)
+		payoutProdSnap.Start(context.Background())
 	}
 	reg := channeldriver.NewRegistry()
 	_ = mockpsp.RegisterAll(reg, mockpsp.New(mockpsp.DefaultDriverKey))
@@ -83,9 +83,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RoutingSummary:        store.NewRoutingSummaryStore(gdb),
 		NotifyLogs:            store.NewNotifyLogsStore(gdb),
 		RuntimeConfig:         runtimeCfg,
-		ChannelConfig:         channelCfgCache,
-		PayinProductConfig:    payinProdCfg,
-		PayoutProductConfig:   payoutProdCfg,
+		ChannelSnapshot:       channelSnap,
+		PayinProductSnapshot:  payinProdSnap,
+		PayoutProductSnapshot: payoutProdSnap,
 		ChannelDrivers:        reg,
 	}
 }

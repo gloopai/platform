@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
-	"github.com/gloopai/pay/core/internal/store"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -27,12 +27,12 @@ func (l *ReplaceMerchantPayinProductsLogic) ReplaceMerchantPayinProducts(in *mer
 	if mid == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	var grants []store.PayinGrant
+	var grants []model.PayinGrant
 	for _, g := range in.GetGrants() {
 		if g == nil || g.GetPayinProductId() <= 0 {
 			continue
 		}
-		cg := store.PayinGrant{PayinProductID: g.GetPayinProductId()}
+		cg := model.PayinGrant{PayinProductID: g.GetPayinProductId()}
 		if g.MerchantRateBps != nil {
 			v := *g.MerchantRateBps
 			cg.RateBps = &v
@@ -87,12 +87,12 @@ func (l *ReplaceMerchantPayoutProductsLogic) ReplaceMerchantPayoutProducts(in *m
 	if mid == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	var grants []store.PayoutGrant
+	var grants []model.PayoutGrant
 	for _, g := range in.GetGrants() {
 		if g == nil || g.GetPayoutProductId() <= 0 {
 			continue
 		}
-		pg := store.PayoutGrant{PayoutProductID: g.GetPayoutProductId()}
+		pg := model.PayoutGrant{PayoutProductID: g.GetPayoutProductId()}
 		pg.FeeMode = g.GetFeeMode()
 		if pg.FeeMode <= 0 {
 			pg.FeeMode = 1

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/trade/internal/logic"
 	"github.com/gloopai/pay/trade/internal/store"
@@ -38,7 +39,7 @@ func (s *ChannelServer) GetSignSecret(ctx context.Context, in *channelpb.GetSign
 	return l.GetSignSecret(in)
 }
 
-func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
+func toChannelRow(c *model.Channel) *channelpb.ChannelRow {
 	if c == nil {
 		return nil
 	}
@@ -70,20 +71,20 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 	}
 }
 
-func syncChannelConfigKV(ctx context.Context, store *consulx.ConfigStore, channelID int64, configJSON string) {
-	if store == nil || channelID <= 0 {
+func syncChannelKV(ctx context.Context, cfg *consulx.ConfigStore, ch *model.Channel) {
+	if cfg == nil || ch == nil || ch.ID <= 0 {
 		return
 	}
-	key := consulx.ChannelConfigKVKey(channelID)
+	key := consulx.ChannelSnapshotKVKey(ch.ID)
 	if key == "" {
 		return
 	}
-	configJSON = strings.TrimSpace(configJSON)
-	if configJSON == "" {
-		_ = store.Delete(ctx, key)
+	kv := store.ChannelToKV(ch)
+	b, err := json.Marshal(kv)
+	if err != nil {
 		return
 	}
-	_ = store.PutBytes(ctx, key, []byte(configJSON))
+	_ = cfg.PutBytes(ctx, key, b)
 }
 
 func validateProductConfigJSON(s string) error {
@@ -98,39 +99,39 @@ func validateProductConfigJSON(s string) error {
 	return nil
 }
 
-func syncPayinProductConfigKV(ctx context.Context, store *consulx.ConfigStore, productID int64, configJSON string) {
-	if store == nil || productID <= 0 {
+func syncPayinProductKV(ctx context.Context, cfg *consulx.ConfigStore, p *model.PayinProductAdmin) {
+	if cfg == nil || p == nil || p.ID <= 0 {
 		return
 	}
-	key := consulx.PayinProductConfigKVKey(productID)
+	key := consulx.PayinProductSnapshotKVKey(p.ID)
 	if key == "" {
 		return
 	}
-	configJSON = strings.TrimSpace(configJSON)
-	if configJSON == "" {
-		_ = store.Delete(ctx, key)
+	kv := store.PayinProductAdminToKV(p)
+	b, err := json.Marshal(kv)
+	if err != nil {
 		return
 	}
-	_ = store.PutBytes(ctx, key, []byte(configJSON))
+	_ = cfg.PutBytes(ctx, key, b)
 }
 
-func syncPayoutProductConfigKV(ctx context.Context, store *consulx.ConfigStore, productID int64, configJSON string) {
-	if store == nil || productID <= 0 {
+func syncPayoutProductKV(ctx context.Context, cfg *consulx.ConfigStore, p *model.PayoutProductAdmin) {
+	if cfg == nil || p == nil || p.ID <= 0 {
 		return
 	}
-	key := consulx.PayoutProductConfigKVKey(productID)
+	key := consulx.PayoutProductSnapshotKVKey(p.ID)
 	if key == "" {
 		return
 	}
-	configJSON = strings.TrimSpace(configJSON)
-	if configJSON == "" {
-		_ = store.Delete(ctx, key)
+	kv := store.PayoutProductAdminToKV(p)
+	b, err := json.Marshal(kv)
+	if err != nil {
 		return
 	}
-	_ = store.PutBytes(ctx, key, []byte(configJSON))
+	_ = cfg.PutBytes(ctx, key, b)
 }
 
-func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
+func fromUpsertReq(req *channelpb.UpsertChannelReq) *model.Channel {
 	feeMode := req.GetChannelPayoutFeeMode()
 	if feeMode < 1 || feeMode > 3 {
 		feeMode = 1
@@ -139,7 +140,7 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	if fixedFee < 0 {
 		fixedFee = 0
 	}
-	return &store.Channel{
+	return &model.Channel{
 		Name:                  req.GetName(),
 		PayinType:             req.GetPayinType(),
 		GatewayUrl:            "",
@@ -161,7 +162,7 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	}
 }
 
-func payBindingToProto(b *store.PayinProductBindingAdmin) *channelpb.AdminPayinProductBindingRow {
+func payBindingToProto(b *model.PayinProductBindingAdmin) *channelpb.AdminPayinProductBindingRow {
 	return &channelpb.AdminPayinProductBindingRow{
 		Id:             b.ID,
 		PayinProductId: b.PayinProductID,
@@ -172,7 +173,7 @@ func payBindingToProto(b *store.PayinProductBindingAdmin) *channelpb.AdminPayinP
 	}
 }
 
-func payoutBindingToProto(b *store.PayoutProductBindingAdmin) *channelpb.AdminPayoutProductBindingRow {
+func payoutBindingToProto(b *model.PayoutProductBindingAdmin) *channelpb.AdminPayoutProductBindingRow {
 	return &channelpb.AdminPayoutProductBindingRow{
 		Id:              b.ID,
 		PayoutProductId: b.PayoutProductID,
@@ -194,8 +195,8 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 		}
 		return nil, err
 	}
-	// 通道配置以库表为准；Consul 内存缓存用于 OpenAPI 热路径（PrepareTerminalPay / 网关 GetSignSecret）。
-	// 商户 merchant_config、产品 product_config 同理：管理台写库并同步 KV，运行时优先内存。
+	// 通道整行快照以库表为准；Consul 存 JSON 快照，内存反序列化为结构体，用于 OpenAPI 热路径（PrepareTerminalPay / 网关 GetSignSecret）。
+	// 商户、代收/代付产品同理：管理台写库并同步整行快照 KV。
 	return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
 }
 
@@ -236,7 +237,7 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	if err != nil {
 		return nil, err
 	}
-	syncChannelConfigKV(ctx, s.svcCtx.RuntimeConfig, id, created.ChannelConfig)
+	syncChannelKV(ctx, s.svcCtx.RuntimeConfig, created)
 	return &channelpb.UpsertChannelResp{Channel: toChannelRow(created)}, nil
 }
 
@@ -267,7 +268,7 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	if err != nil {
 		return nil, err
 	}
-	syncChannelConfigKV(ctx, s.svcCtx.RuntimeConfig, req.GetId(), updated.ChannelConfig)
+	syncChannelKV(ctx, s.svcCtx.RuntimeConfig, updated)
 	return &channelpb.UpsertChannelResp{Channel: toChannelRow(updated)}, nil
 }
 
@@ -319,7 +320,7 @@ func (s *ChannelServer) ResolveLockedChannelForMerchant(ctx context.Context, req
 }
 
 func (s *ChannelServer) GetPayinProductDisplayName(ctx context.Context, req *channelpb.GetPayinProductDisplayNameReq) (*channelpb.GetPayinProductDisplayNameResp, error) {
-	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode(), s.svcCtx.PayinProductConfig)
+	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode(), s.svcCtx.PayinProductSnapshot)
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +370,7 @@ func (s *ChannelServer) AdminCreatePayinProduct(ctx context.Context, req *channe
 	if err != nil {
 		return nil, err
 	}
-	syncPayinProductConfigKV(ctx, s.svcCtx.RuntimeConfig, id, p.ProductConfig)
+	syncPayinProductKV(ctx, s.svcCtx.RuntimeConfig, p)
 	return &channelpb.AdminUpsertPayinProductResp{Product: &channelpb.AdminPayinProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled, ProductConfig: p.ProductConfig,
 	}}, nil
@@ -405,7 +406,7 @@ func (s *ChannelServer) AdminUpdatePayinProduct(ctx context.Context, req *channe
 		}
 		return nil, err
 	}
-	syncPayinProductConfigKV(ctx, s.svcCtx.RuntimeConfig, req.GetId(), p.ProductConfig)
+	syncPayinProductKV(ctx, s.svcCtx.RuntimeConfig, p)
 	return &channelpb.AdminUpsertPayinProductResp{Product: &channelpb.AdminPayinProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled, ProductConfig: p.ProductConfig,
 	}}, nil
@@ -540,7 +541,7 @@ func (s *ChannelServer) AdminCreatePayoutProduct(ctx context.Context, req *chann
 	if err != nil {
 		return nil, err
 	}
-	syncPayoutProductConfigKV(ctx, s.svcCtx.RuntimeConfig, id, p.ProductConfig)
+	syncPayoutProductKV(ctx, s.svcCtx.RuntimeConfig, p)
 	return &channelpb.AdminUpsertPayoutProductResp{Product: &channelpb.AdminPayoutProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled, ProductConfig: p.ProductConfig,
 	}}, nil
@@ -573,7 +574,7 @@ func (s *ChannelServer) AdminUpdatePayoutProduct(ctx context.Context, req *chann
 	if err != nil {
 		return nil, err
 	}
-	syncPayoutProductConfigKV(ctx, s.svcCtx.RuntimeConfig, req.GetId(), p.ProductConfig)
+	syncPayoutProductKV(ctx, s.svcCtx.RuntimeConfig, p)
 	return &channelpb.AdminUpsertPayoutProductResp{Product: &channelpb.AdminPayoutProductRow{
 		Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled, ProductConfig: p.ProductConfig,
 	}}, nil

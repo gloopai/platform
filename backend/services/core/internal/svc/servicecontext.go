@@ -20,7 +20,7 @@ type ServiceContext struct {
 	MerchantPayoutProducts *store.MerchantPayoutProductsStore
 	Settle                 *store.SettleStore
 	RuntimeConfig          *consulx.ConfigStore
-	MerchantConfig         *kvcache.MerchantConfig
+	MerchantSnapshot       *kvcache.MerchantSnapshot
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -34,12 +34,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 	var runtimeCfg *consulx.ConfigStore
-	var merchantCfg *kvcache.MerchantConfig
+	var merchantSnap *kvcache.MerchantSnapshot
 	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
-		merchantCfg = kvcache.NewMerchantConfig(cfg)
-		merchantCfg.Start(context.Background())
+		merchantSnap = kvcache.NewMerchantSnapshot(cfg)
+		merchantSnap.Start(context.Background())
 	}
 	return &ServiceContext{
 		Config:                 c,
@@ -49,6 +49,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(gdb),
 		Settle:                 store.NewSettleStore(gdb),
 		RuntimeConfig:          runtimeCfg,
-		MerchantConfig:         merchantCfg,
+		MerchantSnapshot:       merchantSnap,
 	}
 }

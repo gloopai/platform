@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
@@ -16,8 +17,8 @@ func NewPayoutOrdersStore(db *gorm.DB) *PayoutOrdersStore {
 	return &PayoutOrdersStore{db: db}
 }
 
-func (s *PayoutOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
-	var rec OrderRecord
+func (s *PayoutOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*model.OrderRecord, error) {
+	var rec model.OrderRecord
 	tx := s.db.WithContext(ctx).Raw(`
 SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(channel_trade_no,''), created_at, updated_at
 FROM payout_orders
@@ -33,8 +34,8 @@ LIMIT 1
 	return &rec, nil
 }
 
-func (s *PayoutOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
-	var rec OrderRecord
+func (s *PayoutOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*model.OrderRecord, error) {
+	var rec model.OrderRecord
 	tx := s.db.WithContext(ctx).Raw(`
 SELECT order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id AS payin_product_id, COALESCE(payout_product_code,'') AS payin_product_code, 0 AS channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, '' AS return_url, notify_url, COALESCE(channel_trade_no,''), created_at, updated_at
 FROM payout_orders
@@ -50,14 +51,14 @@ LIMIT 1
 	return &rec, nil
 }
 
-func (s *PayoutOrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
+func (s *PayoutOrdersStore) Insert(ctx context.Context, rec *model.OrderRecord) error {
 	return s.db.WithContext(ctx).Exec(`
 INSERT INTO payout_orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payout_product_id, payout_product_code, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, notify_url, channel_trade_no, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayinProductId, nullIfEmpty(rec.PayinProductCode), rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.NotifyUrl, nullIfEmpty(rec.ChannelTradeNo)).Error
 }
 
-func (s *PayoutOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]OrderRecord, int64, error) {
+func (s *PayoutOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]model.OrderRecord, int64, error) {
 	limit = normalizeOrderPageLimit(limit)
 	offset = normalizeOrderOffset(offset)
 	keyword = strings.TrimSpace(keyword)
@@ -74,7 +75,7 @@ func (s *PayoutOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyw
 		return nil, 0, err
 	}
 
-	var out []OrderRecord
+	var out []model.OrderRecord
 	args := []any{merchantId}
 	where := "WHERE merchant_id = ?"
 	if keyword != "" {
@@ -96,7 +97,7 @@ FROM payout_orders
 	return out, total, nil
 }
 
-func (s *PayoutOrdersStore) AdminList(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]OrderRecord, int64, error) {
+func (s *PayoutOrdersStore) AdminList(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]model.OrderRecord, int64, error) {
 	limit = normalizeOrderPageLimit(limit)
 	offset = normalizeOrderOffset(offset)
 	keyword = strings.TrimSpace(keyword)
@@ -117,7 +118,7 @@ func (s *PayoutOrdersStore) AdminList(ctx context.Context, merchantId, keyword s
 		return nil, 0, err
 	}
 
-	var out []OrderRecord
+	var out []model.OrderRecord
 	args := []any{}
 	where := "WHERE 1=1"
 	if merchantId != "" {

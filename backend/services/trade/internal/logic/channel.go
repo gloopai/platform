@@ -57,8 +57,8 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*cha
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
 	override := ""
-	if l.svcCtx.ChannelConfig != nil {
-		if v, ok := l.svcCtx.ChannelConfig.Get(in.GetChannelId()); ok && strings.TrimSpace(v) != "" {
+	if snap, ok := l.svcCtx.ChannelSnapshot.Get(in.GetChannelId()); ok && snap != nil {
+		if v := strings.TrimSpace(snap.ChannelConfig); v != "" {
 			override = v
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
@@ -16,8 +17,8 @@ func NewPayinOrdersStore(db *gorm.DB) *PayinOrdersStore {
 	return &PayinOrdersStore{db: db}
 }
 
-func (s *PayinOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*OrderRecord, error) {
-	var rec OrderRecord
+func (s *PayinOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId, merchantOrderNo string) (*model.OrderRecord, error) {
+	var rec model.OrderRecord
 	tx := s.db.WithContext(ctx).
 		Table("payin_orders").
 		Where("merchant_id = ? AND merchant_order_no = ?", merchantId, merchantOrderNo).
@@ -32,8 +33,8 @@ func (s *PayinOrdersStore) FindByMerchantOrderNo(ctx context.Context, merchantId
 	return &rec, nil
 }
 
-func (s *PayinOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*OrderRecord, error) {
-	var rec OrderRecord
+func (s *PayinOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*model.OrderRecord, error) {
+	var rec model.OrderRecord
 	tx := s.db.WithContext(ctx).
 		Table("payin_orders").
 		Where("order_no = ?", orderNo).
@@ -48,7 +49,7 @@ func (s *PayinOrdersStore) FindByOrderNo(ctx context.Context, orderNo string) (*
 	return &rec, nil
 }
 
-func (s *PayinOrdersStore) Insert(ctx context.Context, rec *OrderRecord) error {
+func (s *PayinOrdersStore) Insert(ctx context.Context, rec *model.OrderRecord) error {
 	return s.db.WithContext(ctx).Exec(`
 INSERT INTO payin_orders (order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id, payin_product_id, payin_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount, return_url, notify_url, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
@@ -82,7 +83,7 @@ func normalizeOrderOffset(off int64) int64 {
 }
 
 // ListByMerchant returns payin orders for a merchant with pagination; total is the count matching filters.
-func (s *PayinOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]OrderRecord, int64, error) {
+func (s *PayinOrdersStore) ListByMerchant(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]model.OrderRecord, int64, error) {
 	limit = normalizeOrderPageLimit(limit)
 	offset = normalizeOrderOffset(offset)
 	keyword = strings.TrimSpace(keyword)
@@ -100,7 +101,7 @@ func (s *PayinOrdersStore) ListByMerchant(ctx context.Context, merchantId, keywo
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var out []OrderRecord
+	var out []model.OrderRecord
 	if err := q.Order("created_at DESC").Limit(int(limit)).Offset(int(offset)).Find(&out).Error; err != nil {
 		return nil, 0, err
 	}
@@ -108,7 +109,7 @@ func (s *PayinOrdersStore) ListByMerchant(ctx context.Context, merchantId, keywo
 }
 
 // AdminList is the admin cross-merchant payin list with pagination; total is the count matching filters.
-func (s *PayinOrdersStore) AdminList(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]OrderRecord, int64, error) {
+func (s *PayinOrdersStore) AdminList(ctx context.Context, merchantId, keyword string, status int32, offset, limit int64) ([]model.OrderRecord, int64, error) {
 	limit = normalizeOrderPageLimit(limit)
 	offset = normalizeOrderOffset(offset)
 	keyword = strings.TrimSpace(keyword)
@@ -128,7 +129,7 @@ func (s *PayinOrdersStore) AdminList(ctx context.Context, merchantId, keyword st
 	if err := q.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	var out []OrderRecord
+	var out []model.OrderRecord
 	args := []any{}
 	where := "WHERE 1=1"
 	if merchantId != "" {

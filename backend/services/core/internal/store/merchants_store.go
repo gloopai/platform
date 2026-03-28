@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
@@ -13,24 +14,6 @@ const globalKeyMerchantNumericIDStart = "merchant_numeric_id_start"
 
 // DefaultMerchantNumericIDFloor 与 global_settings 默认 seed 一致：未配置或异常时的取号下限
 const DefaultMerchantNumericIDFloor int64 = 5000000000
-
-type Merchant struct {
-	ID                   int64
-	MerchantId           string
-	AppId                string
-	Email                string
-	AppSecret            string
-	PasswordHash         string
-	Status       int64
-	IpWhitelist  string
-	PayinBalance         int64
-	AvailableBalance     int64
-	FrozenBalance        int64
-	WithdrawnAmount      int64
-	NotifyUrl            string
-	ReturnUrl            string
-	MerchantConfig       string
-}
 
 type MerchantsStore struct {
 	db *gorm.DB
@@ -40,8 +23,8 @@ func NewMerchantsStore(db *gorm.DB) *MerchantsStore {
 	return &MerchantsStore{db: db}
 }
 
-func (s *MerchantsStore) GetByMerchantId(ctx context.Context, merchantId string) (*Merchant, error) {
-	var m Merchant
+func (s *MerchantsStore) GetByMerchantId(ctx context.Context, merchantId string) (*model.Merchant, error) {
+	var m model.Merchant
 	tx := s.db.WithContext(ctx).
 		Table("merchants").
 		Select(`
@@ -69,8 +52,8 @@ COALESCE(merchant_config,'') AS merchant_config`).
 	return &m, nil
 }
 
-func (s *MerchantsStore) GetByAppId(ctx context.Context, appId string) (*Merchant, error) {
-	var m Merchant
+func (s *MerchantsStore) GetByAppId(ctx context.Context, appId string) (*model.Merchant, error) {
+	var m model.Merchant
 	tx := s.db.WithContext(ctx).
 		Table("merchants").
 		Select(`
@@ -98,8 +81,8 @@ COALESCE(merchant_config,'') AS merchant_config`).
 	return &m, nil
 }
 
-func (s *MerchantsStore) GetByEmail(ctx context.Context, email string) (*Merchant, error) {
-	var m Merchant
+func (s *MerchantsStore) GetByEmail(ctx context.Context, email string) (*model.Merchant, error) {
+	var m model.Merchant
 	tx := s.db.WithContext(ctx).
 		Table("merchants").
 		Select(`
@@ -127,11 +110,11 @@ COALESCE(merchant_config,'') AS merchant_config`).
 	return &m, nil
 }
 
-func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]Merchant, error) {
+func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]model.Merchant, error) {
 	if limit <= 0 || limit > 200 {
 		limit = 200
 	}
-	var out []Merchant
+	var out []model.Merchant
 	if err := s.db.WithContext(ctx).Raw(`
 SELECT id, merchant_id, app_id, email, api_secret AS app_secret, password_hash, status,
        COALESCE(ip_whitelist,'') AS ip_whitelist,
@@ -198,14 +181,14 @@ WHERE slot = 1
 	return n, err
 }
 
-func (s *MerchantsStore) Create(ctx context.Context, m *Merchant) error {
+func (s *MerchantsStore) Create(ctx context.Context, m *model.Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
 INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, merchant_config, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl, m.MerchantConfig).Error
 }
 
-func (s *MerchantsStore) UpdateByMerchantId(ctx context.Context, merchantId string, m *Merchant) error {
+func (s *MerchantsStore) UpdateByMerchantId(ctx context.Context, merchantId string, m *model.Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
 UPDATE merchants
 SET api_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, merchant_config = ?, updated_at = NOW()

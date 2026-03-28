@@ -5,31 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
-// PayinProductAdmin 管理台支付产品行。
-type PayinProductAdmin struct {
-	ID            int64
-	Code          string
-	Name          string
-	SortOrder     int64
-	Enabled       bool
-	ProductConfig string
-}
-
-// PayinProductBindingAdmin 产品与上游通道绑定（费率在通道与商户侧配置，此处仅路由权重）。
-type PayinProductBindingAdmin struct {
-	ID             int64
-	PayinProductID int64
-	ChannelID      int64
-	ChannelName    string
-	Weight         int64
-	Enabled        bool
-}
-
 // AdminListAllPayinProducts 全部支付产品（含停用）。
-func (s *PayinProductsStore) AdminListAllPayinProducts(ctx context.Context) ([]PayinProductAdmin, error) {
+func (s *PayinProductsStore) AdminListAllPayinProducts(ctx context.Context) ([]model.PayinProductAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS product_config
 FROM payin_products
@@ -39,9 +20,9 @@ ORDER BY sort_order ASC, id ASC
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayinProductAdmin
+	var out []model.PayinProductAdmin
 	for rows.Next() {
-		var p PayinProductAdmin
+		var p model.PayinProductAdmin
 		var en int
 		if err := rows.Scan(&p.ID, &p.Code, &p.Name, &p.SortOrder, &en, &p.ProductConfig); err != nil {
 			return nil, err
@@ -53,7 +34,7 @@ ORDER BY sort_order ASC, id ASC
 }
 
 // AdminGetPayinProduct 按 ID。
-func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64) (*PayinProductAdmin, error) {
+func (s *PayinProductsStore) AdminGetPayinProduct(ctx context.Context, id int64) (*model.PayinProductAdmin, error) {
 	var r struct {
 		ID        int64  `gorm:"column:id"`
 		Code      string `gorm:"column:code"`
@@ -71,7 +52,7 @@ SELECT id, code, name, sort_order, enabled, COALESCE(product_config,'') AS produ
 	if tx.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	return &PayinProductAdmin{
+	return &model.PayinProductAdmin{
 		ID:            r.ID,
 		Code:          r.Code,
 		Name:          r.Name,
@@ -121,7 +102,7 @@ UPDATE payin_products SET code = ?, name = ?, sort_order = ?, enabled = ?, produ
 }
 
 // AdminListBindings 某产品下的通道绑定。
-func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]PayinProductBindingAdmin, error) {
+func (s *PayinProductsStore) AdminListBindings(ctx context.Context, payProductID int64) ([]model.PayinProductBindingAdmin, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT ppc.id, ppc.payin_product_id, ppc.channel_id, COALESCE(c.name,''), ppc.weight, ppc.enabled
 FROM payin_product_channels ppc
@@ -133,9 +114,9 @@ ORDER BY ppc.id ASC
 		return nil, err
 	}
 	defer rows.Close()
-	var out []PayinProductBindingAdmin
+	var out []model.PayinProductBindingAdmin
 	for rows.Next() {
-		var b PayinProductBindingAdmin
+		var b model.PayinProductBindingAdmin
 		var en int
 		if err := rows.Scan(&b.ID, &b.PayinProductID, &b.ChannelID, &b.ChannelName, &b.Weight, &en); err != nil {
 			return nil, err
@@ -201,8 +182,8 @@ UPDATE payin_product_channels SET weight = ?, enabled = ?, updated_at = NOW() WH
 }
 
 // AdminGetBindingByID 单条绑定（含通道名）。
-func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*PayinProductBindingAdmin, error) {
-	var b PayinProductBindingAdmin
+func (s *PayinProductsStore) AdminGetBindingByID(ctx context.Context, bindingID int64) (*model.PayinProductBindingAdmin, error) {
+	var b model.PayinProductBindingAdmin
 	var r struct {
 		ID             int64  `gorm:"column:id"`
 		PayinProductID int64  `gorm:"column:payin_product_id"`

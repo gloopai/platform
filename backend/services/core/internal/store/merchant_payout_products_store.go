@@ -6,16 +6,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
-
-// PayoutGrant 商户代付产品行。
-type PayoutGrant struct {
-	PayoutProductID int64
-	FeeMode         int64
-	RateBps         *int64
-	FixedFeeAmount  int64
-}
 
 type MerchantPayoutProductsStore struct {
 	db *gorm.DB
@@ -25,13 +18,13 @@ func NewMerchantPayoutProductsStore(db *gorm.DB) *MerchantPayoutProductsStore {
 	return &MerchantPayoutProductsStore{db: db}
 }
 
-func (s *MerchantPayoutProductsStore) Replace(ctx context.Context, merchantID string, grants []PayoutGrant) error {
+func (s *MerchantPayoutProductsStore) Replace(ctx context.Context, merchantID string, grants []model.PayoutGrant) error {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return errors.New("merchant_id required")
 	}
 	seen := make(map[int64]struct{})
-	var uniq []PayoutGrant
+	var uniq []model.PayoutGrant
 	for _, g := range grants {
 		if g.PayoutProductID <= 0 {
 			continue
@@ -73,7 +66,7 @@ VALUES (?, ?, 1, ?, ?, ?, ?)
 	})
 }
 
-func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merchantID string) ([]PayoutGrant, error) {
+func (s *MerchantPayoutProductsStore) ListPayoutGrants(ctx context.Context, merchantID string) ([]model.PayoutGrant, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return nil, nil
@@ -94,13 +87,13 @@ ORDER BY sort_order ASC, payout_product_id ASC
 		return nil, err
 	}
 
-	out := make([]PayoutGrant, 0, len(rowsOut))
+	out := make([]model.PayoutGrant, 0, len(rowsOut))
 	for _, r := range rowsOut {
 		feeMode := r.FeeMode
 		if feeMode < 1 || feeMode > 3 {
 			feeMode = 1
 		}
-		out = append(out, PayoutGrant{
+		out = append(out, model.PayoutGrant{
 			PayoutProductID: r.PayoutProductID,
 			FeeMode:         feeMode,
 			RateBps:         r.MerchantRateBps,

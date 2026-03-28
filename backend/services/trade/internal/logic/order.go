@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/model"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/kvcache"
 	"github.com/gloopai/pay/trade/internal/store"
@@ -80,7 +81,7 @@ func (l *CreateOrderLogic) CreateOrder(in *orderpb.CreateOrderReq) (*orderpb.Cre
 	if payCode == "" {
 		payCode = strings.TrimSpace(in.GetPayinType())
 	}
-	rec := &store.OrderRecord{
+	rec := &model.OrderRecord{
 		OrderNo:          orderNo,
 		MerchantId:       in.GetMerchantId(),
 		MerchantOrderNo:  in.GetMerchantOrderNo(),
@@ -152,7 +153,7 @@ func NewGetOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOrder
 
 func (l *GetOrderLogic) GetOrder(in *orderpb.GetOrderReq) (*orderpb.GetOrderResp, error) {
 	var (
-		rec *store.OrderRecord
+		rec *model.OrderRecord
 		err error
 	)
 	switch {
@@ -291,7 +292,7 @@ func newOrderNo() (string, error) {
 	return "P" + time.Now().Format("20060102150405") + hex.EncodeToString(b[:8]), nil
 }
 
-func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
+func toOrderInfo(rec *model.OrderRecord) *orderpb.OrderInfo {
 	return &orderpb.OrderInfo{
 		OrderNo:          rec.OrderNo,
 		MerchantId:       rec.MerchantId,
@@ -353,7 +354,7 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 		return nil, status.Error(codes.InvalidArgument, "payout_product_code required")
 	}
 
-	rec := &store.OrderRecord{
+	rec := &model.OrderRecord{
 		OrderNo:          orderNo,
 		MerchantId:       in.GetMerchantId(),
 		MerchantOrderNo:  in.GetMerchantOrderNo(),
@@ -414,7 +415,7 @@ func (l *PayoutOrderLogic) CreatePayoutOrder(in *orderpb.CreatePayoutOrderReq) (
 
 func (l *PayoutOrderLogic) GetPayoutOrder(in *orderpb.GetOrderReq) (*orderpb.GetOrderResp, error) {
 	var (
-		rec *store.OrderRecord
+		rec *model.OrderRecord
 		err error
 	)
 	switch {
@@ -542,7 +543,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 	return l.terminalPaySurface(chID, payPID, code, orderNo, rec)
 }
 
-func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, orderNo, code string) (*orderpb.PrepareTerminalPayResp, error) {
+func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *model.OrderRecord, orderNo, code string) (*orderpb.PrepareTerminalPayResp, error) {
 	if rec.ChannelId <= 0 || rec.PayinProductId <= 0 {
 		return nil, status.Error(codes.FailedPrecondition, "locked order missing channel/route")
 	}
@@ -570,7 +571,7 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 }
 
 // terminalPaySurface uses channeldriver when channels.payin_type matches a registered driver and Upstream.CheckoutNotifyBaseURL is set; otherwise legacy gateway_url / mock surface.
-func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, orderNo string, rec *store.OrderRecord) (*orderpb.PrepareTerminalPayResp, error) {
+func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, orderNo string, rec *model.OrderRecord) (*orderpb.PrepareTerminalPayResp, error) {
 	chRow, err := l.svcCtx.Channels.AdminGetByID(l.ctx, chID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
@@ -580,7 +581,7 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 	mer := chRow.ChannelMerchantNo
 	sig := chRow.SignSecret
 	rsa := chRow.RsaPrivateKey
-	cfgJSON := kvcache.PickChannelConfig(l.svcCtx.ChannelConfig, chRow.ID, chRow.ChannelConfig)
+	cfgJSON := kvcache.PickChannelConfig(l.svcCtx.ChannelSnapshot, chRow.ID, chRow.ChannelConfig)
 	if uc := strings.TrimSpace(cfgJSON); uc != "" {
 		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
 		if jg != "" {

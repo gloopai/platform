@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
 
@@ -199,32 +200,9 @@ func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64, cons
 	return sec, nil
 }
 
-// Channel 管理台 CRUD（与 gateway 原 channels 表结构一致）。
-type Channel struct {
-	ID                    int64
-	Name                  string
-	PayinType             string
-	GatewayUrl            string
-	ChannelMerchantNo     string
-	RsaPrivateKey         string
-	SignSecret            string
-	ChannelConfig         string
-	Weight                int64
-	MinAmount             int64
-	MaxAmount             int64
-	SupportsPayin         bool
-	SupportsPayout        bool
-	ChannelPayinRateBps   int64
-	ChannelPayoutRateBps  int64
-	ChannelPayoutFeeMode  int64
-	ChannelPayoutFixedFee int64
-	Enabled               bool
-	FuseEnabled           bool
-}
-
-func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*Channel, error) {
+func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*model.Channel, error) {
 	var row struct {
-		Channel
+		model.Channel
 		SupportsPayinInt  int `gorm:"column:supports_payin"`
 		SupportsPayoutInt int `gorm:"column:supports_payout"`
 	}
@@ -264,7 +242,7 @@ LIMIT 1
 	return &c, nil
 }
 
-func (s *ChannelsStore) AdminList(ctx context.Context) ([]Channel, error) {
+func (s *ChannelsStore) AdminList(ctx context.Context) ([]model.Channel, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
        COALESCE(channel_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
@@ -280,9 +258,9 @@ ORDER BY id DESC
 	}
 	defer rows.Close()
 
-	var out []Channel
+	var out []model.Channel
 	for rows.Next() {
-		var c Channel
+		var c model.Channel
 		var sc, sp int
 		if err := rows.Scan(
 			&c.ID,
@@ -317,7 +295,7 @@ ORDER BY id DESC
 	return out, nil
 }
 
-func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, error) {
+func (s *ChannelsStore) AdminCreate(ctx context.Context, c *model.Channel) (int64, error) {
 	sc, sp := 0, 0
 	if c.SupportsPayin {
 		sc = 1
@@ -344,7 +322,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 	return rid.ID, nil
 }
 
-func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) error {
+func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *model.Channel) error {
 	sc, sp := 0, 0
 	if c.SupportsPayin {
 		sc = 1

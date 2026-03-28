@@ -6,14 +6,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
-
-// PayinGrant 商户代收产品行（含可选覆盖费率）。
-type PayinGrant struct {
-	PayinProductID int64
-	RateBps        *int64
-}
 
 type MerchantPayinProductsStore struct {
 	db *gorm.DB
@@ -23,13 +18,13 @@ func NewMerchantPayinProductsStore(db *gorm.DB) *MerchantPayinProductsStore {
 	return &MerchantPayinProductsStore{db: db}
 }
 
-func (s *MerchantPayinProductsStore) Replace(ctx context.Context, merchantID string, grants []PayinGrant) error {
+func (s *MerchantPayinProductsStore) Replace(ctx context.Context, merchantID string, grants []model.PayinGrant) error {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return errors.New("merchant_id required")
 	}
 	seen := make(map[int64]struct{})
-	var uniq []PayinGrant
+	var uniq []model.PayinGrant
 	for _, g := range grants {
 		if g.PayinProductID <= 0 {
 			continue
@@ -80,7 +75,7 @@ func (s *MerchantPayinProductsStore) ListProductIDs(ctx context.Context, merchan
 }
 
 // ListPayinGrants 含费率覆盖（NULL 在 DB 中表示用商户默认代收费率）。
-func (s *MerchantPayinProductsStore) ListPayinGrants(ctx context.Context, merchantID string) ([]PayinGrant, error) {
+func (s *MerchantPayinProductsStore) ListPayinGrants(ctx context.Context, merchantID string) ([]model.PayinGrant, error) {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return nil, nil
@@ -98,9 +93,9 @@ ORDER BY sort_order ASC, payin_product_id ASC
 `, merchantID).Scan(&rowsOut).Error; err != nil {
 		return nil, err
 	}
-	out := make([]PayinGrant, 0, len(rowsOut))
+	out := make([]model.PayinGrant, 0, len(rowsOut))
 	for _, r := range rowsOut {
-		out = append(out, PayinGrant{PayinProductID: r.PayinProductID, RateBps: r.MerchantRateBps})
+		out = append(out, model.PayinGrant{PayinProductID: r.PayinProductID, RateBps: r.MerchantRateBps})
 	}
 	return out, nil
 }

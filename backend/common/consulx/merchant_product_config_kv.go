@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// MerchantConfigKVPrefix is the Consul KV prefix for per-merchant config JSON (mirrors merchants.merchant_config).
-// Full key: pay/config/global/merchants/config/{url_path_escape(merchant_id)}
-func MerchantConfigKVPrefix() string {
-	return GlobalConfigPrefix() + "merchants/config/"
+// MerchantSnapshotKVPrefix is the Consul KV prefix for full merchant row JSON snapshots.
+// Full key: pay/config/global/merchants/snapshot/{url_path_escape(merchant_id)}
+func MerchantSnapshotKVPrefix() string {
+	return GlobalConfigPrefix() + "merchants/snapshot/"
 }
 
-// MerchantConfigKVKey returns the Consul KV key for a merchant's config blob.
-func MerchantConfigKVKey(merchantID string) string {
+// MerchantSnapshotKVKey returns the Consul KV key for a merchant snapshot blob.
+func MerchantSnapshotKVKey(merchantID string) string {
 	merchantID = strings.TrimSpace(merchantID)
 	if merchantID == "" {
 		return ""
@@ -22,31 +22,31 @@ func MerchantConfigKVKey(merchantID string) string {
 	if seg == "" {
 		return ""
 	}
-	return MerchantConfigKVPrefix() + seg
+	return MerchantSnapshotKVPrefix() + seg
 }
 
-// PayinProductConfigKVPrefix mirrors payin_products.product_config JSON.
-func PayinProductConfigKVPrefix() string {
-	return GlobalConfigPrefix() + "payin_products/config/"
+// PayinProductSnapshotKVPrefix is the prefix for full payin_products row JSON.
+func PayinProductSnapshotKVPrefix() string {
+	return GlobalConfigPrefix() + "payin_products/snapshot/"
 }
 
-// PayinProductConfigKVKey returns the Consul KV key for a payin product's config blob.
-func PayinProductConfigKVKey(productID int64) string {
+// PayinProductSnapshotKVKey returns the Consul KV key for a payin product snapshot.
+func PayinProductSnapshotKVKey(productID int64) string {
 	if productID <= 0 {
 		return ""
 	}
-	return fmt.Sprintf("%s%d", PayinProductConfigKVPrefix(), productID)
+	return fmt.Sprintf("%s%d", PayinProductSnapshotKVPrefix(), productID)
 }
 
-// PayoutProductConfigKVPrefix mirrors payout_products.product_config JSON.
-func PayoutProductConfigKVPrefix() string {
-	return GlobalConfigPrefix() + "payout_products/config/"
+// PayoutProductSnapshotKVPrefix is the prefix for full payout_products row JSON.
+func PayoutProductSnapshotKVPrefix() string {
+	return GlobalConfigPrefix() + "payout_products/snapshot/"
 }
 
-// PayoutProductConfigKVKey returns the Consul KV key for a payout product's config blob.
-func PayoutProductConfigKVKey(productID int64) string {
+// PayoutProductSnapshotKVKey returns the Consul KV key for a payout product snapshot.
+func PayoutProductSnapshotKVKey(productID int64) string {
 	if productID <= 0 {
 		return ""
 	}
-	return fmt.Sprintf("%s%d", PayoutProductConfigKVPrefix(), productID)
+	return fmt.Sprintf("%s%d", PayoutProductSnapshotKVPrefix(), productID)
 }
