@@ -1,17 +1,16 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gloopai/pay/common/signmd5"
 )
 
 type notifyPayload struct {
@@ -82,35 +81,5 @@ func signForPayload(p notifyPayload, secret string) string {
 		"paid_amount":       strconv.FormatInt(p.PaidAmount, 10),
 		"channel_trade_no": p.ChannelTradeNo,
 	}
-	return md5Sign(params, secret)
-}
-
-func md5Sign(params map[string]string, secret string) string {
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, strings.ToLower(k))
-	}
-	sort.Strings(keys)
-
-	var b strings.Builder
-	for _, k := range keys {
-		v := params[k]
-		if v == "" {
-			continue
-		}
-		if b.Len() > 0 {
-			b.WriteByte('&')
-		}
-		b.WriteString(k)
-		b.WriteByte('=')
-		b.WriteString(v)
-	}
-	if b.Len() > 0 {
-		b.WriteByte('&')
-	}
-	b.WriteString("key=")
-	b.WriteString(secret)
-
-	sum := md5.Sum([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
+	return signmd5.SignSortedKV(params, secret)
 }

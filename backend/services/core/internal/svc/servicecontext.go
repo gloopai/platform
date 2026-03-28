@@ -4,8 +4,7 @@ import (
 	"context"
 
 	"github.com/gloopai/pay/channeldriver"
-	"github.com/gloopai/pay/channeldriver/mockpsp"
-	"github.com/gloopai/pay/channeldriver/mockpsp2"
+	"github.com/gloopai/pay/channeldriver/setup"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/core/internal/config"
@@ -62,8 +61,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		payoutProdSnap.Start(context.Background())
 	}
 	reg := channeldriver.NewRegistry()
-	_ = mockpsp.RegisterAll(reg, mockpsp.New(mockpsp.DefaultDriverKey))
-	_ = mockpsp2.RegisterAll(reg, mockpsp2.New(mockpsp2.DefaultDriverKey))
+	_ = setup.RegisterDefaultMockPSPs(reg)
 	return &ServiceContext{
 		Config:                 c,
 		Gorm:                   gdb,

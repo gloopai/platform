@@ -3,16 +3,13 @@ package notice
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"io"
 	"net/http"
-	"sort"
 	"strconv"
-	"strings"
 	"time"
 
+	"github.com/gloopai/pay/common/signmd5"
 	"github.com/nsqio/go-nsq"
 	"gorm.io/gorm"
 )
@@ -176,7 +173,7 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 		"paid_amount":       strconv.FormatInt(o.PaidAmount, 10),
 		"channel_trade_no": o.ChannelTradeNo,
 	}
-	sign := md5Sign(params, secret)
+	sign := signmd5.SignSortedKV(params, secret)
 	out := map[string]any{
 		"order_no":          o.OrderNo,
 		"merchant_id":       o.MerchantId,
@@ -206,32 +203,4 @@ func insertNotifyLog(ctx context.Context, db *gorm.DB, merchantId, orderNo, noti
 INSERT INTO merchant_notify_logs (merchant_id, order_no, notify_url, attempt, http_status, response_body, error_msg, created_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
 `, merchantId, orderNo, notifyUrl, attempt, httpStatus, responseBody, errMsg).Error
-}
-
-func md5Sign(params map[string]string, secret string) string {
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, strings.ToLower(k))
-	}
-	sort.Strings(keys)
-	var b strings.Builder
-	for i, k := range keys {
-		v := params[k]
-		if v == "" {
-			continue
-		}
-		if i > 0 && b.Len() > 0 {
-			b.WriteByte('&')
-		}
-		b.WriteString(k)
-		b.WriteByte('=')
-		b.WriteString(v)
-	}
-	if b.Len() > 0 {
-		b.WriteByte('&')
-	}
-	b.WriteString("key=")
-	b.WriteString(secret)
-	sum := md5.Sum([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
 }

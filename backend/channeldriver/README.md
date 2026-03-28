@@ -9,6 +9,7 @@ PSP / 支付通道对接模块：`driver_key` 对应一套协议实现，与 `ch
 | [`base/`](base/) | **契约与基础设施**：`ChannelConfig`、错误码、`PayinChannel` / `PayoutChannel` / `BalanceChannel`、`Registry`、回调辅助 `HandlePayinNotify` / `HandlePayoutNotify`、HTTP 写回 `WriteChannelNotify` |
 | 根包 `channeldriver` | 对 `base` 的 **重新导出**（`reexport.go`），服务可继续只 `import "github.com/gloopai/pay/channeldriver"` |
 | [`mockpsp/`](mockpsp/) | 内存模拟 PSP，用于联调与单测 |
+| [`setup/`](setup/) | 可选：`RegisterDefaultMockPSPs` 一次注册 `mock_psp` + `mock_psp2`（避免根包与 `mockpsp` 循环依赖） |
 
 ## 如何对接新通道
 
@@ -37,6 +38,8 @@ PSP / 支付通道对接模块：`driver_key` 对应一套协议实现，与 `ch
 reg := channeldriver.NewRegistry()
 _ = yourpsp.RegisterAll(reg, yourpsp.New(yourpsp.DefaultDriverKey))
 ```
+
+本地联调可一次挂上两个内置 mock：`import "github.com/gloopai/pay/channeldriver/setup"`，然后 `_ = setup.RegisterDefaultMockPSPs(reg)`。
 
 或分别 `RegisterPayin` / `RegisterPayout` / `RegisterBalance`。见 [`base/registry.go`](base/registry.go)。
 

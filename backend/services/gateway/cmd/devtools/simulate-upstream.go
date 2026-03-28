@@ -2,17 +2,16 @@ package main
 
 import (
 	"bytes"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gloopai/pay/common/signmd5"
 )
 
 func runSimulateChannelNotify(args []string) {
@@ -41,7 +40,7 @@ func runSimulateChannelNotify(args []string) {
 		"channel_trade_no": tn,
 		"channel_id":        *channelID,
 	}
-	sign := md5Sign(map[string]string{
+	sign := signmd5.SignSortedKV(map[string]string{
 		"order_no":          *orderNo,
 		"paid_amount":       strconv.FormatInt(*paidAmount, 10),
 		"channel_trade_no": tn,
@@ -57,32 +56,4 @@ func runSimulateChannelNotify(args []string) {
 	}
 	defer resp.Body.Close()
 	fmt.Println("status:", resp.Status)
-}
-
-func md5Sign(params map[string]string, secret string) string {
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, strings.ToLower(k))
-	}
-	sort.Strings(keys)
-	var b strings.Builder
-	for i, k := range keys {
-		v := params[k]
-		if v == "" {
-			continue
-		}
-		if i > 0 && b.Len() > 0 {
-			b.WriteByte('&')
-		}
-		b.WriteString(k)
-		b.WriteByte('=')
-		b.WriteString(v)
-	}
-	if b.Len() > 0 {
-		b.WriteByte('&')
-	}
-	b.WriteString("key=")
-	b.WriteString(secret)
-	sum := md5.Sum([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
 }
