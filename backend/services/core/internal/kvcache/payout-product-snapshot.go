@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
-	"github.com/gloopai/pay/common/model"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -18,15 +18,17 @@ type PayoutProductSnapshot struct {
 	store  *consulx.ConfigStore
 	prefix string
 
-	mu   sync.RWMutex
-	byID map[int64]*model.PayoutProductKV
+	mu     sync.RWMutex
+	byID   map[int64]*configkv.PayoutProductKV
+	byCode map[string]int64 // lower code -> id
 }
 
 func NewPayoutProductSnapshot(store *consulx.ConfigStore) *PayoutProductSnapshot {
 	return &PayoutProductSnapshot{
 		store:  store,
-		prefix: consulx.PayoutProductSnapshotKVPrefix(),
-		byID:   make(map[int64]*model.PayoutProductKV),
+		prefix: configkv.PayoutProductSnapshotKVPrefix(),
+		byID:   make(map[int64]*configkv.PayoutProductKV),
+		byCode: make(map[string]int64),
 	}
 }
 
@@ -72,10 +74,17 @@ func (c *PayoutProductSnapshot) applyKV(key string, data []byte) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if len(data) == 0 {
+		if old := c.byID[id]; old != nil {
+			if code := strings.TrimSpace(strings.ToLower(old.Code)); code != "" {
+				if c.byCode[code] == id {
+					delete(c.byCode, code)
+				}
+			}
+		}
 		delete(c.byID, id)
 		return
 	}
-	var kv model.PayoutProductKV
+	var kv configkv.PayoutProductKV
 	if err := json.Unmarshal(data, &kv); err != nil {
 		logx.Errorf("kvcache payout product snapshot bad json key=%s: %v", key, err)
 		return
@@ -83,7 +92,17 @@ func (c *PayoutProductSnapshot) applyKV(key string, data []byte) {
 	if kv.ID <= 0 {
 		return
 	}
+	if old := c.byID[id]; old != nil {
+		if code := strings.TrimSpace(strings.ToLower(old.Code)); code != "" {
+			if c.byCode[code] == id {
+				delete(c.byCode, code)
+			}
+		}
+	}
 	c.byID[id] = &kv
+	if code := strings.TrimSpace(strings.ToLower(kv.Code)); code != "" {
+		c.byCode[code] = kv.ID
+	}
 }
 
 func parsePayoutProductSnapshotID(fullKey, prefix string) (int64, bool) {
@@ -100,7 +119,7 @@ func parsePayoutProductSnapshotID(fullKey, prefix string) (int64, bool) {
 }
 
 // Get returns (snapshot, true) if Consul has a valid blob for this product id.
-func (c *PayoutProductSnapshot) Get(productID int64) (*model.PayoutProductKV, bool) {
+func (c *PayoutProductSnapshot) Get(productID int64) (*configkv.PayoutProductKV, bool) {
 	if c == nil || productID <= 0 {
 		return nil, false
 	}
@@ -111,6 +130,42 @@ func (c *PayoutProductSnapshot) Get(productID int64) (*model.PayoutProductKV, bo
 		return nil, false
 	}
 	return s, true
+}
+
+// GetByCode returns payout product snapshot by code (case-insensitive).
+func (c *PayoutProductSnapshot) GetByCode(code string) (*configkv.PayoutProductKV, bool) {
+	if c == nil {
+		return nil, false
+	}
+	code = strings.TrimSpace(strings.ToLower(code))
+	if code == "" {
+		return nil, false
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	id, ok := c.byCode[code]
+	if !ok || id <= 0 {
+		return nil, false
+	}
+	s, ok := c.byID[id]
+	if !ok || s == nil {
+		return nil, false
+	}
+	return s, true
+}
+
+// ForEach invokes fn for every cached payout product (read lock).
+func (c *PayoutProductSnapshot) ForEach(fn func(id int64, p *configkv.PayoutProductKV)) {
+	if c == nil || fn == nil {
+		return
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for id, p := range c.byID {
+		if p != nil {
+			fn(id, p)
+		}
+	}
 }
 
 // PickPayoutProductConfig returns product_config from the snapshot when present, otherwise dbValue.

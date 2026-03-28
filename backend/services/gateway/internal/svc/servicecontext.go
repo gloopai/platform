@@ -9,6 +9,7 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/channeldriver/setup"
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
@@ -135,7 +136,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		serviceName = "gateway"
 	}
 	var runtimeCfg *consulx.ConfigStore
-	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(serviceName)); err == nil {
+	if cfg, err := consulx.NewConfigStore("", configkv.GlobalConfigPrefix(), configkv.ServiceConfigPrefix(serviceName)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
 	}

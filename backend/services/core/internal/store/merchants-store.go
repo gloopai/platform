@@ -203,3 +203,20 @@ SET password_hash = ?, updated_at = NOW()
 WHERE merchant_id = ?
 `, passwordHash, merchantId).Error
 }
+
+// GetPasswordHash returns only password_hash for merchant_id (merchant console login when row is otherwise served from Consul).
+func (s *MerchantsStore) GetPasswordHash(ctx context.Context, merchantID string) (string, error) {
+	var r struct {
+		PasswordHash string `gorm:"column:password_hash"`
+	}
+	tx := s.db.WithContext(ctx).Raw(`
+SELECT COALESCE(password_hash,'') AS password_hash FROM merchants WHERE merchant_id = ? LIMIT 1
+`, merchantID).Scan(&r)
+	if tx.Error != nil {
+		return "", tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return "", gorm.ErrRecordNotFound
+	}
+	return r.PasswordHash, nil
+}

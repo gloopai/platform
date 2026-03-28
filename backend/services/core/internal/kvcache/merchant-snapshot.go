@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
-	"github.com/gloopai/pay/common/model"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -19,14 +19,16 @@ type MerchantSnapshot struct {
 	prefix string
 
 	mu      sync.RWMutex
-	byMerID map[string]*model.MerchantKV
+	byMerID map[string]*configkv.MerchantKV
+	byAppID map[string]string // app_id -> merchant_id
 }
 
 func NewMerchantSnapshot(store *consulx.ConfigStore) *MerchantSnapshot {
 	return &MerchantSnapshot{
 		store:   store,
-		prefix:  consulx.MerchantSnapshotKVPrefix(),
-		byMerID: make(map[string]*model.MerchantKV),
+		prefix:  configkv.MerchantSnapshotKVPrefix(),
+		byMerID: make(map[string]*configkv.MerchantKV),
+		byAppID: make(map[string]string),
 	}
 }
 
@@ -72,10 +74,17 @@ func (c *MerchantSnapshot) applyKV(key string, data []byte) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if len(data) == 0 {
+		if old := c.byMerID[id]; old != nil {
+			if a := strings.TrimSpace(old.AppID); a != "" {
+				if c.byAppID[a] == id {
+					delete(c.byAppID, a)
+				}
+			}
+		}
 		delete(c.byMerID, id)
 		return
 	}
-	var kv model.MerchantKV
+	var kv configkv.MerchantKV
 	if err := json.Unmarshal(data, &kv); err != nil {
 		logx.Errorf("kvcache merchant snapshot bad json key=%s: %v", key, err)
 		return
@@ -83,7 +92,17 @@ func (c *MerchantSnapshot) applyKV(key string, data []byte) {
 	if strings.TrimSpace(kv.MerchantID) == "" {
 		return
 	}
+	if old := c.byMerID[id]; old != nil {
+		if a := strings.TrimSpace(old.AppID); a != "" {
+			if c.byAppID[a] == id {
+				delete(c.byAppID, a)
+			}
+		}
+	}
 	c.byMerID[id] = &kv
+	if a := strings.TrimSpace(kv.AppID); a != "" {
+		c.byAppID[a] = kv.MerchantID
+	}
 }
 
 func parseMerchantSnapshotKey(fullKey, prefix string) (string, bool) {
@@ -100,7 +119,7 @@ func parseMerchantSnapshotKey(fullKey, prefix string) (string, bool) {
 }
 
 // Get returns (snapshot, true) if Consul has a valid blob for this merchant.
-func (c *MerchantSnapshot) Get(merchantID string) (*model.MerchantKV, bool) {
+func (c *MerchantSnapshot) Get(merchantID string) (*configkv.MerchantKV, bool) {
 	if c == nil {
 		return nil, false
 	}
@@ -115,6 +134,24 @@ func (c *MerchantSnapshot) Get(merchantID string) (*model.MerchantKV, bool) {
 		return nil, false
 	}
 	return s, true
+}
+
+// GetByAppID returns merchant id for app_id when present in Consul snapshot.
+func (c *MerchantSnapshot) GetByAppID(appID string) (merchantID string, ok bool) {
+	if c == nil {
+		return "", false
+	}
+	appID = strings.TrimSpace(appID)
+	if appID == "" {
+		return "", false
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	mid, ok := c.byAppID[appID]
+	if !ok || strings.TrimSpace(mid) == "" {
+		return "", false
+	}
+	return mid, true
 }
 
 // PickMerchantConfig returns merchant_config from the snapshot when present, otherwise dbValue.

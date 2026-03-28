@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
-	"github.com/gloopai/pay/common/model"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -19,14 +19,14 @@ type ChannelSnapshot struct {
 	prefix string
 
 	mu   sync.RWMutex
-	byID map[int64]*model.ChannelKV
+	byID map[int64]*configkv.ChannelKV
 }
 
 func NewChannelSnapshot(store *consulx.ConfigStore) *ChannelSnapshot {
 	return &ChannelSnapshot{
 		store:  store,
-		prefix: consulx.ChannelSnapshotKVPrefix(),
-		byID:   make(map[int64]*model.ChannelKV),
+		prefix: configkv.ChannelSnapshotKVPrefix(),
+		byID:   make(map[int64]*configkv.ChannelKV),
 	}
 }
 
@@ -75,7 +75,7 @@ func (c *ChannelSnapshot) applyKV(key string, data []byte) {
 		delete(c.byID, id)
 		return
 	}
-	var kv model.ChannelKV
+	var kv configkv.ChannelKV
 	if err := json.Unmarshal(data, &kv); err != nil {
 		logx.Errorf("kvcache channel snapshot bad json key=%s: %v", key, err)
 		return
@@ -100,7 +100,7 @@ func parseChannelSnapshotID(fullKey, prefix string) (int64, bool) {
 }
 
 // Get returns (snapshot, true) if Consul has a valid blob for this channel.
-func (c *ChannelSnapshot) Get(channelID int64) (*model.ChannelKV, bool) {
+func (c *ChannelSnapshot) Get(channelID int64) (*configkv.ChannelKV, bool) {
 	if c == nil || channelID <= 0 {
 		return nil, false
 	}
@@ -111,6 +111,20 @@ func (c *ChannelSnapshot) Get(channelID int64) (*model.ChannelKV, bool) {
 		return nil, false
 	}
 	return s, true
+}
+
+// ForEach invokes fn for every cached channel (read lock).
+func (c *ChannelSnapshot) ForEach(fn func(id int64, ch *configkv.ChannelKV)) {
+	if c == nil || fn == nil {
+		return
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for id, ch := range c.byID {
+		if ch != nil {
+			fn(id, ch)
+		}
+	}
 }
 
 // PickChannelConfig returns channel_config from the snapshot when present, otherwise dbValue.

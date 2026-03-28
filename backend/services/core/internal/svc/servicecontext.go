@@ -5,6 +5,7 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/channeldriver/setup"
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/core/internal/config"
@@ -26,11 +27,15 @@ type ServiceContext struct {
 	PayoutProducts         *store.PayoutProductsStore
 	RoutingSummary         *store.RoutingSummaryStore
 	RuntimeConfig          *consulx.ConfigStore
-	MerchantSnapshot       *kvcache.MerchantSnapshot
-	ChannelSnapshot        *kvcache.ChannelSnapshot
-	PayinProductSnapshot   *kvcache.PayinProductSnapshot
-	PayoutProductSnapshot  *kvcache.PayoutProductSnapshot
-	ChannelDrivers         *channeldriver.Registry
+	MerchantSnapshot            *kvcache.MerchantSnapshot
+	ChannelSnapshot             *kvcache.ChannelSnapshot
+	PayinProductSnapshot        *kvcache.PayinProductSnapshot
+	PayoutProductSnapshot       *kvcache.PayoutProductSnapshot
+	MerchantPayinGrantsSnapshot *kvcache.MerchantPayinGrantsSnapshot
+	MerchantPayoutGrantsSnapshot *kvcache.MerchantPayoutGrantsSnapshot
+	PayinProductBindingsSnapshot *kvcache.PayinProductBindingsSnapshot
+	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
+	ChannelDrivers              *channeldriver.Registry
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -48,7 +53,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	var channelSnap *kvcache.ChannelSnapshot
 	var payinProdSnap *kvcache.PayinProductSnapshot
 	var payoutProdSnap *kvcache.PayoutProductSnapshot
-	if cfg, err := consulx.NewConfigStore("", consulx.GlobalConfigPrefix(), consulx.ServiceConfigPrefix(c.Name)); err == nil {
+	var merPayinGrants *kvcache.MerchantPayinGrantsSnapshot
+	var merPayoutGrants *kvcache.MerchantPayoutGrantsSnapshot
+	var payinBindSnap *kvcache.PayinProductBindingsSnapshot
+	var payoutBindSnap *kvcache.PayoutProductBindingsSnapshot
+	if cfg, err := consulx.NewConfigStore("", configkv.GlobalConfigPrefix(), configkv.ServiceConfigPrefix(c.Name)); err == nil {
 		cfg.Start()
 		runtimeCfg = cfg
 		merchantSnap = kvcache.NewMerchantSnapshot(cfg)
@@ -59,6 +68,14 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		payinProdSnap.Start(context.Background())
 		payoutProdSnap = kvcache.NewPayoutProductSnapshot(cfg)
 		payoutProdSnap.Start(context.Background())
+		merPayinGrants = kvcache.NewMerchantPayinGrantsSnapshot(cfg)
+		merPayinGrants.Start(context.Background())
+		merPayoutGrants = kvcache.NewMerchantPayoutGrantsSnapshot(cfg)
+		merPayoutGrants.Start(context.Background())
+		payinBindSnap = kvcache.NewPayinProductBindingsSnapshot(cfg)
+		payinBindSnap.Start(context.Background())
+		payoutBindSnap = kvcache.NewPayoutProductBindingsSnapshot(cfg)
+		payoutBindSnap.Start(context.Background())
 	}
 	reg := channeldriver.NewRegistry()
 	_ = setup.RegisterDefaultMockPSPs(reg)
@@ -74,10 +91,25 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PayoutProducts:         store.NewPayoutProductsStore(gdb),
 		RoutingSummary:         store.NewRoutingSummaryStore(gdb),
 		RuntimeConfig:          runtimeCfg,
-		MerchantSnapshot:       merchantSnap,
-		ChannelSnapshot:        channelSnap,
-		PayinProductSnapshot:   payinProdSnap,
-		PayoutProductSnapshot:  payoutProdSnap,
-		ChannelDrivers:         reg,
+		MerchantSnapshot:               merchantSnap,
+		ChannelSnapshot:                channelSnap,
+		PayinProductSnapshot:           payinProdSnap,
+		PayoutProductSnapshot:          payoutProdSnap,
+		MerchantPayinGrantsSnapshot:    merPayinGrants,
+		MerchantPayoutGrantsSnapshot:   merPayoutGrants,
+		PayinProductBindingsSnapshot:   payinBindSnap,
+		PayoutProductBindingsSnapshot:  payoutBindSnap,
+		ChannelDrivers:                 reg,
 	}
+}
+
+// OpenAPIMemoryReady is true when Consul-backed routing snapshots are wired (hot path can avoid DB).
+func (s *ServiceContext) OpenAPIMemoryReady() bool {
+	if s == nil || s.RuntimeConfig == nil {
+		return false
+	}
+	return s.PayinProductSnapshot != nil &&
+		s.PayinProductBindingsSnapshot != nil &&
+		s.ChannelSnapshot != nil &&
+		s.MerchantPayinGrantsSnapshot != nil
 }

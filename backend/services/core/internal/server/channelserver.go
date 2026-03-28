@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
+	"github.com/gloopai/pay/core/internal/configsync"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/logic"
 	"github.com/gloopai/pay/core/internal/store"
@@ -76,7 +79,7 @@ func syncChannelKV(ctx context.Context, cfg *consulx.ConfigStore, ch *model.Chan
 	if cfg == nil || ch == nil || ch.ID <= 0 {
 		return
 	}
-	key := consulx.ChannelSnapshotKVKey(ch.ID)
+	key := configkv.ChannelSnapshotKVKey(ch.ID)
 	if key == "" {
 		return
 	}
@@ -104,7 +107,7 @@ func syncPayinProductKV(ctx context.Context, cfg *consulx.ConfigStore, p *model.
 	if cfg == nil || p == nil || p.ID <= 0 {
 		return
 	}
-	key := consulx.PayinProductSnapshotKVKey(p.ID)
+	key := configkv.PayinProductSnapshotKVKey(p.ID)
 	if key == "" {
 		return
 	}
@@ -120,7 +123,7 @@ func syncPayoutProductKV(ctx context.Context, cfg *consulx.ConfigStore, p *model
 	if cfg == nil || p == nil || p.ID <= 0 {
 		return
 	}
-	key := consulx.PayoutProductSnapshotKVKey(p.ID)
+	key := configkv.PayoutProductSnapshotKVKey(p.ID)
 	if key == "" {
 		return
 	}
@@ -189,6 +192,12 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 	if req.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
+	if snap, ok := s.svcCtx.ChannelSnapshot.Get(req.GetChannelId()); ok && snap != nil {
+		ch := store.KVToChannel(snap)
+		effective := *ch
+		effective.ChannelConfig = kvcache.PickChannelConfig(s.svcCtx.ChannelSnapshot, ch.ID, ch.ChannelConfig)
+		return &channelpb.GetChannelResp{Channel: toChannelRow(&effective)}, nil
+	}
 	ch, err := s.svcCtx.Channels.AdminGetByID(ctx, req.GetChannelId())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -196,7 +205,6 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 		}
 		return nil, err
 	}
-	// 单条查询：channel_config 优先合并 Consul 快照（与下单/回调热路径一致）。
 	effective := *ch
 	effective.ChannelConfig = kvcache.PickChannelConfig(s.svcCtx.ChannelSnapshot, ch.ID, ch.ChannelConfig)
 	return &channelpb.GetChannelResp{Channel: toChannelRow(&effective)}, nil
@@ -294,6 +302,21 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 }
 
 func (s *ChannelServer) ListTerminalPayinProducts(ctx context.Context, req *channelpb.ListTerminalPayinProductsReq) (*channelpb.ListTerminalPayinProductsResp, error) {
+	if s.svcCtx.OpenAPIMemoryReady() {
+		opts := kvcache.ListTerminalPayinProductsMemory(
+			req.GetMerchantId(),
+			req.GetAmount(),
+			s.svcCtx.MerchantPayinGrantsSnapshot,
+			s.svcCtx.PayinProductSnapshot,
+			s.svcCtx.PayinProductBindingsSnapshot,
+			s.svcCtx.ChannelSnapshot,
+		)
+		out := make([]*channelpb.PayinProductOption, 0, len(opts))
+		for _, o := range opts {
+			out = append(out, &channelpb.PayinProductOption{Code: o.Code, Name: o.Name})
+		}
+		return &channelpb.ListTerminalPayinProductsResp{Products: out}, nil
+	}
 	opts, err := s.svcCtx.PayinProducts.ListTerminalPayinProducts(ctx, req.GetMerchantId(), req.GetAmount())
 	if err != nil {
 		return nil, err
@@ -306,6 +329,15 @@ func (s *ChannelServer) ListTerminalPayinProducts(ctx context.Context, req *chan
 }
 
 func (s *ChannelServer) MerchantHasPayinProductCode(ctx context.Context, req *channelpb.MerchantHasPayinProductCodeReq) (*channelpb.MerchantHasPayinProductCodeResp, error) {
+	if s.svcCtx.OpenAPIMemoryReady() {
+		ok := kvcache.MerchantHasPayinProductCodeMemory(
+			req.GetMerchantId(),
+			req.GetPayinProductCode(),
+			s.svcCtx.MerchantPayinGrantsSnapshot,
+			s.svcCtx.PayinProductSnapshot,
+		)
+		return &channelpb.MerchantHasPayinProductCodeResp{Ok: ok}, nil
+	}
 	ok, err := s.svcCtx.PayinProducts.MerchantHasPayinProductCode(ctx, req.GetMerchantId(), req.GetPayinProductCode())
 	if err != nil {
 		return nil, err
@@ -314,6 +346,21 @@ func (s *ChannelServer) MerchantHasPayinProductCode(ctx context.Context, req *ch
 }
 
 func (s *ChannelServer) ResolveLockedChannelForMerchant(ctx context.Context, req *channelpb.ResolveLockedChannelForMerchantReq) (*channelpb.ResolveLockedChannelForMerchantResp, error) {
+	if s.svcCtx.OpenAPIMemoryReady() {
+		ppid, code, err := kvcache.ResolveLockedChannelForMerchantMemory(
+			req.GetMerchantId(),
+			req.GetChannelId(),
+			req.GetAmount(),
+			s.svcCtx.MerchantPayinGrantsSnapshot,
+			s.svcCtx.PayinProductSnapshot,
+			s.svcCtx.PayinProductBindingsSnapshot,
+			s.svcCtx.ChannelSnapshot,
+		)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+		return &channelpb.ResolveLockedChannelForMerchantResp{PayinProductId: ppid, PayinProductCode: code}, nil
+	}
 	ppid, code, err := s.svcCtx.PayinProducts.ResolveLockedChannelForMerchant(ctx, req.GetMerchantId(), req.GetChannelId(), req.GetAmount())
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
@@ -322,6 +369,10 @@ func (s *ChannelServer) ResolveLockedChannelForMerchant(ctx context.Context, req
 }
 
 func (s *ChannelServer) GetPayinProductDisplayName(ctx context.Context, req *channelpb.GetPayinProductDisplayNameReq) (*channelpb.GetPayinProductDisplayNameResp, error) {
+	if s.svcCtx.PayinProductSnapshot != nil && s.svcCtx.RuntimeConfig != nil {
+		name := kvcache.GetPayinProductDisplayNameMemory(req.GetCode(), s.svcCtx.PayinProductSnapshot)
+		return &channelpb.GetPayinProductDisplayNameResp{Name: name}, nil
+	}
 	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode(), s.svcCtx.PayinProductSnapshot)
 	if err != nil {
 		return nil, err
@@ -470,6 +521,7 @@ func (s *ChannelServer) AdminUpsertPayinProductBinding(ctx context.Context, req 
 	if err != nil {
 		return nil, err
 	}
+	_ = configsync.SyncPayinProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayinProducts, req.GetPayinProductId())
 	return &channelpb.AdminUpsertPayinProductBindingResp{Binding: payBindingToProto(b)}, nil
 }
 
@@ -491,6 +543,7 @@ func (s *ChannelServer) AdminUpdatePayinProductBinding(ctx context.Context, req 
 		}
 		return nil, err
 	}
+	_ = configsync.SyncPayinProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayinProducts, b.PayinProductID)
 	return &channelpb.AdminUpdatePayinProductBindingResp{Binding: payBindingToProto(b)}, nil
 }
 
@@ -498,17 +551,53 @@ func (s *ChannelServer) AdminDeletePayinProductBinding(ctx context.Context, req 
 	if req.GetId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
-	err := s.svcCtx.PayinProducts.AdminDeleteBinding(ctx, req.GetId())
+	prev, err := s.svcCtx.PayinProducts.AdminGetBindingByID(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
+	pid := prev.PayinProductID
+	err = s.svcCtx.PayinProducts.AdminDeleteBinding(ctx, req.GetId())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "binding not found")
+		}
+		return nil, err
+	}
+	_ = configsync.SyncPayinProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayinProducts, pid)
 	return &channelpb.AdminDeletePayinProductBindingResp{Ok: true}, nil
 }
 
 func (s *ChannelServer) AdminListPayoutProducts(ctx context.Context, _ *channelpb.AdminListPayoutProductsReq) (*channelpb.AdminListPayoutProductsResp, error) {
+	if s.svcCtx.PayoutProductSnapshot != nil && s.svcCtx.RuntimeConfig != nil {
+		type row struct {
+			id        int64
+			sortOrder int64
+			p         *configkv.PayoutProductKV
+		}
+		var tmp []row
+		s.svcCtx.PayoutProductSnapshot.ForEach(func(id int64, p *configkv.PayoutProductKV) {
+			if p != nil {
+				tmp = append(tmp, row{id: id, sortOrder: p.SortOrder, p: p})
+			}
+		})
+		sort.Slice(tmp, func(i, j int) bool {
+			if tmp[i].sortOrder != tmp[j].sortOrder {
+				return tmp[i].sortOrder < tmp[j].sortOrder
+			}
+			return tmp[i].id < tmp[j].id
+		})
+		out := make([]*channelpb.AdminPayoutProductRow, 0, len(tmp))
+		for _, r := range tmp {
+			p := r.p
+			out = append(out, &channelpb.AdminPayoutProductRow{
+				Id: p.ID, Code: p.Code, Name: p.Name, SortOrder: p.SortOrder, Enabled: p.Enabled, ProductConfig: p.ProductConfig,
+			})
+		}
+		return &channelpb.AdminListPayoutProductsResp{Products: out}, nil
+	}
 	rows, err := s.svcCtx.PayoutProducts.AdminListAllPayoutProducts(ctx)
 	if err != nil {
 		return nil, err
@@ -638,6 +727,7 @@ func (s *ChannelServer) AdminUpsertPayoutProductBinding(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
+	_ = configsync.SyncPayoutProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayoutProducts, req.GetPayoutProductId())
 	return &channelpb.AdminUpsertPayoutProductBindingResp{Binding: payoutBindingToProto(b)}, nil
 }
 
@@ -656,6 +746,7 @@ func (s *ChannelServer) AdminUpdatePayoutProductBinding(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
+	_ = configsync.SyncPayoutProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayoutProducts, b.PayoutProductID)
 	return &channelpb.AdminUpdatePayoutProductBindingResp{Binding: payoutBindingToProto(b)}, nil
 }
 
@@ -663,12 +754,21 @@ func (s *ChannelServer) AdminDeletePayoutProductBinding(ctx context.Context, req
 	if req.GetId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "id required")
 	}
-	err := s.svcCtx.PayoutProducts.AdminDeletePayoutBinding(ctx, req.GetId())
+	prev, err := s.svcCtx.PayoutProducts.AdminGetPayoutBindingByID(ctx, req.GetId())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "binding not found")
 		}
 		return nil, err
 	}
+	pid := prev.PayoutProductID
+	err = s.svcCtx.PayoutProducts.AdminDeletePayoutBinding(ctx, req.GetId())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "binding not found")
+		}
+		return nil, err
+	}
+	_ = configsync.SyncPayoutProductChannelBindings(ctx, s.svcCtx.RuntimeConfig, s.svcCtx.PayoutProducts, pid)
 	return &channelpb.AdminDeletePayoutProductBindingResp{Ok: true}, nil
 }

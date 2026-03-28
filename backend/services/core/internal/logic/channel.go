@@ -5,7 +5,9 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/gloopai/pay/channeldriver"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
+	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -28,6 +30,19 @@ func NewRouteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RouteLogic 
 }
 
 func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
+	if l.svcCtx.OpenAPIMemoryReady() {
+		ch, pid, err := kvcache.RoutePayinFromMemory(
+			in.GetPayinType(),
+			in.GetAmount(),
+			l.svcCtx.PayinProductSnapshot,
+			l.svcCtx.PayinProductBindingsSnapshot,
+			l.svcCtx.ChannelSnapshot,
+		)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+		return &channelpb.RouteResp{ChannelId: ch, PayinProductId: pid}, nil
+	}
 	channelId, payProductID, err := l.svcCtx.Channels.Route(l.ctx, in.GetPayinType(), in.GetAmount())
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, err.Error())
@@ -56,12 +71,18 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*cha
 	if in.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
-	override := ""
 	if snap, ok := l.svcCtx.ChannelSnapshot.Get(in.GetChannelId()); ok && snap != nil {
-		if v := strings.TrimSpace(snap.ChannelConfig); v != "" {
-			override = v
+		sec := strings.TrimSpace(snap.SignSecret)
+		uc := strings.TrimSpace(snap.ChannelConfig)
+		if uc != "" {
+			_, _, js, _ := channeldriver.ConfigFieldsFromChannelJSON(uc)
+			if js != "" {
+				sec = js
+			}
 		}
+		return &channelpb.GetSignSecretResp{SignSecret: sec}, nil
 	}
+	override := ""
 	secret, err := l.svcCtx.Channels.GetSignSecret(l.ctx, in.GetChannelId(), override)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

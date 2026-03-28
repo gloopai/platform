@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -28,18 +29,6 @@ type ConfigStore struct {
 	handlers      map[string]map[int]func(ConfigEvent)
 	stop          chan struct{}
 	close         sync.Once
-}
-
-func GlobalConfigPrefix() string {
-	return "pay/config/global/"
-}
-
-func ServiceConfigPrefix(serviceName string) string {
-	serviceName = strings.TrimSpace(serviceName)
-	if serviceName == "" {
-		return "pay/config/services/unknown/"
-	}
-	return "pay/config/services/" + serviceName + "/"
 }
 
 func NewConfigStore(consulAddr string, prefixes ...string) (*ConfigStore, error) {
@@ -74,7 +63,7 @@ func NewConfigStore(consulAddr string, prefixes ...string) (*ConfigStore, error)
 }
 
 func NewDefaultConfigStore(serviceName string) (*ConfigStore, error) {
-	return NewConfigStore("", GlobalConfigPrefix(), ServiceConfigPrefix(serviceName))
+	return NewConfigStore("", configkv.GlobalConfigPrefix(), configkv.ServiceConfigPrefix(serviceName))
 }
 
 func (s *ConfigStore) Start() {

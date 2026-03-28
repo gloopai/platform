@@ -4,8 +4,11 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/model"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	"github.com/gloopai/pay/core/internal/configsync"
+	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -42,6 +45,7 @@ func (l *ReplaceMerchantPayinProductsLogic) ReplaceMerchantPayinProducts(in *mer
 	if err := l.svcCtx.MerchantPayinProducts.Replace(l.ctx, mid, grants); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+	_ = configsync.SyncMerchantPayinGrants(l.ctx, l.svcCtx.RuntimeConfig, l.svcCtx.MerchantPayinProducts, mid)
 	return &merchantpb.ReplaceMerchantPayinProductsResp{Ok: true}, nil
 }
 
@@ -56,10 +60,28 @@ func NewListMerchantPayinProductIdsLogic(ctx context.Context, svcCtx *svc.Servic
 }
 
 func (l *ListMerchantPayinProductIdsLogic) ListMerchantPayinProductIds(in *merchantpb.ListMerchantPayinProductIdsReq) (*merchantpb.ListMerchantPayinProductIdsResp, error) {
-	grants, err := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, in.GetMerchantId())
+	mid := strings.TrimSpace(in.GetMerchantId())
+	if l.svcCtx.MerchantPayinGrantsSnapshot != nil {
+		if g, ok := l.svcCtx.MerchantPayinGrantsSnapshot.Get(mid); ok && g != nil {
+			return listPayinGrantsPBFromKV(g), nil
+		}
+	}
+	grants, err := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, mid)
 	if err != nil {
 		return nil, err
 	}
+	return listPayinGrantsPB(grants), nil
+}
+
+func listPayinGrantsPBFromKV(g *configkv.MerchantPayinGrantsKV) *merchantpb.ListMerchantPayinProductIdsResp {
+	if g == nil {
+		return &merchantpb.ListMerchantPayinProductIdsResp{}
+	}
+	grants := kvcache.PayinGrantsModelFromKV(g)
+	return listPayinGrantsPB(grants)
+}
+
+func listPayinGrantsPB(grants []model.PayinGrant) *merchantpb.ListMerchantPayinProductIdsResp {
 	out := make([]*merchantpb.MerchantPayinGrant, 0, len(grants))
 	for _, g := range grants {
 		row := &merchantpb.MerchantPayinGrant{PayinProductId: g.PayinProductID}
@@ -69,7 +91,7 @@ func (l *ListMerchantPayinProductIdsLogic) ListMerchantPayinProductIds(in *merch
 		}
 		out = append(out, row)
 	}
-	return &merchantpb.ListMerchantPayinProductIdsResp{Grants: out}, nil
+	return &merchantpb.ListMerchantPayinProductIdsResp{Grants: out}
 }
 
 type ReplaceMerchantPayoutProductsLogic struct {
@@ -107,6 +129,7 @@ func (l *ReplaceMerchantPayoutProductsLogic) ReplaceMerchantPayoutProducts(in *m
 	if err := l.svcCtx.MerchantPayoutProducts.Replace(l.ctx, mid, grants); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+	_ = configsync.SyncMerchantPayoutGrants(l.ctx, l.svcCtx.RuntimeConfig, l.svcCtx.MerchantPayoutProducts, mid)
 	return &merchantpb.ReplaceMerchantPayoutProductsResp{Ok: true}, nil
 }
 
@@ -121,10 +144,20 @@ func NewListMerchantPayoutProductIdsLogic(ctx context.Context, svcCtx *svc.Servi
 }
 
 func (l *ListMerchantPayoutProductIdsLogic) ListMerchantPayoutProductIds(in *merchantpb.ListMerchantPayoutProductIdsReq) (*merchantpb.ListMerchantPayoutProductIdsResp, error) {
-	grants, err := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, in.GetMerchantId())
+	mid := strings.TrimSpace(in.GetMerchantId())
+	if l.svcCtx.MerchantPayoutGrantsSnapshot != nil {
+		if g, ok := l.svcCtx.MerchantPayoutGrantsSnapshot.Get(mid); ok && g != nil {
+			return listPayoutGrantsPB(kvcache.PayoutGrantsModelFromKV(g)), nil
+		}
+	}
+	grants, err := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, mid)
 	if err != nil {
 		return nil, err
 	}
+	return listPayoutGrantsPB(grants), nil
+}
+
+func listPayoutGrantsPB(grants []model.PayoutGrant) *merchantpb.ListMerchantPayoutProductIdsResp {
 	out := make([]*merchantpb.MerchantPayoutGrant, 0, len(grants))
 	for _, g := range grants {
 		row := &merchantpb.MerchantPayoutGrant{PayoutProductId: g.PayoutProductID}
@@ -139,5 +172,5 @@ func (l *ListMerchantPayoutProductIdsLogic) ListMerchantPayoutProductIds(in *mer
 		row.FeeFixedAmount = g.FixedFeeAmount
 		out = append(out, row)
 	}
-	return &merchantpb.ListMerchantPayoutProductIdsResp{Grants: out}, nil
+	return &merchantpb.ListMerchantPayoutProductIdsResp{Grants: out}
 }

@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
+	"github.com/gloopai/pay/core/internal/configsync"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 	"github.com/gloopai/pay/core/internal/svc"
@@ -133,6 +135,8 @@ func (l *CreateMerchantLogic) CreateMerchant(in *merchantpb.CreateMerchantReq) (
 	payinGrants, _ := l.svcCtx.MerchantPayinProducts.ListPayinGrants(l.ctx, merchantId)
 	pg, _ := l.svcCtx.MerchantPayoutProducts.ListPayoutGrants(l.ctx, merchantId)
 	syncMerchantKV(l.ctx, l.svcCtx.RuntimeConfig, created)
+	_ = configsync.SyncMerchantPayinGrants(l.ctx, l.svcCtx.RuntimeConfig, l.svcCtx.MerchantPayinProducts, merchantId)
+	_ = configsync.SyncMerchantPayoutGrants(l.ctx, l.svcCtx.RuntimeConfig, l.svcCtx.MerchantPayoutProducts, merchantId)
 	return &merchantpb.UpsertMerchantResp{Merchant: toMerchantInfo(created, ids, pids, payinGrants, pg)}, nil
 }
 
@@ -257,6 +261,38 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
+	if l.svcCtx.MerchantSnapshot != nil {
+		if kv, ok := l.svcCtx.MerchantSnapshot.Get(merchantId); ok && kv != nil {
+			m := merchantFromKV(kv)
+			m.MerchantConfig = kvcache.PickMerchantConfig(l.svcCtx.MerchantSnapshot, m.MerchantId, m.MerchantConfig)
+			var payinGrants []model.PayinGrant
+			var pg []model.PayoutGrant
+			var ids, pids []int64
+			if l.svcCtx.MerchantPayinGrantsSnapshot != nil {
+				if g, ok := l.svcCtx.MerchantPayinGrantsSnapshot.Get(merchantId); ok && g != nil {
+					payinGrants = kvcache.PayinGrantsModelFromKV(g)
+					for _, row := range g.Grants {
+						if row.PayinProductID > 0 {
+							ids = append(ids, row.PayinProductID)
+						}
+					}
+				}
+			}
+			if l.svcCtx.MerchantPayoutGrantsSnapshot != nil {
+				if g, ok := l.svcCtx.MerchantPayoutGrantsSnapshot.Get(merchantId); ok && g != nil {
+					pg = kvcache.PayoutGrantsModelFromKV(g)
+					for _, row := range g.Grants {
+						if row.PayoutProductID > 0 {
+							pids = append(pids, row.PayoutProductID)
+						}
+					}
+				}
+			}
+			return &merchantpb.GetMerchantResp{
+				Merchant: toMerchantInfo(m, ids, pids, payinGrants, pg),
+			}, nil
+		}
+	}
 	m, err := l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -291,6 +327,35 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 	merchantId := strings.TrimSpace(in.GetMerchantId())
 	appId := strings.TrimSpace(in.GetAppId())
 	email := strings.TrimSpace(strings.ToLower(in.GetEmail()))
+	if email != "" {
+		m, err := l.svcCtx.Merchants.GetByEmail(l.ctx, email)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "merchant not found")
+			}
+			return nil, err
+		}
+		return l.authInfoFromMerchantModel(m), nil
+	}
+	if appId != "" && l.svcCtx.MerchantSnapshot != nil {
+		if mid, ok := l.svcCtx.MerchantSnapshot.GetByAppID(appId); ok {
+			if kv, ok2 := l.svcCtx.MerchantSnapshot.Get(mid); ok2 && kv != nil {
+				return l.authInfoFromMerchantKV(kv, ""), nil
+			}
+		}
+	}
+	if merchantId != "" && l.svcCtx.MerchantSnapshot != nil {
+		if kv, ok := l.svcCtx.MerchantSnapshot.Get(merchantId); ok && kv != nil {
+			ph, err := l.svcCtx.Merchants.GetPasswordHash(l.ctx, merchantId)
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, err
+			}
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "merchant not found")
+			}
+			return l.authInfoFromMerchantKV(kv, ph), nil
+		}
+	}
 	var (
 		m   *model.Merchant
 		err error
@@ -300,8 +365,6 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		m, err = l.svcCtx.Merchants.GetByMerchantId(l.ctx, merchantId)
 	case appId != "":
 		m, err = l.svcCtx.Merchants.GetByAppId(l.ctx, appId)
-	case email != "":
-		m, err = l.svcCtx.Merchants.GetByEmail(l.ctx, email)
 	default:
 		return nil, status.Error(codes.InvalidArgument, "merchant_id or app_id or email required")
 	}
@@ -310,6 +373,13 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 			return nil, status.Error(codes.NotFound, "merchant not found")
 		}
 		return nil, err
+	}
+	return l.authInfoFromMerchantModel(m), nil
+}
+
+func (l *GetAuthInfoLogic) authInfoFromMerchantModel(m *model.Merchant) *merchantpb.GetAuthInfoResp {
+	if m == nil {
+		return nil
 	}
 	cfgJSON := kvcache.PickMerchantConfig(l.svcCtx.MerchantSnapshot, m.MerchantId, m.MerchantConfig)
 	baseSecret := m.AppSecret
@@ -329,7 +399,29 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		AppId:            m.AppId,
 		Email:            m.Email,
 		PasswordHash:     m.PasswordHash,
-	}, nil
+	}
+}
+
+func (l *GetAuthInfoLogic) authInfoFromMerchantKV(kv *configkv.MerchantKV, passwordHash string) *merchantpb.GetAuthInfoResp {
+	cfgJSON := kvcache.PickMerchantConfig(l.svcCtx.MerchantSnapshot, kv.MerchantID, kv.MerchantConfig)
+	baseSecret := kv.AppSecret
+	if snap, ok := l.svcCtx.MerchantSnapshot.Get(kv.MerchantID); ok {
+		baseSecret = snap.AppSecret
+	}
+	appSecret := appSecretFromMergedJSON(baseSecret, cfgJSON)
+	return &merchantpb.GetAuthInfoResp{
+		AppSecret:        appSecret,
+		Status:           kv.Status,
+		IpWhitelist:      kv.IpWhitelist,
+		NotifyUrl:        kv.NotifyURL,
+		ReturnUrl:        kv.ReturnURL,
+		PayinBalance:     kv.PayinBalance,
+		AvailableBalance: kv.AvailableBalance,
+		MerchantId:       kv.MerchantID,
+		AppId:            kv.AppID,
+		Email:            kv.Email,
+		PasswordHash:     passwordHash,
+	}
 }
 
 type ListMerchantsLogic struct {
@@ -466,11 +558,33 @@ func appSecretFromMergedJSON(columnSecret, mergedJSON string) string {
 	return s
 }
 
+func merchantFromKV(kv *configkv.MerchantKV) *model.Merchant {
+	if kv == nil {
+		return nil
+	}
+	return &model.Merchant{
+		ID:               kv.ID,
+		MerchantId:       kv.MerchantID,
+		AppId:              kv.AppID,
+		Email:              kv.Email,
+		AppSecret:          kv.AppSecret,
+		Status:             kv.Status,
+		IpWhitelist:        kv.IpWhitelist,
+		PayinBalance:       kv.PayinBalance,
+		AvailableBalance:   kv.AvailableBalance,
+		FrozenBalance:      kv.FrozenBalance,
+		WithdrawnAmount:    kv.WithdrawnAmount,
+		NotifyUrl:          kv.NotifyURL,
+		ReturnUrl:          kv.ReturnURL,
+		MerchantConfig:     kv.MerchantConfig,
+	}
+}
+
 func syncMerchantKV(ctx context.Context, store *consulx.ConfigStore, m *model.Merchant) {
 	if store == nil || m == nil || strings.TrimSpace(m.MerchantId) == "" {
 		return
 	}
-	key := consulx.MerchantSnapshotKVKey(m.MerchantId)
+	key := configkv.MerchantSnapshotKVKey(m.MerchantId)
 	if key == "" {
 		return
 	}
@@ -482,8 +596,8 @@ func syncMerchantKV(ctx context.Context, store *consulx.ConfigStore, m *model.Me
 	_ = store.PutBytes(ctx, key, b)
 }
 
-func merchantKVFromStore(m *model.Merchant) *model.MerchantKV {
-	return &model.MerchantKV{
+func merchantKVFromStore(m *model.Merchant) *configkv.MerchantKV {
+	return &configkv.MerchantKV{
 		ID:               m.ID,
 		MerchantID:       m.MerchantId,
 		AppID:            m.AppId,
