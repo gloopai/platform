@@ -51,4 +51,7 @@ var (
 	ErrNoDriver     = base.ErrNoDriver
 	ErrUnsupported  = base.ErrUnsupported
 	ErrVerifyNotify = base.ErrVerifyNotify
+
+	WriteChannelNotify = base.WriteChannelNotify
+	NotifyContentType  = base.NotifyContentType
 )
