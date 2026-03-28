@@ -18,14 +18,30 @@ ON DUPLICATE KEY UPDATE
   available_balance = VALUES(available_balance),
   ip_whitelist = VALUES(ip_whitelist);
 
+-- 演示环境仅保留 mock 通道：清理历史多通道/多代收产品（幂等）
+DELETE ppc FROM payin_product_channels ppc
+  JOIN payin_products pp ON pp.id = ppc.payin_product_id
+  WHERE pp.code IN ('wechat', 'alipay');
+DELETE mpp FROM merchant_payin_products mpp
+  JOIN payin_products pp ON pp.id = mpp.payin_product_id
+  WHERE pp.code IN ('wechat', 'alipay');
+DELETE FROM payin_products WHERE code IN ('wechat', 'alipay');
+DELETE FROM channels WHERE name IN ('wechat-channel-rate', 'alipay-channel-mix');
+
+DELETE mpo FROM merchant_payout_products mpo
+  JOIN payout_products pp ON pp.id = mpo.payout_product_id
+  WHERE pp.code = 'wallet';
+DELETE ppc FROM payout_product_channels ppc
+  JOIN payout_products pp ON pp.id = ppc.payout_product_id
+  WHERE pp.code = 'wallet';
+DELETE FROM payout_products WHERE code = 'wallet';
+
 INSERT INTO channels (
   name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
-  ('mock-psp', 'mock_psp', '', 'mock_app_id', '', 'channel_secret', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0),
-  ('wechat-channel-rate', 'wechat', '', '', '', 'channel_secret_wechat', 100, 0, 0, 1, 1, 35, 65, 1, 0, 1, 0),
-  ('alipay-channel-mix', 'alipay', '', '', '', 'channel_secret_alipay', 100, 0, 0, 1, 1, 40, 50, 3, 120, 1, 0)
+  ('mock-psp', 'mock_psp', '', 'mock_app_id', '', 'channel_secret', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0)
 ON DUPLICATE KEY UPDATE
   sign_secret = VALUES(sign_secret),
   supports_payin = VALUES(supports_payin),
@@ -40,25 +56,18 @@ ON DUPLICATE KEY UPDATE
   payin_type = VALUES(payin_type);
 
 INSERT INTO payin_products (code, name, sort_order, enabled) VALUES
-  ('mock', 'Mock支付', 10, 1),
-  ('wechat', '微信支付', 20, 1),
-  ('alipay', '支付宝', 30, 1)
+  ('mock', 'Mock支付', 10, 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
 
 INSERT INTO payout_products (code, name, sort_order, enabled) VALUES
-  ('bank_card', '银行卡代付', 10, 1),
-  ('wallet', '钱包代付', 20, 1)
+  ('bank_card', '银行卡代付', 10, 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
 
 INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enabled)
-SELECT pp.id, c.id, w.w, 1
+SELECT pp.id, c.id, 100, 1
 FROM payin_products pp
-JOIN (
-  SELECT 'mock' AS code, 'mock-psp' AS ch, 100 AS w
-  UNION ALL SELECT 'wechat', 'wechat-channel-rate', 100
-  UNION ALL SELECT 'alipay', 'alipay-channel-mix', 100
-) w ON pp.code = w.code
-JOIN channels c ON c.name = w.ch
+JOIN channels c ON c.name = 'mock-psp'
+WHERE pp.code = 'mock'
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
 INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, enabled)
@@ -69,16 +78,10 @@ WHERE pp.code = 'bank_card' AND c.name IN ('mock-psp') AND c.supports_payout = 1
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
 INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
-SELECT m.merchant_id, pp.id, 1, pp.sort_order,
-  CASE
-    WHEN m.merchant_id = 'm_demo' AND pp.code = 'mock' THEN NULL
-    WHEN m.merchant_id = 'm_demo' AND pp.code = 'wechat' THEN 120
-    WHEN m.merchant_id = 'm_demo' AND pp.code = 'alipay' THEN 0
-    ELSE NULL
-  END
+SELECT m.merchant_id, pp.id, 1, pp.sort_order, NULL
 FROM payin_products pp
 JOIN merchants m ON m.merchant_id IN ('m_demo')
-WHERE pp.code IN ('mock', 'wechat', 'alipay')
+WHERE pp.code = 'mock'
 ON DUPLICATE KEY UPDATE
   enabled = VALUES(enabled),
   sort_order = VALUES(sort_order),

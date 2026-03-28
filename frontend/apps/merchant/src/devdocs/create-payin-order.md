@@ -8,7 +8,7 @@
 - `merchant_order_no`：商户订单号（必填，建议唯一）
 - `amount`：订单金额，单位分（必填，>0）
 - `currency`：币种（可选，默认 `CNY`）
-- `payin_type`：支付产品编码（必填，例如 `mock`、`wechat`）
+- `payin_type`：支付产品编码（必填，演示库为 `mock`）
 - `notify_url`：异步通知地址（可选）
 - `timestamp`：Unix 时间戳（秒，必填，参与签名）
 - `nonce`：随机串（必填，参与签名，建议每次请求唯一）

@@ -289,20 +289,10 @@ type MethodRow = { key: string; name: string; desc: string }
 /** 与网关 payin_products / 产品编码一致；展示名以服务端为准 */
 const DESC_BY_CODE: Record<string, string> = {
   mock: '联调占位，平台路由至上游',
-  wechat: '微信内优先使用',
-  alipay: '支持 H5 / 扫码',
-  unionpay: '支持扫码或快捷支付',
-  bank: '适用于 PC 场景',
-  crypto: '可选通道（示例）',
 }
 
-const FALLBACK_METHODS: MethodRow[] = [
-  { key: 'wechat', name: '微信支付', desc: DESC_BY_CODE.wechat },
-  { key: 'alipay', name: '支付宝', desc: DESC_BY_CODE.alipay },
-  { key: 'unionpay', name: '云闪付', desc: DESC_BY_CODE.unionpay },
-  { key: 'bank', name: '网银', desc: DESC_BY_CODE.bank },
-  { key: 'crypto', name: '数字货币', desc: DESC_BY_CODE.crypto },
-]
+/** 无服务端产品列表时的兜底（演示库仅 mock 产品与 mock-psp 通道） */
+const FALLBACK_METHODS: MethodRow[] = [{ key: 'mock', name: 'Mock支付', desc: DESC_BY_CODE.mock }]
 
 const route = useRoute()
 const orderNo = computed(() => String(route.query.order_no || '').trim())
@@ -372,20 +362,15 @@ const statusClass = computed(() => {
   return 'text-amber-700'
 })
 
-const isWeChat = computed(() => /micromessenger/i.test(navigator.userAgent))
-
 const methodsSorted = computed((): MethodRow[] => {
   const fromServer = serverPayinProducts.value
-  const base: MethodRow[] =
-    fromServer && fromServer.length > 0
-      ? fromServer.map((p) => ({
-          key: p.code,
-          name: p.name,
-          desc: DESC_BY_CODE[p.code] || '由平台路由至对应上游通道',
-        }))
-      : FALLBACK_METHODS
-  if (!isWeChat.value) return base
-  return [...base].sort((a, b) => (a.key === 'wechat' ? -1 : b.key === 'wechat' ? 1 : 0))
+  return fromServer && fromServer.length > 0
+    ? fromServer.map((p) => ({
+        key: p.code,
+        name: p.name,
+        desc: DESC_BY_CODE[p.code] || '由平台路由至对应上游通道',
+      }))
+    : FALLBACK_METHODS
 })
 
 watch(

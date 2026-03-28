@@ -15,13 +15,11 @@ PAYIN_TYPE="${PAYIN_TYPE:-mock}"
 AMOUNT="${AMOUNT:-1234}"
 
 CHANNEL_SIGN_SECRET="${CHANNEL_SIGN_SECRET:-channel_secret}"
-CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret,channel_secret_b,channel_secret_wechat,channel_secret_alipay}"
+CHANNEL_SIGN_SECRETS="${CHANNEL_SIGN_SECRETS:-channel_secret}"
 ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 DEFAULT_TEST_CASES_JSON='[
-  {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"mock","amount":1234,"expected_fee_rate_bps":60},
-  {"name":"product-rate-wechat","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"wechat","amount":2000,"expected_fee_rate_bps":120},
-  {"name":"zero-rate-alipay","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"alipay","amount":1500,"expected_fee_rate_bps":0}
+  {"name":"default-rate-mock","merchant_id":"m_demo","merchant_secret":"demo_secret","payin_type":"mock","amount":1234,"expected_fee_rate_bps":60}
 ]'
 TEST_CASES_JSON="${TEST_CASES_JSON:-$DEFAULT_TEST_CASES_JSON}"
 
