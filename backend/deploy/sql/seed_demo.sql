@@ -111,6 +111,66 @@ ON DUPLICATE KEY UPDATE
   merchant_rate_bps = VALUES(merchant_rate_bps),
   fee_fixed_amount = VALUES(fee_fixed_amount);
 
+-- 第二条上游 mock（mock_psp_alt）：snake_case + MD5 签名，与 mock_psp 并行；产品 mock_alt / bank_card_alt 仅绑该通道，便于定向测试
+-- 使用 WHERE + 子查询，避免 IDE 将「DELETE alias FROM … JOIN」误判为无 WHERE 的全表删除
+DELETE FROM payin_product_channels
+WHERE channel_id IN (SELECT id FROM channels WHERE name = 'mock-psp-alt');
+DELETE FROM payout_product_channels
+WHERE channel_id IN (SELECT id FROM channels WHERE name = 'mock-psp-alt');
+DELETE FROM channels WHERE name = 'mock-psp-alt';
+
+INSERT INTO channels (
+  name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+  supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
+)
+VALUES
+  ('mock-psp-alt', 'mock_psp_alt', '', 'alt_app_id', '', 'channel_secret_alt', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0);
+
+INSERT INTO payin_products (code, name, sort_order, enabled) VALUES
+  ('mock_alt', 'Mock(Alt)', 15, 1)
+ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
+
+INSERT INTO payout_products (code, name, sort_order, enabled) VALUES
+  ('bank_card_alt', '银行卡代付(Alt)', 15, 1)
+ON DUPLICATE KEY UPDATE name = VALUES(name), sort_order = VALUES(sort_order), enabled = VALUES(enabled);
+
+INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enabled)
+SELECT pp.id, c.id, 100, 1
+FROM payin_products pp
+JOIN channels c ON c.name = 'mock-psp-alt'
+WHERE pp.code = 'mock_alt';
+
+INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, enabled)
+SELECT pp.id, c.id, 100, 1
+FROM payout_products pp
+JOIN channels c ON c.name = 'mock-psp-alt'
+WHERE pp.code = 'bank_card_alt';
+
+INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
+SELECT m.merchant_id, pp.id, 1, pp.sort_order, NULL
+FROM payin_products pp
+JOIN merchants m ON m.merchant_id IN ('m_demo')
+WHERE pp.code = 'mock_alt'
+ON DUPLICATE KEY UPDATE
+  enabled = VALUES(enabled),
+  sort_order = VALUES(sort_order),
+  merchant_rate_bps = VALUES(merchant_rate_bps);
+
+INSERT INTO merchant_payout_products (merchant_id, payout_product_id, enabled, sort_order, fee_mode, merchant_rate_bps, fee_fixed_amount)
+SELECT m.merchant_id, pp.id, 1, pp.sort_order,
+  CASE WHEN m.merchant_id = 'm_demo' THEN 3 ELSE 1 END,
+  CASE WHEN m.merchant_id = 'm_demo' THEN 40 ELSE 0 END,
+  CASE WHEN m.merchant_id = 'm_demo' THEN 60 ELSE 0 END
+FROM payout_products pp
+JOIN merchants m ON m.merchant_id IN ('m_demo')
+WHERE pp.code = 'bank_card_alt'
+ON DUPLICATE KEY UPDATE
+  enabled = VALUES(enabled),
+  sort_order = VALUES(sort_order),
+  fee_mode = VALUES(fee_mode),
+  merchant_rate_bps = VALUES(merchant_rate_bps),
+  fee_fixed_amount = VALUES(fee_fixed_amount);
+
 INSERT INTO admin_users (username, password_hash, status)
 VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1)
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);

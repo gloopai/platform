@@ -9,6 +9,7 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/channeldriver/mockpsp"
+	"github.com/gloopai/pay/channeldriver/mockpsp2"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
@@ -142,6 +143,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	chReg := channeldriver.NewRegistry()
 	_ = mockpsp.RegisterAll(chReg, mockpsp.New(mockpsp.DefaultDriverKey))
+	_ = mockpsp2.RegisterAll(chReg, mockpsp2.New(mockpsp2.DefaultDriverKey))
 
 	return &ServiceContext{
 		Config: c,
