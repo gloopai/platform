@@ -28,10 +28,10 @@ func NewRouteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RouteLogic 
 }
 
 func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
-	if l.svcCtx.ChannelHub == nil {
-		return nil, status.Error(codes.Internal, "channel hub not configured")
+	if l.svcCtx.ChannelBridge == nil {
+		return nil, status.Error(codes.Internal, "channel bridge not configured")
 	}
-	ch, pid, err := l.svcCtx.ChannelHub.RoutePayin(l.ctx, in.GetPayinType(), in.GetAmount())
+	ch, pid, err := l.svcCtx.ChannelBridge.RoutePayin(l.ctx, in.GetPayinType(), in.GetAmount())
 	if err != nil {
 		return nil, err
 	}

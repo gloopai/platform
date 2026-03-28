@@ -17,8 +17,8 @@ func PreparePayinOrder(ctx context.Context, svcCtx *svc.ServiceContext, in *chan
 	if merchantID == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	if svcCtx.ChannelHub == nil {
-		return nil, status.Error(codes.Internal, "channel hub not configured")
+	if svcCtx.ChannelBridge == nil {
+		return nil, status.Error(codes.Internal, "channel bridge not configured")
 	}
 	payinType := strings.TrimSpace(in.GetPayinType())
 	amount := in.GetAmount()
@@ -27,11 +27,11 @@ func PreparePayinOrder(ctx context.Context, svcCtx *svc.ServiceContext, in *chan
 	var code string
 
 	if payinType != "" {
-		if merr := svcCtx.ChannelHub.MerchantPayinProductAllowed(ctx, merchantID, payinType); merr != nil {
+		if merr := svcCtx.ChannelBridge.MerchantPayinProductAllowed(ctx, merchantID, payinType); merr != nil {
 			return nil, merr
 		}
 		var rerr error
-		cid, ppid, rerr = svcCtx.ChannelHub.RoutePayin(ctx, payinType, amount)
+		cid, ppid, rerr = svcCtx.ChannelBridge.RoutePayin(ctx, payinType, amount)
 		if rerr != nil {
 			return nil, rerr
 		}

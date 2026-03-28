@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/model"
-	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp/contracts"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 )

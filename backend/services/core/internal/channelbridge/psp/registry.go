@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
-	"github.com/gloopai/pay/core/internal/channelbind/psp/drivers/hexmeta"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp/contracts"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp/drivers/hexmeta"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 )

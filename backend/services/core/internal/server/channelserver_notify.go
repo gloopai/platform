@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	channelpb "github.com/gloopai/pay/common/pb/channel"
-	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp/contracts"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

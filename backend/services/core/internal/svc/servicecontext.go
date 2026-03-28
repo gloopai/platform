@@ -7,9 +7,9 @@ import (
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
-	"github.com/gloopai/pay/core/internal/channelbind"
-	"github.com/gloopai/pay/core/internal/channelbind/psp"
-	ct "github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	"github.com/gloopai/pay/core/internal/channelbridge"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp"
+	ct "github.com/gloopai/pay/core/internal/channelbridge/psp/contracts"
 	"github.com/gloopai/pay/core/internal/config"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
@@ -37,8 +37,8 @@ type ServiceContext struct {
 	MerchantPayoutGrantsSnapshot  *kvcache.MerchantPayoutGrantsSnapshot
 	PayinProductBindingsSnapshot  *kvcache.PayinProductBindingsSnapshot
 	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
-	// ChannelHub owns routing (KV/DB) + PSP registry + bind resolver for this process.
-	ChannelHub *channelbind.Hub
+	// ChannelBridge owns routing (KV/DB) + PSP registry + channel resolver for this process.
+	ChannelBridge *channelbridge.Bridge
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -83,9 +83,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	chStore := store.NewChannelsStore(gdb)
 	reg := psp.NewRegistry()
 	_ = psp.RegisterBuiltInDrivers(reg, chStore, channelSnap)
-	bindRes := channelbind.NewResolver(chStore, channelSnap)
+	bindRes := channelbridge.NewResolver(chStore, channelSnap)
 	payinProdStore := store.NewPayinProductsStore(gdb)
-	hub := channelbind.NewHub(channelbind.HubConfig{
+	bridge := channelbridge.NewBridge(channelbridge.BridgeConfig{
 		Channels:                     chStore,
 		PayinProducts:                payinProdStore,
 		Registry:                     reg,
@@ -116,29 +116,29 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MerchantPayoutGrantsSnapshot:  merPayoutGrants,
 		PayinProductBindingsSnapshot:  payinBindSnap,
 		PayoutProductBindingsSnapshot: payoutBindSnap,
-		ChannelHub:                    hub,
+		ChannelBridge:                 bridge,
 	}
 }
 
 // GetChannelDriver returns a cached ChannelDriver (psp/contracts) for one channel row.
 // This is the supported entrypoint for channel_id + merged config inside core.
 func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (ct.ChannelDriver, error) {
-	if s == nil || s.ChannelHub == nil {
-		return nil, fmt.Errorf("svc: ChannelHub not configured")
+	if s == nil || s.ChannelBridge == nil {
+		return nil, fmt.Errorf("svc: ChannelBridge not configured")
 	}
-	return s.ChannelHub.GetDriver(ctx, channelID)
+	return s.ChannelBridge.GetDriver(ctx, channelID)
 }
 
 // InvalidateChannelDriverCache drops the in-process channel driver cache for a row after
 // admin updates channel_config (or equivalent).
 func (s *ServiceContext) InvalidateChannelDriverCache(channelID int64) {
-	if s == nil || s.ChannelHub == nil {
+	if s == nil || s.ChannelBridge == nil {
 		return
 	}
-	s.ChannelHub.InvalidateDriverCache(channelID)
+	s.ChannelBridge.InvalidateDriverCache(channelID)
 }
 
 // OpenAPIMemoryReady is true when Consul-backed routing snapshots are wired (hot path can avoid DB).
 func (s *ServiceContext) OpenAPIMemoryReady() bool {
-	return s != nil && s.ChannelHub != nil && s.ChannelHub.MemoryReady()
+	return s != nil && s.ChannelBridge != nil && s.ChannelBridge.MemoryReady()
 }

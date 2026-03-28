@@ -11,7 +11,7 @@ import (
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
-	"github.com/gloopai/pay/core/internal/channelbind/psp/drivers/hexmeta"
+	"github.com/gloopai/pay/core/internal/channelbridge/psp/drivers/hexmeta"
 	"github.com/gloopai/pay/core/internal/configsync"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/logic"
