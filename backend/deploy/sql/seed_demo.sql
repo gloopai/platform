@@ -5,13 +5,13 @@ DELETE FROM merchants WHERE merchant_id IN ('m_rate_mix', 'm_zero_fee');
 
 INSERT IGNORE INTO merchant_numeric_seq (slot, next_id) VALUES (1, 0);
 
-INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, notify_url)
+INSERT INTO merchants (merchant_id, app_id, email, app_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, notify_url)
 VALUES
   ('m_demo', 'app_demo', 'demo@gloop.local', 'demo_secret', '$2y$10$SOjNfnPVS0lSBQ54v2TzpOT5WxR5VAvfkSxNytdMCpL52cohBqRpS', 1, '127.0.0.1', 100000, 100000, '')
 ON DUPLICATE KEY UPDATE
   app_id = VALUES(app_id),
   email = VALUES(email),
-  api_secret = VALUES(api_secret),
+  app_secret = VALUES(app_secret),
   password_hash = VALUES(password_hash),
   status = VALUES(status),
   payin_balance = VALUES(payin_balance),

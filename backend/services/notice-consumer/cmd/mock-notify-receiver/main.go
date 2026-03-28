@@ -29,7 +29,7 @@ type notifyPayload struct {
 func main() {
 	listen := flag.String("listen", ":18090", "listen address")
 	path := flag.String("path", "/notify", "callback path")
-	secret := flag.String("secret", "demo_secret", "merchant api_secret used to verify sign")
+	secret := flag.String("secret", "demo_secret", "merchant app_secret used to verify sign")
 	verify := flag.Bool("verify", true, "verify sign")
 	flag.Parse()
 

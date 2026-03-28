@@ -179,13 +179,13 @@ def _with_sign(
     base: dict[str, str],
     *,
     app_id: str,
-    api_secret: str,
+    app_secret: str,
 ) -> dict[str, str]:
     p = {k.lower(): str(v).strip() for k, v in base.items() if v is not None}
     p["app_id"] = app_id
     p["timestamp"] = str(int(time.time()))
     p["nonce"] = secrets.token_hex(8)
-    p["sign"] = md5_sign(p, api_secret)
+    p["sign"] = md5_sign(p, app_secret)
     return p
 
 
@@ -325,7 +325,7 @@ def _signed_flat_to_payout_json(flat: dict[str, str]) -> dict[str, Any]:
 
 
 def _query_qs(params: dict[str, str], app_id: str, secret: str) -> str:
-    p = _with_sign(params, app_id=app_id, api_secret=secret)
+    p = _with_sign(params, app_id=app_id, app_secret=secret)
     return urllib.parse.urlencode(p)
 
 
@@ -351,7 +351,7 @@ def do_payin_create(
         "return_url": return_url,
         "subject": subject,
     }
-    flat = {k: v for k, v in _with_sign(b, app_id=app_id, api_secret=secret).items() if v != ""}
+    flat = {k: v for k, v in _with_sign(b, app_id=app_id, app_secret=secret).items() if v != ""}
     body = _signed_flat_to_payin_json(flat)
     url = base.rstrip("/") + "/v1/payin/order"
     return _post_json(url, body)
@@ -375,7 +375,7 @@ def do_payout_create(
         "notify_url": notify_url,
         "payout_product_code": payout_product_code,
     }
-    flat = {k: v for k, v in _with_sign(b, app_id=app_id, api_secret=secret).items() if v != ""}
+    flat = {k: v for k, v in _with_sign(b, app_id=app_id, app_secret=secret).items() if v != ""}
     body = _signed_flat_to_payout_json(flat)
     url = base.rstrip("/") + "/v1/payout/order"
     return _post_json(url, body)
@@ -816,7 +816,7 @@ def _add_common(p: argparse.ArgumentParser) -> None:
         help="OpenAPI 网关基址（无尾斜杠），默认 8090",
     )
     p.add_argument("--app-id", default="app_demo", help="商户 app_id（seed: app_demo）")
-    p.add_argument("--secret", default="demo_secret", help="api_secret（seed: demo_secret）")
+    p.add_argument("--secret", default="demo_secret", help="app_secret（merchants.app_secret，seed: demo_secret）")
 
 
 def main() -> int:

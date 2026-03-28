@@ -32,7 +32,7 @@ id,
 merchant_id,
 app_id,
 email,
-api_secret AS app_secret,
+app_secret,
 password_hash,
 status,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
@@ -61,7 +61,7 @@ id,
 merchant_id,
 app_id,
 email,
-api_secret AS app_secret,
+app_secret,
 password_hash,
 status,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
@@ -90,7 +90,7 @@ id,
 merchant_id,
 app_id,
 email,
-api_secret AS app_secret,
+app_secret,
 password_hash,
 status,
 COALESCE(ip_whitelist,'') AS ip_whitelist,
@@ -116,7 +116,7 @@ func (s *MerchantsStore) List(ctx context.Context, limit int64) ([]model.Merchan
 	}
 	var out []model.Merchant
 	if err := s.db.WithContext(ctx).Raw(`
-SELECT id, merchant_id, app_id, email, api_secret AS app_secret, password_hash, status,
+SELECT id, merchant_id, app_id, email, app_secret, password_hash, status,
        COALESCE(ip_whitelist,'') AS ip_whitelist,
        COALESCE(payin_balance, 0) AS payin_balance,
        COALESCE(available_balance, 0) AS available_balance,
@@ -183,7 +183,7 @@ WHERE slot = 1
 
 func (s *MerchantsStore) Create(ctx context.Context, m *model.Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
-INSERT INTO merchants (merchant_id, app_id, email, api_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, merchant_config, created_at, updated_at)
+INSERT INTO merchants (merchant_id, app_id, email, app_secret, password_hash, status, ip_whitelist, payin_balance, available_balance, frozen_balance, withdrawn_amount, notify_url, return_url, merchant_config, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, m.MerchantId, m.AppId, m.Email, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.PayinBalance, m.AvailableBalance, m.FrozenBalance, m.WithdrawnAmount, m.NotifyUrl, m.ReturnUrl, m.MerchantConfig).Error
 }
@@ -191,7 +191,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 func (s *MerchantsStore) UpdateByMerchantId(ctx context.Context, merchantId string, m *model.Merchant) error {
 	return s.db.WithContext(ctx).Exec(`
 UPDATE merchants
-SET api_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, merchant_config = ?, updated_at = NOW()
+SET app_secret = ?, password_hash = ?, status = ?, ip_whitelist = ?, notify_url = ?, return_url = ?, merchant_config = ?, updated_at = NOW()
 WHERE merchant_id = ?
 `, m.AppSecret, m.PasswordHash, m.Status, m.IpWhitelist, m.NotifyUrl, m.ReturnUrl, m.MerchantConfig, merchantId).Error
 }

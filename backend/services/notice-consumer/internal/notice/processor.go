@@ -137,11 +137,11 @@ type orderRow struct {
 func loadMerchant(ctx context.Context, db *gorm.DB, merchantId string) (string, string, error) {
 	var r struct {
 		NotifyURL string `gorm:"column:notify_url"`
-		Secret    string `gorm:"column:api_secret"`
+		Secret    string `gorm:"column:app_secret"`
 	}
 	tx := db.WithContext(ctx).
 		Table("merchants").
-		Select("COALESCE(notify_url, '') AS notify_url, api_secret").
+		Select("COALESCE(notify_url, '') AS notify_url, app_secret").
 		Where("merchant_id = ? AND status = 1", merchantId).
 		Limit(1).
 		Take(&r)

@@ -34,4 +34,4 @@ python3 openapi_smoke.py payin-create --amount 100
 python3 openapi_smoke.py payout-create --amount 500
 ```
 
-全局参数：`--base`、`--app-id`、`--secret`（与 `merchants` 表一致）。
+全局参数：`--base`、`--app-id`、`--secret`（对应 `merchants.app_secret`）。

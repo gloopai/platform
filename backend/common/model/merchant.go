@@ -1,13 +1,12 @@
 package model
 
 // Merchant is a row from table merchants.
-// Field AppSecret maps to DB column api_secret (see gorm tag).
 type Merchant struct {
 	ID               int64  `json:"id,omitempty" gorm:"column:id;primaryKey"`
 	MerchantId       string `json:"merchant_id,omitempty" gorm:"column:merchant_id"`
 	AppId            string `json:"app_id,omitempty" gorm:"column:app_id"`
 	Email            string `json:"email,omitempty" gorm:"column:email"`
-	AppSecret        string `json:"app_secret,omitempty" gorm:"column:api_secret"`
+	AppSecret        string `json:"app_secret,omitempty" gorm:"column:app_secret"`
 	PasswordHash     string `json:"-" gorm:"column:password_hash"`
 	Status           int64  `json:"status,omitempty" gorm:"column:status"`
 	IpWhitelist      string `json:"ip_whitelist,omitempty" gorm:"column:ip_whitelist"`

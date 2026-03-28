@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS merchants (
   merchant_id VARCHAR(64) NOT NULL,
   app_id VARCHAR(64) NOT NULL,
   email VARCHAR(128) NOT NULL,
-  api_secret VARCHAR(128) NOT NULL,
+  app_secret VARCHAR(128) NOT NULL,
   password_hash VARCHAR(128) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   ip_whitelist TEXT NULL,
