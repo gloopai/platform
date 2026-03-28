@@ -158,7 +158,7 @@ func (m *AdminMerchants) AdminMerchantEmailAvailable(req *types.AdminMerchantEma
 	if email == "" {
 		return nil, status.Error(codes.InvalidArgument, "email required")
 	}
-	_, err := m.svcCtx.MerchantRpc.GetAuthInfo(m.ctx, &merchantclient.GetAuthInfoReq{Email: email})
+	_, err := m.svcCtx.MerchantRpc.GetAuthInfo(m.ctx, &merchantclient.GetAuthInfoReq{Email: email, AuthoritativeDb: true})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return &types.AdminMerchantEmailAvailableResp{Available: true}, nil

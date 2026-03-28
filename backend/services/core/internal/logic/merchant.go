@@ -261,7 +261,7 @@ func (l *GetMerchantLogic) GetMerchant(in *merchantpb.GetMerchantReq) (*merchant
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	if l.svcCtx.MerchantSnapshot != nil {
+	if !in.GetAuthoritativeDb() && l.svcCtx.MerchantSnapshot != nil {
 		if kv, ok := l.svcCtx.MerchantSnapshot.Get(merchantId); ok && kv != nil {
 			m := merchantFromKV(kv)
 			m.MerchantConfig = kvcache.PickMerchantConfig(l.svcCtx.MerchantSnapshot, m.MerchantId, m.MerchantConfig)
@@ -327,6 +327,7 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 	merchantId := strings.TrimSpace(in.GetMerchantId())
 	appId := strings.TrimSpace(in.GetAppId())
 	email := strings.TrimSpace(strings.ToLower(in.GetEmail()))
+	authDB := in.GetAuthoritativeDb()
 	if email != "" {
 		m, err := l.svcCtx.Merchants.GetByEmail(l.ctx, email)
 		if err != nil {
@@ -335,16 +336,19 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 			}
 			return nil, err
 		}
+		if authDB {
+			return l.authInfoFromMerchantModelDBOnly(m), nil
+		}
 		return l.authInfoFromMerchantModel(m), nil
 	}
-	if appId != "" && l.svcCtx.MerchantSnapshot != nil {
+	if !authDB && appId != "" && l.svcCtx.MerchantSnapshot != nil {
 		if mid, ok := l.svcCtx.MerchantSnapshot.GetByAppID(appId); ok {
 			if kv, ok2 := l.svcCtx.MerchantSnapshot.Get(mid); ok2 && kv != nil {
 				return l.authInfoFromMerchantKV(kv, ""), nil
 			}
 		}
 	}
-	if merchantId != "" && l.svcCtx.MerchantSnapshot != nil {
+	if !authDB && merchantId != "" && l.svcCtx.MerchantSnapshot != nil {
 		if kv, ok := l.svcCtx.MerchantSnapshot.Get(merchantId); ok && kv != nil {
 			ph, err := l.svcCtx.Merchants.GetPasswordHash(l.ctx, merchantId)
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -374,7 +378,32 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 		}
 		return nil, err
 	}
+	if authDB {
+		return l.authInfoFromMerchantModelDBOnly(m), nil
+	}
 	return l.authInfoFromMerchantModel(m), nil
+}
+
+// authInfoFromMerchantModelDBOnly 仅用库表字段拼验签信息（不合并 Consul 快照）。
+func (l *GetAuthInfoLogic) authInfoFromMerchantModelDBOnly(m *model.Merchant) *merchantpb.GetAuthInfoResp {
+	if m == nil {
+		return nil
+	}
+	cfgJSON := strings.TrimSpace(m.MerchantConfig)
+	appSecret := appSecretFromMergedJSON(m.AppSecret, cfgJSON)
+	return &merchantpb.GetAuthInfoResp{
+		AppSecret:        appSecret,
+		Status:           m.Status,
+		IpWhitelist:      m.IpWhitelist,
+		NotifyUrl:        m.NotifyUrl,
+		ReturnUrl:        m.ReturnUrl,
+		PayinBalance:     m.PayinBalance,
+		AvailableBalance: m.AvailableBalance,
+		MerchantId:       m.MerchantId,
+		AppId:            m.AppId,
+		Email:            m.Email,
+		PasswordHash:     m.PasswordHash,
+	}
 }
 
 func (l *GetAuthInfoLogic) authInfoFromMerchantModel(m *model.Merchant) *merchantpb.GetAuthInfoResp {

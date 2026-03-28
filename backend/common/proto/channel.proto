@@ -50,6 +50,8 @@ message RouteResp {
 
 message GetSignSecretReq {
   int64 channel_id = 1;
+  // 为 true 时只读数据库；OpenAPI 收银台勿设，可走 Consul 内存。
+  bool authoritative_db = 2;
 }
 
 message GetSignSecretResp {
@@ -60,6 +62,8 @@ message ListChannelsReq {}
 
 message GetChannelReq {
   int64 channel_id = 1;
+  // 为 true 时只读数据库；OpenAPI/回调热路径勿设。
+  bool authoritative_db = 2;
 }
 
 message GetChannelResp {
@@ -175,6 +179,8 @@ message ResolveLockedChannelForMerchantResp {
 
 message GetPayinProductDisplayNameReq {
   string code = 1;
+  // 为 true 时只读库表展示名；OpenAPI 勿设，可走内存快照。
+  bool authoritative_db = 2;
 }
 
 message GetPayinProductDisplayNameResp {

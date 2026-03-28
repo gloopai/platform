@@ -40,7 +40,7 @@ func NewMerchantConsole(ctx context.Context, svcCtx *svc.ServiceContext) *Mercha
 
 func (c *MerchantConsole) MerchantSummary(req *types.MerchantSummaryReq) (*types.MerchantSummaryResp, error) {
 	merchantId := strings.TrimSpace(middleware.MerchantIdFromContext(c.ctx))
-	auth, err := c.svcCtx.MerchantRpc.GetAuthInfo(c.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+	auth, err := c.svcCtx.MerchantRpc.GetAuthInfo(c.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *MerchantConsole) MerchantUpdateConfig(req *types.MerchantUpdateConfigRe
 	if merchantId == "" {
 		return nil, status.Error(codes.Unauthenticated, "merchant not authenticated")
 	}
-	current, err := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	current, err := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil {
 		return nil, err
 	}
@@ -477,7 +477,7 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 
 	payProductName := ""
 	if code := o.GetPayinProductCode(); code != "" {
-		if dn, err := c.svcCtx.ChannelRpc.GetPayinProductDisplayName(c.ctx, &channelpb.GetPayinProductDisplayNameReq{Code: code}); err == nil && dn != nil {
+		if dn, err := c.svcCtx.ChannelRpc.GetPayinProductDisplayName(c.ctx, &channelpb.GetPayinProductDisplayNameReq{Code: code, AuthoritativeDb: true}); err == nil && dn != nil {
 			payProductName = dn.GetName()
 		}
 	}

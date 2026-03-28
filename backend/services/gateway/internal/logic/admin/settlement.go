@@ -148,7 +148,7 @@ func (a *AdminSettlement) AdminCreateWithdrawal(req *types.AdminCreateWithdrawal
 	if rate <= 0 {
 		return nil, status.Error(codes.FailedPrecondition, "invalid fiat_to_usdt_rate")
 	}
-	mr, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	mr, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil || mr.GetMerchant() == nil {
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}
@@ -220,7 +220,7 @@ func (a *AdminSettlement) AdminDeposit(req *types.AdminDepositReq) (*types.Admin
 	if merchantId == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
-	mr, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	mr, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil || mr.GetMerchant() == nil {
 		return nil, status.Error(codes.NotFound, "merchant not found")
 	}

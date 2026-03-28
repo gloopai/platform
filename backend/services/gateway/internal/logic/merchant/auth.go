@@ -39,7 +39,7 @@ func (a *MerchantAuth) MerchantLogin(req *types.MerchantLoginReq) (*types.Mercha
 	if email == "" || password == "" {
 		return nil, status.Error(codes.InvalidArgument, "email and password required")
 	}
-	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{Email: email})
+	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{Email: email, AuthoritativeDb: true})
 	if err != nil || auth.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
@@ -84,7 +84,7 @@ func (a *MerchantAuth) MerchantChangePassword(req *types.MerchantChangePasswordR
 	if err := validateMerchantPassword(newPassword); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId})
+	auth, err := a.svcCtx.MerchantRpc.GetAuthInfo(a.ctx, &merchantclient.GetAuthInfoReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil || auth.GetStatus() != 1 {
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
@@ -95,7 +95,7 @@ func (a *MerchantAuth) MerchantChangePassword(req *types.MerchantChangePasswordR
 	if err != nil {
 		return nil, status.Error(codes.Internal, "password hash failed")
 	}
-	current, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId})
+	current, err := a.svcCtx.MerchantRpc.GetMerchant(a.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantId, AuthoritativeDb: true})
 	if err != nil {
 		return nil, err
 	}

@@ -46,7 +46,7 @@ func (m *MerchantConsoleAuthMiddleware) Handle(next http.HandlerFunc) http.Handl
 			return
 		}
 		if m.merchants != nil {
-			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantID})
+			auth, err := m.merchants.GetAuthInfo(r.Context(), &merchantclient.GetAuthInfoReq{MerchantId: merchantID, AuthoritativeDb: true})
 			if err != nil || auth.GetStatus() != 1 {
 				apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 				return

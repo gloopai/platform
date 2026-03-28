@@ -327,10 +327,12 @@ func (x *MerchantInfo) GetMerchantConfig() string {
 }
 
 type GetMerchantReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	// 为 true 时只读数据库（管理台/商户控制台等）；OpenAPI 热路径勿设，可走 Consul 内存快照。
+	AuthoritativeDb bool `protobuf:"varint,2,opt,name=authoritative_db,json=authoritativeDb,proto3" json:"authoritative_db,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetMerchantReq) Reset() {
@@ -368,6 +370,13 @@ func (x *GetMerchantReq) GetMerchantId() string {
 		return x.MerchantId
 	}
 	return ""
+}
+
+func (x *GetMerchantReq) GetAuthoritativeDb() bool {
+	if x != nil {
+		return x.AuthoritativeDb
+	}
+	return false
 }
 
 type GetMerchantResp struct {
@@ -415,12 +424,14 @@ func (x *GetMerchantResp) GetMerchant() *MerchantInfo {
 }
 
 type GetAuthInfoReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MerchantId    string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	AppId         string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	MerchantId string                 `protobuf:"bytes,1,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	AppId      string                 `protobuf:"bytes,2,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	Email      string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	// 为 true 时跳过 KV 快照，以库表为准（管理台、商户登录等）；OpenAPI 验签勿设。
+	AuthoritativeDb bool `protobuf:"varint,4,opt,name=authoritative_db,json=authoritativeDb,proto3" json:"authoritative_db,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetAuthInfoReq) Reset() {
@@ -472,6 +483,13 @@ func (x *GetAuthInfoReq) GetEmail() string {
 		return x.Email
 	}
 	return ""
+}
+
+func (x *GetAuthInfoReq) GetAuthoritativeDb() bool {
+	if x != nil {
+		return x.AuthoritativeDb
+	}
+	return false
 }
 
 type GetAuthInfoResp struct {
@@ -1376,17 +1394,19 @@ const file_merchant_proto_rawDesc = "" +
 	"\rpayout_grants\x18\x0f \x03(\v2\x1d.merchant.MerchantPayoutGrantR\fpayoutGrants\x12\x15\n" +
 	"\x06app_id\x18\x12 \x01(\tR\x05appId\x12\x14\n" +
 	"\x05email\x18\x13 \x01(\tR\x05email\x12'\n" +
-	"\x0fmerchant_config\x18\x14 \x01(\tR\x0emerchantConfig\"1\n" +
+	"\x0fmerchant_config\x18\x14 \x01(\tR\x0emerchantConfig\"\\\n" +
 	"\x0eGetMerchantReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
-	"merchantId\"E\n" +
+	"merchantId\x12)\n" +
+	"\x10authoritative_db\x18\x02 \x01(\bR\x0fauthoritativeDb\"E\n" +
 	"\x0fGetMerchantResp\x122\n" +
-	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant\"^\n" +
+	"\bmerchant\x18\x01 \x01(\v2\x16.merchant.MerchantInfoR\bmerchant\"\x89\x01\n" +
 	"\x0eGetAuthInfoReq\x12\x1f\n" +
 	"\vmerchant_id\x18\x01 \x01(\tR\n" +
 	"merchantId\x12\x15\n" +
 	"\x06app_id\x18\x02 \x01(\tR\x05appId\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\"\x88\x03\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12)\n" +
+	"\x10authoritative_db\x18\x04 \x01(\bR\x0fauthoritativeDb\"\x88\x03\n" +
 	"\x0fGetAuthInfoResp\x12\x1d\n" +
 	"\n" +
 	"app_secret\x18\x01 \x01(\tR\tappSecret\x12\x16\n" +

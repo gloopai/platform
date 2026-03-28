@@ -65,22 +65,23 @@ func NewGetSignSecretLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 	}
 }
 
-// GetSignSecret 当前仅由网关收银台 / OpenAPI 下单链路调用（见 gateway checkout），此处可走 Consul 内存中的通道配置 JSON，避免每次查库。
-// 管理台与其它逻辑请勿新增调用；若需权威数据请读库或 ListChannels/GetChannel。
+// GetSignSecret 收银台 / OpenAPI 默认走 Consul 内存（authoritative_db=false）；管理侧传 authoritative_db=true 只读库。
 func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*channelpb.GetSignSecretResp, error) {
 	if in.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
-	if snap, ok := l.svcCtx.ChannelSnapshot.Get(in.GetChannelId()); ok && snap != nil {
-		sec := strings.TrimSpace(snap.SignSecret)
-		uc := strings.TrimSpace(snap.ChannelConfig)
-		if uc != "" {
-			_, _, js, _ := channeldriver.ConfigFieldsFromChannelJSON(uc)
-			if js != "" {
-				sec = js
+	if !in.GetAuthoritativeDb() {
+		if snap, ok := l.svcCtx.ChannelSnapshot.Get(in.GetChannelId()); ok && snap != nil {
+			sec := strings.TrimSpace(snap.SignSecret)
+			uc := strings.TrimSpace(snap.ChannelConfig)
+			if uc != "" {
+				_, _, js, _ := channeldriver.ConfigFieldsFromChannelJSON(uc)
+				if js != "" {
+					sec = js
+				}
 			}
+			return &channelpb.GetSignSecretResp{SignSecret: sec}, nil
 		}
-		return &channelpb.GetSignSecretResp{SignSecret: sec}, nil
 	}
 	override := ""
 	secret, err := l.svcCtx.Channels.GetSignSecret(l.ctx, in.GetChannelId(), override)

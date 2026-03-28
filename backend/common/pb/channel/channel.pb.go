@@ -126,10 +126,12 @@ func (x *RouteResp) GetPayinProductId() int64 {
 }
 
 type GetSignSecretReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// 为 true 时只读数据库；OpenAPI 收银台勿设，可走 Consul 内存。
+	AuthoritativeDb bool `protobuf:"varint,2,opt,name=authoritative_db,json=authoritativeDb,proto3" json:"authoritative_db,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetSignSecretReq) Reset() {
@@ -167,6 +169,13 @@ func (x *GetSignSecretReq) GetChannelId() int64 {
 		return x.ChannelId
 	}
 	return 0
+}
+
+func (x *GetSignSecretReq) GetAuthoritativeDb() bool {
+	if x != nil {
+		return x.AuthoritativeDb
+	}
+	return false
 }
 
 type GetSignSecretResp struct {
@@ -250,10 +259,12 @@ func (*ListChannelsReq) Descriptor() ([]byte, []int) {
 }
 
 type GetChannelReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	ChannelId int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// 为 true 时只读数据库；OpenAPI/回调热路径勿设。
+	AuthoritativeDb bool `protobuf:"varint,2,opt,name=authoritative_db,json=authoritativeDb,proto3" json:"authoritative_db,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetChannelReq) Reset() {
@@ -291,6 +302,13 @@ func (x *GetChannelReq) GetChannelId() int64 {
 		return x.ChannelId
 	}
 	return 0
+}
+
+func (x *GetChannelReq) GetAuthoritativeDb() bool {
+	if x != nil {
+		return x.AuthoritativeDb
+	}
+	return false
 }
 
 type GetChannelResp struct {
@@ -1316,10 +1334,12 @@ func (x *ResolveLockedChannelForMerchantResp) GetPayinProductCode() string {
 }
 
 type GetPayinProductDisplayNameReq struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Code  string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	// 为 true 时只读库表展示名；OpenAPI 勿设，可走内存快照。
+	AuthoritativeDb bool `protobuf:"varint,2,opt,name=authoritative_db,json=authoritativeDb,proto3" json:"authoritative_db,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetPayinProductDisplayNameReq) Reset() {
@@ -1357,6 +1377,13 @@ func (x *GetPayinProductDisplayNameReq) GetCode() string {
 		return x.Code
 	}
 	return ""
+}
+
+func (x *GetPayinProductDisplayNameReq) GetAuthoritativeDb() bool {
+	if x != nil {
+		return x.AuthoritativeDb
+	}
+	return false
 }
 
 type GetPayinProductDisplayNameResp struct {
@@ -3103,17 +3130,19 @@ const file_channel_proto_rawDesc = "" +
 	"\tRouteResp\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12(\n" +
-	"\x10payin_product_id\x18\x02 \x01(\x03R\x0epayinProductId\"1\n" +
+	"\x10payin_product_id\x18\x02 \x01(\x03R\x0epayinProductId\"\\\n" +
 	"\x10GetSignSecretReq\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId\"4\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12)\n" +
+	"\x10authoritative_db\x18\x02 \x01(\bR\x0fauthoritativeDb\"4\n" +
 	"\x11GetSignSecretResp\x12\x1f\n" +
 	"\vsign_secret\x18\x01 \x01(\tR\n" +
 	"signSecret\"\x11\n" +
-	"\x0fListChannelsReq\".\n" +
+	"\x0fListChannelsReq\"Y\n" +
 	"\rGetChannelReq\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\x03R\tchannelId\"?\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12)\n" +
+	"\x10authoritative_db\x18\x02 \x01(\bR\x0fauthoritativeDb\"?\n" +
 	"\x0eGetChannelResp\x12-\n" +
 	"\achannel\x18\x01 \x01(\v2\x13.channel.ChannelRowR\achannel\"\xcf\x05\n" +
 	"\n" +
@@ -3209,9 +3238,10 @@ const file_channel_proto_rawDesc = "" +
 	"\x06amount\x18\x03 \x01(\x03R\x06amount\"}\n" +
 	"#ResolveLockedChannelForMerchantResp\x12(\n" +
 	"\x10payin_product_id\x18\x01 \x01(\x03R\x0epayinProductId\x12,\n" +
-	"\x12payin_product_code\x18\x02 \x01(\tR\x10payinProductCode\"3\n" +
+	"\x12payin_product_code\x18\x02 \x01(\tR\x10payinProductCode\"^\n" +
 	"\x1dGetPayinProductDisplayNameReq\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\tR\x04code\"4\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\x12)\n" +
+	"\x10authoritative_db\x18\x02 \x01(\bR\x0fauthoritativeDb\"4\n" +
 	"\x1eGetPayinProductDisplayNameResp\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x1b\n" +
 	"\x19AdminListPayinProductsReq\"\xae\x01\n" +

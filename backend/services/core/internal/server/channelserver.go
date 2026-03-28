@@ -192,6 +192,16 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 	if req.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
+	if req.GetAuthoritativeDb() {
+		ch, err := s.svcCtx.Channels.AdminGetByID(ctx, req.GetChannelId())
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "channel not found")
+			}
+			return nil, err
+		}
+		return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
+	}
 	if snap, ok := s.svcCtx.ChannelSnapshot.Get(req.GetChannelId()); ok && snap != nil {
 		ch := store.KVToChannel(snap)
 		effective := *ch
@@ -369,11 +379,15 @@ func (s *ChannelServer) ResolveLockedChannelForMerchant(ctx context.Context, req
 }
 
 func (s *ChannelServer) GetPayinProductDisplayName(ctx context.Context, req *channelpb.GetPayinProductDisplayNameReq) (*channelpb.GetPayinProductDisplayNameResp, error) {
-	if s.svcCtx.PayinProductSnapshot != nil && s.svcCtx.RuntimeConfig != nil {
+	if !req.GetAuthoritativeDb() && s.svcCtx.PayinProductSnapshot != nil && s.svcCtx.RuntimeConfig != nil {
 		name := kvcache.GetPayinProductDisplayNameMemory(req.GetCode(), s.svcCtx.PayinProductSnapshot)
 		return &channelpb.GetPayinProductDisplayNameResp{Name: name}, nil
 	}
-	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode(), s.svcCtx.PayinProductSnapshot)
+	var snap *kvcache.PayinProductSnapshot
+	if !req.GetAuthoritativeDb() {
+		snap = s.svcCtx.PayinProductSnapshot
+	}
+	name, err := s.svcCtx.PayinProducts.GetPayinProductDisplayName(ctx, req.GetCode(), snap)
 	if err != nil {
 		return nil, err
 	}
