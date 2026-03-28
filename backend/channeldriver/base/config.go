@@ -14,8 +14,8 @@ type ChannelConfig struct {
 	// AppID is the upstream application / merchant id (e.g. appId in PSP docs).
 	AppID string `json:"app_id,omitempty"`
 
-	// UpstreamMerchantNo is an alternate merchant identifier if the PSP uses both.
-	UpstreamMerchantNo string `json:"upstream_merchant_no,omitempty"`
+	// ChannelMerchantNo is an alternate merchant identifier if the PSP uses both.
+	ChannelMerchantNo string `json:"channel_merchant_no,omitempty"`
 
 	SignSecret       string `json:"-"` // do not log in plaintext in production
 	RSAPrivateKeyPEM string `json:"-"`

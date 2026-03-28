@@ -18,7 +18,7 @@ import (
 // DefaultDriverKey is the registry key unless overridden in New.
 const DefaultDriverKey = "mock_psp"
 
-// Driver is an in-memory mock PSP implementing PayinUpstream, PayoutUpstream, and BalanceUpstream.
+// Driver is an in-memory mock PSP implementing PayinChannel, PayoutChannel, and BalanceChannel.
 type Driver struct {
 	key   string
 	store *Store
@@ -61,7 +61,7 @@ func (d *Driver) CreatePayment(ctx context.Context, cfg *channeldriver.ChannelCo
 		status:          channeldriver.PayinStatusProcessing,
 	}
 	payURL := fmt.Sprintf("https://mock.psp.test/pay?merchantOrderNo=%s&sysOrderNo=%s", req.MerchantOrderNo, sys)
-	return &channeldriver.CreatePaymentResp{UpstreamOrderNo: sys, PayURL: payURL}, nil
+	return &channeldriver.CreatePaymentResp{ChannelOrderNo: sys, PayURL: payURL}, nil
 }
 
 func (d *Driver) QueryPayment(ctx context.Context, cfg *channeldriver.ChannelConfig, req *channeldriver.QueryPaymentReq) (*channeldriver.QueryPaymentResp, error) {
@@ -82,7 +82,7 @@ func (d *Driver) QueryPayment(ctx context.Context, cfg *channeldriver.ChannelCon
 	return &channeldriver.QueryPaymentResp{
 		AppID:           appID,
 		MerchantOrderNo: r.merchantOrderNo,
-		UpstreamOrderNo: r.sysOrderNo,
+		ChannelOrderNo: r.sysOrderNo,
 		AmountMinor:     r.amountMinor,
 		Status:          r.status,
 		ReferenceNo:     r.referenceNo,
@@ -121,7 +121,7 @@ func (d *Driver) Makeup(ctx context.Context, cfg *channeldriver.ChannelConfig, r
 	return nil
 }
 
-// SetPayinFailed sets mock upstream payin to failed (for query simulation / tests).
+// SetPayinFailed sets mock payin to failed (for query simulation / tests).
 func (d *Driver) SetPayinFailed(merchantOrderNo, failReason string) error {
 	if merchantOrderNo == "" {
 		return errors.New("mockpsp: merchant order no required")
@@ -137,7 +137,7 @@ func (d *Driver) SetPayinFailed(merchantOrderNo, failReason string) error {
 	return nil
 }
 
-// SetPayoutStatus sets mock upstream payout status (for query simulation / tests).
+// SetPayoutStatus sets mock payout status (for query simulation / tests).
 func (d *Driver) SetPayoutStatus(merchantOrderNo string, status channeldriver.PayoutOrderStatus, referenceNo string) error {
 	if merchantOrderNo == "" {
 		return errors.New("mockpsp: merchant order no required")
@@ -195,7 +195,7 @@ func (d *Driver) VerifyPayinNotify(ctx context.Context, cfg *channeldriver.Chann
 	st := parsePayinStatus(j.Status)
 	return &channeldriver.PayinNotifyParsed{
 		MerchantOrderNo: j.OrderNo,
-		UpstreamOrderNo: j.SysOrderNo,
+		ChannelOrderNo: j.SysOrderNo,
 		PaidAmountMinor: amt,
 		Status:          st,
 		RawStatus:       j.Status,
@@ -244,7 +244,7 @@ func (d *Driver) CreatePayout(ctx context.Context, cfg *channeldriver.ChannelCon
 		amountMinor:     req.AmountMinor,
 		status:          channeldriver.PayoutStatusProcessing,
 	}
-	return &channeldriver.CreatePayoutResp{UpstreamOrderNo: sys}, nil
+	return &channeldriver.CreatePayoutResp{ChannelOrderNo: sys}, nil
 }
 
 func (d *Driver) QueryPayout(ctx context.Context, cfg *channeldriver.ChannelConfig, req *channeldriver.QueryPayoutReq) (*channeldriver.QueryPayoutResp, error) {
@@ -261,7 +261,7 @@ func (d *Driver) QueryPayout(ctx context.Context, cfg *channeldriver.ChannelConf
 	}
 	return &channeldriver.QueryPayoutResp{
 		MerchantOrderNo: r.merchantOrderNo,
-		UpstreamOrderNo: r.sysOrderNo,
+		ChannelOrderNo: r.sysOrderNo,
 		AmountMinor:     r.amountMinor,
 		Status:          r.status,
 		ReferenceNo:     r.referenceNo,
@@ -340,7 +340,7 @@ func (d *Driver) VerifyPayoutNotify(ctx context.Context, cfg *channeldriver.Chan
 	st := parsePayoutStatus(j.Status)
 	return &channeldriver.PayoutNotifyParsed{
 		MerchantOrderNo: j.OrderNo,
-		UpstreamOrderNo: j.SysOrderNo,
+		ChannelOrderNo: j.SysOrderNo,
 		AmountMinor:     amt,
 		Status:          st,
 		ReferenceNo:     j.ReferenceNo,

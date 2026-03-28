@@ -7,7 +7,7 @@ service Channel {
   rpc Route(RouteReq) returns(RouteResp);
   rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
 
-  // 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+  // 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
   rpc GetChannel(GetChannelReq) returns (GetChannelResp);
 
   rpc ListChannels(ListChannelsReq) returns (ListChannelsResp);
@@ -71,7 +71,7 @@ message ChannelRow {
   string name = 2;
   string payin_type = 3;
   string gateway_url = 4;
-  string upstream_merchant_no = 5;
+  string channel_merchant_no = 5;
   string rsa_private_key = 6;
   string sign_secret = 7;
   int64 weight = 8;
@@ -81,16 +81,16 @@ message ChannelRow {
   bool fuse_enabled = 12;
   bool supports_payin = 13;
   bool supports_payout = 14;
-  // 平台相对上游：代收成本比例，万分比整数 (= round(百分数×100))
-  int64 upstream_payin_rate_bps = 15;
-  // 平台相对上游：代付成本比例，同上
-  int64 upstream_payout_rate_bps = 16;
-  // 上游代付计费模式：1=仅比例 2=仅固定 3=固定+比例
-  int64 upstream_payout_fee_mode = 17;
-  // 上游代付固定成本（分）
-  int64 upstream_payout_fixed_fee = 18;
-  // 上游对接自由 JSON 文本（管理台整段保存；运行时自行解析）
-  string upstream_config = 19;
+  // 平台相对通道(PSP)：代收成本比例，万分比整数 (= round(百分数×100))
+  int64 channel_payin_rate_bps = 15;
+  // 平台相对通道：代付成本比例，同上
+  int64 channel_payout_rate_bps = 16;
+  // 通道代付计费模式：1=仅比例 2=仅固定 3=固定+比例
+  int64 channel_payout_fee_mode = 17;
+  // 通道代付固定成本（分）
+  int64 channel_payout_fixed_fee = 18;
+  // 通道对接自由 JSON 文本（管理台整段保存；运行时自行解析）
+  string channel_config = 19;
 }
 
 message ListChannelsResp {
@@ -102,7 +102,7 @@ message UpsertChannelReq {
   string name = 2;
   string payin_type = 3;
   string gateway_url = 4;
-  string upstream_merchant_no = 5;
+  string channel_merchant_no = 5;
   string rsa_private_key = 6;
   string sign_secret = 7;
   int64 weight = 8;
@@ -112,12 +112,12 @@ message UpsertChannelReq {
   bool fuse_enabled = 12;
   bool supports_payin = 13;
   bool supports_payout = 14;
-  // 以下四项语义与 ChannelRow 一致（平台相对上游成本）
-  int64 upstream_payin_rate_bps = 15;
-  int64 upstream_payout_rate_bps = 16;
-  int64 upstream_payout_fee_mode = 17;
-  int64 upstream_payout_fixed_fee = 18;
-  string upstream_config = 19;
+  // 以下四项语义与 ChannelRow 一致（平台相对通道成本）
+  int64 channel_payin_rate_bps = 15;
+  int64 channel_payout_rate_bps = 16;
+  int64 channel_payout_fee_mode = 17;
+  int64 channel_payout_fixed_fee = 18;
+  string channel_config = 19;
 }
 
 message UpsertChannelResp {

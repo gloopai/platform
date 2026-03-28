@@ -62,7 +62,7 @@ func (d *Driver) CreatePayment(ctx context.Context, cfg *channeldriver.ChannelCo
 		status:          channeldriver.PayinStatusProcessing,
 	}
 	payURL := fmt.Sprintf("https://alt-mock.psp.test/cashier?merchant_ref=%s&txn_id=%s", req.MerchantOrderNo, sys)
-	return &channeldriver.CreatePaymentResp{UpstreamOrderNo: sys, PayURL: payURL}, nil
+	return &channeldriver.CreatePaymentResp{ChannelOrderNo: sys, PayURL: payURL}, nil
 }
 
 func (d *Driver) QueryPayment(ctx context.Context, cfg *channeldriver.ChannelConfig, req *channeldriver.QueryPaymentReq) (*channeldriver.QueryPaymentResp, error) {
@@ -83,7 +83,7 @@ func (d *Driver) QueryPayment(ctx context.Context, cfg *channeldriver.ChannelCon
 	return &channeldriver.QueryPaymentResp{
 		AppID:           appID,
 		MerchantOrderNo: r.merchantOrderNo,
-		UpstreamOrderNo: r.sysOrderNo,
+		ChannelOrderNo: r.sysOrderNo,
 		AmountMinor:     r.amountMinor,
 		Status:          r.status,
 		ReferenceNo:     r.referenceNo,
@@ -178,7 +178,7 @@ func (d *Driver) VerifyPayinNotify(ctx context.Context, cfg *channeldriver.Chann
 	st := parsePayinState(j.State)
 	return &channeldriver.PayinNotifyParsed{
 		MerchantOrderNo: strings.TrimSpace(j.MerchantRef),
-		UpstreamOrderNo: strings.TrimSpace(j.TxnID),
+		ChannelOrderNo: strings.TrimSpace(j.TxnID),
 		PaidAmountMinor: amt,
 		Status:          st,
 		RawStatus:       strings.TrimSpace(j.State),
@@ -214,7 +214,7 @@ func (d *Driver) CreatePayout(ctx context.Context, cfg *channeldriver.ChannelCon
 		amountMinor:     req.AmountMinor,
 		status:          channeldriver.PayoutStatusProcessing,
 	}
-	return &channeldriver.CreatePayoutResp{UpstreamOrderNo: sys}, nil
+	return &channeldriver.CreatePayoutResp{ChannelOrderNo: sys}, nil
 }
 
 func (d *Driver) QueryPayout(ctx context.Context, cfg *channeldriver.ChannelConfig, req *channeldriver.QueryPayoutReq) (*channeldriver.QueryPayoutResp, error) {
@@ -231,7 +231,7 @@ func (d *Driver) QueryPayout(ctx context.Context, cfg *channeldriver.ChannelConf
 	}
 	return &channeldriver.QueryPayoutResp{
 		MerchantOrderNo: r.merchantOrderNo,
-		UpstreamOrderNo: r.sysOrderNo,
+		ChannelOrderNo: r.sysOrderNo,
 		AmountMinor:     r.amountMinor,
 		Status:          r.status,
 		ReferenceNo:     r.referenceNo,
@@ -309,7 +309,7 @@ func (d *Driver) VerifyPayoutNotify(ctx context.Context, cfg *channeldriver.Chan
 	st := parsePayoutState(j.PayoutState)
 	return &channeldriver.PayoutNotifyParsed{
 		MerchantOrderNo: strings.TrimSpace(j.MerchantRef),
-		UpstreamOrderNo: strings.TrimSpace(j.TxnID),
+		ChannelOrderNo: strings.TrimSpace(j.TxnID),
 		AmountMinor:     amt,
 		Status:          st,
 		ReferenceNo:     strings.TrimSpace(j.BankReference),

@@ -5,9 +5,9 @@ import (
 	"net/http"
 )
 
-// PayinUpstream is one registered protocol for collection (代收). Implementations must be
+// PayinChannel is one registered protocol for collection (代收). Implementations must be
 // safe for concurrent use; each call receives the ChannelConfig for the selected channel row.
-type PayinUpstream interface {
+type PayinChannel interface {
 	// Key returns the driver_key this implementation handles (e.g. "psp_india_a").
 	Key() string
 
@@ -45,7 +45,7 @@ type CreatePaymentReq struct {
 
 // CreatePaymentResp is upstream create response mapped to platform fields.
 type CreatePaymentResp struct {
-	UpstreamOrderNo string // sysOrderNo
+	ChannelOrderNo string // sysOrderNo
 	PayURL          string // payUrl / cashier
 }
 
@@ -68,7 +68,7 @@ const (
 type QueryPaymentResp struct {
 	AppID            string
 	MerchantOrderNo  string
-	UpstreamOrderNo  string
+	ChannelOrderNo  string
 	AmountMinor      int64
 	Status           PayinOrderStatus
 	ReferenceNo      string // UTR when present
@@ -85,7 +85,7 @@ type MakeupReq struct {
 // PayinNotifyParsed is the verified, normalized callback for platform order updates.
 type PayinNotifyParsed struct {
 	MerchantOrderNo string
-	UpstreamOrderNo string
+	ChannelOrderNo string
 	PaidAmountMinor int64
 	Status          PayinOrderStatus
 	RawStatus       string

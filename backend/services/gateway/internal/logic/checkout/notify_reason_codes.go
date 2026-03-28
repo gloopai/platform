@@ -1,6 +1,6 @@
 package logic
 
-// Upstream callback reason_code (stable machine-readable values).
+// Channel (PSP) callback reason_code (stable machine-readable values).
 const (
 	NotifyCodeInvalidNotifyParams   = "INVALID_NOTIFY_PARAMS"
 	NotifyCodeChannelNotFound       = "CHANNEL_NOT_FOUND"

@@ -84,7 +84,7 @@ message GetOrderResp {
 message MarkPaidReq {
   string order_no = 1;
   int64 paid_amount = 2;
-  string upstream_trade_no = 3;
+  string channel_trade_no = 3;
   int64 channel_id = 4;
 }
 
@@ -104,7 +104,7 @@ message OrderInfo {
   int64 updated_at = 9;
   string return_url = 10;
   string notify_url = 11;
-  string upstream_trade_no = 12;
+  string channel_trade_no = 12;
   int64 paid_amount = 13;
   int64 payin_product_id = 14;
   string payin_product_code = 15;

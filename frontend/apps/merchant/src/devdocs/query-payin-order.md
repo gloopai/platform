@@ -24,7 +24,7 @@
     "status": 1,
     "payin_product_code": "mock",
     "notify_url": "https://merchant.example.com/notify",
-    "upstream_trade_no": "UP-20260323-0001"
+    "channel_trade_no": "UP-20260323-0001"
   }
 }
 ```

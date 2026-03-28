@@ -92,7 +92,7 @@
                   {{ o.payin_product_code }}
                 </div>
               </td>
-              <td class="px-4 py-3 align-top text-slate-700">{{ o.upstream_trade_no || '—' }}</td>
+              <td class="px-4 py-3 align-top text-slate-700">{{ o.channel_trade_no || '—' }}</td>
               <td class="px-4 py-3 align-top text-slate-600">{{ formatTime(o.created_at) }}</td>
               <td class="sticky right-0 z-10 bg-white px-4 py-3 align-top group-hover:bg-slate-50/80">
                 <div class="flex flex-wrap gap-2">

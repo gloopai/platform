@@ -38,8 +38,8 @@ DELETE FROM payout_products WHERE code = 'wallet';
 
 -- 演示环境仅保留 mock-psp-alt（mock_psp_alt / MD5）；旧库若曾插入 mock-psp，下方会删绑定与通道行
 INSERT INTO channels (
-  name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
-  supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
+  name, payin_type, gateway_url, channel_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+  supports_payin, supports_payout, channel_payin_rate_bps, channel_payout_rate_bps, channel_payout_fee_mode, channel_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
   ('mock-psp-alt', 'mock_psp_alt', '', 'alt_app_id', '', 'channel_secret_alt', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0)
@@ -47,10 +47,10 @@ ON DUPLICATE KEY UPDATE
   sign_secret = VALUES(sign_secret),
   supports_payin = VALUES(supports_payin),
   supports_payout = VALUES(supports_payout),
-  upstream_payin_rate_bps = VALUES(upstream_payin_rate_bps),
-  upstream_payout_rate_bps = VALUES(upstream_payout_rate_bps),
-  upstream_payout_fee_mode = VALUES(upstream_payout_fee_mode),
-  upstream_payout_fixed_fee = VALUES(upstream_payout_fixed_fee),
+  channel_payin_rate_bps = VALUES(channel_payin_rate_bps),
+  channel_payout_rate_bps = VALUES(channel_payout_rate_bps),
+  channel_payout_fee_mode = VALUES(channel_payout_fee_mode),
+  channel_payout_fixed_fee = VALUES(channel_payout_fixed_fee),
   enabled = VALUES(enabled),
   fuse_enabled = VALUES(fuse_enabled),
   weight = VALUES(weight),
@@ -412,8 +412,8 @@ ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 INSERT INTO payin_orders (
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
   payin_product_id, payin_product_code, channel_locked, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,
-  return_url, notify_url, upstream_trade_no
-)
+  return_url, notify_url, channel_trade_no
+  )
 SELECT
   'C-DEMO-001', 'm_demo', 'MO-C-DEMO-001', 1000, 'CNY', 1, c.id, pp.id, pp.code, 0, 1000, 1, 60, 0, 6, 994,
   '', '', 'UP-C-DEMO-001'
@@ -433,8 +433,8 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO payout_orders (
   order_no, merchant_id, merchant_order_no, amount, currency, status, channel_id,
   payout_product_id, payout_product_code, paid_amount, fee_mode, fee_rate_bps, fee_fixed_amount, fee_amount, net_amount,
-  notify_url, upstream_trade_no
-)
+  notify_url, channel_trade_no
+  )
 SELECT
   'P-DEMO-001', 'm_demo', 'MO-P-DEMO-001', 2000, 'CNY', 1, c.id, pp.id, pp.code, 2000, 3, 40, 60, 68, 1932,
   '', 'UP-P-DEMO-001'

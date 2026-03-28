@@ -22,7 +22,7 @@ func TestVerifyPayinNotify_roundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.MerchantOrderNo != "P-ORD-1" || p.UpstreamOrderNo != "ALT99" || p.PaidAmountMinor != 100 || p.Status != channeldriver.PayinStatusSuccess {
+	if p.MerchantOrderNo != "P-ORD-1" || p.ChannelOrderNo != "ALT99" || p.PaidAmountMinor != 100 || p.Status != channeldriver.PayinStatusSuccess {
 		t.Fatalf("parsed=%+v", p)
 	}
 }
@@ -40,7 +40,7 @@ func TestVerifyPayoutNotify_roundtrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.MerchantOrderNo != "PO-1" || p.UpstreamOrderNo != "ALTPO9" || p.AmountMinor != 200 || p.Status != channeldriver.PayoutStatusSuccess {
+	if p.MerchantOrderNo != "PO-1" || p.ChannelOrderNo != "ALTPO9" || p.AmountMinor != 200 || p.Status != channeldriver.PayoutStatusSuccess {
 		t.Fatalf("parsed=%+v", p)
 	}
 }

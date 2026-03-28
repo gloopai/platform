@@ -156,7 +156,7 @@
 
 以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/channeldriver/base/config.go)。
 
-**代收侧 [`PayinUpstream`](../../backend/channeldriver/base/payin.go)**
+**代收侧 [`PayinChannel`](../../backend/channeldriver/base/payin.go)**
 
 - `CreatePayment` → 对应 `POST .../order/payment`
 - `QueryPayment` → `POST .../query/payment`
@@ -164,13 +164,13 @@
 - `VerifyPayinNotify` → 验签并解析回调
 - `PayinNotifyResponse` → `SUCCESS` / `FAIL` 等响应体
 
-**代付侧 [`PayoutUpstream`](../../backend/channeldriver/base/payout.go)**
+**代付侧 [`PayoutChannel`](../../backend/channeldriver/base/payout.go)**
 
 - `CreatePayout` → `POST .../order/payout`
 - `QueryPayout` → **待上游文档补齐后实现**
 - `VerifyPayoutNotify` / `PayoutNotifyResponse`
 
-**余额 [`BalanceUpstream`](../../backend/channeldriver/base/balance.go)**
+**余额 [`BalanceChannel`](../../backend/channeldriver/base/balance.go)**
 
 - `QueryBalance` → `POST .../query/balance`
 
@@ -178,7 +178,7 @@
 
 **说明**：平台内部订单号、路由、清结算仍走现有 trade/core/gateway；本包只负责 **与上游的 HTTP、签名、字段映射**，不复制商户 OpenAPI 形态。
 
-**本地/单测模拟上游**：[`backend/channeldriver/mockpsp`](../../backend/channeldriver/mockpsp) 提供内存 `Driver`（`mock_psp`）、`RegisterAll`、`BuildPayinNotifyBody` / `BuildPayoutNotifyBody`、以及可选的 `StartUpstreamHTTPServer`（`httptest` + `/exposed/v1/...`），便于联调 gateway 与 `channeldriver.HandlePayinNotify`。
+**本地/单测模拟 PSP**：[`backend/channeldriver/mockpsp`](../../backend/channeldriver/mockpsp) 提供内存 `Driver`（`mock_psp`）、`RegisterAll`、`BuildPayinNotifyBody` / `BuildPayoutNotifyBody`、以及可选的 `StartChannelHTTPServer`（`httptest` + `/exposed/v1/...`），便于联调 gateway 与 `channeldriver.HandlePayinNotify`。
 
 各服务在 `go.mod` 中增加：
 

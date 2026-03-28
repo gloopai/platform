@@ -151,11 +151,11 @@
             @reset="resetForm"
           />
         </div>
-        <div v-show="editTab === 'upstream'" role="tabpanel">
+        <div v-show="editTab === 'channelConfig'" role="tabpanel">
           <ChannelFormCard
-            ref="upstreamFormCardRef"
+            ref="channelConfigFormCardRef"
             v-model="form"
-            section="upstream"
+            section="channelConfig"
             embedded
             hide-footer-actions
             :saving="saving"
@@ -240,7 +240,7 @@ const searchQuery = ref('')
 const editTab = ref<ChannelFormSection>('basic')
 const editTabs: { key: ChannelFormSection; label: string }[] = [
   { key: 'basic', label: '基本设置' },
-  { key: 'upstream', label: '上游对接' },
+  { key: 'channelConfig', label: '通道对接' },
   { key: 'rates', label: '费率与能力' },
 ]
 
@@ -249,9 +249,9 @@ const selectedId = ref<number | null>(null)
 
 const form = ref<AdminChannel>(emptyChannelForm())
 
-const upstreamFormCardRef = useTemplateRef<{
-  applyUpstreamJsonToModel: () => string | null
-}>('upstreamFormCardRef')
+const channelConfigFormCardRef = useTemplateRef<{
+  applyChannelConfigJsonToModel: () => string | null
+}>('channelConfigFormCardRef')
 
 const isNew = computed(() => selectedId.value === null)
 
@@ -259,7 +259,7 @@ const drawerTitle = computed(() => (isNew.value ? '新建通道' : `编辑通道
 
 const drawerSubtitle = computed(
   () =>
-    '分段维护：基本参数、上游凭证与费率能力一次保存；保存后产品与路由将按通道能力校验。',
+    '分段维护：基本参数、通道对接配置与费率能力一次保存；保存后产品与路由将按通道能力校验。',
 )
 
 const selected = computed(() => channels.value.find((c) => c.id === selectedId.value) || null)
@@ -340,11 +340,11 @@ watch(drawerOpen, (open, wasOpen) => {
 })
 
 async function save() {
-  const upstreamErr = upstreamFormCardRef.value?.applyUpstreamJsonToModel?.()
-  if (upstreamErr) {
-    error.value = upstreamErr
-    editTab.value = 'upstream'
-    toast.error(upstreamErr)
+  const channelCfgErr = channelConfigFormCardRef.value?.applyChannelConfigJsonToModel?.()
+  if (channelCfgErr) {
+    error.value = channelCfgErr
+    editTab.value = 'channelConfig'
+    toast.error(channelCfgErr)
     return
   }
   saving.value = true

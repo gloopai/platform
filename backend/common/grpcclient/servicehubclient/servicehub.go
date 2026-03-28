@@ -37,7 +37,7 @@ type ServiceHub interface {
 	ListAdminUsers(ctx context.Context) ([]*AdminUserPublic, error)
 	GetDisplaySettings(ctx context.Context) (*GetDisplaySettingsResp, error)
 	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64, merchantNumericIDStart int64) error
-	MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error)
+	MarkPayoutSuccess(ctx context.Context, orderNo, channelTradeNo string) (bool, error)
 	MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error)
 
 	CreateAdminUser(ctx context.Context, username, passwordHash string, status int64) (*AdminUserPublic, error)
@@ -186,10 +186,10 @@ func (d *defaultClient) GetAdminUserById(ctx context.Context, id int64) (*AdminU
 	return r.User, nil
 }
 
-func (d *defaultClient) MarkPayoutSuccess(ctx context.Context, orderNo, upstreamTradeNo string) (bool, error) {
+func (d *defaultClient) MarkPayoutSuccess(ctx context.Context, orderNo, channelTradeNo string) (bool, error) {
 	r, err := d.cli.MarkPayoutSuccess(ctx, &servicehub.MarkPayoutSuccessReq{
-		OrderNo:         orderNo,
-		UpstreamTradeNo: upstreamTradeNo,
+		OrderNo:          orderNo,
+		ChannelTradeNo:   channelTradeNo,
 	})
 	if err != nil {
 		return false, err

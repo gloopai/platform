@@ -12,17 +12,17 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ChannelNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
-		var req types.UpstreamNotifyReq
+		var req types.ChannelNotifyReq
 		if err := httpx.Parse(r, &req); err != nil {
 			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
 			return
 		}
 
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		resp, err := l.UpstreamNotify(&req)
+		resp, err := l.ChannelNotify(&req)
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 		} else {

@@ -104,7 +104,7 @@ message UpsertDisplaySettingsReq {
 
 message MarkPayoutSuccessReq {
   string order_no = 1;
-  string upstream_trade_no = 2;
+  string channel_trade_no = 2;
 }
 
 message MarkPayoutFailedReq {

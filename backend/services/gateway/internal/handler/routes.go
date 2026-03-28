@@ -79,7 +79,7 @@ func RegisterOpenAPIHandlers(server *rest.Server, serverCtx *svc.ServiceContext)
 			{
 				Method:  http.MethodPost,
 				Path:    "/v1/callback/notify",
-				Handler: checkouthandler.UpstreamNotifyHandler(serverCtx),
+				Handler: checkouthandler.ChannelNotifyHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

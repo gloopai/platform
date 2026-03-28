@@ -271,7 +271,7 @@ func (l *MarkPaidLogic) MarkPaid(in *orderpb.MarkPaidReq) (*orderpb.MarkPaidResp
 		return nil, status.Error(codes.FailedPrecondition, "channel mismatch")
 	}
 
-	changed, err := l.svcCtx.PayOrders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetUpstreamTradeNo())
+	changed, err := l.svcCtx.PayOrders.MarkPaid(l.ctx, in.GetOrderNo(), in.GetPaidAmount(), in.GetChannelTradeNo())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mark paid failed")
 	}
@@ -307,7 +307,7 @@ func toOrderInfo(rec *store.OrderRecord) *orderpb.OrderInfo {
 		UpdatedAt:        rec.UpdatedAt.Unix(),
 		ReturnUrl:        rec.ReturnUrl,
 		NotifyUrl:        rec.NotifyUrl,
-		UpstreamTradeNo:  rec.UpstreamTradeNo,
+		ChannelTradeNo:  rec.ChannelTradeNo,
 		PaidAmount:       rec.PaidAmount,
 		ChannelName:      rec.ChannelName,
 	}

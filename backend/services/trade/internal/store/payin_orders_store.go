@@ -55,12 +55,12 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
 `, rec.OrderNo, rec.MerchantId, rec.MerchantOrderNo, rec.Amount, rec.Currency, rec.Status, rec.ChannelId, rec.PayinProductId, nullIfEmpty(rec.PayinProductCode), rec.ChannelLocked, rec.PaidAmount, rec.FeeMode, rec.FeeRateBps, rec.FeeFixedAmount, rec.FeeAmount, rec.NetAmount, rec.ReturnUrl, rec.NotifyUrl).Error
 }
 
-func (s *PayinOrdersStore) MarkPaid(ctx context.Context, orderNo string, paidAmount int64, upstreamTradeNo string) (bool, error) {
+func (s *PayinOrdersStore) MarkPaid(ctx context.Context, orderNo string, paidAmount int64, channelTradeNo string) (bool, error) {
 	tx := s.db.WithContext(ctx).Exec(`
 UPDATE payin_orders
-SET status = ?, paid_amount = ?, upstream_trade_no = ?, updated_at = NOW()
+SET status = ?, paid_amount = ?, channel_trade_no = ?, updated_at = NOW()
 WHERE order_no = ? AND status = ?
-`, OrderStatusPaid, paidAmount, upstreamTradeNo, orderNo, OrderStatusPending)
+`, OrderStatusPaid, paidAmount, channelTradeNo, orderNo, OrderStatusPending)
 	return tx.RowsAffected > 0, tx.Error
 }
 
@@ -149,7 +149,7 @@ SELECT o.order_no, o.merchant_id, o.merchant_order_no, o.amount, o.currency, o.s
   o.payin_product_id, COALESCE(o.payin_product_code,'') AS payin_product_code, o.channel_locked,
   o.paid_amount, o.fee_mode, o.fee_rate_bps, o.fee_fixed_amount, o.fee_amount, o.net_amount,
   COALESCE(o.return_url,'') AS return_url, COALESCE(o.notify_url,'') AS notify_url,
-  COALESCE(o.upstream_trade_no,'') AS upstream_trade_no,
+  COALESCE(o.channel_trade_no,'') AS channel_trade_no,
   o.created_at, o.updated_at,
   COALESCE(c.name,'') AS channel_name
 FROM payin_orders o

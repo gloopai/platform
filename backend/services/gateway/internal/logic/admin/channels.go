@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// AdminChannels 管理后台支付通道（上游）配置。
+// AdminChannels 管理后台支付通道配置。
 type AdminChannels struct {
 	logx.Logger
 	ctx    context.Context
@@ -35,16 +35,16 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 		Id:                     ch.GetId(),
 		Name:                   ch.GetName(),
 		PayinType:              ch.GetPayinType(),
-		UpstreamConfig:         ch.GetUpstreamConfig(),
+		ChannelConfig:          ch.GetChannelConfig(),
 		Weight:                 ch.GetWeight(),
 		MinAmount:              ch.GetMinAmount(),
 		MaxAmount:              ch.GetMaxAmount(),
 		SupportsPayin:          ch.GetSupportsPayin(),
 		SupportsPayout:         ch.GetSupportsPayout(),
-		UpstreamPayinRateBps:   ch.GetUpstreamPayinRateBps(),
-		UpstreamPayoutRateBps:  ch.GetUpstreamPayoutRateBps(),
-		UpstreamPayoutFeeMode:  ch.GetUpstreamPayoutFeeMode(),
-		UpstreamPayoutFixedFee: ch.GetUpstreamPayoutFixedFee(),
+		ChannelPayinRateBps:    ch.GetChannelPayinRateBps(),
+		ChannelPayoutRateBps:   ch.GetChannelPayoutRateBps(),
+		ChannelPayoutFeeMode:   ch.GetChannelPayoutFeeMode(),
+		ChannelPayoutFixedFee:  ch.GetChannelPayoutFixedFee(),
 		Enabled:                ch.GetEnabled(),
 		FuseEnabled:            ch.GetFuseEnabled(),
 	}
@@ -79,16 +79,16 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 	resp, err := c.svcCtx.ChannelRpc.CreateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Name:                   req.Name,
 		PayinType:              req.PayinType,
-		UpstreamConfig:         req.UpstreamConfig,
+		ChannelConfig:          req.ChannelConfig,
 		Weight:                 req.Weight,
 		MinAmount:              req.MinAmount,
 		MaxAmount:              req.MaxAmount,
 		SupportsPayin:          req.SupportsPayin,
 		SupportsPayout:         req.SupportsPayout,
-		UpstreamPayinRateBps:   req.UpstreamPayinRateBps,
-		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
-		UpstreamPayoutFeeMode:  req.UpstreamPayoutFeeMode,
-		UpstreamPayoutFixedFee: req.UpstreamPayoutFixedFee,
+		ChannelPayinRateBps:    req.ChannelPayinRateBps,
+		ChannelPayoutRateBps:   req.ChannelPayoutRateBps,
+		ChannelPayoutFeeMode:   req.ChannelPayoutFeeMode,
+		ChannelPayoutFixedFee:  req.ChannelPayoutFixedFee,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})
@@ -119,16 +119,16 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 		Id:                     req.Id,
 		Name:                   req.Name,
 		PayinType:              req.PayinType,
-		UpstreamConfig:         req.UpstreamConfig,
+		ChannelConfig:          req.ChannelConfig,
 		Weight:                 req.Weight,
 		MinAmount:              req.MinAmount,
 		MaxAmount:              req.MaxAmount,
 		SupportsPayin:          req.SupportsPayin,
 		SupportsPayout:         req.SupportsPayout,
-		UpstreamPayinRateBps:   req.UpstreamPayinRateBps,
-		UpstreamPayoutRateBps:  req.UpstreamPayoutRateBps,
-		UpstreamPayoutFeeMode:  req.UpstreamPayoutFeeMode,
-		UpstreamPayoutFixedFee: req.UpstreamPayoutFixedFee,
+		ChannelPayinRateBps:    req.ChannelPayinRateBps,
+		ChannelPayoutRateBps:   req.ChannelPayoutRateBps,
+		ChannelPayoutFeeMode:   req.ChannelPayoutFeeMode,
+		ChannelPayoutFixedFee:  req.ChannelPayoutFixedFee,
 		Enabled:                req.Enabled,
 		FuseEnabled:            req.FuseEnabled,
 	})

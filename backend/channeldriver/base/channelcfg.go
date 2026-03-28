@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-// ConfigFieldsFromUpstreamJSON extracts common string fields from channels.upstream_config JSON object.
-// Recognized keys: gateway_url, upstream_merchant_no, sign_secret, rsa_private_key.
+// ConfigFieldsFromChannelJSON extracts common string fields from channels.channel_config JSON object.
+// Recognized keys: gateway_url, channel_merchant_no (legacy: upstream_merchant_no), sign_secret, rsa_private_key.
 // Non-object JSON returns empty fields.
-func ConfigFieldsFromUpstreamJSON(raw string) (gatewayURL, merchantNo, signSecret, rsaPEM string) {
+func ConfigFieldsFromChannelJSON(raw string) (gatewayURL, merchantNo, signSecret, rsaPEM string) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
 		return
@@ -18,7 +18,11 @@ func ConfigFieldsFromUpstreamJSON(raw string) (gatewayURL, merchantNo, signSecre
 	if err := json.Unmarshal([]byte(raw), &m); err != nil || m == nil {
 		return
 	}
-	return coerceString(m["gateway_url"]), coerceString(m["upstream_merchant_no"]),
+	mer := coerceString(m["channel_merchant_no"])
+	if mer == "" {
+		mer = coerceString(m["upstream_merchant_no"])
+	}
+	return coerceString(m["gateway_url"]), mer,
 		coerceString(m["sign_secret"]), coerceString(m["rsa_private_key"])
 }
 

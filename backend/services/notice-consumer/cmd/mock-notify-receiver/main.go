@@ -22,7 +22,7 @@ type notifyPayload struct {
 	Currency        string `json:"currency"`
 	Status          int32  `json:"status"`
 	PaidAmount      int64  `json:"paid_amount"`
-	UpstreamTradeNo string `json:"upstream_trade_no"`
+	ChannelTradeNo string `json:"channel_trade_no"`
 	Sign            string `json:"sign"`
 }
 
@@ -80,7 +80,7 @@ func signForPayload(p notifyPayload, secret string) string {
 		"currency":          p.Currency,
 		"status":            strconv.FormatInt(int64(p.Status), 10),
 		"paid_amount":       strconv.FormatInt(p.PaidAmount, 10),
-		"upstream_trade_no": p.UpstreamTradeNo,
+		"channel_trade_no": p.ChannelTradeNo,
 	}
 	return md5Sign(params, secret)
 }

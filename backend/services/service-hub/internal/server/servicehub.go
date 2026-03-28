@@ -208,11 +208,11 @@ func (s *ServiceHubServer) GetAdminUserById(ctx context.Context, req *servicehub
 
 func (s *ServiceHubServer) MarkPayoutSuccess(ctx context.Context, req *servicehub.MarkPayoutSuccessReq) (*servicehub.MarkPayoutResultResp, error) {
 	orderNo := strings.TrimSpace(req.GetOrderNo())
-	upstream := strings.TrimSpace(req.GetUpstreamTradeNo())
+	channelTradeNo := strings.TrimSpace(req.GetChannelTradeNo())
 	if orderNo == "" {
 		return nil, status.Error(codes.InvalidArgument, "order_no required")
 	}
-	changed, err := s.svcCtx.PayoutOrders.MarkSuccess(ctx, orderNo, upstream)
+	changed, err := s.svcCtx.PayoutOrders.MarkSuccess(ctx, orderNo, channelTradeNo)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

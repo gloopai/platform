@@ -17,7 +17,7 @@ type PayoutNotifyRoute func(ctx context.Context, r *http.Request) (cfg *ChannelC
 // onSuccess is called with parsed notify when verification succeeds; if it returns false, PayinNotifyResponse(false) is used.
 func HandlePayinNotify(ctx context.Context, reg *Registry, route PayinNotifyRoute, r *http.Request,
 	onSuccess func(*PayinNotifyParsed) (ok bool, err error),
-) (body []byte, drv PayinUpstream, err error) {
+) (body []byte, drv PayinChannel, err error) {
 	cfg, err := route(ctx, r)
 	if err != nil {
 		return nil, nil, err
@@ -43,7 +43,7 @@ func HandlePayinNotify(ctx context.Context, reg *Registry, route PayinNotifyRout
 // HandlePayoutNotify is the payout analogue of HandlePayinNotify.
 func HandlePayoutNotify(ctx context.Context, reg *Registry, route PayoutNotifyRoute, r *http.Request,
 	onSuccess func(*PayoutNotifyParsed) (ok bool, err error),
-) (body []byte, drv PayoutUpstream, err error) {
+) (body []byte, drv PayoutChannel, err error) {
 	cfg, err := route(ctx, r)
 	if err != nil {
 		return nil, nil, err

@@ -176,7 +176,7 @@ func (c *MerchantConsole) merchantOrders(req *types.MerchantOrdersReq, payout bo
 			FeeFixedAmount:   o.GetFeeFixedAmount(),
 			FeeAmount:        o.GetFeeAmount(),
 			NetAmount:        o.GetNetAmount(),
-			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			ChannelTradeNo:  o.GetChannelTradeNo(),
 			CreatedAt:        o.GetCreatedAt(),
 		})
 	}
@@ -522,7 +522,7 @@ func (c *MerchantConsole) MerchantOrderDetail(req *types.MerchantOrderDetailReq)
 			NetAmount:        o.GetNetAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
-			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			ChannelTradeNo:  o.GetChannelTradeNo(),
 		},
 		Logs: outLogs,
 	}, nil

@@ -597,11 +597,11 @@ func (x *UpsertDisplaySettingsReq) GetMerchantNumericIdStart() int64 {
 }
 
 type MarkPayoutSuccessReq struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo         string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
-	UpstreamTradeNo string                 `protobuf:"bytes,2,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrderNo        string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
+	ChannelTradeNo string                 `protobuf:"bytes,2,opt,name=channel_trade_no,json=channelTradeNo,proto3" json:"channel_trade_no,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MarkPayoutSuccessReq) Reset() {
@@ -641,9 +641,9 @@ func (x *MarkPayoutSuccessReq) GetOrderNo() string {
 	return ""
 }
 
-func (x *MarkPayoutSuccessReq) GetUpstreamTradeNo() string {
+func (x *MarkPayoutSuccessReq) GetChannelTradeNo() string {
 	if x != nil {
-		return x.UpstreamTradeNo
+		return x.ChannelTradeNo
 	}
 	return ""
 }
@@ -3961,10 +3961,10 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x0fcurrency_symbol\x18\x03 \x01(\tR\x0ecurrencySymbol\x12)\n" +
 	"\x11fiat_to_usdt_rate\x18\x04 \x01(\x01R\x0efiatToUsdtRate\x12*\n" +
 	"\x11admin_mfa_enabled\x18\x05 \x01(\x03R\x0fadminMfaEnabled\x129\n" +
-	"\x19merchant_numeric_id_start\x18\x06 \x01(\x03R\x16merchantNumericIdStart\"]\n" +
+	"\x19merchant_numeric_id_start\x18\x06 \x01(\x03R\x16merchantNumericIdStart\"[\n" +
 	"\x14MarkPayoutSuccessReq\x12\x19\n" +
-	"\border_no\x18\x01 \x01(\tR\aorderNo\x12*\n" +
-	"\x11upstream_trade_no\x18\x02 \x01(\tR\x0fupstreamTradeNo\"0\n" +
+	"\border_no\x18\x01 \x01(\tR\aorderNo\x12(\n" +
+	"\x10channel_trade_no\x18\x02 \x01(\tR\x0echannelTradeNo\"0\n" +
 	"\x13MarkPayoutFailedReq\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\"0\n" +
 	"\x14MarkPayoutResultResp\x12\x18\n" +

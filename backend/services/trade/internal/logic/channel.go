@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"errors"
+	"strings"
 
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/trade/internal/svc"
@@ -49,11 +50,19 @@ func NewGetSignSecretLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 	}
 }
 
+// GetSignSecret 当前仅由网关收银台 / OpenAPI 下单链路调用（见 gateway checkout），此处可走 Consul 内存中的通道配置 JSON，避免每次查库。
+// 管理台与其它逻辑请勿新增调用；若需权威数据请读库或 ListChannels/GetChannel。
 func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*channelpb.GetSignSecretResp, error) {
 	if in.GetChannelId() <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "channel_id required")
 	}
-	secret, err := l.svcCtx.Channels.GetSignSecret(l.ctx, in.GetChannelId())
+	override := ""
+	if l.svcCtx.ChannelConfig != nil {
+		if v, ok := l.svcCtx.ChannelConfig.Get(in.GetChannelId()); ok && strings.TrimSpace(v) != "" {
+			override = v
+		}
+	}
+	secret, err := l.svcCtx.Channels.GetSignSecret(l.ctx, in.GetChannelId(), override)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "channel not found")

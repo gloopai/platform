@@ -495,13 +495,13 @@ func (x *GetOrderResp) GetOrder() *OrderInfo {
 }
 
 type MarkPaidReq struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo         string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
-	PaidAmount      int64                  `protobuf:"varint,2,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
-	UpstreamTradeNo string                 `protobuf:"bytes,3,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
-	ChannelId       int64                  `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrderNo        string                 `protobuf:"bytes,1,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`
+	PaidAmount     int64                  `protobuf:"varint,2,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
+	ChannelTradeNo string                 `protobuf:"bytes,3,opt,name=channel_trade_no,json=channelTradeNo,proto3" json:"channel_trade_no,omitempty"`
+	ChannelId      int64                  `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *MarkPaidReq) Reset() {
@@ -548,9 +548,9 @@ func (x *MarkPaidReq) GetPaidAmount() int64 {
 	return 0
 }
 
-func (x *MarkPaidReq) GetUpstreamTradeNo() string {
+func (x *MarkPaidReq) GetChannelTradeNo() string {
 	if x != nil {
-		return x.UpstreamTradeNo
+		return x.ChannelTradeNo
 	}
 	return ""
 }
@@ -619,7 +619,7 @@ type OrderInfo struct {
 	UpdatedAt        int64                  `protobuf:"varint,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	ReturnUrl        string                 `protobuf:"bytes,10,opt,name=return_url,json=returnUrl,proto3" json:"return_url,omitempty"`
 	NotifyUrl        string                 `protobuf:"bytes,11,opt,name=notify_url,json=notifyUrl,proto3" json:"notify_url,omitempty"`
-	UpstreamTradeNo  string                 `protobuf:"bytes,12,opt,name=upstream_trade_no,json=upstreamTradeNo,proto3" json:"upstream_trade_no,omitempty"`
+	ChannelTradeNo   string                 `protobuf:"bytes,12,opt,name=channel_trade_no,json=channelTradeNo,proto3" json:"channel_trade_no,omitempty"`
 	PaidAmount       int64                  `protobuf:"varint,13,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount,omitempty"`
 	PayinProductId   int64                  `protobuf:"varint,14,opt,name=payin_product_id,json=payinProductId,proto3" json:"payin_product_id,omitempty"`
 	PayinProductCode string                 `protobuf:"bytes,15,opt,name=payin_product_code,json=payinProductCode,proto3" json:"payin_product_code,omitempty"`
@@ -745,9 +745,9 @@ func (x *OrderInfo) GetNotifyUrl() string {
 	return ""
 }
 
-func (x *OrderInfo) GetUpstreamTradeNo() string {
+func (x *OrderInfo) GetChannelTradeNo() string {
 	if x != nil {
-		return x.UpstreamTradeNo
+		return x.ChannelTradeNo
 	}
 	return ""
 }
@@ -2124,16 +2124,16 @@ const file_order_proto_rawDesc = "" +
 	"\border_no\x18\x02 \x01(\tR\aorderNo\x12*\n" +
 	"\x11merchant_order_no\x18\x03 \x01(\tR\x0fmerchantOrderNo\"6\n" +
 	"\fGetOrderResp\x12&\n" +
-	"\x05order\x18\x01 \x01(\v2\x10.order.OrderInfoR\x05order\"\x94\x01\n" +
+	"\x05order\x18\x01 \x01(\v2\x10.order.OrderInfoR\x05order\"\x92\x01\n" +
 	"\vMarkPaidReq\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vpaid_amount\x18\x02 \x01(\x03R\n" +
-	"paidAmount\x12*\n" +
-	"\x11upstream_trade_no\x18\x03 \x01(\tR\x0fupstreamTradeNo\x12\x1d\n" +
+	"paidAmount\x12(\n" +
+	"\x10channel_trade_no\x18\x03 \x01(\tR\x0echannelTradeNo\x12\x1d\n" +
 	"\n" +
 	"channel_id\x18\x04 \x01(\x03R\tchannelId\"(\n" +
 	"\fMarkPaidResp\x12\x18\n" +
-	"\achanged\x18\x01 \x01(\bR\achanged\"\xee\x05\n" +
+	"\achanged\x18\x01 \x01(\bR\achanged\"\xec\x05\n" +
 	"\tOrderInfo\x12\x19\n" +
 	"\border_no\x18\x01 \x01(\tR\aorderNo\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\tR\n" +
@@ -2152,8 +2152,8 @@ const file_order_proto_rawDesc = "" +
 	"return_url\x18\n" +
 	" \x01(\tR\treturnUrl\x12\x1d\n" +
 	"\n" +
-	"notify_url\x18\v \x01(\tR\tnotifyUrl\x12*\n" +
-	"\x11upstream_trade_no\x18\f \x01(\tR\x0fupstreamTradeNo\x12\x1f\n" +
+	"notify_url\x18\v \x01(\tR\tnotifyUrl\x12(\n" +
+	"\x10channel_trade_no\x18\f \x01(\tR\x0echannelTradeNo\x12\x1f\n" +
 	"\vpaid_amount\x18\r \x01(\x03R\n" +
 	"paidAmount\x12(\n" +
 	"\x10payin_product_id\x18\x0e \x01(\x03R\x0epayinProductId\x12,\n" +

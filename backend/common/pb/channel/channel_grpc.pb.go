@@ -52,7 +52,7 @@ const (
 type ChannelClient interface {
 	Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
-	// 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error)
 	ListChannels(ctx context.Context, in *ListChannelsReq, opts ...grpc.CallOption) (*ListChannelsResp, error)
 	CreateChannel(ctx context.Context, in *UpsertChannelReq, opts ...grpc.CallOption) (*UpsertChannelResp, error)
@@ -342,7 +342,7 @@ func (c *channelClient) AdminDeletePayoutProductBinding(ctx context.Context, in 
 type ChannelServer interface {
 	Route(context.Context, *RouteReq) (*RouteResp, error)
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
-	// 按主键取单条通道（供上游回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
+	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error)
 	ListChannels(context.Context, *ListChannelsReq) (*ListChannelsResp, error)
 	CreateChannel(context.Context, *UpsertChannelReq) (*UpsertChannelResp, error)

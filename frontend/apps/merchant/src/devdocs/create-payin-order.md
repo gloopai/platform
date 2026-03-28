@@ -46,4 +46,4 @@
 
 ## 异步通知（支付成功等）
 
-平台向 `notify_url` 投递的 JSON **不包含** `channel_id`（上游路由为平台内部信息）。参与签名的字段与业务字段以 `notice-consumer` 实现为准，一般包含 `order_no`、`merchant_id`、`merchant_order_no`、`amount`、`currency`、`status`、`paid_amount`、`upstream_trade_no`（平台侧交易参考号）、`sign`。
+平台向 `notify_url` 投递的 JSON **不包含** `channel_id`（通道路由为平台内部信息）。参与签名的字段与业务字段以 `notice-consumer` 实现为准，一般包含 `order_no`、`merchant_id`、`merchant_order_no`、`amount`、`currency`、`status`、`paid_amount`、`channel_trade_no`（平台侧交易参考号）、`sign`。

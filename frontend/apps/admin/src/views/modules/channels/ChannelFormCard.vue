@@ -75,23 +75,23 @@
           >
             <div>
               <div class="text-[11px] font-medium text-slate-700">熔断</div>
-              <p class="mt-0.5 text-[10px] text-slate-500">开启后快速失败，用于上游异常时保护。</p>
+              <p class="mt-0.5 text-[10px] text-slate-500">开启后快速失败，用于通道异常时保护。</p>
             </div>
             <input v-model="model.fuse_enabled" type="checkbox" class="h-4 w-4 shrink-0 rounded border-slate-300 text-slate-900" />
           </label>
         </div>
       </div>
 
-      <!-- 上游对接 -->
-      <div v-if="section === 'upstream'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
-        <div class="text-xs font-semibold text-slate-800">上游对接配置（JSON）</div>
+      <!-- 通道对接 -->
+      <div v-if="section === 'channelConfig'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
+        <div class="text-xs font-semibold text-slate-800">通道对接配置（JSON）</div>
         <p class="mt-0.5 text-[11px] text-slate-500">
-          整段文本存入数据库；保存时校验是否为合法 JSON。结构由你方与上游约定，读配置时再解析即可。
+          整段文本存入数据库；保存时校验是否为合法 JSON。结构由你方与通道(PSP)约定，读配置时再解析即可。
         </p>
         <label class="mt-2.5 grid gap-1 text-[11px] font-medium text-slate-600">
           <span>配置内容</span>
           <textarea
-            v-model="upstreamJsonText"
+            v-model="channelConfigJsonText"
             spellcheck="false"
             rows="18"
             class="min-h-[14rem] w-full resize-y rounded-md border border-slate-200 bg-white px-2.5 py-2 font-mono text-[11px] leading-relaxed"
@@ -130,24 +130,24 @@
       </div>
 
       <div v-if="section === 'rates'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
-        <div class="text-xs font-semibold text-slate-800">上游代收成本</div>
-        <p class="mt-0.5 text-[11px] text-slate-500">平台相对上游的代收成本；比例按百分数填写（保存为万分比整数）。</p>
+        <div class="text-xs font-semibold text-slate-800">通道代收成本</div>
+        <p class="mt-0.5 text-[11px] text-slate-500">平台相对通道的代收成本；比例按百分数填写（保存为万分比整数）。</p>
         <label class="mt-2.5 grid max-w-md gap-0.5 text-[11px] font-medium text-slate-600">
           {{ LABEL_CHANNEL_PAYIN_RATE }}
           <input
-            :value="bpsToPercentInputValue(model.upstream_payin_rate_bps)"
+            :value="bpsToPercentInputValue(model.channel_payin_rate_bps)"
             type="number"
             min="0"
             step="0.01"
             class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm tabular-nums"
-            @input="onUpstreamPayinPercentInput($event)"
+            @input="onChannelPayinPercentInput($event)"
           />
         </label>
       </div>
 
       <div v-if="section === 'rates'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
-        <div class="text-xs font-semibold text-slate-800">上游代付成本</div>
-        <p class="mt-0.5 text-[11px] text-slate-500">需开启「支持代付」后用于上游成本核算。</p>
+        <div class="text-xs font-semibold text-slate-800">通道代付成本</div>
+        <p class="mt-0.5 text-[11px] text-slate-500">需开启「支持代付」后用于通道成本核算。</p>
         <div v-if="!model.supports_payout" class="mt-2.5 rounded-lg border border-dashed border-slate-200 bg-white/60 px-3 py-4 text-center text-[11px] text-slate-500">
           当前未开启代付，可先打开「支持代付」再配置下方字段。
         </div>
@@ -155,24 +155,24 @@
           <label class="grid gap-0.5 text-[11px] font-medium text-slate-600 sm:col-span-4">
             {{ LABEL_CHANNEL_PAYOUT_RATE }}
             <input
-              :value="bpsToPercentInputValue(model.upstream_payout_rate_bps)"
-              type="number"
-              min="0"
-              step="0.01"
-              class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm tabular-nums"
-              @input="onUpstreamPayoutPercentInput($event)"
-            />
+            :value="bpsToPercentInputValue(model.channel_payout_rate_bps)"
+            type="number"
+            min="0"
+            step="0.01"
+            class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm tabular-nums"
+            @input="onChannelPayoutPercentInput($event)"
+          />
           </label>
           <label class="grid gap-0.5 text-[11px] font-medium text-slate-600 sm:col-span-4">
             {{ LABEL_CHANNEL_PAYOUT_FEE_MODE }}
-            <select v-model.number="model.upstream_payout_fee_mode" class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm">
+            <select v-model.number="model.channel_payout_fee_mode" class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm">
               <option v-for="opt in FEE_MODE_SELECT_OPTIONS" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
             </select>
           </label>
           <label class="grid gap-0.5 text-[11px] font-medium text-slate-600 sm:col-span-4">
             {{ LABEL_CHANNEL_PAYOUT_FIXED }}
             <input
-              v-model.number="model.upstream_payout_fixed_fee"
+              v-model.number="model.channel_payout_fixed_fee"
               type="number"
               min="0"
               class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm tabular-nums"
@@ -219,7 +219,7 @@ import {
 import { bpsToPercentInputValue, percentToBps } from '../../../lib/ratePercent'
 import type { AdminChannel } from './types'
 
-export type ChannelFormSection = 'basic' | 'upstream' | 'rates'
+export type ChannelFormSection = 'basic' | 'channelConfig' | 'rates'
 
 const model = defineModel<AdminChannel>({ required: true })
 
@@ -236,52 +236,52 @@ const props = withDefaults(
   { embedded: false, hideFooterActions: false },
 )
 
-const upstreamJsonText = ref('')
+const channelConfigJsonText = ref('')
 
-function syncUpstreamJsonFromModel() {
-  upstreamJsonText.value = model.value.upstream_config ?? ''
+function syncChannelConfigJsonFromModel() {
+  channelConfigJsonText.value = model.value.channel_config ?? ''
 }
 
 watch(
-  () => model.value.upstream_config,
+  () => model.value.channel_config,
   () => {
-    if (props.section !== 'upstream') return
-    syncUpstreamJsonFromModel()
+    if (props.section !== 'channelConfig') return
+    syncChannelConfigJsonFromModel()
   },
   { immediate: true },
 )
 
-/** 将上游 JSON 写回 model；成功返回 null，失败返回错误文案（供保存前校验）。 */
-function applyUpstreamJsonToModel(): string | null {
-  if (props.section !== 'upstream') return null
+/** 将通道对接 JSON 写回 model；成功返回 null，失败返回错误文案（供保存前校验）。 */
+function applyChannelConfigJsonToModel(): string | null {
+  if (props.section !== 'channelConfig') return null
   try {
-    const raw = upstreamJsonText.value.trim()
+    const raw = channelConfigJsonText.value.trim()
     if (raw === '') {
-      model.value.upstream_config = ''
+      model.value.channel_config = ''
       return null
     }
     const parsed: unknown = JSON.parse(raw)
-    model.value.upstream_config = JSON.stringify(parsed, null, 2)
-    syncUpstreamJsonFromModel()
+    model.value.channel_config = JSON.stringify(parsed, null, 2)
+    syncChannelConfigJsonFromModel()
     return null
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    return `上游对接 JSON 无法解析：${msg}`
+    return `通道对接 JSON 无法解析：${msg}`
   }
 }
 
-defineExpose({ applyUpstreamJsonToModel })
+defineExpose({ applyChannelConfigJsonToModel })
 
-function onUpstreamPayinPercentInput(e: Event) {
+function onChannelPayinPercentInput(e: Event) {
   const raw = (e.target as HTMLInputElement).value
   const n = parseFloat(raw)
-  model.value.upstream_payin_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
+  model.value.channel_payin_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
 }
 
-function onUpstreamPayoutPercentInput(e: Event) {
+function onChannelPayoutPercentInput(e: Event) {
   const raw = (e.target as HTMLInputElement).value
   const n = parseFloat(raw)
-  model.value.upstream_payout_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
+  model.value.channel_payout_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
 }
 
 defineEmits<{
@@ -293,8 +293,8 @@ const panelTitle = computed(() => {
   switch (props.section) {
     case 'basic':
       return '基本设置'
-    case 'upstream':
-      return '上游对接'
+    case 'channelConfig':
+      return '通道对接'
     case 'rates':
       return '费率与能力'
     default:
@@ -308,10 +308,10 @@ const panelSubtitle = computed(() => {
   switch (props.section) {
     case 'basic':
       return `${hint} · 名称、类型、限额与运行开关。`
-    case 'upstream':
-      return `${hint} · 上游对接 JSON（API、商户号、密钥与私钥）。`
+    case 'channelConfig':
+      return `${hint} · 通道对接 JSON（API、商户号、密钥与私钥）。`
     case 'rates':
-      return `${hint} · 代收/代付能力与上游费率参数。`
+      return `${hint} · 代收/代付能力与通道费率参数。`
     default:
       return hint
   }

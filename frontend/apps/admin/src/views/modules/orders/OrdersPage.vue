@@ -128,9 +128,9 @@
               <td class="max-w-[12rem] px-4 py-3">
                 <div
                   class="truncate text-xs text-slate-600"
-                  :title="o.upstream_trade_no || ''"
+                  :title="o.channel_trade_no || ''"
                 >
-                  {{ o.upstream_trade_no || '—' }}
+                  {{ o.channel_trade_no || '—' }}
                 </div>
               </td>
               <td class="max-w-[11rem] px-4 py-3">

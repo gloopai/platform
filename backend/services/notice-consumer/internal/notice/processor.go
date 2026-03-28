@@ -130,7 +130,7 @@ type orderRow struct {
 	Amount          int64
 	Currency        string
 	Status          int32
-	UpstreamTradeNo string
+	ChannelTradeNo  string
 	PaidAmount      int64
 }
 
@@ -154,8 +154,8 @@ func loadMerchant(ctx context.Context, db *gorm.DB, merchantId string) (string, 
 func loadOrder(ctx context.Context, db *gorm.DB, orderNo string) (*orderRow, error) {
 	var o orderRow
 	tx := db.WithContext(ctx).
-		Table("orders").
-		Select("order_no, merchant_id, merchant_order_no, amount, currency, status, COALESCE(upstream_trade_no,'') AS upstream_trade_no, paid_amount").
+		Table("payin_orders").
+		Select("order_no, merchant_id, merchant_order_no, amount, currency, status, COALESCE(channel_trade_no,'') AS channel_trade_no, paid_amount").
 		Where("order_no = ?", orderNo).
 		Limit(1).
 		Take(&o)
@@ -174,7 +174,7 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 		"currency":          o.Currency,
 		"status":            strconv.FormatInt(int64(o.Status), 10),
 		"paid_amount":       strconv.FormatInt(o.PaidAmount, 10),
-		"upstream_trade_no": o.UpstreamTradeNo,
+		"channel_trade_no": o.ChannelTradeNo,
 	}
 	sign := md5Sign(params, secret)
 	out := map[string]any{
@@ -185,7 +185,7 @@ func buildWebhookBody(o *orderRow, secret string) ([]byte, error) {
 		"currency":          o.Currency,
 		"status":            o.Status,
 		"paid_amount":       o.PaidAmount,
-		"upstream_trade_no": o.UpstreamTradeNo,
+		"channel_trade_no": o.ChannelTradeNo,
 		"sign":              sign,
 	}
 	return json.Marshal(out)

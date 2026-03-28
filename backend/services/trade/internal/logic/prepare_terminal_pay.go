@@ -9,6 +9,7 @@ import (
 
 	"github.com/gloopai/pay/channeldriver"
 	orderpb "github.com/gloopai/pay/common/pb/order"
+	"github.com/gloopai/pay/trade/internal/kvcache"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/gloopai/pay/trade/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -121,11 +122,13 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 	}
 	dk := strings.TrimSpace(chRow.PayinType)
 	gw := chRow.GatewayUrl
-	mer := chRow.UpstreamMerchantNo
+	mer := chRow.ChannelMerchantNo
 	sig := chRow.SignSecret
 	rsa := chRow.RsaPrivateKey
-	if uc := strings.TrimSpace(chRow.UpstreamConfig); uc != "" {
-		jg, jm, js, jr := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+	// OpenAPI 收银台下单热路径：优先 Consul 内存中的通道配置 JSON（channels.channel_config），与库表双写一致时可降低路径延迟。
+	cfgJSON := kvcache.PickChannelConfig(l.svcCtx.ChannelConfig, chRow.ID, chRow.ChannelConfig)
+	if uc := strings.TrimSpace(cfgJSON); uc != "" {
+		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
 		if jg != "" {
 			gw = jg
 		}
@@ -167,11 +170,11 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 					PayinProductCode: code,
 					PayUrl:           payURL,
 					QrPayload:        payURL,
-					PayMode:          "upstream",
+					PayMode:          "channel",
 				}, nil
 			}
 			if cerr != nil {
-				l.Errorf("upstream CreatePayment channel_id=%d driver=%s err=%v", chID, dk, cerr)
+				l.Errorf("channel CreatePayment channel_id=%d driver=%s err=%v", chID, dk, cerr)
 			}
 		}
 	}

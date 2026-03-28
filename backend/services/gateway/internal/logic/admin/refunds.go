@@ -104,7 +104,7 @@ func (a *AdminRefunds) AdminListRefundCandidates(req *types.AdminRefundsReq) (*t
 			StatusLabel:     label,
 			ChannelId:       o.GetChannelId(),
 			PayinProductCode:  o.GetPayinProductCode(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			ChannelTradeNo: o.GetChannelTradeNo(),
 			CreatedAt:       o.GetCreatedAt(),
 		})
 	}

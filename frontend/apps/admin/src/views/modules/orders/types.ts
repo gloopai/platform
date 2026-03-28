@@ -20,7 +20,7 @@ export type AdminOrderRow = {
   fee_fixed_amount: number
   fee_amount: number
   net_amount: number
-  upstream_trade_no: string
+  channel_trade_no: string
   created_at: number
 }
 

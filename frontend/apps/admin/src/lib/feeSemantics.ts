@@ -3,7 +3,7 @@
  * 与 DB / API 字段对应关系见仓库 docs/payment-fee-naming.md。
  */
 
-/** 计费模式，与 fee_mode、upstream_payout_fee_mode 取值一致。 */
+/** 计费模式，与 fee_mode、channel_payout_fee_mode 取值一致。 */
 export const FeeMode = {
   /** 仅按比例（展示为百分数，存万分比整数） */
   RateOnly: 1,
@@ -37,20 +37,20 @@ export const FEE_MODE_SELECT_OPTIONS: { value: number; label: string }[] = [
 ]
 
 // —— 比例费率：界面用百分数；API/DB 仍为 *_rate_bps（= round(百分数×100)）——
-/** merchant_rate_bps、fee_rate_bps、upstream_*_rate_bps */
+/** merchant_rate_bps、fee_rate_bps、channel_*_rate_bps */
 export const LABEL_RATE_BPS = '比例费率（%）'
 
 // —— 固定金额（单位：分）——
-/** fee_fixed_amount、upstream_payout_fixed_fee */
+/** fee_fixed_amount、channel_payout_fixed_fee */
 export const LABEL_FIXED_FEN = '固定手续费（分）'
 
 export const LABEL_FEE_MODE = '计费模式'
 
-// —— 通道：上游成本 ——
-export const LABEL_CHANNEL_PAYIN_RATE = '上游代收 — 比例费率（%）'
-export const LABEL_CHANNEL_PAYOUT_RATE = '上游代付 — 比例费率（%）'
-export const LABEL_CHANNEL_PAYOUT_FEE_MODE = '上游代付 — 计费模式'
-export const LABEL_CHANNEL_PAYOUT_FIXED = '上游代付 — 固定手续费（分）'
+// —— 通道成本 ——
+export const LABEL_CHANNEL_PAYIN_RATE = '通道代收 — 比例费率（%）'
+export const LABEL_CHANNEL_PAYOUT_RATE = '通道代付 — 比例费率（%）'
+export const LABEL_CHANNEL_PAYOUT_FEE_MODE = '通道代付 — 计费模式'
+export const LABEL_CHANNEL_PAYOUT_FIXED = '通道代付 — 固定手续费（分）'
 
 // —— 商户授权：对客规则 ——
 export const LABEL_MERCHANT_PAYIN_RATE = '对客代收 — 比例费率（%）'

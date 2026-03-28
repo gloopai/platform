@@ -17,9 +17,9 @@ type (
 	QueryPaymentResp    = base.QueryPaymentResp
 	MakeupReq           = base.MakeupReq
 	PayinNotifyParsed   = base.PayinNotifyParsed
-	PayinUpstream       = base.PayinUpstream
-	PayoutUpstream      = base.PayoutUpstream
-	BalanceUpstream     = base.BalanceUpstream
+	PayinChannel       = base.PayinChannel
+	PayoutChannel      = base.PayoutChannel
+	BalanceChannel     = base.BalanceChannel
 	CreatePayoutReq     = base.CreatePayoutReq
 	CreatePayoutResp    = base.CreatePayoutResp
 	QueryPayoutReq      = base.QueryPayoutReq
@@ -35,7 +35,7 @@ type (
 )
 
 const (
-	DefaultUpstreamNotifyContentType = base.DefaultUpstreamNotifyContentType
+	DefaultChannelNotifyContentType = base.DefaultChannelNotifyContentType
 
 	PayinStatusUnknown    = base.PayinStatusUnknown
 	PayinStatusProcessing = base.PayinStatusProcessing
@@ -66,29 +66,29 @@ func ConfigFromDriverKey(channelID int64, driverKey, gatewayBaseURL, appID, sign
 	return base.ConfigFromDriverKey(channelID, driverKey, gatewayBaseURL, appID, signSecret, rsaPEM, payin, payout)
 }
 
-// ConfigFieldsFromUpstreamJSON extracts common keys from channels.upstream_config JSON.
-func ConfigFieldsFromUpstreamJSON(raw string) (gatewayURL, merchantNo, signSecret, rsaPEM string) {
-	return base.ConfigFieldsFromUpstreamJSON(raw)
+// ConfigFieldsFromChannelJSON extracts common keys from channels.channel_config JSON.
+func ConfigFieldsFromChannelJSON(raw string) (gatewayURL, merchantNo, signSecret, rsaPEM string) {
+	return base.ConfigFieldsFromChannelJSON(raw)
 }
 
 // NotifyContentType returns the HTTP Content-Type for the response body returned to the PSP.
 func NotifyContentType(drv any) string { return base.NotifyContentType(drv) }
 
-// WriteUpstreamNotify writes body and Content-Type for a successful notify handling path.
-func WriteUpstreamNotify(w http.ResponseWriter, drv any, body []byte) {
-	base.WriteUpstreamNotify(w, drv, body)
+// WriteChannelNotify writes body and Content-Type for a successful notify handling path.
+func WriteChannelNotify(w http.ResponseWriter, drv any, body []byte) {
+	base.WriteChannelNotify(w, drv, body)
 }
 
 // HandlePayinNotify is a helper: resolve config, load driver, verify, return body bytes for the PSP.
 func HandlePayinNotify(ctx context.Context, reg *Registry, route PayinNotifyRoute, r *http.Request,
 	onSuccess func(*PayinNotifyParsed) (ok bool, err error),
-) (body []byte, drv PayinUpstream, err error) {
+) (body []byte, drv PayinChannel, err error) {
 	return base.HandlePayinNotify(ctx, reg, route, r, onSuccess)
 }
 
 // HandlePayoutNotify is the payout analogue of HandlePayinNotify.
 func HandlePayoutNotify(ctx context.Context, reg *Registry, route PayoutNotifyRoute, r *http.Request,
 	onSuccess func(*PayoutNotifyParsed) (ok bool, err error),
-) (body []byte, drv PayoutUpstream, err error) {
+) (body []byte, drv PayoutChannel, err error) {
 	return base.HandlePayoutNotify(ctx, reg, route, r, onSuccess)
 }

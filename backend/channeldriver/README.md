@@ -1,14 +1,14 @@
 # channeldriver
 
-上游 PSP / 支付通道对接模块：`driver_key` 对应一套协议实现，与 `channels` 表中的配置行组合使用。业务订单、清结算仍在 trade/core/gateway；本模块只负责 **与上游的 HTTP、签名、字段映射**。
+PSP / 支付通道对接模块：`driver_key` 对应一套协议实现，与 `channels` 表中的配置行组合使用。业务订单、清结算仍在 trade/core/gateway；本模块只负责 **与通道(PSP)的 HTTP、签名、字段映射**。
 
 ## 目录结构
 
 | 路径 | 说明 |
 |------|------|
-| [`base/`](base/) | **契约与基础设施**：`ChannelConfig`、错误码、`PayinUpstream` / `PayoutUpstream` / `BalanceUpstream`、`Registry`、回调辅助 `HandlePayinNotify` / `HandlePayoutNotify`、HTTP 写回 `WriteUpstreamNotify` |
+| [`base/`](base/) | **契约与基础设施**：`ChannelConfig`、错误码、`PayinChannel` / `PayoutChannel` / `BalanceChannel`、`Registry`、回调辅助 `HandlePayinNotify` / `HandlePayoutNotify`、HTTP 写回 `WriteChannelNotify` |
 | 根包 `channeldriver` | 对 `base` 的 **重新导出**（`reexport.go`），服务可继续只 `import "github.com/gloopai/pay/channeldriver"` |
-| [`mockpsp/`](mockpsp/) | 内存模拟上游，用于联调与单测 |
+| [`mockpsp/`](mockpsp/) | 内存模拟 PSP，用于联调与单测 |
 
 ## 如何对接新通道
 
@@ -21,9 +21,9 @@
 
 在 `backend/channeldriver/<yourpsp>/` 下实现：
 
-- **`PayinUpstream`**（[`base/payin.go`](base/payin.go)）：`CreatePayment`、`QueryPayment`、`Makeup`（可选 `ErrUnsupported`）、`VerifyPayinNotify`、`PayinNotifyResponse`。
-- **`PayoutUpstream`**（[`base/payout.go`](base/payout.go)）：代付创建/查询/回调验签（若该上游暂不接代付，可先不注册）。
-- **`BalanceUpstream`**（[`base/balance.go`](base/balance.go)）：可选。
+- **`PayinChannel`**（[`base/payin.go`](base/payin.go)）：`CreatePayment`、`QueryPayment`、`Makeup`（可选 `ErrUnsupported`）、`VerifyPayinNotify`、`PayinNotifyResponse`。
+- **`PayoutChannel`**（[`base/payout.go`](base/payout.go)）：代付创建/查询/回调验签（若该通道暂不接代付，可先不注册）。
+- **`BalanceChannel`**（[`base/balance.go`](base/balance.go)）：可选。
 
 实现须 **并发安全**；每次调用带上该通道行的 **`ChannelConfig`**（网关从 DB 组装，见下）。
 
@@ -44,9 +44,9 @@ _ = yourpsp.RegisterAll(reg, yourpsp.New(yourpsp.DefaultDriverKey))
 
 | 环节 | 说明 |
 |------|------|
-| **trade** | `PrepareTerminalPay`：若 `payin_type` 命中已注册驱动且配置了 `Upstream.CheckoutNotifyBaseURL`，则调 `CreatePayment` 并填上游异步 `notifyUrl`。 |
-| **gateway OpenAPIServer**（`/v1/callback/*` 与开放接口同端口 `:8090`） | 上游异步回调入口（如 `POST /v1/callback/upstream/payin`）内：`ConfigFromDriverKey` + `VerifyPayinNotify`，成功后走平台入账逻辑；响应体通常用 `WriteUpstreamNotify`。 |
-| **数据库** | 插入/迁移 `channels` 行：`payin_type` = `driver_key`，`upstream_merchant_no`、`sign_secret`、`gateway_url`（若需）等与上游文档一致。 |
+| **trade** | `PrepareTerminalPay`：若 `payin_type` 命中已注册驱动且配置了 `Upstream.CheckoutNotifyBaseURL`，则调 `CreatePayment` 并填通道异步 `notifyUrl`。 |
+| **gateway OpenAPIServer**（`/v1/callback/*` 与开放接口同端口 `:8090`） | 通道异步回调入口（如 `POST /v1/callback/upstream/payin`）内：`ConfigFromDriverKey` + `VerifyPayinNotify`，成功后走平台入账逻辑；响应体通常用 `WriteChannelNotify`。 |
+| **数据库** | 插入/迁移 `channels` 行：`payin_type` = `driver_key`，`channel_merchant_no`、`sign_secret`、`gateway_url`（若需）等与 PSP 文档一致。 |
 
 更细的 HTTP 字段约定见 [`docs/in/README.md`](../../docs/in/README.md)（印度示例 PSP）。
 

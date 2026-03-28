@@ -1,4 +1,4 @@
-// Package base holds upstream payment channel (PSP) contracts: config, interfaces, registry,
+// Package base holds payment channel (PSP) contracts: config, interfaces, registry,
 // and helpers. Import path: github.com/gloopai/pay/channeldriver/base.
 //
 // The root package channeldriver re-exports these symbols for convenience; new channel

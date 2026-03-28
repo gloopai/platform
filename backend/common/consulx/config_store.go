@@ -151,6 +151,43 @@ func (s *ConfigStore) WatchKey(key string) {
 	go s.watchKey(key)
 }
 
+// SyncPrefixOnce performs one blocking List(prefix) (same as the first long-poll in watchPrefix with index 0)
+// and merges results into the in-memory cache. Use after Start() to avoid racing the initial watch goroutine.
+func (s *ConfigStore) SyncPrefixOnce(ctx context.Context, prefix string) error {
+	prefix = strings.TrimSpace(prefix)
+	if prefix == "" {
+		return errors.New("prefix required")
+	}
+	if !strings.HasSuffix(prefix, "/") {
+		prefix += "/"
+	}
+	_, err := s.pullPrefix(prefix, 0)
+	return err
+}
+
+// ForEachPrefix invokes fn for every cached key under prefix (read lock). Prefix should end with "/".
+func (s *ConfigStore) ForEachPrefix(prefix string, fn func(key string, data []byte)) {
+	if fn == nil {
+		return
+	}
+	prefix = strings.TrimSpace(prefix)
+	if prefix == "" {
+		return
+	}
+	if !strings.HasSuffix(prefix, "/") {
+		prefix += "/"
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for k, v := range s.data {
+		if strings.HasPrefix(k, prefix) {
+			out := make([]byte, len(v))
+			copy(out, v)
+			fn(k, out)
+		}
+	}
+}
+
 func (s *ConfigStore) GetBytes(key string) ([]byte, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

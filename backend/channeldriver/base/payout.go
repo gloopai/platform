@@ -14,8 +14,8 @@ const (
 	PayoutWayUPI
 )
 
-// PayoutUpstream is one registered protocol for payout (代付).
-type PayoutUpstream interface {
+// PayoutChannel is one registered protocol for payout (代付).
+type PayoutChannel interface {
 	Key() string
 
 	CreatePayout(ctx context.Context, cfg *ChannelConfig, req *CreatePayoutReq) (*CreatePayoutResp, error)
@@ -46,7 +46,7 @@ type CreatePayoutReq struct {
 
 // CreatePayoutResp is upstream response after create payout.
 type CreatePayoutResp struct {
-	UpstreamOrderNo string // sysOrderNo
+	ChannelOrderNo string // sysOrderNo
 }
 
 // QueryPayoutReq queries by merchant order number.
@@ -67,7 +67,7 @@ const (
 // QueryPayoutResp is normalized payout query result.
 type QueryPayoutResp struct {
 	MerchantOrderNo string
-	UpstreamOrderNo string
+	ChannelOrderNo string
 	AmountMinor     int64
 	Status          PayoutOrderStatus
 	ReferenceNo     string // UTR
@@ -77,7 +77,7 @@ type QueryPayoutResp struct {
 // PayoutNotifyParsed is verified payout callback for platform.
 type PayoutNotifyParsed struct {
 	MerchantOrderNo string
-	UpstreamOrderNo string
+	ChannelOrderNo string
 	AmountMinor     int64
 	Status          PayoutOrderStatus
 	ReferenceNo     string // UTR

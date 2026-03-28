@@ -102,8 +102,8 @@
           <input v-model.number="mockPaidAmount" type="number" min="1" class="input-merchant tabular-nums" />
         </label>
         <label class="col-span-12 grid gap-1.5 md:col-span-4">
-          <span class="text-xs font-medium text-slate-600">upstream_trade_no</span>
-          <input v-model.trim="mockUpstreamTradeNo" class="input-merchant font-mono text-xs" />
+          <span class="text-xs font-medium text-slate-600">channel_trade_no</span>
+          <input v-model.trim="mockChannelTradeNo" class="input-merchant font-mono text-xs" />
         </label>
         <label class="col-span-12 grid gap-1.5">
           <span class="text-xs font-medium text-slate-600">channel_sign_secret</span>
@@ -115,12 +115,12 @@
         <button
           type="button"
           class="btn-primary"
-          :disabled="mockLoading || !result?.order_no || mockChannelId <= 0 || mockPaidAmount <= 0 || !mockUpstreamTradeNo || !mockChannelSecret"
+          :disabled="mockLoading || !result?.order_no || mockChannelId <= 0 || mockPaidAmount <= 0 || !mockChannelTradeNo || !mockChannelSecret"
           @click="mockNotify"
         >
           {{ mockLoading ? '回调中…' : '触发支付成功' }}
         </button>
-        <button type="button" class="btn-secondary" @click="regenUpstreamTradeNo">重新生成上游单号</button>
+        <button type="button" class="btn-secondary" @click="regenChannelTradeNo">重新生成通道单号</button>
       </div>
 
       <details class="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
@@ -217,7 +217,7 @@ const queryResultText = ref('')
 
 const mockChannelId = ref(1)
 const mockPaidAmount = ref(amount.value)
-const mockUpstreamTradeNo = ref(`UP-${Date.now()}`)
+const mockChannelTradeNo = ref(`UP-${Date.now()}`)
 const mockChannelSecret = ref('channel_secret')
 const mockLoading = ref(false)
 const mockError = ref('')
@@ -252,8 +252,8 @@ function regenOrderNo() {
   merchantOrderNo.value = `MO-${Date.now()}`
 }
 
-function regenUpstreamTradeNo() {
-  mockUpstreamTradeNo.value = `UP-${Date.now()}`
+function regenChannelTradeNo() {
+  mockChannelTradeNo.value = `UP-${Date.now()}`
 }
 
 async function createOrder() {
@@ -329,7 +329,7 @@ async function mockNotify() {
     const params: Record<string, string> = {
       order_no: result.value.order_no,
       paid_amount: String(mockPaidAmount.value),
-      upstream_trade_no: mockUpstreamTradeNo.value,
+      channel_trade_no: mockChannelTradeNo.value,
       channel_id: String(mockChannelId.value),
     }
     const sign = md5Sign(params, mockChannelSecret.value)
@@ -339,10 +339,10 @@ async function mockNotify() {
       body: JSON.stringify({ ...params, sign }),
     })
     const text = await resp.text()
-    type UpstreamNotifyData = { ok: boolean; reason_code?: string; reason?: string }
-    let data: UpstreamNotifyData
+    type ChannelNotifyData = { ok: boolean; reason_code?: string; reason?: string }
+    let data: ChannelNotifyData
     try {
-      data = unwrapApiData(parseApiEnvelope<UpstreamNotifyData>(text))
+      data = unwrapApiData(parseApiEnvelope<ChannelNotifyData>(text))
     } catch (e) {
       mockError.value = e instanceof Error ? e.message : formatOpenApiErrorBody(text)
       return

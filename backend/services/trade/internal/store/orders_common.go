@@ -32,7 +32,7 @@ type OrderRecord struct {
 	ChannelLocked   int32
 	ReturnUrl       string
 	NotifyUrl       string
-	UpstreamTradeNo string
+	ChannelTradeNo string
 	PaidAmount      int64
 	FeeMode         int64
 	FeeRateBps      int64
@@ -70,7 +70,7 @@ func scanOrder(row rowScanner) (*OrderRecord, error) {
 		&rec.NetAmount,
 		&rec.ReturnUrl,
 		&rec.NotifyUrl,
-		&rec.UpstreamTradeNo,
+		&rec.ChannelTradeNo,
 		&rec.CreatedAt,
 		&rec.UpdatedAt,
 	)

@@ -186,7 +186,7 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 			NetAmount:        o.GetNetAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
-			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			ChannelTradeNo:  o.GetChannelTradeNo(),
 		},
 	}, nil
 }
@@ -392,7 +392,7 @@ func (c *Checkout) QueryPayoutOrder(req *types.QueryOrderReq) (*types.QueryOrder
 			FeeAmount:        o.GetFeeAmount(),
 			NetAmount:        o.GetNetAmount(),
 			NotifyUrl:        o.GetNotifyUrl(),
-			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			ChannelTradeNo:  o.GetChannelTradeNo(),
 		},
 	}, nil
 }
@@ -486,7 +486,7 @@ func (c *Checkout) TerminalOrder(req *types.TerminalOrderReq) (resp *types.Termi
 			NetAmount:        o.GetNetAmount(),
 			ReturnUrl:        o.GetReturnUrl(),
 			NotifyUrl:        o.GetNotifyUrl(),
-			UpstreamTradeNo:  o.GetUpstreamTradeNo(),
+			ChannelTradeNo:  o.GetChannelTradeNo(),
 		},
 		PayinProducts: items,
 	}, nil
@@ -535,9 +535,9 @@ func (c *Checkout) TerminalPay(req *types.TerminalPayReq) (*types.TerminalPayRes
 	}, nil
 }
 
-func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.UpstreamNotifyResp, err error) {
+func (c *Checkout) ChannelNotify(req *types.ChannelNotifyReq) (resp *types.ChannelNotifyResp, err error) {
 	reqID := requestx.FromContext(c.ctx)
-	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.UpstreamTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
+	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.ChannelTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
 		return notifyFail(NotifyCodeInvalidNotifyParams, "invalid notify params"), nil
 	}
 
@@ -549,7 +549,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 	expect := middleware.Md5Sign(map[string]string{
 		"order_no":          req.OrderNo,
 		"paid_amount":       strconv.FormatInt(req.PaidAmount, 10),
-		"upstream_trade_no": req.UpstreamTradeNo,
+		"channel_trade_no": req.ChannelTradeNo,
 		"channel_id":        strconv.FormatInt(req.ChannelId, 10),
 		"sign":              req.Sign,
 	}, signResp.GetSignSecret())
@@ -557,10 +557,10 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return notifyFail(NotifyCodeInvalidSign, "invalid sign"), nil
 	}
 
-	return c.upstreamNotifyCore(reqID, req)
+	return c.channelNotifyCore(reqID, req)
 }
 
-func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderInfo, req *types.UpstreamNotifyReq, okCode, okReason string) (*types.UpstreamNotifyResp, error) {
+func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderInfo, req *types.ChannelNotifyReq, okCode, okReason string) (*types.ChannelNotifyResp, error) {
 	creditAmount := req.PaidAmount
 	if o.GetNetAmount() > 0 {
 		creditAmount = o.GetNetAmount()
@@ -572,15 +572,15 @@ func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderIn
 		Reason:     "ORDER_PAID",
 	})
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_notify stage=credit_rpc_error order_no=%s merchant_id=%s amount=%d err=%v",
+		c.Errorf("request_id=%s action=channel_notify stage=credit_rpc_error order_no=%s merchant_id=%s amount=%d err=%v",
 			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, err)
 		return notifyFail(NotifyCodeCreditFailed, "credit failed"), nil
 	}
 	if creditResp.GetChanged() {
-		c.Infof("request_id=%s action=upstream_notify stage=credit_applied order_no=%s merchant_id=%s amount=%d balance=%d",
+		c.Infof("request_id=%s action=channel_notify stage=credit_applied order_no=%s merchant_id=%s amount=%d balance=%d",
 			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount, creditResp.GetBalance())
 	} else {
-		c.Infof("request_id=%s action=upstream_notify stage=credit_idempotent order_no=%s merchant_id=%s amount=%d",
+		c.Infof("request_id=%s action=channel_notify stage=credit_idempotent order_no=%s merchant_id=%s amount=%d",
 			reqID, o.GetOrderNo(), o.GetMerchantId(), creditAmount)
 	}
 	body, err := json.Marshal(map[string]any{
@@ -589,34 +589,34 @@ func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderIn
 		"attempt":     0,
 	})
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_notify stage=notify_marshal_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
+		c.Errorf("request_id=%s action=channel_notify stage=notify_marshal_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
 		return notifyFail(NotifyCodeNotifyMarshalFailed, "notify marshal failed"), nil
 	}
 	if err := c.svcCtx.NsqProducer.Publish(c.svcCtx.Config.Nsq.Topic, body); err != nil {
-		c.Errorf("request_id=%s action=upstream_notify stage=notify_publish_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
+		c.Errorf("request_id=%s action=channel_notify stage=notify_publish_error order_no=%s err=%v", reqID, o.GetOrderNo(), err)
 		return notifyFail(NotifyCodeNotifyPublishFailed, "notify publish failed"), nil
 	}
 	return notifyOK(okCode, okReason), nil
 }
 
-func samePaidSnapshot(o *orderclient.OrderInfo, req *types.UpstreamNotifyReq) bool {
+func samePaidSnapshot(o *orderclient.OrderInfo, req *types.ChannelNotifyReq) bool {
 	return o != nil &&
 		o.GetStatus() == 1 &&
 		o.GetPaidAmount() == req.PaidAmount &&
 		o.GetChannelId() == req.ChannelId &&
-		strings.EqualFold(strings.TrimSpace(o.GetUpstreamTradeNo()), strings.TrimSpace(req.UpstreamTradeNo))
+		strings.EqualFold(strings.TrimSpace(o.GetChannelTradeNo()), strings.TrimSpace(req.ChannelTradeNo))
 }
 
-func notifyFail(code, reason string) *types.UpstreamNotifyResp {
-	return &types.UpstreamNotifyResp{
+func notifyFail(code, reason string) *types.ChannelNotifyResp {
+	return &types.ChannelNotifyResp{
 		Ok:         false,
 		ReasonCode: code,
 		Reason:     reason,
 	}
 }
 
-func notifyOK(code, reason string) *types.UpstreamNotifyResp {
-	return &types.UpstreamNotifyResp{
+func notifyOK(code, reason string) *types.ChannelNotifyResp {
+	return &types.ChannelNotifyResp{
 		Ok:         true,
 		ReasonCode: code,
 		Reason:     reason,

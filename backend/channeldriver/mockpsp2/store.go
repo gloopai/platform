@@ -23,7 +23,7 @@ type payoutRec struct {
 	referenceNo     string
 }
 
-// Store holds in-memory upstream state for tests.
+// Store holds in-memory PSP state for tests.
 type Store struct {
 	mu sync.RWMutex
 

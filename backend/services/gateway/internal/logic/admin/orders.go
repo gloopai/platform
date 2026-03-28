@@ -86,7 +86,7 @@ func (a *AdminOrders) adminListOrders(req *types.AdminOrdersReq, payout bool) (*
 			FeeFixedAmount:  o.GetFeeFixedAmount(),
 			FeeAmount:       o.GetFeeAmount(),
 			NetAmount:       o.GetNetAmount(),
-			UpstreamTradeNo: o.GetUpstreamTradeNo(),
+			ChannelTradeNo: o.GetChannelTradeNo(),
 			CreatedAt:       o.GetCreatedAt(),
 		})
 	}
@@ -98,11 +98,11 @@ func (a *AdminOrders) AdminMockPayoutSuccess(req *types.AdminMockPayoutSuccessRe
 	if orderNo == "" {
 		return nil, status.Error(codes.InvalidArgument, "order_no required")
 	}
-	upstreamTradeNo := strings.TrimSpace(req.UpstreamTradeNo)
-	if upstreamTradeNo == "" {
-		upstreamTradeNo = fmt.Sprintf("UP-MOCK-%d", time.Now().UnixNano())
+	channelTradeNo := strings.TrimSpace(req.ChannelTradeNo)
+	if channelTradeNo == "" {
+		channelTradeNo = fmt.Sprintf("UP-MOCK-%d", time.Now().UnixNano())
 	}
-	changed, err := a.svcCtx.ServiceHub.MarkPayoutSuccess(a.ctx, orderNo, upstreamTradeNo)
+	changed, err := a.svcCtx.ServiceHub.MarkPayoutSuccess(a.ctx, orderNo, channelTradeNo)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "mock payout success failed")
 	}

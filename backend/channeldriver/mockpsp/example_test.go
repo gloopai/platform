@@ -29,7 +29,7 @@ func TestMockPSP_PayinNotifyRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	body, err := mockpsp.BuildPayinNotifyBody(cfg, "M001", resp.UpstreamOrderNo, channeldriver.PayinStatusSuccess, 10_000)
+	body, err := mockpsp.BuildPayinNotifyBody(cfg, "M001", resp.ChannelOrderNo, channeldriver.PayinStatusSuccess, 10_000)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestMockPSP_Dispatch(t *testing.T) {
 		SignSecret: "s",
 	}
 	resp, _ := d.CreatePayment(ctx, cfg, &channeldriver.CreatePaymentReq{MerchantOrderNo: "x", AmountMinor: 1})
-	body, _ := mockpsp.BuildPayinNotifyBody(cfg, "x", resp.UpstreamOrderNo, channeldriver.PayinStatusSuccess, 1)
+	body, _ := mockpsp.BuildPayinNotifyBody(cfg, "x", resp.ChannelOrderNo, channeldriver.PayinStatusSuccess, 1)
 	req := httptest.NewRequest("POST", "/cb", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 

@@ -2,13 +2,13 @@ package base
 
 import "net/http"
 
-const DefaultUpstreamNotifyContentType = "text/plain; charset=utf-8"
+const DefaultChannelNotifyContentType = "text/plain; charset=utf-8"
 
 // NotifyContentType returns the HTTP Content-Type for the response body returned to the PSP.
 // If drv implements PayinNotifyContentTyper / PayoutNotifyContentTyper, that value is used.
 func NotifyContentType(drv any) string {
 	if drv == nil {
-		return DefaultUpstreamNotifyContentType
+		return DefaultChannelNotifyContentType
 	}
 	if t, ok := drv.(PayinNotifyContentTyper); ok {
 		if s := t.PayinNotifyContentType(); s != "" {
@@ -20,12 +20,12 @@ func NotifyContentType(drv any) string {
 			return s
 		}
 	}
-	return DefaultUpstreamNotifyContentType
+	return DefaultChannelNotifyContentType
 }
 
-// WriteUpstreamNotify writes body and Content-Type for a successful notify handling path.
-// Typical body comes from PayinUpstream.PayinNotifyResponse / PayoutUpstream.PayoutNotifyResponse.
-func WriteUpstreamNotify(w http.ResponseWriter, drv any, body []byte) {
+// WriteChannelNotify writes body and Content-Type for a successful notify handling path.
+// Typical body comes from PayinChannel.PayinNotifyResponse / PayoutChannel.PayoutNotifyResponse.
+func WriteChannelNotify(w http.ResponseWriter, drv any, body []byte) {
 	w.Header().Set("Content-Type", NotifyContentType(drv))
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(body)

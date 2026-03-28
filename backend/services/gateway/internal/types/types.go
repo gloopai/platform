@@ -64,7 +64,7 @@ type OrderInfo struct {
 	NetAmount        int64  `json:"net_amount"`
 	ReturnUrl        string `json:"return_url"`
 	NotifyUrl        string `json:"notify_url"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
+	ChannelTradeNo  string `json:"channel_trade_no"`
 }
 
 type PayinProductItem struct {
@@ -121,15 +121,15 @@ type TerminalPayResp struct {
 	PayMode          string `json:"pay_mode"`
 }
 
-type UpstreamNotifyReq struct {
+type ChannelNotifyReq struct {
 	OrderNo         string `json:"order_no"`
 	PaidAmount      int64  `json:"paid_amount"`
-	UpstreamTradeNo string `json:"upstream_trade_no"`
+	ChannelTradeNo string `json:"channel_trade_no"`
 	ChannelId       int64  `json:"channel_id"`
 	Sign            string `json:"sign"`
 }
 
-type UpstreamNotifyResp struct {
+type ChannelNotifyResp struct {
 	Ok         bool   `json:"ok"`
 	ReasonCode string `json:"reason_code,omitempty"`
 	Reason     string `json:"reason,omitempty"`
@@ -139,16 +139,16 @@ type AdminChannelInfo struct {
 	Id                     int64  `json:"id"`
 	Name                   string `json:"name"`
 	PayinType              string `json:"payin_type"`
-	UpstreamConfig         string `json:"upstream_config"`
+	ChannelConfig         string `json:"channel_config"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount"`
 	MaxAmount              int64  `json:"max_amount"`
 	SupportsPayin          bool   `json:"supports_payin"`
 	SupportsPayout         bool   `json:"supports_payout"`
-	UpstreamPayinRateBps   int64  `json:"upstream_payin_rate_bps"`
-	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps"`
-	UpstreamPayoutFeeMode  int64  `json:"upstream_payout_fee_mode"`
-	UpstreamPayoutFixedFee int64  `json:"upstream_payout_fixed_fee"`
+	ChannelPayinRateBps   int64  `json:"channel_payin_rate_bps"`
+	ChannelPayoutRateBps  int64  `json:"channel_payout_rate_bps"`
+	ChannelPayoutFeeMode  int64  `json:"channel_payout_fee_mode"`
+	ChannelPayoutFixedFee int64  `json:"channel_payout_fixed_fee"`
 	Enabled                bool   `json:"enabled"`
 	FuseEnabled            bool   `json:"fuse_enabled"`
 }
@@ -161,16 +161,16 @@ type AdminUpsertChannelReq struct {
 	Id                     int64  `path:"id,optional"`
 	Name                   string `json:"name"`
 	PayinType              string `json:"payin_type,optional"`
-	UpstreamConfig         string `json:"upstream_config,optional"`
+	ChannelConfig         string `json:"channel_config,optional"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount,optional"`
 	MaxAmount              int64  `json:"max_amount,optional"`
 	SupportsPayin          bool   `json:"supports_payin,optional"`
 	SupportsPayout         bool   `json:"supports_payout,optional"`
-	UpstreamPayinRateBps   int64  `json:"upstream_payin_rate_bps,optional"`
-	UpstreamPayoutRateBps  int64  `json:"upstream_payout_rate_bps,optional"`
-	UpstreamPayoutFeeMode  int64  `json:"upstream_payout_fee_mode,optional"`
-	UpstreamPayoutFixedFee int64  `json:"upstream_payout_fixed_fee,optional"`
+	ChannelPayinRateBps   int64  `json:"channel_payin_rate_bps,optional"`
+	ChannelPayoutRateBps  int64  `json:"channel_payout_rate_bps,optional"`
+	ChannelPayoutFeeMode  int64  `json:"channel_payout_fee_mode,optional"`
+	ChannelPayoutFixedFee int64  `json:"channel_payout_fixed_fee,optional"`
 	Enabled                bool   `json:"enabled,optional"`
 	FuseEnabled            bool   `json:"fuse_enabled,optional"`
 }
@@ -278,7 +278,7 @@ type MerchantOrderItem struct {
 	FeeFixedAmount   int64  `json:"fee_fixed_amount"`
 	FeeAmount        int64  `json:"fee_amount"`
 	NetAmount        int64  `json:"net_amount"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
+	ChannelTradeNo  string `json:"channel_trade_no"`
 	CreatedAt        int64  `json:"created_at"`
 }
 
@@ -712,7 +712,7 @@ type AdminOrderRow struct {
 	FeeFixedAmount   int64  `json:"fee_fixed_amount"`
 	FeeAmount        int64  `json:"fee_amount"`
 	NetAmount        int64  `json:"net_amount"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
+	ChannelTradeNo  string `json:"channel_trade_no"`
 	CreatedAt        int64  `json:"created_at"`
 }
 
@@ -723,7 +723,7 @@ type AdminOrdersResp struct {
 
 type AdminMockPayoutSuccessReq struct {
 	OrderNo         string `path:"order_no"`
-	UpstreamTradeNo string `json:"upstream_trade_no,optional"`
+	ChannelTradeNo string `json:"channel_trade_no,optional"`
 }
 
 type AdminMockPayoutSuccessResp struct {
@@ -750,7 +750,7 @@ type AdminRefundRow struct {
 	StatusLabel      string `json:"status_label"`
 	ChannelId        int64  `json:"channel_id"`
 	PayinProductCode string `json:"payin_product_code"`
-	UpstreamTradeNo  string `json:"upstream_trade_no"`
+	ChannelTradeNo  string `json:"channel_trade_no"`
 	CreatedAt        int64  `json:"created_at"`
 }
 

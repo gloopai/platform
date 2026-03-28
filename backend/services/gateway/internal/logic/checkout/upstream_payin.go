@@ -21,11 +21,11 @@ func channelRowToConfig(row *channelpb.ChannelRow) *channeldriver.ChannelConfig 
 		return nil
 	}
 	gw := strings.TrimSpace(row.GetGatewayUrl())
-	mer := strings.TrimSpace(row.GetUpstreamMerchantNo())
+	mer := strings.TrimSpace(row.GetChannelMerchantNo())
 	sig := row.GetSignSecret()
 	rsa := row.GetRsaPrivateKey()
-	if uc := strings.TrimSpace(row.GetUpstreamConfig()); uc != "" {
-		jg, jm, js, jr := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+	if uc := strings.TrimSpace(row.GetChannelConfig()); uc != "" {
+		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
 		if jg != "" {
 			gw = jg
 		}
@@ -98,34 +98,34 @@ func (c *Checkout) UpstreamPayinNotify(w http.ResponseWriter, r *http.Request) {
 	parsed, err := drv.VerifyPayinNotify(c.ctx, cfg, r2)
 	if err != nil {
 		c.Infof("request_id=%s action=upstream_payin verify_fail err=%v", reqID, err)
-		channeldriver.WriteUpstreamNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
 		return
 	}
 	if strings.TrimSpace(parsed.MerchantOrderNo) != orderNo {
 		c.Errorf("request_id=%s action=upstream_payin order_mismatch query=%s body=%s", reqID, orderNo, parsed.MerchantOrderNo)
-		channeldriver.WriteUpstreamNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
 		return
 	}
 	if parsed.Status != channeldriver.PayinStatusSuccess {
-		channeldriver.WriteUpstreamNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
 		return
 	}
 
-	req := &types.UpstreamNotifyReq{
+	req := &types.ChannelNotifyReq{
 		OrderNo:         orderNo,
 		PaidAmount:      parsed.PaidAmountMinor,
-		UpstreamTradeNo: parsed.UpstreamOrderNo,
+		ChannelTradeNo: parsed.ChannelOrderNo,
 		ChannelId:       channelID,
 		Sign:            "",
 	}
-	resp, _ := c.upstreamNotifyCore(reqID, req)
+	resp, _ := c.channelNotifyCore(reqID, req)
 	ok := resp != nil && resp.Ok
-	channeldriver.WriteUpstreamNotify(w, drv, drv.PayinNotifyResponse(ok))
+	channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(ok))
 }
 
-// upstreamNotifyCore is shared mark paid + credit + nsq (no sign check).
-func (c *Checkout) upstreamNotifyCore(reqID string, req *types.UpstreamNotifyReq) (*types.UpstreamNotifyResp, error) {
-	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.UpstreamTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
+// channelNotifyCore is shared mark paid + credit + nsq (no sign check).
+func (c *Checkout) channelNotifyCore(reqID string, req *types.ChannelNotifyReq) (*types.ChannelNotifyResp, error) {
+	if strings.TrimSpace(req.OrderNo) == "" || strings.TrimSpace(req.ChannelTradeNo) == "" || req.ChannelId <= 0 || req.PaidAmount <= 0 {
 		return notifyFail(NotifyCodeInvalidNotifyParams, "invalid notify params"), nil
 	}
 
@@ -136,10 +136,10 @@ func (c *Checkout) upstreamNotifyCore(reqID string, req *types.UpstreamNotifyReq
 		return notifyFail(NotifyCodeOrderNotFound, "order not found"), nil
 	}
 	o := getResp.GetOrder()
-	c.Infof("request_id=%s action=upstream_notify_core order_no=%s merchant_id=%s paid_amount=%d channel_id=%d", reqID, req.OrderNo, o.GetMerchantId(), req.PaidAmount, req.ChannelId)
+	c.Infof("request_id=%s action=channel_notify_core order_no=%s merchant_id=%s paid_amount=%d channel_id=%d", reqID, req.OrderNo, o.GetMerchantId(), req.PaidAmount, req.ChannelId)
 
 	if o.GetChannelId() != req.ChannelId {
-		c.Errorf("request_id=%s action=upstream_notify_core channel_mismatch order_no=%s order_ch=%d notify_ch=%d", reqID, req.OrderNo, o.GetChannelId(), req.ChannelId)
+		c.Errorf("request_id=%s action=channel_notify_core channel_mismatch order_no=%s order_ch=%d notify_ch=%d", reqID, req.OrderNo, o.GetChannelId(), req.ChannelId)
 		return notifyFail(NotifyCodeChannelMismatch, "notify channel does not match order channel"), nil
 	}
 
@@ -156,11 +156,11 @@ func (c *Checkout) upstreamNotifyCore(reqID string, req *types.UpstreamNotifyReq
 	markResp, err := c.svcCtx.OrderRpc.MarkPaid(c.ctx, &orderclient.MarkPaidReq{
 		OrderNo:         req.OrderNo,
 		PaidAmount:      req.PaidAmount,
-		UpstreamTradeNo: req.UpstreamTradeNo,
+		ChannelTradeNo:   req.ChannelTradeNo,
 		ChannelId:       req.ChannelId,
 	})
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_notify_core mark_paid_failed order_no=%s err=%v", reqID, req.OrderNo, err)
+		c.Errorf("request_id=%s action=channel_notify_core mark_paid_failed order_no=%s err=%v", reqID, req.OrderNo, err)
 		return notifyFail(NotifyCodeMarkPaidFailed, "mark paid failed"), nil
 	}
 

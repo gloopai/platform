@@ -18,17 +18,17 @@ func NewJSONNotifyRequest(method, target string, body []byte) *http.Request {
 	return r
 }
 
-// UpstreamHTTPServer serves minimal /exposed/v1/* routes that delegate to Driver using fixed cfg.
+// ChannelHTTPServer serves minimal /exposed/v1/* routes that delegate to Driver using fixed cfg.
 // Intended for integration tests where GatewayBaseURL points at this server.
-type UpstreamHTTPServer struct {
+type ChannelHTTPServer struct {
 	Cfg *channeldriver.ChannelConfig
 	Drv *Driver
 	srv *httptest.Server
 }
 
-// StartUpstreamHTTPServer starts httptest.Server; close with Close().
-func StartUpstreamHTTPServer(cfg *channeldriver.ChannelConfig, drv *Driver) *UpstreamHTTPServer {
-	h := &UpstreamHTTPServer{Cfg: cfg, Drv: drv}
+// StartChannelHTTPServer starts httptest.Server; close with Close().
+func StartChannelHTTPServer(cfg *channeldriver.ChannelConfig, drv *Driver) *ChannelHTTPServer {
+	h := &ChannelHTTPServer{Cfg: cfg, Drv: drv}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/exposed/v1/order/payment", h.handleCreatePayin)
 	mux.HandleFunc("/exposed/v1/query/payment", h.handleQueryPayin)
@@ -39,17 +39,17 @@ func StartUpstreamHTTPServer(cfg *channeldriver.ChannelConfig, drv *Driver) *Ups
 	return h
 }
 
-func (h *UpstreamHTTPServer) BaseURL() string { return strings.TrimRight(h.srv.URL, "/") }
+func (h *ChannelHTTPServer) BaseURL() string { return strings.TrimRight(h.srv.URL, "/") }
 
-func (h *UpstreamHTTPServer) Close() { h.srv.Close() }
+func (h *ChannelHTTPServer) Close() { h.srv.Close() }
 
-type upstreamEnvelope struct {
+type channelEnvelope struct {
 	Code int             `json:"code"`
 	Msg  string          `json:"msg"`
 	Data json.RawMessage `json:"data"`
 }
 
-func (h *UpstreamHTTPServer) handleCreatePayin(w http.ResponseWriter, r *http.Request) {
+func (h *ChannelHTTPServer) handleCreatePayin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method", http.StatusMethodNotAllowed)
 		return
@@ -79,39 +79,39 @@ func (h *UpstreamHTTPServer) handleCreatePayin(w http.ResponseWriter, r *http.Re
 		NotifyURL:       body.NotifyURL,
 	})
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 0, Msg: err.Error()})
+		_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 0, Msg: err.Error()})
 		return
 	}
 	data, _ := json.Marshal(map[string]string{
-		"sysOrderNo": resp.UpstreamOrderNo,
+		"sysOrderNo": resp.ChannelOrderNo,
 		"payUrl":     resp.PayURL,
 	})
-	_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 1, Msg: "OK", Data: data})
+	_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 1, Msg: "OK", Data: data})
 }
 
-func (h *UpstreamHTTPServer) handleQueryPayin(w http.ResponseWriter, r *http.Request) {
+func (h *ChannelHTTPServer) handleQueryPayin(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		OrderNo string `json:"orderNo"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	q, err := h.Drv.QueryPayment(r.Context(), h.Cfg, &channeldriver.QueryPaymentReq{MerchantOrderNo: body.OrderNo})
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 0, Msg: err.Error()})
+		_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 0, Msg: err.Error()})
 		return
 	}
 	data, _ := json.Marshal(map[string]string{
 		"appId":       h.Cfg.AppID,
 		"orderNo":     q.MerchantOrderNo,
-		"sysOrderNo":  q.UpstreamOrderNo,
+		"sysOrderNo":  q.ChannelOrderNo,
 		"status":      q.RawStatus,
 		"amount":      strconv.FormatInt(q.AmountMinor, 10),
 		"referenceNo": q.ReferenceNo,
 		"failReason":  q.FailReason,
 	})
-	_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 1, Msg: "OK", Data: data})
+	_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 1, Msg: "OK", Data: data})
 }
 
-func (h *UpstreamHTTPServer) handleMakeup(w http.ResponseWriter, r *http.Request) {
+func (h *ChannelHTTPServer) handleMakeup(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		OrderNo     string `json:"orderNo"`
 		ReferenceNo string `json:"referenceNo"`
@@ -119,13 +119,13 @@ func (h *UpstreamHTTPServer) handleMakeup(w http.ResponseWriter, r *http.Request
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	err := h.Drv.Makeup(r.Context(), h.Cfg, &channeldriver.MakeupReq{MerchantOrderNo: body.OrderNo, ReferenceNo: body.ReferenceNo})
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 0, Msg: err.Error()})
+		_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 0, Msg: err.Error()})
 		return
 	}
-	_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 1, Msg: "OK"})
+	_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 1, Msg: "OK"})
 }
 
-func (h *UpstreamHTTPServer) handleCreatePayout(w http.ResponseWriter, r *http.Request) {
+func (h *ChannelHTTPServer) handleCreatePayout(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		OrderNo   string `json:"orderNo"`
 		WayCode   string `json:"wayCode"`
@@ -157,17 +157,17 @@ func (h *UpstreamHTTPServer) handleCreatePayout(w http.ResponseWriter, r *http.R
 		NotifyURL:       body.NotifyURL,
 	})
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 0, Msg: err.Error()})
+		_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 0, Msg: err.Error()})
 		return
 	}
-	data, _ := json.Marshal(map[string]string{"sysOrderNo": resp.UpstreamOrderNo})
-	_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 1, Msg: "OK", Data: data})
+	data, _ := json.Marshal(map[string]string{"sysOrderNo": resp.ChannelOrderNo})
+	_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 1, Msg: "OK", Data: data})
 }
 
-func (h *UpstreamHTTPServer) handleBalance(w http.ResponseWriter, r *http.Request) {
+func (h *ChannelHTTPServer) handleBalance(w http.ResponseWriter, r *http.Request) {
 	bal, err := h.Drv.QueryBalance(r.Context(), h.Cfg)
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 0, Msg: err.Error()})
+		_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 0, Msg: err.Error()})
 		return
 	}
 	data, _ := json.Marshal(map[string]string{
@@ -175,6 +175,6 @@ func (h *UpstreamHTTPServer) handleBalance(w http.ResponseWriter, r *http.Reques
 		"unsettledAmount":  strconv.FormatInt(bal.UnsettledMinor, 10),
 		"frozenAmount":     strconv.FormatInt(bal.FrozenMinor, 10),
 	})
-	_ = json.NewEncoder(w).Encode(upstreamEnvelope{Code: 1, Msg: "OK", Data: data})
+	_ = json.NewEncoder(w).Encode(channelEnvelope{Code: 1, Msg: "OK", Data: data})
 }
 

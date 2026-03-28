@@ -130,7 +130,7 @@ type RefundItem = {
   status_label: string
   channel_id: number
   payin_product_code: string
-  upstream_trade_no: string
+  channel_trade_no: string
   created_at: number
 }
 

@@ -5,27 +5,27 @@ import (
 	"sync"
 )
 
-// Registry holds globally registered upstream protocol implementations keyed by driver_key.
+// Registry holds globally registered channel (PSP) protocol implementations keyed by driver_key.
 // Register all drivers at process startup; lookups are safe for concurrent use.
 type Registry struct {
 	mu sync.RWMutex
 
-	payin   map[string]PayinUpstream
-	payout  map[string]PayoutUpstream
-	balance map[string]BalanceUpstream
+	payin   map[string]PayinChannel
+	payout  map[string]PayoutChannel
+	balance map[string]BalanceChannel
 }
 
 // NewRegistry returns an empty registry.
 func NewRegistry() *Registry {
 	return &Registry{
-		payin:   make(map[string]PayinUpstream),
-		payout:  make(map[string]PayoutUpstream),
-		balance: make(map[string]BalanceUpstream),
+		payin:   make(map[string]PayinChannel),
+		payout:  make(map[string]PayoutChannel),
+		balance: make(map[string]BalanceChannel),
 	}
 }
 
 // RegisterPayin registers a payin driver; key must match cfg.DriverKey at runtime.
-func (r *Registry) RegisterPayin(drv PayinUpstream) error {
+func (r *Registry) RegisterPayin(drv PayinChannel) error {
 	if drv == nil {
 		return fmt.Errorf("channeldriver: RegisterPayin: nil driver")
 	}
@@ -43,7 +43,7 @@ func (r *Registry) RegisterPayin(drv PayinUpstream) error {
 }
 
 // RegisterPayout registers a payout driver.
-func (r *Registry) RegisterPayout(drv PayoutUpstream) error {
+func (r *Registry) RegisterPayout(drv PayoutChannel) error {
 	if drv == nil {
 		return fmt.Errorf("channeldriver: RegisterPayout: nil driver")
 	}
@@ -61,7 +61,7 @@ func (r *Registry) RegisterPayout(drv PayoutUpstream) error {
 }
 
 // RegisterBalance registers a balance query driver (optional per PSP).
-func (r *Registry) RegisterBalance(drv BalanceUpstream) error {
+func (r *Registry) RegisterBalance(drv BalanceChannel) error {
 	if drv == nil {
 		return fmt.Errorf("channeldriver: RegisterBalance: nil driver")
 	}
@@ -79,7 +79,7 @@ func (r *Registry) RegisterBalance(drv BalanceUpstream) error {
 }
 
 // Payin returns the payin implementation for driver_key, or ErrNoDriver.
-func (r *Registry) Payin(driverKey string) (PayinUpstream, error) {
+func (r *Registry) Payin(driverKey string) (PayinChannel, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	d, ok := r.payin[driverKey]
@@ -90,7 +90,7 @@ func (r *Registry) Payin(driverKey string) (PayinUpstream, error) {
 }
 
 // Payout returns the payout implementation for driver_key, or ErrNoDriver.
-func (r *Registry) Payout(driverKey string) (PayoutUpstream, error) {
+func (r *Registry) Payout(driverKey string) (PayoutChannel, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	d, ok := r.payout[driverKey]
@@ -101,7 +101,7 @@ func (r *Registry) Payout(driverKey string) (PayoutUpstream, error) {
 }
 
 // Balance returns the balance implementation for driver_key, or ErrNoDriver.
-func (r *Registry) Balance(driverKey string) (BalanceUpstream, error) {
+func (r *Registry) Balance(driverKey string) (BalanceChannel, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	d, ok := r.balance[driverKey]

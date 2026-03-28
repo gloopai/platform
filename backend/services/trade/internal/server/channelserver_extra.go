@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/gloopai/pay/common/consulx"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/trade/internal/store"
 	"google.golang.org/grpc/codes"
@@ -13,19 +14,19 @@ import (
 	"gorm.io/gorm"
 )
 
-// upstreamConfigForAPI 优先返回 DB 中的 upstream_config；若为空则把旧版分列字段合成 JSON，便于管理台展示与迁移。
-func upstreamConfigForAPI(c *store.Channel) string {
+// channelConfigJSONForAPI 优先返回 DB 中的 channel_config 列；若为空则把旧版分列字段合成 JSON，便于管理台展示与迁移。
+func channelConfigJSONForAPI(c *store.Channel) string {
 	if c == nil {
 		return ""
 	}
-	if strings.TrimSpace(c.UpstreamConfig) != "" {
-		return c.UpstreamConfig
+	if strings.TrimSpace(c.ChannelConfig) != "" {
+		return c.ChannelConfig
 	}
 	leg := map[string]string{
-		"gateway_url":          c.GatewayUrl,
-		"upstream_merchant_no": c.UpstreamMerchantNo,
-		"sign_secret":          c.SignSecret,
-		"rsa_private_key":      c.RsaPrivateKey,
+		"gateway_url":         c.GatewayUrl,
+		"channel_merchant_no": c.ChannelMerchantNo,
+		"sign_secret":         c.SignSecret,
+		"rsa_private_key":     c.RsaPrivateKey,
 	}
 	b, err := json.Marshal(leg)
 	if err != nil {
@@ -39,68 +40,84 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 		return nil
 	}
 	return &channelpb.ChannelRow{
-		Id:                     c.ID,
-		Name:                   c.Name,
-		PayinType:              c.PayinType,
-		GatewayUrl:             c.GatewayUrl,
-		UpstreamMerchantNo:     c.UpstreamMerchantNo,
-		RsaPrivateKey:          c.RsaPrivateKey,
-		SignSecret:             c.SignSecret,
-		UpstreamConfig:         upstreamConfigForAPI(c),
-		Weight:                 c.Weight,
-		MinAmount:              c.MinAmount,
-		MaxAmount:              c.MaxAmount,
-		Enabled:                c.Enabled,
-		FuseEnabled:            c.FuseEnabled,
-		SupportsPayin:          c.SupportsPayin,
-		SupportsPayout:         c.SupportsPayout,
-		UpstreamPayinRateBps:   c.UpstreamPayinRateBps,
-		UpstreamPayoutRateBps:  c.UpstreamPayoutRateBps,
-		UpstreamPayoutFeeMode:  c.UpstreamPayoutFeeMode,
-		UpstreamPayoutFixedFee: c.UpstreamPayoutFixedFee,
+		Id:                    c.ID,
+		Name:                  c.Name,
+		PayinType:             c.PayinType,
+		GatewayUrl:            c.GatewayUrl,
+		ChannelMerchantNo:     c.ChannelMerchantNo,
+		RsaPrivateKey:         c.RsaPrivateKey,
+		SignSecret:            c.SignSecret,
+		ChannelConfig:         channelConfigJSONForAPI(c),
+		Weight:                c.Weight,
+		MinAmount:             c.MinAmount,
+		MaxAmount:             c.MaxAmount,
+		Enabled:               c.Enabled,
+		FuseEnabled:           c.FuseEnabled,
+		SupportsPayin:         c.SupportsPayin,
+		SupportsPayout:        c.SupportsPayout,
+		ChannelPayinRateBps:   c.ChannelPayinRateBps,
+		ChannelPayoutRateBps:  c.ChannelPayoutRateBps,
+		ChannelPayoutFeeMode:  c.ChannelPayoutFeeMode,
+		ChannelPayoutFixedFee: c.ChannelPayoutFixedFee,
 	}
 }
 
-func validateUpstreamConfigJSON(s string) error {
+func syncChannelConfigKV(ctx context.Context, store *consulx.ConfigStore, channelID int64, configJSON string) {
+	if store == nil || channelID <= 0 {
+		return
+	}
+	key := consulx.ChannelConfigKVKey(channelID)
+	if key == "" {
+		return
+	}
+	configJSON = strings.TrimSpace(configJSON)
+	if configJSON == "" {
+		_ = store.Delete(ctx, key)
+		return
+	}
+	_ = store.PutBytes(ctx, key, []byte(configJSON))
+}
+
+func validateChannelConfigJSON(s string) error {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return nil
 	}
 	var v interface{}
 	if err := json.Unmarshal([]byte(s), &v); err != nil {
-		return status.Error(codes.InvalidArgument, "upstream_config must be valid JSON")
+		return status.Error(codes.InvalidArgument, "channel_config must be valid JSON")
 	}
 	return nil
 }
 
 func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
-	feeMode := req.GetUpstreamPayoutFeeMode()
+	feeMode := req.GetChannelPayoutFeeMode()
 	if feeMode < 1 || feeMode > 3 {
 		feeMode = 1
 	}
-	fixedFee := req.GetUpstreamPayoutFixedFee()
+	fixedFee := req.GetChannelPayoutFixedFee()
 	if fixedFee < 0 {
 		fixedFee = 0
 	}
 	return &store.Channel{
-		Name:                   req.GetName(),
-		PayinType:              req.GetPayinType(),
-		GatewayUrl:             "",
-		UpstreamMerchantNo:     "",
-		RsaPrivateKey:          "",
-		SignSecret:             "",
-		UpstreamConfig:         req.GetUpstreamConfig(),
-		Weight:                 req.GetWeight(),
-		MinAmount:              req.GetMinAmount(),
-		MaxAmount:              req.GetMaxAmount(),
-		Enabled:                req.GetEnabled(),
-		FuseEnabled:            req.GetFuseEnabled(),
-		SupportsPayin:          req.GetSupportsPayin(),
-		SupportsPayout:         req.GetSupportsPayout(),
-		UpstreamPayinRateBps:   req.GetUpstreamPayinRateBps(),
-		UpstreamPayoutRateBps:  req.GetUpstreamPayoutRateBps(),
-		UpstreamPayoutFeeMode:  feeMode,
-		UpstreamPayoutFixedFee: fixedFee,
+		Name:                  req.GetName(),
+		PayinType:             req.GetPayinType(),
+		GatewayUrl:            "",
+		ChannelMerchantNo:     "",
+		RsaPrivateKey:         "",
+		SignSecret:            "",
+		ChannelConfig:         req.GetChannelConfig(),
+		Weight:                req.GetWeight(),
+		MinAmount:             req.GetMinAmount(),
+		MaxAmount:             req.GetMaxAmount(),
+		Enabled:               req.GetEnabled(),
+		FuseEnabled:           req.GetFuseEnabled(),
+		SupportsPayin:         req.GetSupportsPayin(),
+		SupportsPayout:        req.GetSupportsPayout(),
+		ChannelPayinRateBps:   req.GetChannelPayinRateBps(),
+		ChannelPayoutRateBps:  req.GetChannelPayoutRateBps(),
+		ChannelPayoutFeeMode:  feeMode,
+		ChannelPayoutFixedFee: fixedFee,
 	}
 }
 
@@ -137,6 +154,7 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 		}
 		return nil, err
 	}
+	// 通道配置以库表为准；Consul 内存缓存仅用于 OpenAPI 下单热路径（PrepareTerminalPay / 网关 GetSignSecret），不在此 RPC 覆盖。
 	return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
 }
 
@@ -165,7 +183,7 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
-	if err := validateUpstreamConfigJSON(req.GetUpstreamConfig()); err != nil {
+	if err := validateChannelConfigJSON(req.GetChannelConfig()); err != nil {
 		return nil, err
 	}
 	ch := fromUpsertReq(req)
@@ -177,6 +195,7 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	if err != nil {
 		return nil, err
 	}
+	syncChannelConfigKV(ctx, s.svcCtx.RuntimeConfig, id, created.ChannelConfig)
 	return &channelpb.UpsertChannelResp{Channel: toChannelRow(created)}, nil
 }
 
@@ -196,7 +215,7 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
-	if err := validateUpstreamConfigJSON(req.GetUpstreamConfig()); err != nil {
+	if err := validateChannelConfigJSON(req.GetChannelConfig()); err != nil {
 		return nil, err
 	}
 	ch := fromUpsertReq(req)
@@ -207,6 +226,7 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	if err != nil {
 		return nil, err
 	}
+	syncChannelConfigKV(ctx, s.svcCtx.RuntimeConfig, req.GetId(), updated.ChannelConfig)
 	return &channelpb.UpsertChannelResp{Channel: toChannelRow(updated)}, nil
 }
 
@@ -217,7 +237,7 @@ func (s *ChannelServer) GetRoutingSummary(ctx context.Context, _ *channelpb.GetR
 	}
 	return &channelpb.GetRoutingSummaryResp{
 		AlgorithmKey:                 "weighted_random_within_product",
-		AlgorithmLabel:               "支付产品内加权随机（同产品多上游按权重分流）",
+		AlgorithmLabel:               "支付产品内加权随机（同产品多通道按权重分流）",
 		EnabledPayinProducts:         rs.EnabledPayinProducts,
 		EnabledPayoutProducts:        rs.EnabledPayoutProducts,
 		EnabledChannels:              rs.EnabledChannels,
