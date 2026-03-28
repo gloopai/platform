@@ -13,7 +13,6 @@ import (
 	"github.com/gloopai/pay/common/model"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
 	"github.com/gloopai/pay/core/internal/kvcache"
-	"github.com/gloopai/pay/core/internal/merchantcfg"
 	"github.com/gloopai/pay/core/internal/store"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -317,7 +316,7 @@ func (l *GetAuthInfoLogic) GetAuthInfo(in *merchantpb.GetAuthInfoReq) (*merchant
 	if snap, ok := l.svcCtx.MerchantSnapshot.Get(m.MerchantId); ok {
 		baseSecret = snap.AppSecret
 	}
-	appSecret := merchantcfg.AppSecretFromMergedJSON(baseSecret, cfgJSON)
+	appSecret := appSecretFromMergedJSON(baseSecret, cfgJSON)
 	return &merchantpb.GetAuthInfoResp{
 		AppSecret:        appSecret,
 		Status:           m.Status,
@@ -439,6 +438,32 @@ func validateMerchantConfigJSON(s string) error {
 		return status.Error(codes.InvalidArgument, "merchant_config must be valid JSON")
 	}
 	return nil
+}
+
+// appSecretFromMergedJSON returns app_secret from merged merchant_config JSON when non-empty;
+// otherwise returns columnSecret (same idea as channel_config overriding sign_secret).
+func appSecretFromMergedJSON(columnSecret, mergedJSON string) string {
+	mergedJSON = strings.TrimSpace(mergedJSON)
+	if mergedJSON == "" {
+		return columnSecret
+	}
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(mergedJSON), &m); err != nil {
+		return columnSecret
+	}
+	raw, ok := m["app_secret"]
+	if !ok {
+		return columnSecret
+	}
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return columnSecret
+	}
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return columnSecret
+	}
+	return s
 }
 
 func syncMerchantKV(ctx context.Context, store *consulx.ConfigStore, m *model.Merchant) {
