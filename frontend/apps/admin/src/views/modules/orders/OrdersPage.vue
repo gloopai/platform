@@ -76,15 +76,31 @@
               <td class="px-4 py-10 text-center text-slate-500" colspan="11">暂无数据</td>
             </tr>
             <tr v-for="o in rows" v-else :key="o.order_no" class="hover:bg-slate-50/80">
-              <td class="px-4 py-3 font-mono text-xs text-slate-900">{{ o.order_no }}</td>
-              <td class="px-4 py-3">
-                <div class="font-mono text-xs font-medium text-slate-800">{{ o.merchant_id }}</div>
-                <div class="mt-0.5 font-mono text-[11px] text-slate-500">{{ o.merchant_order_no }}</div>
+              <td class="max-w-[14rem] px-4 py-3">
+                <div class="truncate font-mono text-xs text-slate-900" :title="o.order_no">{{ o.order_no }}</div>
+              </td>
+              <td class="max-w-[13rem] px-4 py-3">
+                <div
+                  class="truncate font-mono text-xs font-medium text-slate-800"
+                  :title="o.merchant_id"
+                >
+                  {{ o.merchant_id }}
+                </div>
+                <div
+                  class="mt-0.5 truncate font-mono text-[11px] text-slate-500"
+                  :title="o.merchant_order_no"
+                >
+                  {{ o.merchant_order_no }}
+                </div>
               </td>
               <td class="px-4 py-3 tabular-nums text-slate-800">{{ formatYuan(o.amount) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.fee_amount || 0) }}</td>
               <td class="px-4 py-3 tabular-nums text-slate-700">{{ formatYuan(o.net_amount || 0) }}</td>
-              <td class="px-4 py-3 text-xs text-slate-600">{{ feeModeOptionLabel(o.fee_mode) }}</td>
+              <td class="max-w-[8rem] px-4 py-3">
+                <div class="truncate text-xs text-slate-600" :title="feeModeOptionLabel(o.fee_mode)">
+                  {{ feeModeOptionLabel(o.fee_mode) }}
+                </div>
+              </td>
               <td class="px-4 py-3">
                 <span
                   class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -93,10 +109,28 @@
                   {{ statusLabel(o.status) }}
                 </span>
               </td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-700">{{ o.payin_product_code || '—' }}</td>
+              <td class="max-w-[9rem] px-4 py-3">
+                <div
+                  class="truncate font-mono text-xs text-slate-700"
+                  :title="o.payin_product_code || ''"
+                >
+                  {{ o.payin_product_code || '—' }}
+                </div>
+              </td>
               <td class="px-4 py-3 font-mono text-xs text-slate-600">#{{ o.channel_id }}</td>
-              <td class="px-4 py-3 text-xs text-slate-600">{{ o.upstream_trade_no || '—' }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ formatTime(o.created_at) }}</td>
+              <td class="max-w-[12rem] px-4 py-3">
+                <div
+                  class="truncate text-xs text-slate-600"
+                  :title="o.upstream_trade_no || ''"
+                >
+                  {{ o.upstream_trade_no || '—' }}
+                </div>
+              </td>
+              <td class="max-w-[11rem] px-4 py-3">
+                <div class="truncate text-slate-600" :title="formatTime(o.created_at)">
+                  {{ formatTime(o.created_at) }}
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
