@@ -152,11 +152,11 @@
 
 ## 5. 上游通道对接模块（实现指引）
 
-**代码位置（已实现类型与接口骨架）**：[`backend/common/channeldriver`](../../backend/common/channeldriver)（`github.com/gloopai/pay/common/channeldriver`）。
+**代码位置（已实现类型与接口骨架）**：[`backend/channeldriver`](../../backend/channeldriver)（独立模块 `github.com/gloopai/pay/channeldriver`）。
 
-以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/common/channeldriver/config.go)。
+以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/channeldriver/config.go)。
 
-**代收侧 [`PayinUpstream`](../../backend/common/channeldriver/payin.go)**
+**代收侧 [`PayinUpstream`](../../backend/channeldriver/payin.go)**
 
 - `CreatePayment` → 对应 `POST .../order/payment`
 - `QueryPayment` → `POST .../query/payment`
@@ -164,19 +164,30 @@
 - `VerifyPayinNotify` → 验签并解析回调
 - `PayinNotifyResponse` → `SUCCESS` / `FAIL` 等响应体
 
-**代付侧 [`PayoutUpstream`](../../backend/common/channeldriver/payout.go)**
+**代付侧 [`PayoutUpstream`](../../backend/channeldriver/payout.go)**
 
 - `CreatePayout` → `POST .../order/payout`
 - `QueryPayout` → **待上游文档补齐后实现**
 - `VerifyPayoutNotify` / `PayoutNotifyResponse`
 
-**余额 [`BalanceUpstream`](../../backend/common/channeldriver/balance.go)**
+**余额 [`BalanceUpstream`](../../backend/channeldriver/balance.go)**
 
 - `QueryBalance` → `POST .../query/balance`
 
-**多实现注册 [`Registry`](../../backend/common/channeldriver/registry.go)**：按 `driver_key` 注册；**通知分发**见 [`dispatch.go`](../../backend/common/channeldriver/dispatch.go) 的 `HandlePayinNotify` / `HandlePayoutNotify`（需传入 `PayinNotifyRoute` / `PayoutNotifyRoute` 从路径或查库解析 `ChannelConfig`）。
+**多实现注册 [`Registry`](../../backend/channeldriver/registry.go)**：按 `driver_key` 注册；**通知分发**见 [`dispatch.go`](../../backend/channeldriver/dispatch.go) 的 `HandlePayinNotify` / `HandlePayoutNotify`（需传入 `PayinNotifyRoute` / `PayoutNotifyRoute` 从路径或查库解析 `ChannelConfig`）。
 
 **说明**：平台内部订单号、路由、清结算仍走现有 trade/core/gateway；本包只负责 **与上游的 HTTP、签名、字段映射**，不复制商户 OpenAPI 形态。
+
+**本地/单测模拟上游**：[`backend/channeldriver/mockpsp`](../../backend/channeldriver/mockpsp) 提供内存 `Driver`（`mock_psp`）、`RegisterAll`、`BuildPayinNotifyBody` / `BuildPayoutNotifyBody`、以及可选的 `StartUpstreamHTTPServer`（`httptest` + `/exposed/v1/...`），便于联调 gateway 与 `channeldriver.HandlePayinNotify`。
+
+各服务在 `go.mod` 中增加：
+
+```text
+replace github.com/gloopai/pay/channeldriver => ../channeldriver
+require github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
+```
+
+（路径按服务相对 `backend/channeldriver` 调整；接入后执行 `go mod tidy`。）
 
 ### 5.1 多上游、多路通知（平台侧总原则）
 
@@ -195,4 +206,5 @@
 |------|------|
 | 2026-03-28 | 合并原 `docs/in` 下多篇摘录为单页；修正代收回调中 notifyUrl 描述笔误；代收补单标题去重；代付查询标为待补充 |
 | 2026-03-28 | §5.1 多上游与多路通知原则 |
-| 2026-03-28 | §5 指向 `backend/common/channeldriver` 已实现骨架 |
+| 2026-03-28 | §5 指向 `backend/channeldriver` 已实现骨架 |
+| 2026-03-28 | `channeldriver` 独立为 `github.com/gloopai/pay/channeldriver` 模块 |
