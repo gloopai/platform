@@ -546,52 +546,7 @@ func (c *Checkout) UpstreamNotify(req *types.UpstreamNotifyReq) (resp *types.Ups
 		return notifyFail(NotifyCodeInvalidSign, "invalid sign"), nil
 	}
 
-	getResp, err := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{
-		OrderNo: req.OrderNo,
-	})
-	if err != nil {
-		return notifyFail(NotifyCodeOrderNotFound, "order not found"), nil
-	}
-	o := getResp.GetOrder()
-	c.Infof("request_id=%s action=upstream_notify stage=received order_no=%s merchant_id=%s paid_amount=%d channel_id=%d", reqID, req.OrderNo, o.GetMerchantId(), req.PaidAmount, req.ChannelId)
-
-	// 幂等与重放控制：
-	// - 已支付订单仅接受与已落库支付快照完全一致的重复通知
-	// - 非待支付（失败/关闭）不再接受支付成功通知
-	if o.GetStatus() == 1 {
-		if samePaidSnapshot(o, req) {
-			return c.settlePaidOrderAndNotify(reqID, o, req, NotifyCodeIdempotentReplayAccepted, "idempotent replay accepted")
-		}
-		return notifyFail(NotifyCodeReplayPayloadMismatch, "replay payload mismatch"), nil
-	}
-	if o.GetStatus() != 0 {
-		return notifyFail(NotifyCodeOrderNotPending, "order not pending"), nil
-	}
-
-	markResp, err := c.svcCtx.OrderRpc.MarkPaid(c.ctx, &orderclient.MarkPaidReq{
-		OrderNo:         req.OrderNo,
-		PaidAmount:      req.PaidAmount,
-		UpstreamTradeNo: req.UpstreamTradeNo,
-		ChannelId:       req.ChannelId,
-	})
-	if err != nil {
-		c.Errorf("request_id=%s action=upstream_notify stage=mark_paid_failed order_no=%s err=%v", reqID, req.OrderNo, err)
-		return notifyFail(NotifyCodeMarkPaidFailed, "mark paid failed"), nil
-	}
-
-	if !markResp.GetChanged() {
-		// 并发场景：若另一条回调已先落库，允许同快照重放成功。
-		latest, ge := c.svcCtx.OrderRpc.GetOrder(c.ctx, &orderclient.GetOrderReq{OrderNo: req.OrderNo})
-		if ge != nil {
-			return notifyFail(NotifyCodeMarkPaidRace, "mark paid race"), nil
-		}
-		if samePaidSnapshot(latest.GetOrder(), req) {
-			return c.settlePaidOrderAndNotify(reqID, latest.GetOrder(), req, NotifyCodeIdempotentRaceAccepted, "idempotent race accepted")
-		}
-		return notifyFail(NotifyCodeMarkPaidRaceMismatch, "mark paid race mismatch"), nil
-	}
-
-	return c.settlePaidOrderAndNotify(reqID, o, req, "", "")
+	return c.upstreamNotifyCore(reqID, req)
 }
 
 func (c *Checkout) settlePaidOrderAndNotify(reqID string, o *orderclient.OrderInfo, req *types.UpstreamNotifyReq, okCode, okReason string) (*types.UpstreamNotifyResp, error) {

@@ -198,6 +198,14 @@ require github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 - **代收通知与代付通知**分开处理（不同方法或不同路径），避免串单。
 - **幂等**：上游会重复回调，业务更新须按订单维度幂等；日志建议带 `channel_id`、`driver_key`、请求 ID。
 
+### 5.2 平台侧已接入路径（mock_psp）
+
+- **trade** [`PrepareTerminalPay`](../../backend/services/trade/internal/logic/prepare_terminal_pay.go)：当 `channels.payin_type` 与已注册 `driver_key` 一致（如 `mock_psp`），且配置了 **`Upstream.CheckoutNotifyBaseURL`**（指向 **gateway checkout** 对外基址，无尾斜杠）时，会调用 `CreatePayment`，并把上游异步地址设为  
+  `{CheckoutNotifyBaseURL}/v1/callback/upstream/payin?channel_id={id}&order_no={平台 order_no}`。  
+  本地示例见 [`backend/services/trade/etc/trade.yaml`](../../backend/services/trade/etc/trade.yaml)。
+- **gateway checkout**：`POST /v1/callback/upstream/payin` 由 [`UpstreamPayinNotify`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 处理，验签后与 [`upstreamNotifyCore`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 共用入账逻辑（与旧版 MD5 回调入口共用同一套入账）；响应体为纯文本 `SUCCESS` / `FAIL`（与上游文档 §2.4 一致）。
+- 未配置基址或驱动未命中时，仍走 **`gateway_url` / `mock://` 二维码** 等旧行为，便于无上游环境演示。
+
 ---
 
 ## 6. 修订记录
@@ -208,3 +216,4 @@ require github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 | 2026-03-28 | §5.1 多上游与多路通知原则 |
 | 2026-03-28 | §5 指向 `backend/channeldriver` 已实现骨架 |
 | 2026-03-28 | `channeldriver` 独立为 `github.com/gloopai/pay/channeldriver` 模块 |
+| 2026-03-28 | §5.2 平台 trade/gateway 与 `mock_psp` 回调路径说明 |

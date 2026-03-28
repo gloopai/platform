@@ -16,3 +16,7 @@ BizRedis:
   Addr: 127.0.0.1:6379
   Password: "yourpassword"
   DB: 1
+
+# 上游异步回调基址（gateway checkout 端口），用于 mock_psp CreatePayment 的 notifyUrl
+Upstream:
+  CheckoutNotifyBaseURL: "http://127.0.0.1:8092"

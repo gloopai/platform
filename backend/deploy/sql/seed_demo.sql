@@ -23,8 +23,7 @@ INSERT INTO channels (
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
-  ('mock-channel', 'mock', '', '', '', 'channel_secret', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0),
-  ('mock-channel-b', 'mock', '', '', '', 'channel_secret_b', 90, 0, 0, 1, 1, 45, 0, 2, 180, 1, 0),
+  ('mock-psp', 'mock_psp', '', 'mock_app_id', '', 'channel_secret', 100, 0, 0, 1, 1, 50, 70, 1, 0, 1, 0),
   ('wechat-channel-rate', 'wechat', '', '', '', 'channel_secret_wechat', 100, 0, 0, 1, 1, 35, 65, 1, 0, 1, 0),
   ('alipay-channel-mix', 'alipay', '', '', '', 'channel_secret_alipay', 100, 0, 0, 1, 1, 40, 50, 3, 120, 1, 0)
 ON DUPLICATE KEY UPDATE
@@ -55,8 +54,7 @@ INSERT INTO payin_product_channels (payin_product_id, channel_id, weight, enable
 SELECT pp.id, c.id, w.w, 1
 FROM payin_products pp
 JOIN (
-  SELECT 'mock' AS code, 'mock-channel' AS ch, 60 AS w
-  UNION ALL SELECT 'mock', 'mock-channel-b', 40
+  SELECT 'mock' AS code, 'mock-psp' AS ch, 100 AS w
   UNION ALL SELECT 'wechat', 'wechat-channel-rate', 100
   UNION ALL SELECT 'alipay', 'alipay-channel-mix', 100
 ) w ON pp.code = w.code
@@ -67,7 +65,7 @@ INSERT INTO payout_product_channels (payout_product_id, channel_id, weight, enab
 SELECT pp.id, c.id, 100, 1
 FROM payout_products pp
 CROSS JOIN channels c
-WHERE pp.code = 'bank_card' AND c.name IN ('mock-channel', 'mock-channel-b') AND c.supports_payout = 1
+WHERE pp.code = 'bank_card' AND c.name IN ('mock-psp') AND c.supports_payout = 1
 ON DUPLICATE KEY UPDATE weight = VALUES(weight), enabled = VALUES(enabled);
 
 INSERT INTO merchant_payin_products (merchant_id, payin_product_id, enabled, sort_order, merchant_rate_bps)
@@ -362,7 +360,7 @@ SELECT
   '', '', 'UP-C-DEMO-001'
 FROM channels c
 JOIN payin_products pp ON pp.code = 'mock'
-WHERE c.name = 'mock-channel'
+WHERE c.name = 'mock-psp'
 ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);
 
 -- 与 C-DEMO-001 一致：已支付代收应对应一笔 ORDER_PAID（入账金额 = net_amount），否则不变量检查会报错
@@ -383,5 +381,5 @@ SELECT
   '', 'UP-P-DEMO-001'
 FROM channels c
 JOIN payout_products pp ON pp.code = 'bank_card'
-WHERE c.name = 'mock-channel-b'
+WHERE c.name = 'mock-psp'
 ON DUPLICATE KEY UPDATE status = VALUES(status), paid_amount = VALUES(paid_amount), fee_amount = VALUES(fee_amount), net_amount = VALUES(net_amount);

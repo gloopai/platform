@@ -3,6 +3,7 @@ module github.com/gloopai/pay/trade
 go 1.25.1
 
 require (
+	github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/redis/go-redis/v9 v9.18.0
@@ -13,11 +14,14 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+require github.com/armon/go-metrics v0.4.1 // indirect
+
 replace github.com/gloopai/pay/common => ../../common
+
+replace github.com/gloopai/pay/channeldriver => ../../channeldriver
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

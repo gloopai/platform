@@ -1,6 +1,8 @@
 package svc
 
 import (
+	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/channeldriver/mockpsp"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/trade/internal/config"
@@ -24,6 +26,7 @@ type ServiceContext struct {
 	RoutingSummary        *store.RoutingSummaryStore
 	NotifyLogs            *store.NotifyLogsStore
 	RuntimeConfig         *consulx.ConfigStore
+	ChannelDrivers        *channeldriver.Registry
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -47,6 +50,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		cfg.Start()
 		runtimeCfg = cfg
 	}
+	reg := channeldriver.NewRegistry()
+	_ = mockpsp.RegisterAll(reg, mockpsp.New(mockpsp.DefaultDriverKey))
 	return &ServiceContext{
 		Config:                c,
 		Gorm:                  gdb,
@@ -61,5 +66,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RoutingSummary:        store.NewRoutingSummaryStore(gdb),
 		NotifyLogs:            store.NewNotifyLogsStore(gdb),
 		RuntimeConfig:         runtimeCfg,
+		ChannelDrivers:        reg,
 	}
 }

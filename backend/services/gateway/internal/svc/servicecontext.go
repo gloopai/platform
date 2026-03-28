@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/channeldriver/mockpsp"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/common/grpcclient/merchantclient"
@@ -50,6 +52,8 @@ type ServiceContext struct {
 	TradeConn      *grpc.ClientConn
 	CoreConn       *grpc.ClientConn
 	ServiceHubConn *grpc.ClientConn
+
+	ChannelDrivers *channeldriver.Registry
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -136,6 +140,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 
+	chReg := channeldriver.NewRegistry()
+	_ = mockpsp.RegisterAll(chReg, mockpsp.New(mockpsp.DefaultDriverKey))
+
 	return &ServiceContext{
 		Config: c,
 
@@ -161,5 +168,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		TradeConn:      tradeCli.Conn(),
 		CoreConn:       coreCli.Conn(),
 		ServiceHubConn: serviceHubCli.Conn(),
+		ChannelDrivers: chReg,
 	}
 }

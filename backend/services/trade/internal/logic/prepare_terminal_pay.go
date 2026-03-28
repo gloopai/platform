@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gloopai/pay/channeldriver"
 	orderpb "github.com/gloopai/pay/common/pb/order"
 	"github.com/gloopai/pay/trade/internal/store"
 	"github.com/gloopai/pay/trade/internal/svc"
@@ -82,21 +83,7 @@ func (l *PrepareTerminalPayLogic) PrepareTerminalPay(in *orderpb.PrepareTerminal
 		return nil, status.Error(codes.Internal, "update order failed")
 	}
 
-	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayinType(l.ctx, chID)
-	if err != nil {
-		return nil, status.Error(codes.Internal, "load channel failed")
-	}
-
-	payURL, qrPayload, payMode := buildPaySurface(orderNo, rec.Amount, gw)
-
-	return &orderpb.PrepareTerminalPayResp{
-		ChannelId:        chID,
-		PayinProductId:   payPID,
-		PayinProductCode: code,
-		PayUrl:           payURL,
-		QrPayload:        qrPayload,
-		PayMode:          payMode,
-	}, nil
+	return l.terminalPaySurface(chID, payPID, code, orderNo, rec)
 }
 
 func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, orderNo, code string) (*orderpb.PrepareTerminalPayResp, error) {
@@ -123,13 +110,55 @@ func (l *PrepareTerminalPayLogic) prepareLockedTerminal(rec *store.OrderRecord, 
 		return nil, status.Error(codes.Internal, "update order failed")
 	}
 
-	gw, _, err := l.svcCtx.Channels.GetGatewayURLAndPayinType(l.ctx, chID)
+	return l.terminalPaySurface(chID, payPID, code, orderNo, rec)
+}
+
+// terminalPaySurface uses channeldriver when channels.payin_type matches a registered driver and Upstream.CheckoutNotifyBaseURL is set; otherwise legacy gateway_url / mock surface.
+func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, orderNo string, rec *store.OrderRecord) (*orderpb.PrepareTerminalPayResp, error) {
+	chRow, err := l.svcCtx.Channels.AdminGetByID(l.ctx, chID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
+	dk := strings.TrimSpace(chRow.PayinType)
+	notifyBase := strings.TrimSpace(l.svcCtx.Config.Upstream.CheckoutNotifyBaseURL)
+	if notifyBase != "" && dk != "" {
+		if drv, derr := l.svcCtx.ChannelDrivers.Payin(dk); derr == nil {
+			cfg := channeldriver.ConfigFromDriverKey(
+				chRow.ID, dk, chRow.GatewayUrl, chRow.UpstreamMerchantNo, chRow.SignSecret, chRow.RsaPrivateKey,
+				chRow.SupportsPayin, chRow.SupportsPayout,
+			)
+			notifyURL := fmt.Sprintf("%s/v1/callback/upstream/payin?channel_id=%d&order_no=%s",
+				strings.TrimRight(notifyBase, "/"), chID, url.QueryEscape(orderNo))
+			resp, cerr := drv.CreatePayment(l.ctx, cfg, &channeldriver.CreatePaymentReq{
+				MerchantOrderNo: orderNo,
+				AmountMinor:     rec.Amount,
+				PayerName:       "payin",
+				PayerPhone:      "0",
+				PayerEmail:      "payin@local",
+				NotifyURL:       notifyURL,
+			})
+			if cerr == nil && resp != nil {
+				payURL := strings.TrimSpace(resp.PayURL)
+				if payURL == "" {
+					payURL = notifyURL
+				}
+				return &orderpb.PrepareTerminalPayResp{
+					ChannelId:        chID,
+					PayinProductId:   payPID,
+					PayinProductCode: code,
+					PayUrl:           payURL,
+					QrPayload:        payURL,
+					PayMode:          "upstream",
+				}, nil
+			}
+			if cerr != nil {
+				l.Errorf("upstream CreatePayment channel_id=%d driver=%s err=%v", chID, dk, cerr)
+			}
+		}
+	}
 
+	gw := chRow.GatewayUrl
 	payURL, qrPayload, payMode := buildPaySurface(orderNo, rec.Amount, gw)
-
 	return &orderpb.PrepareTerminalPayResp{
 		ChannelId:        chID,
 		PayinProductId:   payPID,

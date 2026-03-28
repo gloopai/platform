@@ -125,6 +125,14 @@ func UpstreamNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func UpstreamPayinNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r = requestx.Ensure(r, w)
+		l := logic.NewCheckout(r.Context(), svcCtx)
+		l.UpstreamPayinNotify(w, r)
+	}
+}
+
 func TerminalOrderHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
