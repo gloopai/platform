@@ -10,7 +10,6 @@ require (
 	github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
-	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/zeromicro/go-zero v1.10.0
@@ -21,6 +20,8 @@ require (
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1
 )
+
+require github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
