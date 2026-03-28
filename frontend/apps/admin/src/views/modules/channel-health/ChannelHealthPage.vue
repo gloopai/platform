@@ -35,7 +35,7 @@
               <tr>
                 <th class="whitespace-nowrap px-4 py-3">ID</th>
                 <th class="whitespace-nowrap px-4 py-3">名称</th>
-                <th class="whitespace-nowrap px-4 py-3">支付类型</th>
+                <th class="whitespace-nowrap px-4 py-3">DriverKey</th>
                 <th class="whitespace-nowrap px-4 py-3">代收</th>
                 <th class="whitespace-nowrap px-4 py-3">代付</th>
                 <th class="whitespace-nowrap px-4 py-3">启用</th>
@@ -52,7 +52,7 @@
               <tr v-for="c in channels" v-else :key="c.id" class="hover:bg-slate-50/80">
                 <td class="px-4 py-3 font-mono text-slate-800">#{{ c.id }}</td>
                 <td class="px-4 py-3 font-medium text-slate-900">{{ c.name }}</td>
-                <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.payin_type || '—' }}</td>
+                <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.driver_key || '—' }}</td>
                 <td class="px-4 py-3">
                   <span :class="c.supports_payin ? 'text-emerald-700' : 'text-slate-400'">
                     {{ c.supports_payin ? '是' : '否' }}

@@ -5,7 +5,7 @@
 export type AdminChannel = {
   id: number
   name: string
-  payin_type: string
+  driver_key: string
   /** 通道对接自由 JSON 文本（整段存库） */
   channel_config: string
   weight: number
@@ -29,7 +29,7 @@ export function emptyChannelForm(): AdminChannel {
   return {
     id: 0,
     name: '',
-    payin_type: '',
+    driver_key: '',
     channel_config: '',
     weight: 100,
     min_amount: 0,

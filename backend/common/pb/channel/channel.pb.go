@@ -1207,21 +1207,22 @@ func (x *ChannelBuildPayoutNotifyResponseResp) GetContentType() string {
 }
 
 type ChannelRow struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayinType         string                 `protobuf:"bytes,3,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
-	GatewayUrl        string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
-	ChannelMerchantNo string                 `protobuf:"bytes,5,opt,name=channel_merchant_no,json=channelMerchantNo,proto3" json:"channel_merchant_no,omitempty"`
-	RsaPrivateKey     string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
-	SignSecret        string                 `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
-	Weight            int64                  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
-	MinAmount         int64                  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
-	MaxAmount         int64                  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
-	Enabled           bool                   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	FuseEnabled       bool                   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
-	SupportsPayin     bool                   `protobuf:"varint,13,opt,name=supports_payin,json=supportsPayin,proto3" json:"supports_payin,omitempty"`
-	SupportsPayout    bool                   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// PSP 驱动标识（如 hexmeta_in），与 Registry 中注册的 driver key 对应；非订单里的支付产品编码。
+	DriverKey         string `protobuf:"bytes,3,opt,name=driver_key,json=driverKey,proto3" json:"driver_key,omitempty"`
+	GatewayUrl        string `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
+	ChannelMerchantNo string `protobuf:"bytes,5,opt,name=channel_merchant_no,json=channelMerchantNo,proto3" json:"channel_merchant_no,omitempty"`
+	RsaPrivateKey     string `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
+	SignSecret        string `protobuf:"bytes,7,opt,name=sign_secret,json=signSecret,proto3" json:"sign_secret,omitempty"`
+	Weight            int64  `protobuf:"varint,8,opt,name=weight,proto3" json:"weight,omitempty"`
+	MinAmount         int64  `protobuf:"varint,9,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
+	MaxAmount         int64  `protobuf:"varint,10,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	Enabled           bool   `protobuf:"varint,11,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	FuseEnabled       bool   `protobuf:"varint,12,opt,name=fuse_enabled,json=fuseEnabled,proto3" json:"fuse_enabled,omitempty"`
+	SupportsPayin     bool   `protobuf:"varint,13,opt,name=supports_payin,json=supportsPayin,proto3" json:"supports_payin,omitempty"`
+	SupportsPayout    bool   `protobuf:"varint,14,opt,name=supports_payout,json=supportsPayout,proto3" json:"supports_payout,omitempty"`
 	// 平台相对通道(PSP)：代收成本比例，万分比整数 (= round(百分数×100))
 	ChannelPayinRateBps int64 `protobuf:"varint,15,opt,name=channel_payin_rate_bps,json=channelPayinRateBps,proto3" json:"channel_payin_rate_bps,omitempty"`
 	// 平台相对通道：代付成本比例，同上
@@ -1284,9 +1285,9 @@ func (x *ChannelRow) GetName() string {
 	return ""
 }
 
-func (x *ChannelRow) GetPayinType() string {
+func (x *ChannelRow) GetDriverKey() string {
 	if x != nil {
-		return x.PayinType
+		return x.DriverKey
 	}
 	return ""
 }
@@ -1465,7 +1466,7 @@ type UpsertChannelReq struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name              string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PayinType         string                 `protobuf:"bytes,3,opt,name=payin_type,json=payinType,proto3" json:"payin_type,omitempty"`
+	DriverKey         string                 `protobuf:"bytes,3,opt,name=driver_key,json=driverKey,proto3" json:"driver_key,omitempty"`
 	GatewayUrl        string                 `protobuf:"bytes,4,opt,name=gateway_url,json=gatewayUrl,proto3" json:"gateway_url,omitempty"`
 	ChannelMerchantNo string                 `protobuf:"bytes,5,opt,name=channel_merchant_no,json=channelMerchantNo,proto3" json:"channel_merchant_no,omitempty"`
 	RsaPrivateKey     string                 `protobuf:"bytes,6,opt,name=rsa_private_key,json=rsaPrivateKey,proto3" json:"rsa_private_key,omitempty"`
@@ -1531,9 +1532,9 @@ func (x *UpsertChannelReq) GetName() string {
 	return ""
 }
 
-func (x *UpsertChannelReq) GetPayinType() string {
+func (x *UpsertChannelReq) GetDriverKey() string {
 	if x != nil {
-		return x.PayinType
+		return x.DriverKey
 	}
 	return ""
 }
@@ -4103,7 +4104,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"payin_type\x18\x03 \x01(\tR\tpayinType\x12\x1f\n" +
+	"driver_key\x18\x03 \x01(\tR\tdriverKey\x12\x1f\n" +
 	"\vgateway_url\x18\x04 \x01(\tR\n" +
 	"gatewayUrl\x12.\n" +
 	"\x13channel_merchant_no\x18\x05 \x01(\tR\x11channelMerchantNo\x12&\n" +
@@ -4133,7 +4134,7 @@ const file_channel_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"payin_type\x18\x03 \x01(\tR\tpayinType\x12\x1f\n" +
+	"driver_key\x18\x03 \x01(\tR\tdriverKey\x12\x1f\n" +
 	"\vgateway_url\x18\x04 \x01(\tR\n" +
 	"gatewayUrl\x12.\n" +
 	"\x13channel_merchant_no\x18\x05 \x01(\tR\x11channelMerchantNo\x12&\n" +

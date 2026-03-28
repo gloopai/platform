@@ -62,7 +62,7 @@ type ChannelClient interface {
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error)
-	// 上游 PSP：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
+	// 通道：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
 	ChannelCreatePayment(ctx context.Context, in *ChannelCreatePaymentReq, opts ...grpc.CallOption) (*ChannelCreatePaymentResp, error)
 	ChannelVerifyPayinNotify(ctx context.Context, in *ChannelVerifyPayinNotifyReq, opts ...grpc.CallOption) (*ChannelVerifyPayinNotifyResp, error)
 	ChannelBuildPayinNotifyResponse(ctx context.Context, in *ChannelBuildPayinNotifyResponseReq, opts ...grpc.CallOption) (*ChannelBuildPayinNotifyResponseResp, error)
@@ -420,7 +420,7 @@ type ChannelServer interface {
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error)
-	// 上游 PSP：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
+	// 通道：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
 	ChannelCreatePayment(context.Context, *ChannelCreatePaymentReq) (*ChannelCreatePaymentResp, error)
 	ChannelVerifyPayinNotify(context.Context, *ChannelVerifyPayinNotifyReq) (*ChannelVerifyPayinNotifyResp, error)
 	ChannelBuildPayinNotifyResponse(context.Context, *ChannelBuildPayinNotifyResponseReq) (*ChannelBuildPayinNotifyResponseResp, error)

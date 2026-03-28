@@ -174,7 +174,8 @@ message ChannelBuildPayoutNotifyResponseResp {
 message ChannelRow {
   int64 id = 1;
   string name = 2;
-  string payin_type = 3;
+  // PSP 驱动标识（如 hexmeta_in），与 Registry 中注册的 driver key 对应；非订单里的支付产品编码。
+  string driver_key = 3;
   string gateway_url = 4;
   string channel_merchant_no = 5;
   string rsa_private_key = 6;
@@ -209,7 +210,7 @@ message ListChannelsResp {
 message UpsertChannelReq {
   int64 id = 1;
   string name = 2;
-  string payin_type = 3;
+  string driver_key = 3;
   string gateway_url = 4;
   string channel_merchant_no = 5;
   string rsa_private_key = 6;

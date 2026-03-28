@@ -54,7 +54,7 @@
       >
         <span class="font-mono text-xs text-slate-500">#{{ c.id }}</span>
         <span class="min-w-0 flex-1 truncate font-medium text-slate-900">{{ c.name }}</span>
-        <span class="shrink-0 font-mono text-xs text-slate-500">{{ c.payin_type || '—' }}</span>
+        <span class="shrink-0 font-mono text-xs text-slate-500">{{ c.driver_key || '—' }}</span>
       </button>
     </div>
   </div>
@@ -66,7 +66,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 export type ChannelPickItem = {
   id: number
   name: string
-  payin_type: string
+  driver_key: string
 }
 
 const props = withDefaults(
@@ -81,7 +81,7 @@ const props = withDefaults(
   {
     excludeChannelIds: () => [],
     label: '通道',
-    placeholder: '搜索 ID、名称、支付类型…',
+    placeholder: '搜索 ID、名称、DriverKey…',
   },
 )
 
@@ -108,7 +108,7 @@ const filtered = computed(() => {
   return list.filter((c) => {
     const idStr = String(c.id)
     const name = (c.name || '').toLowerCase()
-    const pt = (c.payin_type || '').toLowerCase()
+    const pt = (c.driver_key || '').toLowerCase()
     return idStr.includes(s) || name.includes(s) || pt.includes(s)
   })
 })
@@ -124,7 +124,7 @@ const selectedLabel = computed(() => {
   if (props.modelValue <= 0) return ''
   const c = props.channels.find((x) => x.id === props.modelValue)
   if (!c) return `#${props.modelValue}`
-  return `#${c.id} ${c.name} (${c.payin_type || '-'})`
+  return `#${c.id} ${c.name} (${c.driver_key || '-'})`
 })
 
 watch(

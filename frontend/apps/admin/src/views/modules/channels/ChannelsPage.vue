@@ -8,7 +8,7 @@
           v-model.trim="searchQuery"
           type="search"
           autocomplete="off"
-          placeholder="搜索名称、ID、支付类型…"
+          placeholder="搜索名称、ID、DriverKey…"
           class="w-full max-w-md rounded-lg border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400"
         />
         <label class="flex items-center gap-2 text-sm text-slate-600">
@@ -24,7 +24,7 @@
             <tr>
               <th class="whitespace-nowrap px-4 py-3">ID</th>
               <th class="whitespace-nowrap px-4 py-3">名称</th>
-              <th class="whitespace-nowrap px-4 py-3">支付类型</th>
+              <th class="whitespace-nowrap px-4 py-3">DriverKey</th>
               <th class="whitespace-nowrap px-4 py-3">代收</th>
               <th class="whitespace-nowrap px-4 py-3">代付</th>
               <th class="whitespace-nowrap px-4 py-3">状态</th>
@@ -46,7 +46,7 @@
             >
               <td class="px-4 py-3 font-mono text-slate-800">#{{ c.id }}</td>
               <td class="px-4 py-3 font-medium text-slate-900">{{ c.name }}</td>
-              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.payin_type || '—' }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ c.driver_key || '—' }}</td>
               <td class="px-4 py-3">
                 <span
                   class="rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -271,7 +271,7 @@ const filteredChannels = computed(() => {
   return list.filter((c) => {
     const idStr = String(c.id)
     const name = (c.name || '').toLowerCase()
-    const pt = (c.payin_type || '').toLowerCase()
+    const pt = (c.driver_key || '').toLowerCase()
     return idStr.includes(s) || name.includes(s) || pt.includes(s)
   })
 })

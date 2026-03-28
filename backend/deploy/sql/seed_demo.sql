@@ -38,7 +38,7 @@ DELETE FROM payout_products WHERE code = 'wallet';
 
 -- 演示环境仅保留 mock-psp-alt（mock_psp_alt / MD5）；旧库若曾插入 mock-psp，下方会删绑定与通道行
 INSERT INTO channels (
-  name, payin_type, gateway_url, channel_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+  name, driver_key, gateway_url, channel_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
   supports_payin, supports_payout, channel_payin_rate_bps, channel_payout_rate_bps, channel_payout_fee_mode, channel_payout_fixed_fee, enabled, fuse_enabled
 )
 VALUES
@@ -54,7 +54,7 @@ ON DUPLICATE KEY UPDATE
   enabled = VALUES(enabled),
   fuse_enabled = VALUES(fuse_enabled),
   weight = VALUES(weight),
-  payin_type = VALUES(payin_type);
+  driver_key = VALUES(driver_key);
 
 DELETE ppc FROM payin_product_channels ppc
   INNER JOIN channels c ON c.id = ppc.channel_id

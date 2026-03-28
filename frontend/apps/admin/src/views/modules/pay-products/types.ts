@@ -19,7 +19,7 @@ export type PayinProductBinding = {
 export type PayinProductChannelOption = {
   id: number
   name: string
-  payin_type: string
+  driver_key: string
   supports_payin?: boolean
   supports_payout?: boolean
 }

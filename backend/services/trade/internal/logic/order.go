@@ -584,7 +584,7 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 	if chRow == nil {
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
-	dk := strings.TrimSpace(chRow.GetPayinType())
+	dk := strings.TrimSpace(chRow.GetDriverKey())
 	gw := strings.TrimSpace(chRow.GetEffectiveGatewayUrl())
 	notifyBase := strings.TrimSpace(l.svcCtx.Config.Channel.CheckoutNotifyBaseURL)
 	if notifyBase != "" && dk != "" {

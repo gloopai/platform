@@ -138,7 +138,7 @@ type ChannelNotifyResp struct {
 type AdminChannelInfo struct {
 	Id                     int64  `json:"id"`
 	Name                   string `json:"name"`
-	PayinType              string `json:"payin_type"`
+	DriverKey              string `json:"driver_key"`
 	ChannelConfig         string `json:"channel_config"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount"`
@@ -160,7 +160,7 @@ type AdminListChannelsResp struct {
 type AdminUpsertChannelReq struct {
 	Id                     int64  `path:"id,optional"`
 	Name                   string `json:"name"`
-	PayinType              string `json:"payin_type,optional"`
+	DriverKey              string `json:"driver_key,optional"`
 	ChannelConfig         string `json:"channel_config,optional"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount,optional"`

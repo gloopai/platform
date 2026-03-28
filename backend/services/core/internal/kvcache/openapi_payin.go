@@ -183,7 +183,7 @@ func listLegacyChannelPayinTypesMemory(chSnap *ChannelSnapshot, amount int64) []
 		if ch.MaxAmount > 0 && ch.MaxAmount < amount {
 			return
 		}
-		pt := strings.TrimSpace(ch.PayinType)
+		pt := strings.TrimSpace(ch.DriverKey)
 		if pt == "" {
 			pt = "mock"
 		}
@@ -317,7 +317,7 @@ func routeLegacyMemory(payType string, amount int64, chSnap *ChannelSnapshot) (i
 		if ch.MaxAmount > 0 && ch.MaxAmount < amount {
 			return
 		}
-		pt := strings.TrimSpace(ch.PayinType)
+		pt := strings.TrimSpace(ch.DriverKey)
 		if pt != "" && pt != payType {
 			return
 		}

@@ -14,8 +14,8 @@ func RegisterBuiltInDrivers(r *Registry, ch *store.ChannelsStore, snap *kvcache.
 	}
 	r.channels = ch
 	r.channelSnap = snap
-	r.Register(hexmeta.DriverKey, func(in contracts.BindInput) (contracts.ChannelDriver, error) {
-		return hexmeta.NewDriver(in.ChannelID, ch, snap)
+	r.Register(hexmeta.DriverKey, func(channelID int64) (contracts.ChannelDriver, error) {
+		return hexmeta.NewDriver(channelID, ch, snap)
 	})
 	return nil
 }

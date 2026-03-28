@@ -1,6 +1,8 @@
 package store
 
 import (
+	"strings"
+
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/model"
 )
@@ -13,7 +15,7 @@ func ChannelToKV(c *model.Channel) *configkv.ChannelKV {
 	return &configkv.ChannelKV{
 		ID:                    c.ID,
 		Name:                  c.Name,
-		PayinType:             c.PayinType,
+		DriverKey:             c.DriverKey,
 		GatewayURL:            c.GatewayUrl,
 		ChannelMerchantNo:     c.ChannelMerchantNo,
 		RsaPrivateKey:         c.RsaPrivateKey,
@@ -38,10 +40,14 @@ func KVToChannel(kv *configkv.ChannelKV) *model.Channel {
 	if kv == nil {
 		return nil
 	}
+	dk := strings.TrimSpace(kv.DriverKey)
+	if dk == "" {
+		dk = strings.TrimSpace(kv.PayinTypeLegacy)
+	}
 	return &model.Channel{
 		ID:                    kv.ID,
 		Name:                  kv.Name,
-		PayinType:             kv.PayinType,
+		DriverKey:             dk,
 		GatewayUrl:            kv.GatewayURL,
 		ChannelMerchantNo:     kv.ChannelMerchantNo,
 		RsaPrivateKey:         kv.RsaPrivateKey,

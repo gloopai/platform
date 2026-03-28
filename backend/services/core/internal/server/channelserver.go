@@ -53,7 +53,7 @@ func enrichChannelRowForGet(c *model.Channel) *channelpb.ChannelRow {
 		return row
 	}
 	var bindJSON string
-	if strings.TrimSpace(c.PayinType) == hexmeta.DriverKey {
+	if strings.TrimSpace(c.DriverKey) == hexmeta.DriverKey {
 		bj, err := hexmeta.CanonicalBindJSON(c)
 		if err != nil {
 			bindJSON = ""
@@ -76,7 +76,7 @@ func toChannelRow(c *model.Channel) *channelpb.ChannelRow {
 	return &channelpb.ChannelRow{
 		Id:                    c.ID,
 		Name:                  c.Name,
-		PayinType:             c.PayinType,
+		DriverKey:             c.DriverKey,
 		GatewayUrl:            c.GatewayUrl,
 		ChannelMerchantNo:     c.ChannelMerchantNo,
 		RsaPrivateKey:         c.RsaPrivateKey,
@@ -167,7 +167,7 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *model.Channel {
 	}
 	return &model.Channel{
 		Name:                  req.GetName(),
-		PayinType:             req.GetPayinType(),
+		DriverKey:             req.GetDriverKey(),
 		GatewayUrl:            "",
 		ChannelMerchantNo:     "",
 		RsaPrivateKey:         "",

@@ -80,13 +80,13 @@ ORDER BY pp.sort_order ASC, pp.id ASC
 	if len(out) > 0 {
 		return out, nil
 	}
-	// 未迁移 payin_products 时的回退：按 channels.payin_type 去重
+	// 未迁移 payin_products 时的回退：按 channels.driver_key 去重
 	return s.listLegacyChannelPayinTypes(ctx, amount)
 }
 
 func (s *PayinProductsStore) listLegacyChannelPayinTypes(ctx context.Context, amount int64) ([]model.PayinProductOption, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
-SELECT DISTINCT COALESCE(NULLIF(TRIM(payin_type), ''), 'mock')
+SELECT DISTINCT COALESCE(NULLIF(TRIM(driver_key), ''), 'mock')
 FROM channels
 WHERE enabled = 1 AND fuse_enabled = 0 AND supports_payin = 1 AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)

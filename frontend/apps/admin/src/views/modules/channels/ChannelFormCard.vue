@@ -12,16 +12,16 @@
       <!-- 基本设置 -->
       <div v-if="section === 'basic'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
         <div class="text-xs font-semibold text-slate-800">标识与限额</div>
-        <p class="mt-0.5 text-[11px] text-slate-500">名称与支付类型用于列表展示与路由匹配；限额单位为分。</p>
+        <p class="mt-0.5 text-[11px] text-slate-500">名称与 DriverKey 用于列表展示；DriverKey 决定加载哪个 PSP 驱动；限额单位为分。</p>
         <div class="mt-2.5 grid gap-2.5 sm:grid-cols-2">
           <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
             通道名称
             <input v-model.trim="model.name" autocomplete="off" class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm" />
           </label>
           <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
-            支付类型
+            DriverKey（PSP 驱动）
             <input
-              v-model.trim="model.payin_type"
+              v-model.trim="model.driver_key"
               autocomplete="off"
               class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-sm"
             />

@@ -34,7 +34,7 @@ func toAdminChannelInfo(ch *channelpb.ChannelRow) types.AdminChannelInfo {
 	return types.AdminChannelInfo{
 		Id:                     ch.GetId(),
 		Name:                   ch.GetName(),
-		PayinType:              ch.GetPayinType(),
+		DriverKey:              ch.GetDriverKey(),
 		ChannelConfig:          ch.GetChannelConfig(),
 		Weight:                 ch.GetWeight(),
 		MinAmount:              ch.GetMinAmount(),
@@ -78,7 +78,7 @@ func (c *AdminChannels) AdminCreateChannel(req *types.AdminUpsertChannelReq) (*t
 
 	resp, err := c.svcCtx.ChannelRpc.CreateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Name:                   req.Name,
-		PayinType:              req.PayinType,
+		DriverKey:              req.DriverKey,
 		ChannelConfig:          req.ChannelConfig,
 		Weight:                 req.Weight,
 		MinAmount:              req.MinAmount,
@@ -118,7 +118,7 @@ func (c *AdminChannels) AdminUpdateChannel(req *types.AdminUpsertChannelReq) (*t
 	resp, err := c.svcCtx.ChannelRpc.UpdateChannel(c.ctx, &channelpb.UpsertChannelReq{
 		Id:                     req.Id,
 		Name:                   req.Name,
-		PayinType:              req.PayinType,
+		DriverKey:              req.DriverKey,
 		ChannelConfig:          req.ChannelConfig,
 		Weight:                 req.Weight,
 		MinAmount:              req.MinAmount,

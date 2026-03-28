@@ -19,10 +19,10 @@ type ChannelResolver interface {
 	ResolveBindInput(ctx context.Context, channelID int64) (contracts.BindInput, error)
 }
 
-// DriverFactory builds a [contracts.ChannelDriver] from bind input (channel_config JSON + optional row).
-type DriverFactory func(contracts.BindInput) (contracts.ChannelDriver, error)
+// DriverFactory builds a [contracts.ChannelDriver] for one channels.id (config loaded inside the driver).
+type DriverFactory func(channelID int64) (contracts.ChannelDriver, error)
 
-// Registry maps channels.payin_type (driver key) to constructors and caches instances per channel_id.
+// Registry maps channels.driver_key to constructors and caches instances per channel_id.
 type Registry struct {
 	mu          sync.RWMutex
 	factories   map[string]DriverFactory
@@ -94,7 +94,7 @@ func (r *Registry) open(in contracts.BindInput) (contracts.ChannelDriver, error)
 	if !ok {
 		return nil, contracts.ErrNoDriver
 	}
-	return f(in)
+	return f(in.ChannelID)
 }
 
 func (r *Registry) GetChannelDriver(ctx context.Context, channelID int64, res ChannelResolver) (contracts.ChannelDriver, error) {
@@ -119,7 +119,7 @@ func (r *Registry) GetChannelDriver(ctx context.Context, channelID int64, res Ch
 	if !ok {
 		return nil, contracts.ErrNoDriver
 	}
-	drv, err := f(in)
+	drv, err := f(in.ChannelID)
 	if err != nil {
 		return nil, err
 	}

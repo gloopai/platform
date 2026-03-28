@@ -45,7 +45,7 @@ func (r *Resolver) ResolveBindInput(ctx context.Context, channelID int64) (contr
 	}
 	cc := kvcache.PickChannelConfig(r.Snap, channelID, row.ChannelConfig)
 	raw := strings.TrimSpace(cc)
-	dk := strings.TrimSpace(row.PayinType)
+	dk := strings.TrimSpace(row.DriverKey)
 	if dk != hm.DriverKey {
 		if err := validateChannelConfigJSON(raw); err != nil {
 			return contracts.BindInput{}, err
@@ -163,16 +163,24 @@ func (b *Bridge) InvalidateDriverCache(channelID int64) {
 	b.cfg.Registry.InvalidateChannelDriver(channelID)
 }
 
-func (b *Bridge) OpenPayin(in contracts.BindInput) (contracts.ChannelDriver, error) {
-	if b == nil || b.cfg.Registry == nil {
+func (b *Bridge) OpenPayin(ctx context.Context, channelID int64) (contracts.ChannelDriver, error) {
+	if b == nil || b.cfg.Registry == nil || b.cfg.Resolver == nil {
 		return nil, contracts.ErrNoDriver
+	}
+	in, err := b.cfg.Resolver.ResolveBindInput(ctx, channelID)
+	if err != nil {
+		return nil, err
 	}
 	return b.cfg.Registry.OpenPayin(in)
 }
 
-func (b *Bridge) OpenPayout(in contracts.BindInput) (contracts.ChannelDriver, error) {
-	if b == nil || b.cfg.Registry == nil {
+func (b *Bridge) OpenPayout(ctx context.Context, channelID int64) (contracts.ChannelDriver, error) {
+	if b == nil || b.cfg.Registry == nil || b.cfg.Resolver == nil {
 		return nil, contracts.ErrNoDriver
+	}
+	in, err := b.cfg.Resolver.ResolveBindInput(ctx, channelID)
+	if err != nil {
+		return nil, err
 	}
 	return b.cfg.Registry.OpenPayout(in)
 }

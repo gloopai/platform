@@ -25,7 +25,9 @@ type MerchantKV struct {
 type ChannelKV struct {
 	ID                    int64  `json:"id,omitempty"`
 	Name                  string `json:"name,omitempty"`
-	PayinType             string `json:"payin_type,omitempty"`
+	DriverKey             string `json:"driver_key,omitempty"`
+	// PayinTypeLegacy is only read from old Consul snapshots; new writes use DriverKey.
+	PayinTypeLegacy       string `json:"payin_type,omitempty"`
 	GatewayURL            string `json:"gateway_url,omitempty"`
 	ChannelMerchantNo     string `json:"channel_merchant_no,omitempty"`
 	RsaPrivateKey         string `json:"rsa_private_key,omitempty"`

@@ -17,7 +17,7 @@ import (
 
 const apiPrefix = "/exposed/v1"
 
-// DriverKey is channels.payin_type for this implementation.
+// DriverKey is channels.driver_key for this implementation.
 const DriverKey = "hexmeta_in"
 
 type cfg struct {

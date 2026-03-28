@@ -29,7 +29,7 @@ func NewChannelsStore(db *gorm.DB) *ChannelsStore {
 	return &ChannelsStore{db: db}
 }
 
-// Route 按支付产品编码选一条通道：优先 payin_products + payin_product_channels；否则回退到 channels.payin_type 旧逻辑。仅 supports_payin=1 的通道参与代收路由。
+// Route 按支付产品编码选一条通道：优先 payin_products + payin_product_channels；否则回退到 channels.driver_key 旧逻辑。仅 supports_payin=1 的通道参与代收路由。
 func (s *ChannelsStore) Route(ctx context.Context, payinProductCode string, amount int64) (channelID, payProductID int64, err error) {
 	code := strings.TrimSpace(payinProductCode)
 	if code == "" {
@@ -101,7 +101,7 @@ FROM channels
 WHERE enabled = 1
   AND fuse_enabled = 0
   AND supports_payin = 1
-  AND (payin_type = ? OR payin_type = '' OR payin_type IS NULL)
+  AND (driver_key = ? OR driver_key = '' OR driver_key IS NULL)
   AND weight > 0
   AND (min_amount = 0 OR min_amount <= ?)
   AND (max_amount = 0 OR max_amount >= ?)
@@ -139,17 +139,17 @@ WHERE enabled = 1
 	return items[len(items)-1].ID, nil
 }
 
-// GetGatewayURLAndPayinType 用于收银台组装跳转/二维码载体。
+// GetGatewayURLAndDriverKey 用于收银台组装跳转/二维码载体。
 // consulConfigJSONOverride 若非空，则优先用于解析 gateway_url（与 Consul 缓存一致）。
-func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID int64, consulConfigJSONOverride string) (gatewayURL, payinType string, err error) {
+func (s *ChannelsStore) GetGatewayURLAndDriverKey(ctx context.Context, channelID int64, consulConfigJSONOverride string) (gatewayURL, driverKey string, err error) {
 	var r struct {
 		GatewayURL    string `gorm:"column:gateway_url"`
-		PayinType     string `gorm:"column:payin_type"`
+		DriverKey     string `gorm:"column:driver_key"`
 		ChannelConfig string `gorm:"column:channel_config"`
 	}
 	tx := s.db.WithContext(ctx).
 		Table("channels").
-		Select("COALESCE(gateway_url,'') AS gateway_url, COALESCE(payin_type,'') AS payin_type, COALESCE(channel_config,'') AS channel_config").
+		Select("COALESCE(gateway_url,'') AS gateway_url, COALESCE(driver_key,'') AS driver_key, COALESCE(channel_config,'') AS channel_config").
 		Where("id = ?", channelID).
 		Limit(1).
 		Take(&r)
@@ -157,7 +157,7 @@ func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID
 		return "", "", tx.Error
 	}
 	gw := r.GatewayURL
-	return gw, r.PayinType, nil
+	return gw, r.DriverKey, nil
 }
 
 // consulConfigJSONOverride 若非空，则优先用于解析 JSON（与 Consul 内存缓存一致）。
@@ -188,7 +188,7 @@ func (s *ChannelsStore) AdminGetByID(ctx context.Context, id int64) (*model.Chan
 	tx := s.db.WithContext(ctx).Raw(`
 SELECT id,
        COALESCE(name,'') AS name,
-       COALESCE(payin_type,'') AS payin_type,
+       COALESCE(driver_key,'') AS driver_key,
        COALESCE(gateway_url,'') AS gateway_url,
        COALESCE(channel_merchant_no,'') AS channel_merchant_no,
        COALESCE(rsa_private_key,'') AS rsa_private_key,
@@ -223,7 +223,7 @@ LIMIT 1
 
 func (s *ChannelsStore) AdminList(ctx context.Context) ([]model.Channel, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
-SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
+SELECT id, COALESCE(name,''), COALESCE(driver_key,''), COALESCE(gateway_url,''),
        COALESCE(channel_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
        COALESCE(channel_config,''),
        weight, min_amount, max_amount,
@@ -244,7 +244,7 @@ ORDER BY id DESC
 		if err := rows.Scan(
 			&c.ID,
 			&c.Name,
-			&c.PayinType,
+			&c.DriverKey,
 			&c.GatewayUrl,
 			&c.ChannelMerchantNo,
 			&c.RsaPrivateKey,
@@ -283,11 +283,11 @@ func (s *ChannelsStore) AdminCreate(ctx context.Context, c *model.Channel) (int6
 		sp = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-INSERT INTO channels (name, payin_type, gateway_url, channel_merchant_no, rsa_private_key, sign_secret, channel_config, weight, min_amount, max_amount,
+INSERT INTO channels (name, driver_key, gateway_url, channel_merchant_no, rsa_private_key, sign_secret, channel_config, weight, min_amount, max_amount,
   supports_payin, supports_payout, channel_payin_rate_bps, channel_payout_rate_bps, channel_payout_fee_mode, channel_payout_fixed_fee,
   enabled, fuse_enabled, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, c.Name, c.PayinType, c.GatewayUrl, c.ChannelMerchantNo, c.RsaPrivateKey, c.SignSecret, c.ChannelConfig, c.Weight, c.MinAmount, c.MaxAmount,
+`, c.Name, c.DriverKey, c.GatewayUrl, c.ChannelMerchantNo, c.RsaPrivateKey, c.SignSecret, c.ChannelConfig, c.Weight, c.MinAmount, c.MaxAmount,
 		sc, sp, c.ChannelPayinRateBps, c.ChannelPayoutRateBps, c.ChannelPayoutFeeMode, c.ChannelPayoutFixedFee, c.Enabled, c.FuseEnabled)
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -311,12 +311,12 @@ func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *model.Chan
 	}
 	return s.db.WithContext(ctx).Exec(`
 UPDATE channels
-SET name = ?, payin_type = ?, gateway_url = ?, channel_merchant_no = ?, rsa_private_key = ?, sign_secret = ?, channel_config = ?,
+SET name = ?, driver_key = ?, gateway_url = ?, channel_merchant_no = ?, rsa_private_key = ?, sign_secret = ?, channel_config = ?,
     weight = ?, min_amount = ?, max_amount = ?,
     supports_payin = ?, supports_payout = ?, channel_payin_rate_bps = ?, channel_payout_rate_bps = ?, channel_payout_fee_mode = ?, channel_payout_fixed_fee = ?,
     enabled = ?, fuse_enabled = ?, updated_at = NOW()
 WHERE id = ?
-`, c.Name, c.PayinType, c.GatewayUrl, c.ChannelMerchantNo, c.RsaPrivateKey, c.SignSecret, c.ChannelConfig,
+`, c.Name, c.DriverKey, c.GatewayUrl, c.ChannelMerchantNo, c.RsaPrivateKey, c.SignSecret, c.ChannelConfig,
 		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.ChannelPayinRateBps, c.ChannelPayoutRateBps, c.ChannelPayoutFeeMode, c.ChannelPayoutFixedFee,
 		c.Enabled, c.FuseEnabled, id).Error
 }

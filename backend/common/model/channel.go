@@ -4,7 +4,7 @@ package model
 type Channel struct {
 	ID                    int64  `json:"id,omitempty" gorm:"column:id;primaryKey"`
 	Name                  string `json:"name,omitempty" gorm:"column:name"`
-	PayinType             string `json:"payin_type,omitempty" gorm:"column:payin_type"`
+	DriverKey             string `json:"driver_key,omitempty" gorm:"column:driver_key"`
 	GatewayUrl            string `json:"gateway_url,omitempty" gorm:"column:gateway_url"`
 	ChannelMerchantNo     string `json:"channel_merchant_no,omitempty" gorm:"column:channel_merchant_no"`
 	RsaPrivateKey         string `json:"rsa_private_key,omitempty" gorm:"column:rsa_private_key"`

@@ -36,7 +36,7 @@ ON DUPLICATE KEY UPDATE next_id = merchant_numeric_seq.next_id;
 CREATE TABLE IF NOT EXISTS channels (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(64) NOT NULL,
-  payin_type VARCHAR(32) NULL,
+  driver_key VARCHAR(32) NULL COMMENT 'PSP 驱动标识，与 Registry 注册键一致',
   gateway_url VARCHAR(512) NULL,
   channel_merchant_no VARCHAR(128) NULL,
   rsa_private_key TEXT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS channels (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  KEY idx_enabled_payintype (enabled, payin_type),
+  KEY idx_enabled_driverkey (enabled, driver_key),
   KEY idx_enabled_fuse (enabled, fuse_enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
