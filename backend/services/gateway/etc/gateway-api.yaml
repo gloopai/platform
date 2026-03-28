@@ -82,3 +82,9 @@ Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice
   PortalNotifyTopic: pay.notify.portal
+
+# 本地 admin 直连 gateway（见 frontend/apps/admin/.env.development）。线上请清空或改为真实管理台 Origin。
+AdminCors:
+  AllowedOrigins:
+    - http://127.0.0.1:5176
+    - http://localhost:5176

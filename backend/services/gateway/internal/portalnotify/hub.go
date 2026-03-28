@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/gloopai/pay/common/notify"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 // Hub holds local SSE subscribers. NSQ delivers each message to every gateway instance; offline clients simply receive nothing.
@@ -32,7 +33,7 @@ func NewHub() *Hub {
 
 // RegisterAdmin registers an SSE connection. master=true => only broadcast; else adminID must be >0.
 func (h *Hub) RegisterAdmin(master bool, adminID int64) (recv <-chan []byte, unregister func()) {
-	s := &subscriber{ch: make(chan []byte, 8)}
+	s := &subscriber{ch: make(chan []byte, 64)}
 	h.mu.Lock()
 	if master {
 		h.adminMaster = append(h.adminMaster, s)
@@ -60,7 +61,7 @@ func (h *Hub) unregisterAdmin(s *subscriber, master bool, adminID int64) {
 
 // RegisterMerchant registers a merchant SSE connection.
 func (h *Hub) RegisterMerchant(merchantID string) (recv <-chan []byte, unregister func()) {
-	s := &subscriber{ch: make(chan []byte, 8)}
+	s := &subscriber{ch: make(chan []byte, 64)}
 	h.mu.Lock()
 	h.merchantBroadcast = append(h.merchantBroadcast, s)
 	h.merchantByID[merchantID] = append(h.merchantByID[merchantID], s)
@@ -133,8 +134,14 @@ func (h *Hub) broadcastAdmin(data []byte) {
 
 func (h *Hub) sendAdmin(id int64, data []byte) {
 	h.mu.RLock()
+	subs := h.adminByID[id]
+	if len(subs) == 0 {
+		h.mu.RUnlock()
+		logx.Infof("portal notify: no admin SSE subscribers for admin_id=%d (check JWT vs targeted ids)", id)
+		return
+	}
 	defer h.mu.RUnlock()
-	for _, s := range h.adminByID[id] {
+	for _, s := range subs {
 		trySend(s, data)
 	}
 }
@@ -163,5 +170,6 @@ func trySend(s *subscriber, data []byte) {
 	select {
 	case s.ch <- payload:
 	default:
+		logx.Infof("portal notify: subscriber channel full, drop one message")
 	}
 }

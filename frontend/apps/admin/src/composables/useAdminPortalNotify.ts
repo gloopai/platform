@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { adminApiUrl, loadAdminToken } from '../lib/adminApi'
+import { adminSseUrl, loadAdminToken } from '../lib/adminApi'
 import type { PortalNotifyEnvelope, PortalNotifyListItem } from '../lib/portalNotifyTypes'
 import { useUiToast } from './useUiToast'
 
@@ -103,7 +103,7 @@ export function useAdminPortalNotify(adminToken: Ref<string>) {
   }
 
   async function runStream() {
-    const url = adminApiUrl('/v1/admin/notifications/stream')
+    const url = adminSseUrl('/v1/admin/notifications/stream')
     const tok = loadAdminToken()
     if (!tok) {
       connected.value = false

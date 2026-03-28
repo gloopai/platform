@@ -43,7 +43,7 @@
           <div class="text-xs font-semibold text-slate-900">通知</div>
           <div class="text-[10px] text-slate-500">实时推送；离线时仅保留历史记录于服务端</div>
         </div>
-        <div class="max-h-80 overflow-y-auto">
+        <div class="min-h-20 max-h-80 overflow-y-auto">
           <div v-if="!recent.length" class="px-3 py-8 text-center text-xs text-slate-500">暂无通知</div>
           <button
             v-for="item in recent"

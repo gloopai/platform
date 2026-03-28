@@ -117,6 +117,26 @@
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="text-sm font-semibold text-slate-900">通知推送（联调）</div>
+          <p class="mt-1 text-sm text-slate-600">
+            调用 <span class="font-mono text-slate-800">POST /v1/admin/notifications/test</span>，经 service-hub 入库并发 NSQ；当前账号应收到 SSE 与铃铛提示。
+          </p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-900 shadow-sm transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
+          :disabled="notifyTestLoading"
+          @click="sendTestNotification"
+        >
+          {{ notifyTestLoading ? '发送中…' : '发送测试通知' }}
+        </button>
+      </div>
+      <p v-if="notifyTestError" class="mt-3 text-sm text-rose-600">{{ notifyTestError }}</p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">后续规划</div>
       <ul class="mt-3 list-inside list-disc space-y-2 text-sm text-slate-700">
         <li>接入 metrics：QPS、错误率、延迟分位、队列积压</li>
@@ -132,14 +152,32 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-import { adminGet } from '../../../lib/adminApi'
+import { adminGet, adminPost } from '../../../lib/adminApi'
+import { useUiToast } from '../../../composables/useUiToast'
 
+const toast = useUiToast()
 const loading = ref(false)
 const refreshing = ref(false)
 const error = ref('')
 const autoRefresh = ref(true)
 const data = ref<any | null>(null)
 const selectedServiceName = ref('')
+const notifyTestLoading = ref(false)
+const notifyTestError = ref('')
+
+async function sendTestNotification() {
+  notifyTestError.value = ''
+  notifyTestLoading.value = true
+  try {
+    const res = await adminPost<{ notification_id: string }>('/v1/admin/notifications/test', {})
+    toast.success(`已发送（id: ${res.notification_id?.slice(0, 8) ?? 'ok'}…）`)
+  } catch (e) {
+    notifyTestError.value = e instanceof Error ? e.message : String(e)
+    toast.error(notifyTestError.value)
+  } finally {
+    notifyTestLoading.value = false
+  }
+}
 
 const selectedService = computed(() => {
   const services = (data.value?.services || []) as Array<any>

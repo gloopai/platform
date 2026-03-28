@@ -52,6 +52,7 @@ func main() {
 	merchantServer := rest.MustNewServer(c.MerchantServer)
 	openAPIServer := rest.MustNewServer(c.OpenAPIServer)
 	checkoutServer := rest.MustNewServer(c.CheckoutServer)
+	adminServer.Use(middleware.NewAdminCorsMiddleware(c.AdminCors.AllowedOrigins).Handle)
 	servers := []*rest.Server{adminServer, merchantServer, openAPIServer, checkoutServer}
 	for _, s := range servers {
 		s.Use(middleware.NewTraceHeaderMiddleware().Handle)
@@ -80,6 +81,11 @@ func main() {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/ops/services",
 					Handler: adminhandler.AdminOpsServicesHandler(ctx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/notifications/test",
+					Handler: adminhandler.AdminNotificationTestHandler(ctx),
 				},
 				{
 					Method:  http.MethodGet,
