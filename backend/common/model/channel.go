@@ -9,6 +9,8 @@ type Channel struct {
 	ChannelMerchantNo     string `json:"channel_merchant_no,omitempty" gorm:"column:channel_merchant_no"`
 	RsaPrivateKey         string `json:"rsa_private_key,omitempty" gorm:"column:rsa_private_key"`
 	SignSecret            string `json:"sign_secret,omitempty" gorm:"column:sign_secret"`
+	// ChannelConfig JSON: common keys (gateway_url, channel_merchant_no, sign_secret, rsa_private_key)
+	// plus driver_config (PSP-specific JSON; platform may merge legacy columns via common/channelconfig).
 	ChannelConfig         string `json:"channel_config,omitempty" gorm:"column:channel_config"`
 	Weight                int64  `json:"weight,omitempty" gorm:"column:weight"`
 	MinAmount             int64  `json:"min_amount,omitempty" gorm:"column:min_amount"`

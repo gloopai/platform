@@ -21,6 +21,7 @@ type ServiceContext struct {
 	PayoutOrders   *store.PayoutOrdersStore
 	OrderStats     *store.OrderStatsStore
 	NotifyLogs     *store.NotifyLogsStore
+	// ChannelDrivers: temporary for terminal pay; prefer channel gRPC to core for driver access.
 	ChannelDrivers *channeldriver.Registry
 	ChannelRpc     channelclient.Channel
 }

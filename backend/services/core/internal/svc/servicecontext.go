@@ -2,12 +2,14 @@ package svc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/channeldriver/setup"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
+	"github.com/gloopai/pay/core/internal/channelbind"
 	"github.com/gloopai/pay/core/internal/config"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
@@ -35,7 +37,11 @@ type ServiceContext struct {
 	MerchantPayoutGrantsSnapshot *kvcache.MerchantPayoutGrantsSnapshot
 	PayinProductBindingsSnapshot *kvcache.PayinProductBindingsSnapshot
 	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
-	ChannelDrivers              *channeldriver.Registry
+	// ChannelDrivers is owned only by core: RegisterChannelDriver + GetChannelDriver (channel bind resolver).
+	// Gateway and trade should use channel gRPC to core instead of embedding a Registry long term.
+	ChannelDrivers *channeldriver.Registry
+
+	channelBindResolver channeldriver.ChannelResolver
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -79,6 +85,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	reg := channeldriver.NewRegistry()
 	_ = setup.RegisterDefaultMockPSPs(reg)
+	chStore := store.NewChannelsStore(gdb)
+	bindRes := channelbind.NewResolver(chStore, channelSnap)
 	return &ServiceContext{
 		Config:                 c,
 		Gorm:                   gdb,
@@ -86,7 +94,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MerchantPayinProducts:  store.NewMerchantPayinProductsStore(gdb),
 		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(gdb),
 		Settle:                 store.NewSettleStore(gdb),
-		Channels:               store.NewChannelsStore(gdb),
+		Channels:               chStore,
 		PayinProducts:          store.NewPayinProductsStore(gdb),
 		PayoutProducts:         store.NewPayoutProductsStore(gdb),
 		RoutingSummary:         store.NewRoutingSummaryStore(gdb),
@@ -100,7 +108,29 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PayinProductBindingsSnapshot:   payinBindSnap,
 		PayoutProductBindingsSnapshot:  payoutBindSnap,
 		ChannelDrivers:                 reg,
+		channelBindResolver:            bindRes,
 	}
+}
+
+// GetChannelDriver returns a cached [channeldriver.ChannelDriver] for one channel row.
+// This is the supported entrypoint for channel_id + merged config inside core.
+func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (channeldriver.ChannelDriver, error) {
+	if s == nil || s.ChannelDrivers == nil {
+		return nil, fmt.Errorf("svc: ChannelDrivers not configured")
+	}
+	if s.channelBindResolver == nil {
+		return nil, fmt.Errorf("svc: channel bind resolver not configured")
+	}
+	return s.ChannelDrivers.GetChannelDriver(ctx, channelID, s.channelBindResolver)
+}
+
+// InvalidateChannelDriverCache drops the in-process channel driver cache for a row after
+// admin updates channel_config (or equivalent).
+func (s *ServiceContext) InvalidateChannelDriverCache(channelID int64) {
+	if s == nil || s.ChannelDrivers == nil {
+		return
+	}
+	s.ChannelDrivers.InvalidateChannelDriver(channelID)
 }
 
 // OpenAPIMemoryReady is true when Consul-backed routing snapshots are wired (hot path can avoid DB).

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/channelconfig"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/svc"
@@ -75,8 +75,7 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*cha
 			sec := strings.TrimSpace(snap.SignSecret)
 			uc := strings.TrimSpace(snap.ChannelConfig)
 			if uc != "" {
-				_, _, js, _ := channeldriver.ConfigFieldsFromChannelJSON(uc)
-				if js != "" {
+				if js := channelconfig.StringFromJSONObject(uc, "sign_secret"); js != "" {
 					sec = js
 				}
 			}

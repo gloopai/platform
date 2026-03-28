@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/channelconfig"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
@@ -59,7 +59,7 @@ func toChannelRow(c *model.Channel) *channelpb.ChannelRow {
 		ChannelMerchantNo: c.ChannelMerchantNo,
 		RsaPrivateKey:     c.RsaPrivateKey,
 		SignSecret:        c.SignSecret,
-		ChannelConfig: channeldriver.ChannelConfigJSONForAPI(c.ChannelConfig, channeldriver.LegacyChannelFields{
+		ChannelConfig: channelconfig.ChannelConfigJSONForAPI(c.ChannelConfig, channelconfig.LegacyChannelFields{
 			GatewayURL:        c.GatewayUrl,
 			ChannelMerchantNo: c.ChannelMerchantNo,
 			SignSecret:        c.SignSecret,
@@ -249,7 +249,7 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
-	if err := channeldriver.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
+	if err := channelconfig.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	ch := fromUpsertReq(req)
@@ -281,7 +281,7 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
-	if err := channeldriver.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
+	if err := channelconfig.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	ch := fromUpsertReq(req)
@@ -293,6 +293,7 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 		return nil, err
 	}
 	syncChannelKV(ctx, s.svcCtx.RuntimeConfig, updated)
+	s.svcCtx.InvalidateChannelDriverCache(req.GetId())
 	return &channelpb.UpsertChannelResp{Channel: toChannelRow(updated)}, nil
 }
 

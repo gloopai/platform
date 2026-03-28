@@ -54,6 +54,8 @@ type ServiceContext struct {
 	CoreConn       *grpc.ClientConn
 	ServiceHubConn *grpc.ClientConn
 
+	// ChannelDrivers: temporary for upstream notify / checkout paths; prefer extending channel gRPC
+	// in core and calling ChannelRpc instead of OpenPayin here.
 	ChannelDrivers *channeldriver.Registry
 }
 

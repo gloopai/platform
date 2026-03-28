@@ -43,10 +43,15 @@ func (c *Checkout) UpstreamPayoutNotify(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	cfg := channelRowToConfig(chRow)
-	drv, err := c.svcCtx.ChannelDrivers.Payout(cfg.DriverKey)
+	in, err := bindInputFromChannelRow(chRow)
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_payout no_driver key=%s err=%v", reqID, cfg.DriverKey, err)
+		c.Errorf("request_id=%s action=upstream_payout channel_config err=%v", reqID, err)
+		http.Error(w, "bad channel config", http.StatusBadRequest)
+		return
+	}
+	ch, err := c.svcCtx.ChannelDrivers.OpenPayout(in)
+	if err != nil {
+		c.Errorf("request_id=%s action=upstream_payout no_driver key=%s err=%v", reqID, in.DriverKey, err)
 		http.Error(w, "no driver", http.StatusInternalServerError)
 		return
 	}
@@ -59,58 +64,58 @@ func (c *Checkout) UpstreamPayoutNotify(w http.ResponseWriter, r *http.Request) 
 	r2 := r.Clone(c.ctx)
 	r2.Body = io.NopCloser(bytes.NewReader(body))
 
-	parsed, err := drv.VerifyPayoutNotify(c.ctx, cfg, r2)
+	parsed, err := ch.VerifyPayoutNotify(c.ctx, r2)
 	if err != nil {
 		c.Infof("request_id=%s action=upstream_payout verify_fail err=%v", reqID, err)
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 		return
 	}
 	if strings.TrimSpace(parsed.MerchantOrderNo) != orderNo {
 		c.Errorf("request_id=%s action=upstream_payout order_mismatch query=%s body=%s", reqID, orderNo, parsed.MerchantOrderNo)
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 		return
 	}
 
 	switch parsed.Status {
 	case channeldriver.PayoutStatusProcessing:
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(true))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(true))
 		return
 	case channeldriver.PayoutStatusSuccess:
 		changed, merr := c.svcCtx.ServiceHub.MarkPayoutSuccess(c.ctx, orderNo, parsed.ChannelOrderNo)
 		if merr != nil {
 			c.Errorf("request_id=%s action=upstream_payout mark_success err=%v", reqID, merr)
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 			return
 		}
 		if changed {
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(true))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(true))
 			return
 		}
 		if c.payoutOrderTerminalStatus(orderNo, 1) {
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(true))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(true))
 			return
 		}
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 		return
 	case channeldriver.PayoutStatusFailed:
 		changed, merr := c.svcCtx.ServiceHub.MarkPayoutFailed(c.ctx, orderNo)
 		if merr != nil {
 			c.Errorf("request_id=%s action=upstream_payout mark_failed err=%v", reqID, merr)
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 			return
 		}
 		if changed {
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(true))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(true))
 			return
 		}
 		if c.payoutOrderTerminalStatus(orderNo, 2) {
-			channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(true))
+			channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(true))
 			return
 		}
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 		return
 	default:
-		channeldriver.WriteChannelNotify(w, drv, drv.PayoutNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayoutNotifyResponse(false))
 	}
 }
 

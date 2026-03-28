@@ -154,9 +154,9 @@
 
 **代码位置（已实现类型与接口骨架）**：[`backend/channeldriver`](../../backend/channeldriver)（独立模块 `github.com/gloopai/pay/channeldriver`）。
 
-以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/channeldriver/base/config.go)。
+以下与 **本文档 API** 对齐；由具体通道实现，从 `channels.channel_config` JSON 解析字段（结构因 PSP 而异）。平台可用 [`common/channelconfig`](../../backend/common/channelconfig/config.go) 合并 legacy 列，再组 [`BindInput`](../../backend/channeldriver/base/bind.go) 并 `OpenPayin`。
 
-**代收侧 [`PayinChannel`](../../backend/channeldriver/base/payin.go)**
+**代收侧 [`ChannelDriver`](../../backend/channeldriver/base/channel_driver.go)**
 
 - `CreatePayment` → 对应 `POST .../order/payment`
 - `QueryPayment` → `POST .../query/payment`
@@ -164,7 +164,7 @@
 - `VerifyPayinNotify` → 验签并解析回调
 - `PayinNotifyResponse` → `SUCCESS` / `FAIL` 等响应体
 
-**代付侧 [`PayoutChannel`](../../backend/channeldriver/base/payout.go)**
+**代付侧 [`ChannelDriver`](../../backend/channeldriver/base/channel_driver.go)**
 
 - `CreatePayout` → `POST .../order/payout`
 - `QueryPayout` → **待上游文档补齐后实现**

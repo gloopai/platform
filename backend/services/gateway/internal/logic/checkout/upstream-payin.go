@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/channelconfig"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"github.com/gloopai/pay/common/grpcclient/orderclient"
@@ -16,39 +17,29 @@ import (
 	"github.com/gloopai/pay/gateway/internal/types"
 )
 
-func channelRowToConfig(row *channelpb.ChannelRow) *channeldriver.ChannelConfig {
-	if row == nil {
-		return nil
-	}
-	gw := strings.TrimSpace(row.GetGatewayUrl())
-	mer := strings.TrimSpace(row.GetChannelMerchantNo())
-	sig := row.GetSignSecret()
-	rsa := row.GetRsaPrivateKey()
-	if uc := strings.TrimSpace(row.GetChannelConfig()); uc != "" {
-		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
-		if jg != "" {
-			gw = jg
-		}
-		if jm != "" {
-			mer = jm
-		}
-		if js != "" {
-			sig = js
-		}
-		if jr != "" {
-			rsa = jr
-		}
-	}
-	return channeldriver.ConfigFromDriverKey(
-		row.GetId(),
-		strings.TrimSpace(row.GetPayinType()),
-		gw,
-		mer,
-		sig,
-		rsa,
+func bindInputFromChannelRow(row *channelpb.ChannelRow) (channeldriver.BindInput, error) {
+	raw, err := channelconfig.ChannelConfigJSONForBind(
+		row.GetChannelConfig(),
+		channelconfig.LegacyChannelFields{
+			GatewayURL:        row.GetGatewayUrl(),
+			ChannelMerchantNo: row.GetChannelMerchantNo(),
+			SignSecret:        row.GetSignSecret(),
+			RSAPrivateKey:     row.GetRsaPrivateKey(),
+		},
 		row.GetSupportsPayin(),
 		row.GetSupportsPayout(),
 	)
+	if err != nil {
+		return channeldriver.BindInput{}, err
+	}
+	if err := channelconfig.ValidateChannelConfigJSON(raw); err != nil {
+		return channeldriver.BindInput{}, err
+	}
+	return channeldriver.BindInput{
+		ChannelID:         row.GetId(),
+		DriverKey:         strings.TrimSpace(row.GetPayinType()),
+		ChannelConfigJSON: raw,
+	}, nil
 }
 
 // UpstreamPayinNotify handles PSP-style JSON async notify (e.g. mock_psp). Response body is SUCCESS/FAIL plain text.
@@ -79,10 +70,15 @@ func (c *Checkout) UpstreamPayinNotify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg := channelRowToConfig(chRow)
-	drv, err := c.svcCtx.ChannelDrivers.Payin(cfg.DriverKey)
+	in, err := bindInputFromChannelRow(chRow)
 	if err != nil {
-		c.Errorf("request_id=%s action=upstream_payin no_driver key=%s err=%v", reqID, cfg.DriverKey, err)
+		c.Errorf("request_id=%s action=upstream_payin channel_config err=%v", reqID, err)
+		http.Error(w, "bad channel config", http.StatusBadRequest)
+		return
+	}
+	ch, err := c.svcCtx.ChannelDrivers.OpenPayin(in)
+	if err != nil {
+		c.Errorf("request_id=%s action=upstream_payin no_driver key=%s err=%v", reqID, in.DriverKey, err)
 		http.Error(w, "no driver", http.StatusInternalServerError)
 		return
 	}
@@ -95,19 +91,19 @@ func (c *Checkout) UpstreamPayinNotify(w http.ResponseWriter, r *http.Request) {
 	r2 := r.Clone(c.ctx)
 	r2.Body = io.NopCloser(bytes.NewReader(body))
 
-	parsed, err := drv.VerifyPayinNotify(c.ctx, cfg, r2)
+	parsed, err := ch.VerifyPayinNotify(c.ctx, r2)
 	if err != nil {
 		c.Infof("request_id=%s action=upstream_payin verify_fail err=%v", reqID, err)
-		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayinNotifyResponse(false))
 		return
 	}
 	if strings.TrimSpace(parsed.MerchantOrderNo) != orderNo {
 		c.Errorf("request_id=%s action=upstream_payin order_mismatch query=%s body=%s", reqID, orderNo, parsed.MerchantOrderNo)
-		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayinNotifyResponse(false))
 		return
 	}
 	if parsed.Status != channeldriver.PayinStatusSuccess {
-		channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(false))
+		channeldriver.WriteChannelNotify(w, ch, ch.PayinNotifyResponse(false))
 		return
 	}
 
@@ -120,7 +116,7 @@ func (c *Checkout) UpstreamPayinNotify(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, _ := c.channelNotifyCore(reqID, req)
 	ok := resp != nil && resp.Ok
-	channeldriver.WriteChannelNotify(w, drv, drv.PayinNotifyResponse(ok))
+	channeldriver.WriteChannelNotify(w, ch, ch.PayinNotifyResponse(ok))
 }
 
 // channelNotifyCore is shared mark paid + credit + nsq (no sign check).

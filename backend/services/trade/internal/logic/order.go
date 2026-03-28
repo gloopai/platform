@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/common/channelconfig"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	orderpb "github.com/gloopai/pay/common/pb/order"
@@ -586,36 +587,42 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
 	dk := strings.TrimSpace(chRow.GetPayinType())
-	gw := chRow.GetGatewayUrl()
-	mer := chRow.GetChannelMerchantNo()
-	sig := chRow.GetSignSecret()
-	rsa := chRow.GetRsaPrivateKey()
-	cfgJSON := chRow.GetChannelConfig()
-	if uc := strings.TrimSpace(cfgJSON); uc != "" {
-		jg, jm, js, jr := channeldriver.ConfigFieldsFromChannelJSON(uc)
-		if jg != "" {
+	gw := strings.TrimSpace(chRow.GetGatewayUrl())
+	if uc := strings.TrimSpace(chRow.GetChannelConfig()); uc != "" {
+		if jg := channelconfig.StringFromJSONObject(uc, "gateway_url"); jg != "" {
 			gw = jg
-		}
-		if jm != "" {
-			mer = jm
-		}
-		if js != "" {
-			sig = js
-		}
-		if jr != "" {
-			rsa = jr
 		}
 	}
 	notifyBase := strings.TrimSpace(l.svcCtx.Config.Upstream.CheckoutNotifyBaseURL)
 	if notifyBase != "" && dk != "" {
-		if drv, derr := l.svcCtx.ChannelDrivers.Payin(dk); derr == nil {
-			cfg := channeldriver.ConfigFromDriverKey(
-				chRow.GetId(), dk, gw, mer, sig, rsa,
-				chRow.GetSupportsPayin(), chRow.GetSupportsPayout(),
-			)
+		raw, err := channelconfig.ChannelConfigJSONForBind(
+			chRow.GetChannelConfig(),
+			channelconfig.LegacyChannelFields{
+				GatewayURL:        chRow.GetGatewayUrl(),
+				ChannelMerchantNo: chRow.GetChannelMerchantNo(),
+				SignSecret:        chRow.GetSignSecret(),
+				RSAPrivateKey:     chRow.GetRsaPrivateKey(),
+			},
+			chRow.GetSupportsPayin(), chRow.GetSupportsPayout(),
+		)
+		if err != nil {
+			l.Errorf("terminalPaySurface channel_config channel_id=%d err=%v", chID, err)
+			return nil, status.Error(codes.InvalidArgument, "invalid channel_config")
+		}
+		if err := channelconfig.ValidateChannelConfigJSON(raw); err != nil {
+			l.Errorf("terminalPaySurface channel_config channel_id=%d err=%v", chID, err)
+			return nil, status.Error(codes.InvalidArgument, "invalid channel_config")
+		}
+		in := channeldriver.BindInput{
+			ChannelID:         chRow.GetId(),
+			DriverKey:         dk,
+			ChannelConfigJSON: raw,
+		}
+		payCh, oerr := l.svcCtx.ChannelDrivers.OpenPayin(in)
+		if oerr == nil {
 			notifyURL := fmt.Sprintf("%s/v1/callback/upstream/payin?channel_id=%d&order_no=%s",
 				strings.TrimRight(notifyBase, "/"), chID, url.QueryEscape(orderNo))
-			resp, cerr := drv.CreatePayment(l.ctx, cfg, &channeldriver.CreatePaymentReq{
+			resp, cerr := payCh.CreatePayment(l.ctx, &channeldriver.CreatePaymentReq{
 				MerchantOrderNo: orderNo,
 				AmountMinor:     rec.Amount,
 				PayerName:       "payin",
