@@ -222,7 +222,8 @@ CREATE TABLE IF NOT EXISTS fund_logs (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uk_order_change (order_no, change_type),
-  KEY idx_merchant_created (merchant_id, created_at)
+  KEY idx_merchant_created (merchant_id, created_at),
+  KEY idx_fund_logs_merchant_order_type (merchant_id, order_no, change_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 提现申请单（phase2）

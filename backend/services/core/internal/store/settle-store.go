@@ -12,6 +12,7 @@ import (
 )
 
 var ErrInsufficientBalance = errors.New("insufficient balance")
+var ErrDebitPayoutAmountMismatch = errors.New("debit payout amount mismatch for existing order_no")
 var ErrInvalidWithdrawalStatus = errors.New("invalid withdrawal status")
 var ErrWithdrawalNotFound = errors.New("withdrawal not found")
 
@@ -93,6 +94,30 @@ func (s *SettleStore) DebitPayout(ctx context.Context, merchantId, orderNo strin
 			Take(&m).Error; err != nil {
 			return err
 		}
+
+		var prior struct {
+			Amount int64 `gorm:"column:amount"`
+		}
+		dupTx := tx.
+			Table("fund_logs").
+			Select("amount").
+			Where("merchant_id = ? AND order_no = ? AND change_type = 'PAYOUT_DEBIT'", merchantId, orderNo).
+			Limit(1).
+			Take(&prior)
+		if dupTx.Error == nil {
+			// fund_logs.amount 存扣款为负数，与 INSERT 时 -amount 一致
+			if prior.Amount != -amount {
+				availableAfter = m.AvailableBefore
+				return ErrDebitPayoutAmountMismatch
+			}
+			changed = false
+			availableAfter = m.AvailableBefore
+			return nil
+		}
+		if dupTx.Error != nil && dupTx.Error != gorm.ErrRecordNotFound {
+			return dupTx.Error
+		}
+
 		if m.AvailableBefore < amount {
 			changed = false
 			availableAfter = m.AvailableBefore
@@ -114,6 +139,9 @@ VALUES (?, ?, 'PAYOUT_DEBIT', ?, ?, ?, ?, NOW())
 	if err != nil {
 		if errors.Is(err, ErrInsufficientBalance) {
 			return false, availableAfter, ErrInsufficientBalance
+		}
+		if errors.Is(err, ErrDebitPayoutAmountMismatch) {
+			return false, availableAfter, ErrDebitPayoutAmountMismatch
 		}
 		return false, 0, err
 	}

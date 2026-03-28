@@ -39,8 +39,11 @@ func (l *DebitPayoutLogic) DebitPayout(in *settlepb.DebitPayoutReq) (*settlepb.D
 	}
 	changed, availableBalance, err := l.svcCtx.Settle.DebitPayout(l.ctx, in.GetMerchantId(), in.GetOrderNo(), in.GetAmount(), in.GetReason())
 	if err != nil {
-		if err == store.ErrInsufficientBalance {
+		if errors.Is(err, store.ErrInsufficientBalance) {
 			return nil, status.Error(codes.FailedPrecondition, "insufficient available balance")
+		}
+		if errors.Is(err, store.ErrDebitPayoutAmountMismatch) {
+			return nil, status.Error(codes.FailedPrecondition, "debit payout amount mismatch for order_no")
 		}
 		return nil, status.Error(codes.Internal, "debit payout failed")
 	}
