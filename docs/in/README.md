@@ -154,9 +154,9 @@
 
 **代码位置（已实现类型与接口骨架）**：[`backend/channeldriver`](../../backend/channeldriver)（独立模块 `github.com/gloopai/pay/channeldriver`）。
 
-以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/channeldriver/config.go)。
+以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/channeldriver/base/config.go)。
 
-**代收侧 [`PayinUpstream`](../../backend/channeldriver/payin.go)**
+**代收侧 [`PayinUpstream`](../../backend/channeldriver/base/payin.go)**
 
 - `CreatePayment` → 对应 `POST .../order/payment`
 - `QueryPayment` → `POST .../query/payment`
@@ -164,17 +164,17 @@
 - `VerifyPayinNotify` → 验签并解析回调
 - `PayinNotifyResponse` → `SUCCESS` / `FAIL` 等响应体
 
-**代付侧 [`PayoutUpstream`](../../backend/channeldriver/payout.go)**
+**代付侧 [`PayoutUpstream`](../../backend/channeldriver/base/payout.go)**
 
 - `CreatePayout` → `POST .../order/payout`
 - `QueryPayout` → **待上游文档补齐后实现**
 - `VerifyPayoutNotify` / `PayoutNotifyResponse`
 
-**余额 [`BalanceUpstream`](../../backend/channeldriver/balance.go)**
+**余额 [`BalanceUpstream`](../../backend/channeldriver/base/balance.go)**
 
 - `QueryBalance` → `POST .../query/balance`
 
-**多实现注册 [`Registry`](../../backend/channeldriver/registry.go)**：按 `driver_key` 注册；**通知分发**见 [`dispatch.go`](../../backend/channeldriver/dispatch.go) 的 `HandlePayinNotify` / `HandlePayoutNotify`（需传入 `PayinNotifyRoute` / `PayoutNotifyRoute` 从路径或查库解析 `ChannelConfig`）。
+**多实现注册 [`Registry`](../../backend/channeldriver/base/registry.go)**：按 `driver_key` 注册；**通知分发**见 [`base/dispatch.go`](../../backend/channeldriver/base/dispatch.go) 的 `HandlePayinNotify` / `HandlePayoutNotify`（需传入 `PayinNotifyRoute` / `PayoutNotifyRoute` 从路径或查库解析 `ChannelConfig`）。根包 [`channeldriver`](../../backend/channeldriver) 重新导出 `base` 中的符号，便于单路径 import。
 
 **说明**：平台内部订单号、路由、清结算仍走现有 trade/core/gateway；本包只负责 **与上游的 HTTP、签名、字段映射**，不复制商户 OpenAPI 形态。
 
@@ -217,3 +217,4 @@ require github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 | 2026-03-28 | §5 指向 `backend/channeldriver` 已实现骨架 |
 | 2026-03-28 | `channeldriver` 独立为 `github.com/gloopai/pay/channeldriver` 模块 |
 | 2026-03-28 | §5.2 平台 trade/gateway 与 `mock_psp` 回调路径说明 |
+| 2026-03-28 | 契约迁入 `channeldriver/base`，根包 re-export；§5 链接更新 |
