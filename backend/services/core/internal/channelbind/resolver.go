@@ -1,5 +1,5 @@
-// Package channelbind wires platform channel rows into channeldriver.BindInput. Only the core
-// service should use this with Registry.GetChannelDriver; gateway/trade should call core via gRPC.
+// Package channelbind wires platform channel rows into channeldriver.BindInput and hosts [Hub]
+// (routing + driver registry). Gateway/trade should call core via gRPC instead of embedding drivers long term.
 package channelbind
 
 import (
@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gloopai/pay/channeldriver"
 	"github.com/gloopai/pay/common/channelconfig"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 	"gorm.io/gorm"

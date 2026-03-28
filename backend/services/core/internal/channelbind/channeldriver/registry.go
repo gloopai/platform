@@ -30,7 +30,7 @@ type cachedDriver struct {
 }
 
 // NewRegistry returns an empty registry; register factories via [Registry.Register], then
-// [setup.RegisterDefaultMockPSPs] or equivalent.
+// [RegisterBuiltInDrivers] or equivalent.
 func NewRegistry() *Registry {
 	return &Registry{
 		factories: make(map[string]DriverFactory),

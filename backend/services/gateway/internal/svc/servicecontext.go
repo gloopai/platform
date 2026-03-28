@@ -7,8 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/channeldriver"
-	"github.com/gloopai/pay/channeldriver/setup"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
@@ -144,7 +143,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	chReg := channeldriver.NewRegistry()
-	_ = setup.RegisterDefaultMockPSPs(chReg)
+	_ = channeldriver.RegisterBuiltInDrivers(chReg)
 
 	return &ServiceContext{
 		Config: c,

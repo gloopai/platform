@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gloopai/pay/channeldriver/base"
+	"github.com/gloopai/pay/core/internal/channelbind/channeldriver/base"
 )
 
 func verifyNotifyBody(body []byte, secret string) (map[string]string, error) {

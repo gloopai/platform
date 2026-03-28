@@ -3,7 +3,6 @@ module github.com/gloopai/pay/core
 go 1.25.1
 
 require (
-	github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
 	github.com/zeromicro/go-zero v1.10.0
 	go.opentelemetry.io/otel v1.39.0
@@ -13,8 +12,6 @@ require (
 )
 
 replace github.com/gloopai/pay/common => ../../common
-
-replace github.com/gloopai/pay/channeldriver => ../../channeldriver
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

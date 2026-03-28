@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/channelconfig"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

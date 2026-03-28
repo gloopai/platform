@@ -2,13 +2,13 @@ module github.com/gloopai/pay/gateway
 
 go 1.25.7
 
-replace github.com/gloopai/pay/channeldriver => ../../channeldriver
-
 replace github.com/gloopai/pay/common => ../../common
 
+replace github.com/gloopai/pay/core => ../core
+
 require (
-	github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
+	github.com/gloopai/pay/core v0.0.0-00010101000000-000000000000
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/redis/go-redis/v9 v9.18.0

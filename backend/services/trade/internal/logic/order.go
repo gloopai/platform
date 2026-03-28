@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/channeldriver"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/channelconfig"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"

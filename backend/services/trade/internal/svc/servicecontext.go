@@ -1,8 +1,7 @@
 package svc
 
 import (
-	"github.com/gloopai/pay/channeldriver"
-	"github.com/gloopai/pay/channeldriver/setup"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/trade/internal/config"
@@ -44,7 +43,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	})
 	coreCli := zrpc.MustNewClient(c.CoreRpc)
 	reg := channeldriver.NewRegistry()
-	_ = setup.RegisterDefaultMockPSPs(reg)
+	_ = channeldriver.RegisterBuiltInDrivers(reg)
 	return &ServiceContext{
 		Config:         c,
 		Gorm:           gdb,

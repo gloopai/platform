@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gloopai/pay/channeldriver"
-	"github.com/gloopai/pay/channeldriver/setup"
+	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
@@ -18,30 +17,27 @@ import (
 )
 
 type ServiceContext struct {
-	Config                 config.Config
-	Gorm                   *gorm.DB
-	Merchants              *store.MerchantsStore
-	MerchantPayinProducts  *store.MerchantPayinProductsStore
-	MerchantPayoutProducts *store.MerchantPayoutProductsStore
-	Settle                 *store.SettleStore
-	Channels               *store.ChannelsStore
-	PayinProducts          *store.PayinProductsStore
-	PayoutProducts         *store.PayoutProductsStore
-	RoutingSummary         *store.RoutingSummaryStore
-	RuntimeConfig          *consulx.ConfigStore
-	MerchantSnapshot            *kvcache.MerchantSnapshot
-	ChannelSnapshot             *kvcache.ChannelSnapshot
-	PayinProductSnapshot        *kvcache.PayinProductSnapshot
-	PayoutProductSnapshot       *kvcache.PayoutProductSnapshot
-	MerchantPayinGrantsSnapshot *kvcache.MerchantPayinGrantsSnapshot
-	MerchantPayoutGrantsSnapshot *kvcache.MerchantPayoutGrantsSnapshot
-	PayinProductBindingsSnapshot *kvcache.PayinProductBindingsSnapshot
+	Config                        config.Config
+	Gorm                          *gorm.DB
+	Merchants                     *store.MerchantsStore
+	MerchantPayinProducts         *store.MerchantPayinProductsStore
+	MerchantPayoutProducts        *store.MerchantPayoutProductsStore
+	Settle                        *store.SettleStore
+	Channels                      *store.ChannelsStore
+	PayinProducts                 *store.PayinProductsStore
+	PayoutProducts                *store.PayoutProductsStore
+	RoutingSummary                *store.RoutingSummaryStore
+	RuntimeConfig                 *consulx.ConfigStore
+	MerchantSnapshot              *kvcache.MerchantSnapshot
+	ChannelSnapshot               *kvcache.ChannelSnapshot
+	PayinProductSnapshot          *kvcache.PayinProductSnapshot
+	PayoutProductSnapshot         *kvcache.PayoutProductSnapshot
+	MerchantPayinGrantsSnapshot   *kvcache.MerchantPayinGrantsSnapshot
+	MerchantPayoutGrantsSnapshot  *kvcache.MerchantPayoutGrantsSnapshot
+	PayinProductBindingsSnapshot  *kvcache.PayinProductBindingsSnapshot
 	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
-	// ChannelDrivers is owned only by core: RegisterChannelDriver + GetChannelDriver (channel bind resolver).
-	// Gateway and trade should use channel gRPC to core instead of embedding a Registry long term.
-	ChannelDrivers *channeldriver.Registry
-
-	channelBindResolver channeldriver.ChannelResolver
+	// ChannelHub owns routing (KV/DB) + [channeldriver.Registry] + bind resolver for this process.
+	ChannelHub *channelbind.Hub
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -84,62 +80,64 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		payoutBindSnap.Start(context.Background())
 	}
 	reg := channeldriver.NewRegistry()
-	_ = setup.RegisterDefaultMockPSPs(reg)
+	_ = channeldriver.RegisterBuiltInDrivers(reg)
 	chStore := store.NewChannelsStore(gdb)
 	bindRes := channelbind.NewResolver(chStore, channelSnap)
+	payinProdStore := store.NewPayinProductsStore(gdb)
+	hub := channelbind.NewHub(channelbind.HubConfig{
+		Channels:                     chStore,
+		PayinProducts:                payinProdStore,
+		Registry:                     reg,
+		Resolver:                     bindRes,
+		RuntimeConfig:                runtimeCfg,
+		PayinProductSnapshot:         payinProdSnap,
+		PayinProductBindingsSnapshot: payinBindSnap,
+		ChannelSnapshot:              channelSnap,
+		MerchantPayinGrantsSnapshot:  merPayinGrants,
+	})
 	return &ServiceContext{
-		Config:                 c,
-		Gorm:                   gdb,
-		Merchants:              store.NewMerchantsStore(gdb),
-		MerchantPayinProducts:  store.NewMerchantPayinProductsStore(gdb),
-		MerchantPayoutProducts: store.NewMerchantPayoutProductsStore(gdb),
-		Settle:                 store.NewSettleStore(gdb),
-		Channels:               chStore,
-		PayinProducts:          store.NewPayinProductsStore(gdb),
-		PayoutProducts:         store.NewPayoutProductsStore(gdb),
-		RoutingSummary:         store.NewRoutingSummaryStore(gdb),
-		RuntimeConfig:          runtimeCfg,
-		MerchantSnapshot:               merchantSnap,
-		ChannelSnapshot:                channelSnap,
-		PayinProductSnapshot:           payinProdSnap,
-		PayoutProductSnapshot:          payoutProdSnap,
-		MerchantPayinGrantsSnapshot:    merPayinGrants,
-		MerchantPayoutGrantsSnapshot:   merPayoutGrants,
-		PayinProductBindingsSnapshot:   payinBindSnap,
-		PayoutProductBindingsSnapshot:  payoutBindSnap,
-		ChannelDrivers:                 reg,
-		channelBindResolver:            bindRes,
+		Config:                        c,
+		Gorm:                          gdb,
+		Merchants:                     store.NewMerchantsStore(gdb),
+		MerchantPayinProducts:         store.NewMerchantPayinProductsStore(gdb),
+		MerchantPayoutProducts:        store.NewMerchantPayoutProductsStore(gdb),
+		Settle:                        store.NewSettleStore(gdb),
+		Channels:                      chStore,
+		PayinProducts:                 payinProdStore,
+		PayoutProducts:                store.NewPayoutProductsStore(gdb),
+		RoutingSummary:                store.NewRoutingSummaryStore(gdb),
+		RuntimeConfig:                 runtimeCfg,
+		MerchantSnapshot:              merchantSnap,
+		ChannelSnapshot:               channelSnap,
+		PayinProductSnapshot:          payinProdSnap,
+		PayoutProductSnapshot:         payoutProdSnap,
+		MerchantPayinGrantsSnapshot:   merPayinGrants,
+		MerchantPayoutGrantsSnapshot:  merPayoutGrants,
+		PayinProductBindingsSnapshot:  payinBindSnap,
+		PayoutProductBindingsSnapshot: payoutBindSnap,
+		ChannelHub:                    hub,
 	}
 }
 
 // GetChannelDriver returns a cached [channeldriver.ChannelDriver] for one channel row.
 // This is the supported entrypoint for channel_id + merged config inside core.
 func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (channeldriver.ChannelDriver, error) {
-	if s == nil || s.ChannelDrivers == nil {
-		return nil, fmt.Errorf("svc: ChannelDrivers not configured")
+	if s == nil || s.ChannelHub == nil {
+		return nil, fmt.Errorf("svc: ChannelHub not configured")
 	}
-	if s.channelBindResolver == nil {
-		return nil, fmt.Errorf("svc: channel bind resolver not configured")
-	}
-	return s.ChannelDrivers.GetChannelDriver(ctx, channelID, s.channelBindResolver)
+	return s.ChannelHub.GetDriver(ctx, channelID)
 }
 
 // InvalidateChannelDriverCache drops the in-process channel driver cache for a row after
 // admin updates channel_config (or equivalent).
 func (s *ServiceContext) InvalidateChannelDriverCache(channelID int64) {
-	if s == nil || s.ChannelDrivers == nil {
+	if s == nil || s.ChannelHub == nil {
 		return
 	}
-	s.ChannelDrivers.InvalidateChannelDriver(channelID)
+	s.ChannelHub.InvalidateDriverCache(channelID)
 }
 
 // OpenAPIMemoryReady is true when Consul-backed routing snapshots are wired (hot path can avoid DB).
 func (s *ServiceContext) OpenAPIMemoryReady() bool {
-	if s == nil || s.RuntimeConfig == nil {
-		return false
-	}
-	return s.PayinProductSnapshot != nil &&
-		s.PayinProductBindingsSnapshot != nil &&
-		s.ChannelSnapshot != nil &&
-		s.MerchantPayinGrantsSnapshot != nil
+	return s != nil && s.ChannelHub != nil && s.ChannelHub.MemoryReady()
 }

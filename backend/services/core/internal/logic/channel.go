@@ -7,7 +7,6 @@ import (
 
 	"github.com/gloopai/pay/common/channelconfig"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
-	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -30,25 +29,14 @@ func NewRouteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RouteLogic 
 }
 
 func (l *RouteLogic) Route(in *channelpb.RouteReq) (*channelpb.RouteResp, error) {
-	if l.svcCtx.OpenAPIMemoryReady() {
-		ch, pid, err := kvcache.RoutePayinFromMemory(
-			in.GetPayinType(),
-			in.GetAmount(),
-			l.svcCtx.PayinProductSnapshot,
-			l.svcCtx.PayinProductBindingsSnapshot,
-			l.svcCtx.ChannelSnapshot,
-		)
-		if err != nil {
-			return nil, status.Error(codes.FailedPrecondition, err.Error())
-		}
-		return &channelpb.RouteResp{ChannelId: ch, PayinProductId: pid}, nil
+	if l.svcCtx.ChannelHub == nil {
+		return nil, status.Error(codes.Internal, "channel hub not configured")
 	}
-	channelId, payProductID, err := l.svcCtx.Channels.Route(l.ctx, in.GetPayinType(), in.GetAmount())
+	ch, pid, err := l.svcCtx.ChannelHub.RoutePayin(l.ctx, in.GetPayinType(), in.GetAmount())
 	if err != nil {
-		return nil, status.Error(codes.FailedPrecondition, err.Error())
+		return nil, err
 	}
-
-	return &channelpb.RouteResp{ChannelId: channelId, PayinProductId: payProductID}, nil
+	return &channelpb.RouteResp{ChannelId: ch, PayinProductId: pid}, nil
 }
 
 type GetSignSecretLogic struct {

@@ -13,5 +13,4 @@
 // Outbound calls use [ChannelDriver] / [BalanceChannel] without passing a
 // per-request config blob. Inbound async notifications are verified on the same bound channel.
 //
-// See README.md in this module for how to add a new channel driver.
 package channeldriver

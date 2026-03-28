@@ -6,7 +6,6 @@ import (
 
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	merchantpb "github.com/gloopai/pay/common/pb/merchant"
-	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/svc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,6 +17,9 @@ func PreparePayinOrder(ctx context.Context, svcCtx *svc.ServiceContext, in *chan
 	if merchantID == "" {
 		return nil, status.Error(codes.InvalidArgument, "merchant_id required")
 	}
+	if svcCtx.ChannelHub == nil {
+		return nil, status.Error(codes.Internal, "channel hub not configured")
+	}
 	payinType := strings.TrimSpace(in.GetPayinType())
 	amount := in.GetAmount()
 
@@ -25,33 +27,14 @@ func PreparePayinOrder(ctx context.Context, svcCtx *svc.ServiceContext, in *chan
 	var code string
 
 	if payinType != "" {
-		if svcCtx.OpenAPIMemoryReady() {
-			ok := kvcache.MerchantHasPayinProductCodeMemory(
-				merchantID,
-				payinType,
-				svcCtx.MerchantPayinGrantsSnapshot,
-				svcCtx.PayinProductSnapshot,
-			)
-			if !ok {
-				return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
-			}
-		} else {
-			ok, err := svcCtx.PayinProducts.MerchantHasPayinProductCode(ctx, merchantID, payinType)
-			if err != nil {
-				return nil, status.Error(codes.Internal, "check merchant pay products failed")
-			}
-			if !ok {
-				return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
-			}
+		if merr := svcCtx.ChannelHub.MerchantPayinProductAllowed(ctx, merchantID, payinType); merr != nil {
+			return nil, merr
 		}
-
-		routeL := NewRouteLogic(ctx, svcCtx)
-		route, err := routeL.Route(&channelpb.RouteReq{Amount: amount, PayinType: payinType})
-		if err != nil {
-			return nil, err
+		var rerr error
+		cid, ppid, rerr = svcCtx.ChannelHub.RoutePayin(ctx, payinType, amount)
+		if rerr != nil {
+			return nil, rerr
 		}
-		cid = route.GetChannelId()
-		ppid = route.GetPayinProductId()
 		if cid <= 0 {
 			return nil, status.Error(codes.FailedPrecondition, "no available channel for payin_type")
 		}

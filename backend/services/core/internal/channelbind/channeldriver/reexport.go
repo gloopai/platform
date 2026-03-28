@@ -1,12 +1,12 @@
 package channeldriver
 
 import (
-	"github.com/gloopai/pay/channeldriver/base"
+	"github.com/gloopai/pay/core/internal/channelbind/channeldriver/base"
 )
 
-// Re-exports of github.com/gloopai/pay/channeldriver/base. Application wiring of
-// [Registry] / [ChannelResolver] belongs in the core service; other binaries should prefer
-// channel gRPC to core (gateway/trade may still import types/helpers during migration).
+// Re-exports of [base]. Application wiring of [Registry] / [ChannelResolver] belongs in the
+// core service; other binaries should prefer channel gRPC to core (gateway/trade may still
+// import types/helpers during migration).
 
 type (
 	BindInput          = base.BindInput

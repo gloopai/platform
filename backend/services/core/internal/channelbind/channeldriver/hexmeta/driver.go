@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/channeldriver/base"
+	"github.com/gloopai/pay/core/internal/channelbind/channeldriver/base"
 )
 
 // DriverKey is the channels.payin_type / driver_key value for this PSP (India Hexmeta-style API).
