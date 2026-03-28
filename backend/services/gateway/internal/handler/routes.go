@@ -559,6 +559,11 @@ func RegisterCheckoutHandlers(server *rest.Server, serverCtx *svc.ServiceContext
 				Path:    "/v1/callback/upstream/payin",
 				Handler: checkouthandler.UpstreamPayinNotifyHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/callback/upstream/payout",
+				Handler: checkouthandler.UpstreamPayoutNotifyHandler(serverCtx),
+			},
 		},
 	)
 }

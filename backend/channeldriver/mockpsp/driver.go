@@ -121,6 +121,38 @@ func (d *Driver) Makeup(ctx context.Context, cfg *channeldriver.ChannelConfig, r
 	return nil
 }
 
+// SetPayinFailed sets mock upstream payin to failed (for query simulation / tests).
+func (d *Driver) SetPayinFailed(merchantOrderNo, failReason string) error {
+	if merchantOrderNo == "" {
+		return errors.New("mockpsp: merchant order no required")
+	}
+	d.store.mu.Lock()
+	defer d.store.mu.Unlock()
+	r, ok := d.store.payin[merchantOrderNo]
+	if !ok {
+		return errors.New("mockpsp: order not found")
+	}
+	r.status = channeldriver.PayinStatusFailed
+	r.failReason = failReason
+	return nil
+}
+
+// SetPayoutStatus sets mock upstream payout status (for query simulation / tests).
+func (d *Driver) SetPayoutStatus(merchantOrderNo string, status channeldriver.PayoutOrderStatus, referenceNo string) error {
+	if merchantOrderNo == "" {
+		return errors.New("mockpsp: merchant order no required")
+	}
+	d.store.mu.Lock()
+	defer d.store.mu.Unlock()
+	r, ok := d.store.payout[merchantOrderNo]
+	if !ok {
+		return errors.New("mockpsp: payout order not found")
+	}
+	r.status = status
+	r.referenceNo = referenceNo
+	return nil
+}
+
 type payinNotifyJSON struct {
 	Timestamp string `json:"timestamp"`
 	Sign      string `json:"sign"`
