@@ -120,11 +120,30 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 		return nil, status.Error(codes.Internal, "load channel failed")
 	}
 	dk := strings.TrimSpace(chRow.PayinType)
+	gw := chRow.GatewayUrl
+	mer := chRow.UpstreamMerchantNo
+	sig := chRow.SignSecret
+	rsa := chRow.RsaPrivateKey
+	if uc := strings.TrimSpace(chRow.UpstreamConfig); uc != "" {
+		jg, jm, js, jr := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+		if jg != "" {
+			gw = jg
+		}
+		if jm != "" {
+			mer = jm
+		}
+		if js != "" {
+			sig = js
+		}
+		if jr != "" {
+			rsa = jr
+		}
+	}
 	notifyBase := strings.TrimSpace(l.svcCtx.Config.Upstream.CheckoutNotifyBaseURL)
 	if notifyBase != "" && dk != "" {
 		if drv, derr := l.svcCtx.ChannelDrivers.Payin(dk); derr == nil {
 			cfg := channeldriver.ConfigFromDriverKey(
-				chRow.ID, dk, chRow.GatewayUrl, chRow.UpstreamMerchantNo, chRow.SignSecret, chRow.RsaPrivateKey,
+				chRow.ID, dk, gw, mer, sig, rsa,
 				chRow.SupportsPayin, chRow.SupportsPayout,
 			)
 			notifyURL := fmt.Sprintf("%s/v1/callback/upstream/payin?channel_id=%d&order_no=%s",
@@ -157,7 +176,6 @@ func (l *PrepareTerminalPayLogic) terminalPaySurface(chID, payPID int64, code, o
 		}
 	}
 
-	gw := chRow.GatewayUrl
 	payURL, qrPayload, payMode := buildPaySurface(orderNo, rec.Amount, gw)
 	return &orderpb.PrepareTerminalPayResp{
 		ChannelId:        chID,

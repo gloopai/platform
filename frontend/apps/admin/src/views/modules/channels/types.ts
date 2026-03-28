@@ -6,10 +6,8 @@ export type AdminChannel = {
   id: number
   name: string
   payin_type: string
-  gateway_url: string
-  upstream_merchant_no: string
-  rsa_private_key: string
-  sign_secret: string
+  /** 上游对接自由 JSON 文本（整段存库） */
+  upstream_config: string
   weight: number
   min_amount: number
   max_amount: number
@@ -32,10 +30,7 @@ export function emptyChannelForm(): AdminChannel {
     id: 0,
     name: '',
     payin_type: '',
-    gateway_url: '',
-    upstream_merchant_no: '',
-    rsa_private_key: '',
-    sign_secret: '',
+    upstream_config: '',
     weight: 100,
     min_amount: 0,
     max_amount: 0,

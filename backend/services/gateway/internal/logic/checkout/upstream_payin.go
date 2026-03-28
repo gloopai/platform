@@ -20,13 +20,32 @@ func channelRowToConfig(row *channelpb.ChannelRow) *channeldriver.ChannelConfig 
 	if row == nil {
 		return nil
 	}
+	gw := strings.TrimSpace(row.GetGatewayUrl())
+	mer := strings.TrimSpace(row.GetUpstreamMerchantNo())
+	sig := row.GetSignSecret()
+	rsa := row.GetRsaPrivateKey()
+	if uc := strings.TrimSpace(row.GetUpstreamConfig()); uc != "" {
+		jg, jm, js, jr := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+		if jg != "" {
+			gw = jg
+		}
+		if jm != "" {
+			mer = jm
+		}
+		if js != "" {
+			sig = js
+		}
+		if jr != "" {
+			rsa = jr
+		}
+	}
 	return channeldriver.ConfigFromDriverKey(
 		row.GetId(),
 		strings.TrimSpace(row.GetPayinType()),
-		strings.TrimSpace(row.GetGatewayUrl()),
-		strings.TrimSpace(row.GetUpstreamMerchantNo()),
-		row.GetSignSecret(),
-		row.GetRsaPrivateKey(),
+		gw,
+		mer,
+		sig,
+		rsa,
 		row.GetSupportsPayin(),
 		row.GetSupportsPayout(),
 	)

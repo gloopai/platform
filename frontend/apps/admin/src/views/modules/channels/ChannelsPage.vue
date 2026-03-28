@@ -153,6 +153,7 @@
         </div>
         <div v-show="editTab === 'upstream'" role="tabpanel">
           <ChannelFormCard
+            ref="upstreamFormCardRef"
             v-model="form"
             section="upstream"
             embedded
@@ -212,7 +213,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import AdminPaginationBar from '../../../components/AdminPaginationBar.vue'
 import { UiDrawer } from '../../../../../../shared/ui'
@@ -247,6 +248,10 @@ const channels = ref<AdminChannel[]>([])
 const selectedId = ref<number | null>(null)
 
 const form = ref<AdminChannel>(emptyChannelForm())
+
+const upstreamFormCardRef = useTemplateRef<{
+  applyUpstreamJsonToModel: () => string | null
+}>('upstreamFormCardRef')
 
 const isNew = computed(() => selectedId.value === null)
 
@@ -335,6 +340,13 @@ watch(drawerOpen, (open, wasOpen) => {
 })
 
 async function save() {
+  const upstreamErr = upstreamFormCardRef.value?.applyUpstreamJsonToModel?.()
+  if (upstreamErr) {
+    error.value = upstreamErr
+    editTab.value = 'upstream'
+    toast.error(upstreamErr)
+    return
+  }
   saving.value = true
   error.value = ''
   saved.value = false

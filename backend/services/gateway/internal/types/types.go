@@ -139,10 +139,7 @@ type AdminChannelInfo struct {
 	Id                     int64  `json:"id"`
 	Name                   string `json:"name"`
 	PayinType              string `json:"payin_type"`
-	GatewayUrl             string `json:"gateway_url"`
-	UpstreamMerchantNo     string `json:"upstream_merchant_no"`
-	RsaPrivateKey          string `json:"rsa_private_key"`
-	SignSecret             string `json:"sign_secret"`
+	UpstreamConfig         string `json:"upstream_config"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount"`
 	MaxAmount              int64  `json:"max_amount"`
@@ -164,10 +161,7 @@ type AdminUpsertChannelReq struct {
 	Id                     int64  `path:"id,optional"`
 	Name                   string `json:"name"`
 	PayinType              string `json:"payin_type,optional"`
-	GatewayUrl             string `json:"gateway_url,optional"`
-	UpstreamMerchantNo     string `json:"upstream_merchant_no,optional"`
-	RsaPrivateKey          string `json:"rsa_private_key,optional"`
-	SignSecret             string `json:"sign_secret,optional"`
+	UpstreamConfig         string `json:"upstream_config,optional"`
 	Weight                 int64  `json:"weight"`
 	MinAmount              int64  `json:"min_amount,optional"`
 	MaxAmount              int64  `json:"max_amount,optional"`

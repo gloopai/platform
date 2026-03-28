@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 
@@ -11,6 +12,27 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
+
+// upstreamConfigForAPI 优先返回 DB 中的 upstream_config；若为空则把旧版分列字段合成 JSON，便于管理台展示与迁移。
+func upstreamConfigForAPI(c *store.Channel) string {
+	if c == nil {
+		return ""
+	}
+	if strings.TrimSpace(c.UpstreamConfig) != "" {
+		return c.UpstreamConfig
+	}
+	leg := map[string]string{
+		"gateway_url":          c.GatewayUrl,
+		"upstream_merchant_no": c.UpstreamMerchantNo,
+		"sign_secret":          c.SignSecret,
+		"rsa_private_key":      c.RsaPrivateKey,
+	}
+	b, err := json.Marshal(leg)
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
 
 func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 	if c == nil {
@@ -24,6 +46,7 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 		UpstreamMerchantNo:     c.UpstreamMerchantNo,
 		RsaPrivateKey:          c.RsaPrivateKey,
 		SignSecret:             c.SignSecret,
+		UpstreamConfig:         upstreamConfigForAPI(c),
 		Weight:                 c.Weight,
 		MinAmount:              c.MinAmount,
 		MaxAmount:              c.MaxAmount,
@@ -38,6 +61,18 @@ func toChannelRow(c *store.Channel) *channelpb.ChannelRow {
 	}
 }
 
+func validateUpstreamConfigJSON(s string) error {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var v interface{}
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return status.Error(codes.InvalidArgument, "upstream_config must be valid JSON")
+	}
+	return nil
+}
+
 func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	feeMode := req.GetUpstreamPayoutFeeMode()
 	if feeMode < 1 || feeMode > 3 {
@@ -50,10 +85,11 @@ func fromUpsertReq(req *channelpb.UpsertChannelReq) *store.Channel {
 	return &store.Channel{
 		Name:                   req.GetName(),
 		PayinType:              req.GetPayinType(),
-		GatewayUrl:             req.GetGatewayUrl(),
-		UpstreamMerchantNo:     req.GetUpstreamMerchantNo(),
-		RsaPrivateKey:          req.GetRsaPrivateKey(),
-		SignSecret:             req.GetSignSecret(),
+		GatewayUrl:             "",
+		UpstreamMerchantNo:     "",
+		RsaPrivateKey:          "",
+		SignSecret:             "",
+		UpstreamConfig:         req.GetUpstreamConfig(),
 		Weight:                 req.GetWeight(),
 		MinAmount:              req.GetMinAmount(),
 		MaxAmount:              req.GetMaxAmount(),
@@ -129,6 +165,9 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
 	}
+	if err := validateUpstreamConfigJSON(req.GetUpstreamConfig()); err != nil {
+		return nil, err
+	}
 	ch := fromUpsertReq(req)
 	id, err := s.svcCtx.Channels.AdminCreate(ctx, ch)
 	if err != nil {
@@ -156,6 +195,9 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	}
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
+	}
+	if err := validateUpstreamConfigJSON(req.GetUpstreamConfig()); err != nil {
+		return nil, err
 	}
 	ch := fromUpsertReq(req)
 	if err := s.svcCtx.Channels.AdminUpdate(ctx, req.GetId(), ch); err != nil {

@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 	"strings"
 
+	"github.com/gloopai/pay/channeldriver"
 	"gorm.io/gorm"
 )
 
@@ -141,35 +142,51 @@ WHERE enabled = 1
 // GetGatewayURLAndPayinType 用于收银台组装跳转/二维码载体。
 func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID int64) (gatewayURL, payinType string, err error) {
 	var r struct {
-		GatewayURL string `gorm:"column:gateway_url"`
-		PayinType  string `gorm:"column:payin_type"`
+		GatewayURL     string `gorm:"column:gateway_url"`
+		PayinType      string `gorm:"column:payin_type"`
+		UpstreamConfig string `gorm:"column:upstream_config"`
 	}
 	tx := s.db.WithContext(ctx).
 		Table("channels").
-		Select("COALESCE(gateway_url,'') AS gateway_url, COALESCE(payin_type,'') AS payin_type").
+		Select("COALESCE(gateway_url,'') AS gateway_url, COALESCE(payin_type,'') AS payin_type, COALESCE(upstream_config,'') AS upstream_config").
 		Where("id = ?", channelID).
 		Limit(1).
 		Take(&r)
 	if tx.Error != nil {
 		return "", "", tx.Error
 	}
-	return r.GatewayURL, r.PayinType, nil
+	gw := r.GatewayURL
+	if uc := strings.TrimSpace(r.UpstreamConfig); uc != "" {
+		jg, _, _, _ := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+		if jg != "" {
+			gw = jg
+		}
+	}
+	return gw, r.PayinType, nil
 }
 
 func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64) (string, error) {
 	var r struct {
-		SignSecret string `gorm:"column:sign_secret"`
+		SignSecret     string `gorm:"column:sign_secret"`
+		UpstreamConfig string `gorm:"column:upstream_config"`
 	}
 	tx := s.db.WithContext(ctx).
 		Table("channels").
-		Select("COALESCE(sign_secret,'') AS sign_secret").
+		Select("COALESCE(sign_secret,'') AS sign_secret, COALESCE(upstream_config,'') AS upstream_config").
 		Where("id = ?", channelId).
 		Limit(1).
 		Take(&r)
 	if tx.Error != nil {
 		return "", tx.Error
 	}
-	return r.SignSecret, nil
+	sec := r.SignSecret
+	if uc := strings.TrimSpace(r.UpstreamConfig); uc != "" {
+		_, _, js, _ := channeldriver.ConfigFieldsFromUpstreamJSON(uc)
+		if js != "" {
+			sec = js
+		}
+	}
+	return sec, nil
 }
 
 // Channel 管理台 CRUD（与 gateway 原 channels 表结构一致）。
@@ -181,6 +198,7 @@ type Channel struct {
 	UpstreamMerchantNo     string
 	RsaPrivateKey          string
 	SignSecret             string
+	UpstreamConfig         string
 	Weight                 int64
 	MinAmount              int64
 	MaxAmount              int64
@@ -208,6 +226,7 @@ SELECT id,
        COALESCE(upstream_merchant_no,'') AS upstream_merchant_no,
        COALESCE(rsa_private_key,'') AS rsa_private_key,
        COALESCE(sign_secret,'') AS sign_secret,
+       COALESCE(upstream_config,'') AS upstream_config,
        weight,
        min_amount,
        max_amount,
@@ -239,6 +258,7 @@ func (s *ChannelsStore) AdminList(ctx context.Context) ([]Channel, error) {
 	rows, err := s.db.WithContext(ctx).Raw(`
 SELECT id, COALESCE(name,''), COALESCE(payin_type,''), COALESCE(gateway_url,''),
        COALESCE(upstream_merchant_no,''), COALESCE(rsa_private_key,''), COALESCE(sign_secret,''),
+       COALESCE(upstream_config,''),
        weight, min_amount, max_amount,
        supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
        enabled, fuse_enabled
@@ -262,6 +282,7 @@ ORDER BY id DESC
 			&c.UpstreamMerchantNo,
 			&c.RsaPrivateKey,
 			&c.SignSecret,
+			&c.UpstreamConfig,
 			&c.Weight,
 			&c.MinAmount,
 			&c.MaxAmount,
@@ -295,11 +316,11 @@ func (s *ChannelsStore) AdminCreate(ctx context.Context, c *Channel) (int64, err
 		sp = 1
 	}
 	tx := s.db.WithContext(ctx).Exec(`
-INSERT INTO channels (name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, weight, min_amount, max_amount,
+INSERT INTO channels (name, payin_type, gateway_url, upstream_merchant_no, rsa_private_key, sign_secret, upstream_config, weight, min_amount, max_amount,
   supports_payin, supports_payout, upstream_payin_rate_bps, upstream_payout_rate_bps, upstream_payout_fee_mode, upstream_payout_fixed_fee,
   enabled, fuse_enabled, created_at, updated_at)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.Weight, c.MinAmount, c.MaxAmount,
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.UpstreamConfig, c.Weight, c.MinAmount, c.MaxAmount,
 		sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee, c.Enabled, c.FuseEnabled)
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -323,12 +344,12 @@ func (s *ChannelsStore) AdminUpdate(ctx context.Context, id int64, c *Channel) e
 	}
 	return s.db.WithContext(ctx).Exec(`
 UPDATE channels
-SET name = ?, payin_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?,
+SET name = ?, payin_type = ?, gateway_url = ?, upstream_merchant_no = ?, rsa_private_key = ?, sign_secret = ?, upstream_config = ?,
     weight = ?, min_amount = ?, max_amount = ?,
     supports_payin = ?, supports_payout = ?, upstream_payin_rate_bps = ?, upstream_payout_rate_bps = ?, upstream_payout_fee_mode = ?, upstream_payout_fixed_fee = ?,
     enabled = ?, fuse_enabled = ?, updated_at = NOW()
 WHERE id = ?
-`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret,
+`, c.Name, c.PayinType, c.GatewayUrl, c.UpstreamMerchantNo, c.RsaPrivateKey, c.SignSecret, c.UpstreamConfig,
 		c.Weight, c.MinAmount, c.MaxAmount, sc, sp, c.UpstreamPayinRateBps, c.UpstreamPayoutRateBps, c.UpstreamPayoutFeeMode, c.UpstreamPayoutFixedFee,
 		c.Enabled, c.FuseEnabled, id).Error
 }

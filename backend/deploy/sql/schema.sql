@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS channels (
   upstream_merchant_no VARCHAR(128) NULL,
   rsa_private_key TEXT NULL,
   sign_secret VARCHAR(128) NULL,
+  upstream_config TEXT NULL COMMENT '上游对接自由 JSON 文本（管理台整段保存）',
   weight INT NOT NULL DEFAULT 100,
   min_amount BIGINT NOT NULL DEFAULT 0,
   max_amount BIGINT NOT NULL DEFAULT 0,

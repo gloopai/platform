@@ -66,6 +66,11 @@ func ConfigFromDriverKey(channelID int64, driverKey, gatewayBaseURL, appID, sign
 	return base.ConfigFromDriverKey(channelID, driverKey, gatewayBaseURL, appID, signSecret, rsaPEM, payin, payout)
 }
 
+// ConfigFieldsFromUpstreamJSON extracts common keys from channels.upstream_config JSON.
+func ConfigFieldsFromUpstreamJSON(raw string) (gatewayURL, merchantNo, signSecret, rsaPEM string) {
+	return base.ConfigFieldsFromUpstreamJSON(raw)
+}
+
 // NotifyContentType returns the HTTP Content-Type for the response body returned to the PSP.
 func NotifyContentType(drv any) string { return base.NotifyContentType(drv) }
 

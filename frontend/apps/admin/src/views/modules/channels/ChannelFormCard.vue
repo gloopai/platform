@@ -84,47 +84,23 @@
 
       <!-- 上游对接 -->
       <div v-if="section === 'upstream'" class="rounded-xl border border-slate-200/90 bg-slate-50/40 p-3.5">
-        <div class="text-xs font-semibold text-slate-800">连接与身份</div>
-        <p class="mt-0.5 text-[11px] text-slate-500">密钥与私钥仅管理台可见；变更前请与上游确认联调环境。</p>
-        <div class="mt-2.5 grid gap-2.5">
-          <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
-            上游 API 地址
-            <input
-              v-model.trim="model.gateway_url"
-              type="url"
-              autocomplete="off"
-              placeholder="https://"
-              class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-sm"
-            />
-          </label>
-          <div class="grid gap-2.5 sm:grid-cols-2">
-            <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
-              上游商户号
-              <input
-                v-model.trim="model.upstream_merchant_no"
-                autocomplete="off"
-                class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-sm"
-              />
-            </label>
-            <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
-              签名密钥（Sign Secret）
-              <input
-                v-model.trim="model.sign_secret"
-                autocomplete="off"
-                class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-sm"
-              />
-            </label>
-          </div>
-          <label class="grid gap-0.5 text-[11px] font-medium text-slate-600">
-            RSA 私钥
-            <textarea
-              v-model="model.rsa_private_key"
-              rows="8"
-              class="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-[11px] leading-relaxed"
-              placeholder="可选；按上游要求填写"
-            />
-          </label>
-        </div>
+        <div class="text-xs font-semibold text-slate-800">上游对接配置（JSON）</div>
+        <p class="mt-0.5 text-[11px] text-slate-500">
+          整段文本存入数据库；保存时校验是否为合法 JSON。结构由你方与上游约定，读配置时再解析即可。
+        </p>
+        <label class="mt-2.5 grid gap-1 text-[11px] font-medium text-slate-600">
+          <span>配置内容</span>
+          <textarea
+            v-model="upstreamJsonText"
+            spellcheck="false"
+            rows="18"
+            class="min-h-[14rem] w-full resize-y rounded-md border border-slate-200 bg-white px-2.5 py-2 font-mono text-[11px] leading-relaxed"
+            placeholder='{}'
+          />
+        </label>
+        <p class="mt-1.5 text-[10px] text-slate-500">
+          可为对象、数组等任意 JSON；留空表示不存配置。服务端与接口同样会做 JSON 校验。
+        </p>
       </div>
 
       <!-- 费率与能力 -->
@@ -231,7 +207,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import {
   FEE_MODE_SELECT_OPTIONS,
@@ -247,18 +223,6 @@ export type ChannelFormSection = 'basic' | 'upstream' | 'rates'
 
 const model = defineModel<AdminChannel>({ required: true })
 
-function onUpstreamPayinPercentInput(e: Event) {
-  const raw = (e.target as HTMLInputElement).value
-  const n = parseFloat(raw)
-  model.value.upstream_payin_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
-}
-
-function onUpstreamPayoutPercentInput(e: Event) {
-  const raw = (e.target as HTMLInputElement).value
-  const n = parseFloat(raw)
-  model.value.upstream_payout_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
-}
-
 const props = withDefaults(
   defineProps<{
     section: ChannelFormSection
@@ -271,6 +235,54 @@ const props = withDefaults(
   }>(),
   { embedded: false, hideFooterActions: false },
 )
+
+const upstreamJsonText = ref('')
+
+function syncUpstreamJsonFromModel() {
+  upstreamJsonText.value = model.value.upstream_config ?? ''
+}
+
+watch(
+  () => model.value.upstream_config,
+  () => {
+    if (props.section !== 'upstream') return
+    syncUpstreamJsonFromModel()
+  },
+  { immediate: true },
+)
+
+/** 将上游 JSON 写回 model；成功返回 null，失败返回错误文案（供保存前校验）。 */
+function applyUpstreamJsonToModel(): string | null {
+  if (props.section !== 'upstream') return null
+  try {
+    const raw = upstreamJsonText.value.trim()
+    if (raw === '') {
+      model.value.upstream_config = ''
+      return null
+    }
+    const parsed: unknown = JSON.parse(raw)
+    model.value.upstream_config = JSON.stringify(parsed, null, 2)
+    syncUpstreamJsonFromModel()
+    return null
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    return `上游对接 JSON 无法解析：${msg}`
+  }
+}
+
+defineExpose({ applyUpstreamJsonToModel })
+
+function onUpstreamPayinPercentInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const n = parseFloat(raw)
+  model.value.upstream_payin_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
+}
+
+function onUpstreamPayoutPercentInput(e: Event) {
+  const raw = (e.target as HTMLInputElement).value
+  const n = parseFloat(raw)
+  model.value.upstream_payout_rate_bps = Number.isFinite(n) ? percentToBps(n) : 0
+}
 
 defineEmits<{
   save: []
@@ -297,7 +309,7 @@ const panelSubtitle = computed(() => {
     case 'basic':
       return `${hint} · 名称、类型、限额与运行开关。`
     case 'upstream':
-      return `${hint} · API 地址与上游凭证。`
+      return `${hint} · 上游对接 JSON（API、商户号、密钥与私钥）。`
     case 'rates':
       return `${hint} · 代收/代付能力与上游费率参数。`
     default:

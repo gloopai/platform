@@ -89,6 +89,8 @@ message ChannelRow {
   int64 upstream_payout_fee_mode = 17;
   // 上游代付固定成本（分）
   int64 upstream_payout_fixed_fee = 18;
+  // 上游对接自由 JSON 文本（管理台整段保存；运行时自行解析）
+  string upstream_config = 19;
 }
 
 message ListChannelsResp {
@@ -115,6 +117,7 @@ message UpsertChannelReq {
   int64 upstream_payout_rate_bps = 16;
   int64 upstream_payout_fee_mode = 17;
   int64 upstream_payout_fixed_fee = 18;
+  string upstream_config = 19;
 }
 
 message UpsertChannelResp {
