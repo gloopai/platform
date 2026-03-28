@@ -160,13 +160,6 @@
             <div class="hidden rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono text-slate-600 lg:block">
                {{ serverTimeText }}
             </div>
-            <AdminNotificationBell
-              :recent="notifyRecent"
-              :pending-count="notifyPendingCount"
-              :connected="notifyConnected"
-              @open-change="onNotifyOpenChange"
-              @navigate="onNotifyNavigate"
-            />
             <!-- <button
               type="button"
               class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
@@ -296,14 +289,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, provide, reactive, ref, watch, watchEffect } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import AdminNotificationBell from '../components/AdminNotificationBell.vue'
 import UiDialogHost from '../components/UiDialogHost.vue'
 import UiToastHost from '../components/UiToastHost.vue'
 import { adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
 import { adminGet, adminPost, clearAdminSession, loadAdminIdentity, loadAdminToken, saveAdminIdentity } from '../lib/adminApi'
-import type { PortalNotifyListItem } from '../lib/portalNotifyTypes'
 import { loadAdminDisplaySettings } from '../lib/displaySettings'
-import { useAdminPortalNotify } from '../composables/useAdminPortalNotify'
 import { useServerClock } from '../composables/useServerClock'
 import { useUiDialog } from '../composables/useUiDialog'
 
@@ -318,21 +308,6 @@ const adminToken = ref(loadAdminToken())
 const adminIdentity = ref(loadAdminIdentity())
 const adminRoleLabel = ref('管理员')
 const { serverTimeText } = useServerClock()
-const {
-  recent: notifyRecent,
-  pendingCount: notifyPendingCount,
-  connected: notifyConnected,
-  clearPending: clearNotifyPending,
-  navigateTo: navigateNotifyTo,
-} = useAdminPortalNotify(adminToken)
-
-function onNotifyOpenChange(open: boolean) {
-  if (open) clearNotifyPending()
-}
-
-function onNotifyNavigate(item: PortalNotifyListItem) {
-  navigateNotifyTo(item)
-}
 
 const menu = ref<AdminMenuEntry[]>([])
 

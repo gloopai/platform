@@ -12,19 +12,11 @@ function trimTrailingSlash(s: string): string {
 }
 
 const ADMIN_API_BASE = trimTrailingSlash(String(import.meta.env.VITE_ADMIN_API_BASE || '').trim())
-const ADMIN_SSE_BASE = trimTrailingSlash(String(import.meta.env.VITE_ADMIN_SSE_BASE || '').trim())
 
 export function adminApiUrl(path: string): string {
   if (!path.startsWith('/')) return path
   if (!ADMIN_API_BASE) return path
   return `${ADMIN_API_BASE}${path}`
-}
-
-/** 仅用于管理台通知 SSE：可直连 gateway，避免 Vite 代理缓冲流式响应；登录与其它 API 仍用 adminApiUrl（同域代理）。 */
-export function adminSseUrl(path: string): string {
-  if (!path.startsWith('/')) return path
-  if (ADMIN_SSE_BASE) return `${ADMIN_SSE_BASE}${path}`
-  return adminApiUrl(path)
 }
 
 export function loadAdminToken(): string {

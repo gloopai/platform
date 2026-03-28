@@ -17,7 +17,6 @@ import (
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/handler"
 	adminhandler "github.com/gloopai/pay/gateway/internal/handler/admin"
-	"github.com/gloopai/pay/gateway/internal/portalnotify"
 	"github.com/gloopai/pay/gateway/internal/middleware"
 	"github.com/gloopai/pay/gateway/internal/svc"
 
@@ -45,14 +44,11 @@ func main() {
 	consulx.SetBaseConfig(consulx.BaseConfig{Addr: c.Consul.Addr})
 
 	ctx := svc.NewServiceContext(c)
-	stopPortalNotify := portalnotify.StartConsumer(c, ctx.NotifyHub)
-	defer stopPortalNotify()
 
 	adminServer := rest.MustNewServer(c.AdminServer)
 	merchantServer := rest.MustNewServer(c.MerchantServer)
 	openAPIServer := rest.MustNewServer(c.OpenAPIServer)
 	checkoutServer := rest.MustNewServer(c.CheckoutServer)
-	adminServer.Use(middleware.NewAdminCorsMiddleware(c.AdminCors.AllowedOrigins).Handle)
 	servers := []*rest.Server{adminServer, merchantServer, openAPIServer, checkoutServer}
 	for _, s := range servers {
 		s.Use(middleware.NewTraceHeaderMiddleware().Handle)
@@ -81,28 +77,6 @@ func main() {
 					Method:  http.MethodGet,
 					Path:    "/v1/admin/ops/services",
 					Handler: adminhandler.AdminOpsServicesHandler(ctx),
-				},
-				{
-					Method:  http.MethodPost,
-					Path:    "/v1/admin/notifications/test",
-					Handler: adminhandler.AdminNotificationTestHandler(ctx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/v1/admin/notifications/stream",
-					Handler: portalnotify.AdminNotificationsSSE(ctx.NotifyHub),
-				},
-			}...,
-		),
-	)
-	merchantServer.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{ctx.MerchantConsoleAuthMiddleware},
-			[]rest.Route{
-				{
-					Method:  http.MethodGet,
-					Path:    "/v1/merchant/notifications/stream",
-					Handler: portalnotify.MerchantNotificationsSSE(ctx.NotifyHub),
 				},
 			}...,
 		),

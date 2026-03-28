@@ -18,7 +18,6 @@ import (
 	"github.com/gloopai/pay/common/grpcclient/settleclient"
 	"github.com/gloopai/pay/gateway/internal/config"
 	"github.com/gloopai/pay/gateway/internal/middleware"
-	"github.com/gloopai/pay/gateway/internal/portalnotify"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
@@ -56,9 +55,6 @@ type ServiceContext struct {
 	ServiceHubConn *grpc.ClientConn
 
 	ChannelDrivers *channeldriver.Registry
-
-	// PortalNotifyHub fans out NSQ portal notifications to local SSE connections (no Redis in this path).
-	NotifyHub *portalnotify.Hub
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -151,8 +147,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
 		Config: c,
-
-		NotifyHub: portalnotify.NewHub(),
 
 		OpenAPIParamsParseMiddleware:  openAPIParamsParse,
 		MerchantSignMiddleware:        middleware.NewMerchantSignMiddleware(merchantclient.NewMerchant(coreCli), replayGuard, c.ReplayGuard.AllowedSkewSeconds, trustForwarded).Handle,

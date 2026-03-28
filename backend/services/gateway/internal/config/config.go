@@ -57,12 +57,7 @@ type Config struct {
 		Services []string `json:",optional"`
 	}
 	Nsq struct {
-		NsqdTCPAddr       string
-		Topic             string
-		PortalNotifyTopic string `json:",optional"`
+		NsqdTCPAddr string
+		Topic       string
 	}
-	// AdminCors：本地开发管理台直连 gateway 时配置（如 http://127.0.0.1:5176），与 VITE_ADMIN_API_BASE 配合。
-	AdminCors struct {
-		AllowedOrigins []string `json:",optional"`
-	} `json:",optional"`
 }

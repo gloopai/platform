@@ -2,7 +2,7 @@ package notify
 
 import "encoding/json"
 
-// PortalNotifyTopic 是 NSQ topic；各 gateway 实例用不同 channel 名订阅以收全量副本。
+// PortalNotifyTopic 是 portal 通知 NSQ topic（service-hub 发布；如有消费者需独立 channel）。
 const PortalNotifyTopic = "pay.notify.portal"
 
 // PortalNSQMessage 是 NSQ 消息体 JSON；Envelope 为 SSE data 负载。
