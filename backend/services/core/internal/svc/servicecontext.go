@@ -37,8 +37,10 @@ type ServiceContext struct {
 	MerchantPayoutGrantsSnapshot  *kvcache.MerchantPayoutGrantsSnapshot
 	PayinProductBindingsSnapshot  *kvcache.PayinProductBindingsSnapshot
 	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
-	// ChannelBridge owns routing (KV/DB) + PSP registry + channel resolver for this process.
+	// ChannelBridge: OpenAPI payin routing (memory vs DB).
 	ChannelBridge *channelbridge.Bridge
+	// DriverRegistry: psp.NewRegistry(chStore, channelSnap) at startup.
+	DriverRegistry *psp.Registry
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -81,15 +83,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		payoutBindSnap.Start(context.Background())
 	}
 	chStore := store.NewChannelsStore(gdb)
-	reg := psp.NewRegistry()
-	_ = psp.RegisterBuiltInDrivers(reg, chStore, channelSnap)
-	bindRes := channelbridge.NewResolver(chStore, channelSnap)
+	reg := psp.NewRegistry(chStore, channelSnap)
 	payinProdStore := store.NewPayinProductsStore(gdb)
 	bridge := channelbridge.NewBridge(channelbridge.BridgeConfig{
 		Channels:                     chStore,
 		PayinProducts:                payinProdStore,
-		Registry:                     reg,
-		Resolver:                     bindRes,
 		RuntimeConfig:                runtimeCfg,
 		PayinProductSnapshot:         payinProdSnap,
 		PayinProductBindingsSnapshot: payinBindSnap,
@@ -117,25 +115,25 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PayinProductBindingsSnapshot:  payinBindSnap,
 		PayoutProductBindingsSnapshot: payoutBindSnap,
 		ChannelBridge:                 bridge,
+		DriverRegistry:                reg,
 	}
 }
 
 // GetChannelDriver returns a cached ChannelDriver (psp/contracts) for one channel row.
-// This is the supported entrypoint for channel_id + merged config inside core.
 func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (ct.ChannelDriver, error) {
-	if s == nil || s.ChannelBridge == nil {
-		return nil, fmt.Errorf("svc: ChannelBridge not configured")
+	if s == nil || s.DriverRegistry == nil {
+		return nil, fmt.Errorf("svc: driver registry not configured")
 	}
-	return s.ChannelBridge.GetDriver(ctx, channelID)
+	return s.DriverRegistry.GetChannelDriver(ctx, channelID)
 }
 
 // InvalidateChannelDriverCache drops the in-process channel driver cache for a row after
 // admin updates channel_config (or equivalent).
 func (s *ServiceContext) InvalidateChannelDriverCache(channelID int64) {
-	if s == nil || s.ChannelBridge == nil {
+	if s == nil || s.DriverRegistry == nil {
 		return
 	}
-	s.ChannelBridge.InvalidateDriverCache(channelID)
+	s.DriverRegistry.InvalidateChannelDriver(channelID)
 }
 
 // OpenAPIMemoryReady is true when Consul-backed routing snapshots are wired (hot path can avoid DB).

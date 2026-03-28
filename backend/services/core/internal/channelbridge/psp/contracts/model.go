@@ -1,13 +1,6 @@
 // Package contracts: shared types and enums for all PSP drivers (no registry, no implementations).
 package contracts
 
-// BindInput is the platform payload for opening a bound channel (channel_config JSON is PSP-specific).
-type BindInput struct {
-	ChannelID         int64
-	DriverKey         string
-	ChannelConfigJSON string
-}
-
 type CreatePaymentReq struct {
 	MerchantOrderNo string
 	AmountMinor     int64

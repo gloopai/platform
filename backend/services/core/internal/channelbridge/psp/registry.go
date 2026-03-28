@@ -1,10 +1,12 @@
-// Package psp: driver registry. Add new PSPs under drivers/<name>/ and register in register.go.
+// Package psp: driver registry and in-process ChannelDriver cache. Built-in drivers are registered in NewRegistry.
 package psp
 
 import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -12,12 +14,8 @@ import (
 	"github.com/gloopai/pay/core/internal/channelbridge/psp/drivers/hexmeta"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
+	"gorm.io/gorm"
 )
-
-// ChannelResolver loads [contracts.BindInput] for a channel row.
-type ChannelResolver interface {
-	ResolveBindInput(ctx context.Context, channelID int64) (contracts.BindInput, error)
-}
 
 // DriverFactory builds a [contracts.ChannelDriver] for one channels.id (config loaded inside the driver).
 type DriverFactory func(channelID int64) (contracts.ChannelDriver, error)
@@ -37,11 +35,20 @@ type cachedDriver struct {
 	drv       contracts.ChannelDriver
 }
 
-func NewRegistry() *Registry {
-	return &Registry{
-		factories: make(map[string]DriverFactory),
-		cache:     make(map[int64]cachedDriver),
+// NewRegistry builds a registry with built-in drivers (hexmeta) wired to the same DB + channel KV snapshot as GetChannelDriver.
+func NewRegistry(ch *store.ChannelsStore, snap *kvcache.ChannelSnapshot) *Registry {
+	r := &Registry{
+		factories:   make(map[string]DriverFactory),
+		cache:       make(map[int64]cachedDriver),
+		channels:    ch,
+		channelSnap: snap,
 	}
+	if ch != nil {
+		r.Register(hexmeta.DriverKey, func(channelID int64) (contracts.ChannelDriver, error) {
+			return hexmeta.NewDriver(channelID, ch, snap)
+		})
+	}
+	return r
 }
 
 func (r *Registry) Register(key string, f DriverFactory) {
@@ -60,53 +67,42 @@ func (r *Registry) Register(key string, f DriverFactory) {
 	r.factories[key] = f
 }
 
-func hashChannelConfig(s string) string {
-	h := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(h[:])
-}
-
-func (r *Registry) bindConfigHash(in contracts.BindInput) string {
-	if strings.TrimSpace(in.DriverKey) == hexmeta.DriverKey && r != nil && r.channels != nil {
-		s, err := hexmeta.CanonicalBindJSONFromKV(r.channels, r.channelSnap, in.ChannelID)
+// configCacheHash detects config changes for the in-process driver cache (hexmeta uses canonical merged JSON).
+func (r *Registry) configCacheHash(driverKey string, channelID int64, mergedConfigJSON string) string {
+	hash := func(s string) string {
+		h := sha256.Sum256([]byte(s))
+		return hex.EncodeToString(h[:])
+	}
+	if strings.TrimSpace(driverKey) == hexmeta.DriverKey && r != nil && r.channels != nil {
+		s, err := hexmeta.CanonicalBindJSONFromKV(r.channels, r.channelSnap, channelID)
 		if err == nil {
-			return hashChannelConfig(s)
+			return hash(s)
 		}
 	}
-	return hashChannelConfig(in.ChannelConfigJSON)
+	return hash(mergedConfigJSON)
 }
 
-func (r *Registry) OpenPayin(in contracts.BindInput) (contracts.ChannelDriver, error) {
-	return r.open(in)
-}
-
-func (r *Registry) OpenPayout(in contracts.BindInput) (contracts.ChannelDriver, error) {
-	return r.open(in)
-}
-
-func (r *Registry) open(in contracts.BindInput) (contracts.ChannelDriver, error) {
+func (r *Registry) GetChannelDriver(ctx context.Context, channelID int64) (contracts.ChannelDriver, error) {
 	if r == nil {
 		return nil, contracts.ErrNoDriver
 	}
-	key := strings.TrimSpace(in.DriverKey)
-	r.mu.RLock()
-	f, ok := r.factories[key]
-	r.mu.RUnlock()
-	if !ok {
-		return nil, contracts.ErrNoDriver
+	if r.channels == nil {
+		return nil, fmt.Errorf("psp: registry channels not configured")
 	}
-	return f(in.ChannelID)
-}
-
-func (r *Registry) GetChannelDriver(ctx context.Context, channelID int64, res ChannelResolver) (contracts.ChannelDriver, error) {
-	if r == nil || res == nil {
-		return nil, contracts.ErrNoDriver
+	if channelID <= 0 {
+		return nil, fmt.Errorf("psp: invalid channel_id")
 	}
-	in, err := res.ResolveBindInput(ctx, channelID)
+	row, err := r.channels.AdminGetByID(ctx, channelID)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("psp: channel %d not found", channelID)
+		}
 		return nil, err
 	}
-	h := r.bindConfigHash(in)
-	dk := strings.TrimSpace(in.DriverKey)
+	dk := strings.TrimSpace(row.DriverKey)
+	merged := strings.TrimSpace(kvcache.PickChannelConfig(r.channelSnap, channelID, row.ChannelConfig))
+	h := r.configCacheHash(dk, channelID, merged)
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.cache == nil {
@@ -119,7 +115,7 @@ func (r *Registry) GetChannelDriver(ctx context.Context, channelID int64, res Ch
 	if !ok {
 		return nil, contracts.ErrNoDriver
 	}
-	drv, err := f(in.ChannelID)
+	drv, err := f(channelID)
 	if err != nil {
 		return nil, err
 	}

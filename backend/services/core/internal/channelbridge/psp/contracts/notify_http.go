@@ -1,7 +1,5 @@
 package contracts
 
-import "net/http"
-
 const DefaultChannelNotifyContentType = "text/plain; charset=utf-8"
 
 type PayinNotifyContentTyper interface {
@@ -27,10 +25,4 @@ func NotifyContentType(drv any) string {
 		}
 	}
 	return DefaultChannelNotifyContentType
-}
-
-func WriteChannelNotify(w http.ResponseWriter, drv any, body []byte) {
-	w.Header().Set("Content-Type", NotifyContentType(drv))
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(body)
 }
