@@ -152,28 +152,31 @@
 
 ## 5. 上游通道对接模块（实现指引）
 
-以下与 **本文档 API** 对齐，用于在 `backend/common`（或独立子包）定义 Go 接口；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等。
+**代码位置（已实现类型与接口骨架）**：[`backend/common/channeldriver`](../../backend/common/channeldriver)（`github.com/gloopai/pay/common/channeldriver`）。
 
-**代收侧 `PayinUpstream`（示例职责）**
+以下与 **本文档 API** 对齐；由具体通道实现，从 `channels` 表映射 `appId`、密钥、网关 Base URL 等到 [`ChannelConfig`](../../backend/common/channeldriver/config.go)。
 
-- `CreatePayment(ctx, *CreatePaymentReq) (*CreatePaymentResp, error)` → 对应 `POST .../order/payment`
-- `QueryPayment(ctx, *QueryPaymentReq) (*QueryPaymentResp, error)` → `POST .../query/payment`
-- `Makeup(ctx, *MakeupReq) error` → `POST .../makeup`
-- `VerifyPayinNotify(raw *http.Request) (*PayinNotifyParsed, error)` → 验签并解析回调体
-- `PayinNotifyResponse(success bool) []byte` → 返回 `SUCCESS` 或 `FAIL` 字节（供 handler 写响应）
+**代收侧 [`PayinUpstream`](../../backend/common/channeldriver/payin.go)**
 
-**代付侧 `PayoutUpstream`**
+- `CreatePayment` → 对应 `POST .../order/payment`
+- `QueryPayment` → `POST .../query/payment`
+- `Makeup` → `POST .../makeup`（可 `ErrUnsupported`）
+- `VerifyPayinNotify` → 验签并解析回调
+- `PayinNotifyResponse` → `SUCCESS` / `FAIL` 等响应体
 
-- `CreatePayout(ctx, *CreatePayoutReq) (*CreatePayoutResp, error)` → `POST .../order/payout`
-- `QueryPayout(ctx, *QueryPayoutReq) (*QueryPayoutResp, error)` → **待上游文档补齐后实现**
-- `VerifyPayoutNotify(raw *http.Request) (*PayoutNotifyParsed, error)`
-- `PayoutNotifyResponse(success bool) []byte`
+**代付侧 [`PayoutUpstream`](../../backend/common/channeldriver/payout.go)**
 
-**余额**
+- `CreatePayout` → `POST .../order/payout`
+- `QueryPayout` → **待上游文档补齐后实现**
+- `VerifyPayoutNotify` / `PayoutNotifyResponse`
 
-- `QueryBalance(ctx) (*BalanceSnapshot, error)` → `POST .../query/balance`
+**余额 [`BalanceUpstream`](../../backend/common/channeldriver/balance.go)**
 
-**说明**：平台内部订单号、路由、清结算仍走现有 trade/core/gateway；本模块只负责 **与上游的 HTTP、签名、字段映射**，不复制商户 OpenAPI 形态。
+- `QueryBalance` → `POST .../query/balance`
+
+**多实现注册 [`Registry`](../../backend/common/channeldriver/registry.go)**：按 `driver_key` 注册；**通知分发**见 [`dispatch.go`](../../backend/common/channeldriver/dispatch.go) 的 `HandlePayinNotify` / `HandlePayoutNotify`（需传入 `PayinNotifyRoute` / `PayoutNotifyRoute` 从路径或查库解析 `ChannelConfig`）。
+
+**说明**：平台内部订单号、路由、清结算仍走现有 trade/core/gateway；本包只负责 **与上游的 HTTP、签名、字段映射**，不复制商户 OpenAPI 形态。
 
 ### 5.1 多上游、多路通知（平台侧总原则）
 
@@ -192,3 +195,4 @@
 |------|------|
 | 2026-03-28 | 合并原 `docs/in` 下多篇摘录为单页；修正代收回调中 notifyUrl 描述笔误；代收补单标题去重；代付查询标为待补充 |
 | 2026-03-28 | §5.1 多上游与多路通知原则 |
+| 2026-03-28 | §5 指向 `backend/common/channeldriver` 已实现骨架 |
