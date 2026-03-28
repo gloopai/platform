@@ -8,40 +8,43 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func main() {
-	var (
-		baseURL    = flag.String("base", "http://127.0.0.1:8080", "gateway base url")
-		orderNo    = flag.String("order_no", "", "platform order_no")
-		paidAmount = flag.Int64("paid_amount", 0, "paid amount in cents")
-		channelID  = flag.Int64("channel_id", 0, "channel id")
-		secret     = flag.String("secret", "", "channel sign secret")
-		tradeNo    = flag.String("upstream_trade_no", "", "upstream trade no")
-	)
-	flag.Parse()
+func runSimulateUpstream(args []string) {
+	fs := flag.NewFlagSet("simulate-upstream", flag.ExitOnError)
+	baseURL := fs.String("base", "http://127.0.0.1:8090", "OpenAPI server base (POST /v1/callback/notify)")
+	orderNo := fs.String("order_no", "", "platform order_no")
+	paidAmount := fs.Int64("paid_amount", 0, "paid amount in cents")
+	channelID := fs.Int64("channel_id", 0, "channel id")
+	secret := fs.String("secret", "", "channel sign secret")
+	tradeNo := fs.String("upstream_trade_no", "", "upstream trade no")
+	_ = fs.Parse(args)
 
 	if *orderNo == "" || *paidAmount <= 0 || *channelID <= 0 || *secret == "" {
-		panic("order_no, paid_amount, channel_id, secret required")
+		fmt.Fprintln(os.Stderr, "simulate-upstream: order_no, paid_amount, channel_id, secret required")
+		fs.Usage()
+		os.Exit(2)
 	}
-	if *tradeNo == "" {
-		*tradeNo = fmt.Sprintf("UP-%d", time.Now().UnixNano())
+	tn := *tradeNo
+	if tn == "" {
+		tn = fmt.Sprintf("UP-%d", time.Now().UnixNano())
 	}
 
 	payload := map[string]any{
 		"order_no":          *orderNo,
 		"paid_amount":       *paidAmount,
-		"upstream_trade_no": *tradeNo,
+		"upstream_trade_no": tn,
 		"channel_id":        *channelID,
 	}
 	sign := md5Sign(map[string]string{
 		"order_no":          *orderNo,
 		"paid_amount":       strconv.FormatInt(*paidAmount, 10),
-		"upstream_trade_no": *tradeNo,
+		"upstream_trade_no": tn,
 		"channel_id":        strconv.FormatInt(*channelID, 10),
 	}, *secret)
 	payload["sign"] = sign
@@ -49,7 +52,8 @@ func main() {
 	b, _ := json.Marshal(payload)
 	resp, err := http.Post(strings.TrimRight(*baseURL, "/")+"/v1/callback/notify", "application/json", bytes.NewReader(b))
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "simulate-upstream: %v\n", err)
+		os.Exit(2)
 	}
 	defer resp.Body.Close()
 	fmt.Println("status:", resp.Status)

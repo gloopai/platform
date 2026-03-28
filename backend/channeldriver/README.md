@@ -45,7 +45,7 @@ _ = yourpsp.RegisterAll(reg, yourpsp.New(yourpsp.DefaultDriverKey))
 | 环节 | 说明 |
 |------|------|
 | **trade** | `PrepareTerminalPay`：若 `payin_type` 命中已注册驱动且配置了 `Upstream.CheckoutNotifyBaseURL`，则调 `CreatePayment` 并填上游异步 `notifyUrl`。 |
-| **gateway checkout** | 上游异步回调入口（如 `POST /v1/callback/upstream/payin`）内：`ConfigFromDriverKey` + `VerifyPayinNotify`，成功后走平台入账逻辑；响应体通常用 `WriteUpstreamNotify`。 |
+| **gateway OpenAPIServer**（`/v1/callback/*` 与开放接口同端口 `:8090`） | 上游异步回调入口（如 `POST /v1/callback/upstream/payin`）内：`ConfigFromDriverKey` + `VerifyPayinNotify`，成功后走平台入账逻辑；响应体通常用 `WriteUpstreamNotify`。 |
 | **数据库** | 插入/迁移 `channels` 行：`payin_type` = `driver_key`，`upstream_merchant_no`、`sign_secret`、`gateway_url`（若需）等与上游文档一致。 |
 
 更细的 HTTP 字段约定见 [`docs/in/README.md`](../../docs/in/README.md)（印度示例 PSP）。

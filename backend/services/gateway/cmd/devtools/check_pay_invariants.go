@@ -1,4 +1,4 @@
-// Command check-pay-invariants runs DB invariant checks for payin/payout without the mysql CLI.
+// check-pay-invariants runs DB invariant checks for payin/payout without the mysql CLI.
 //
 // Env (same defaults as backend/deploy 脚本):
 //
@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func main() {
+func runCheckPayInvariants() {
 	dsn := dsnFromEnv()
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

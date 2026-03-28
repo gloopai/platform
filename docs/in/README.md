@@ -200,10 +200,10 @@ require github.com/gloopai/pay/channeldriver v0.0.0-00010101000000-000000000000
 
 ### 5.2 平台侧已接入路径（mock_psp）
 
-- **trade** [`PrepareTerminalPay`](../../backend/services/trade/internal/logic/prepare_terminal_pay.go)：当 `channels.payin_type` 与已注册 `driver_key` 一致（如 `mock_psp`），且配置了 **`Upstream.CheckoutNotifyBaseURL`**（指向 **gateway checkout** 对外基址，无尾斜杠）时，会调用 `CreatePayment`，并把上游异步地址设为  
+- **trade** [`PrepareTerminalPay`](../../backend/services/trade/internal/logic/prepare_terminal_pay.go)：当 `channels.payin_type` 与已注册 `driver_key` 一致（如 `mock_psp`），且配置了 **`Upstream.CheckoutNotifyBaseURL`**（指向 **gateway OpenAPIServer** 基址，与签名开放接口同端口，默认 `:8090`，无尾斜杠）时，会调用 `CreatePayment`，并把上游异步地址设为  
   `{CheckoutNotifyBaseURL}/v1/callback/upstream/payin?channel_id={id}&order_no={平台 order_no}`。  
   本地示例见 [`backend/services/trade/etc/trade.yaml`](../../backend/services/trade/etc/trade.yaml)。
-- **gateway checkout**：`POST /v1/callback/upstream/payin` 由 [`UpstreamPayinNotify`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 处理，验签后与 [`upstreamNotifyCore`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 共用入账逻辑（与旧版 MD5 回调入口共用同一套入账）；响应体为纯文本 `SUCCESS` / `FAIL`（与上游文档 §2.4 一致）。
+- **gateway OpenAPIServer**（与 `/v1/payin` 等验签接口同进程、同端口）：`POST /v1/callback/upstream/payin` 由 [`UpstreamPayinNotify`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 处理，验签后与 [`upstreamNotifyCore`](../../backend/services/gateway/internal/logic/checkout/upstream_payin.go) 共用入账逻辑（与旧版 MD5 回调入口共用同一套入账）；响应体为纯文本 `SUCCESS` / `FAIL`（与上游文档 §2.4 一致）。回调路由**不**走商户签名中间件。
 - 未配置基址或驱动未命中时，仍走 **`gateway_url` / `mock://` 二维码** 等旧行为，便于无上游环境演示。
 
 ---

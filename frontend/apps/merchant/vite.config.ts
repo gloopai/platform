@@ -16,12 +16,8 @@ export default defineConfig({
         target: 'http://127.0.0.1:8090',
         changeOrigin: true,
       },
-      '/v1/callback/upstream': {
-        target: 'http://127.0.0.1:8092',
-        changeOrigin: true,
-      },
       '/v1/callback': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://127.0.0.1:8090',
         changeOrigin: true,
       },
       '/v1/payin': {

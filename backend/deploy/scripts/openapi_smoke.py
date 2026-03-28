@@ -6,7 +6,7 @@ OpenAPI 联调脚本：代收/代付下单与查单、余额（gateway OpenAPISe
 - 代收/代付创建接口不允许携带 channel_id（上游路由由平台决定）；请勿在请求体中包含该字段。
 - 业务成功以统一 JSON 信封 code=2000 为准（与 apiresp.CodeSuccess 一致）。
 
-主入口（默认 `run` = health/余额 + 代收 3 笔 + 代付 3 笔 + 向 checkout 投递 mock 上游通知，覆盖成功/处理中/失败）：
+主入口（默认 `run` = health/余额 + 代收 3 笔 + 代付 3 笔 + 向同一 OpenAPI 基址投递 `/v1/callback/upstream/*` mock 上游通知，覆盖成功/处理中/失败）：
 
     python3 openapi_smoke.py
     python3 openapi_smoke.py run
@@ -15,7 +15,7 @@ OpenAPI 联调脚本：代收/代付下单与查单、余额（gateway OpenAPISe
 
     python3 openapi_smoke.py notify-sim
 
-需同时可访问 OpenAPI（默认 8090）与 Checkout（默认 8092）。seed_demo 仅保留 mock-psp-alt：代收/代付上游回调均为 mock_psp_alt 的 MD5+snake_case；--channel-id 与 --payout-channel-id 一般同为 `SELECT id FROM channels WHERE name='mock-psp-alt'`（空库常为 1，删过旧 mock-psp 后常为 2）。
+需可访问 OpenAPI（默认 8090；`/v1/callback/*` 与验签接口同端口）。seed_demo 仅保留 mock-psp-alt：代收/代付上游回调均为 mock_psp_alt 的 MD5+snake_case；--channel-id 与 --payout-channel-id 一般同为 `SELECT id FROM channels WHERE name='mock-psp-alt'`（空库常为 1，删过旧 mock-psp 后常为 2）。
 
 单步子命令仍可用：payin-create / payout-create / payin-query / payout-query / balance / check
 """
@@ -149,14 +149,14 @@ def build_mock_payout_notify(
     }
 
 
-def upstream_callback_url(checkout_base: str, kind: str, channel_id: int, platform_order_no: str) -> str:
+def upstream_callback_url(openapi_base: str, kind: str, channel_id: int, platform_order_no: str) -> str:
     on = urllib.parse.quote(platform_order_no, safe="")
     path = "/v1/callback/upstream/payin" if kind == "payin" else "/v1/callback/upstream/payout"
-    return f"{checkout_base.rstrip('/')}{path}?channel_id={channel_id}&order_no={on}"
+    return f"{openapi_base.rstrip('/')}{path}?channel_id={channel_id}&order_no={on}"
 
 
-def post_upstream_json(checkout_base: str, kind: str, channel_id: int, platform_order_no: str, body: dict[str, Any]) -> tuple[int, str]:
-    url = upstream_callback_url(checkout_base, kind, channel_id, platform_order_no)
+def post_upstream_json(openapi_base: str, kind: str, channel_id: int, platform_order_no: str, body: dict[str, Any]) -> tuple[int, str]:
+    url = upstream_callback_url(openapi_base, kind, channel_id, platform_order_no)
     return _post_json(url, body)
 
 
@@ -427,7 +427,6 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
     seed 仅 mock-psp-alt 时两组参数常相同（见 --channel-id / --payout-channel-id）。
     """
     base = args.base.rstrip("/")
-    checkout = args.checkout_base.rstrip("/")
     cid = args.channel_id
     chsec = args.channel_sign_secret
     payout_cid = getattr(args, "payout_channel_id", cid)
@@ -469,7 +468,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="2",
             amount_minor=payin_amt,
         )
-        uhc, uht = post_upstream_json(checkout, "payin", cid, pno_ok, body)
+        uhc, uht = post_upstream_json(base, "payin", cid, pno_ok, body)
         ub_ok = uhc == 200 and uht.strip() == "SUCCESS"
         step("upstream payin notify status=2 (success)", ub_ok, f"HTTP {uhc} body={uht.strip()!r}")
         st = query_order_status(base, app_id, secret, payin=True, order_no=pno_ok)
@@ -501,7 +500,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="1",
             amount_minor=payin_amt,
         )
-        uhc2, uht2 = post_upstream_json(checkout, "payin", cid, pno_pr, body2)
+        uhc2, uht2 = post_upstream_json(base, "payin", cid, pno_pr, body2)
         ub2 = uhc2 == 200 and uht2.strip() == "FAIL"
         step("upstream payin notify status=1 (processing → PSP FAIL)", ub2, f"HTTP {uhc2} body={uht2.strip()!r}")
         st2 = query_order_status(base, app_id, secret, payin=True, order_no=pno_pr)
@@ -533,7 +532,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="3",
             amount_minor=payin_amt,
         )
-        uhc3, uht3 = post_upstream_json(checkout, "payin", cid, pno_f, body3)
+        uhc3, uht3 = post_upstream_json(base, "payin", cid, pno_f, body3)
         ub3 = uhc3 == 200 and uht3.strip() == "FAIL"
         step("upstream payin notify status=3 (failed → PSP FAIL)", ub3, f"HTTP {uhc3} body={uht3.strip()!r}")
         st3 = query_order_status(base, app_id, secret, payin=True, order_no=pno_f)
@@ -567,7 +566,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="UTR-OK-001",
         )
-        phc, pht = post_upstream_json(checkout, "payout", payout_cid, po_no, pb)
+        phc, pht = post_upstream_json(base, "payout", payout_cid, po_no, pb)
         pb_ok = phc == 200 and pht.strip() == "SUCCESS"
         step("upstream payout notify status=2 (success)", pb_ok, f"HTTP {phc} body={pht.strip()!r}")
         pst = query_order_status(base, app_id, secret, payin=False, order_no=po_no)
@@ -600,7 +599,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc2, pht2 = post_upstream_json(checkout, "payout", payout_cid, po_pr, pb2)
+        phc2, pht2 = post_upstream_json(base, "payout", payout_cid, po_pr, pb2)
         pb2_ok = phc2 == 200 and pht2.strip() == "SUCCESS"
         step("upstream payout notify status=1 (processing ACK)", pb2_ok, f"HTTP {phc2} body={pht2.strip()!r}")
         pst2 = query_order_status(base, app_id, secret, payin=False, order_no=po_pr)
@@ -633,7 +632,7 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc3, pht3 = post_upstream_json(checkout, "payout", payout_cid, po_fl, pb3)
+        phc3, pht3 = post_upstream_json(base, "payout", payout_cid, po_fl, pb3)
         pb3_ok = phc3 == 200 and pht3.strip() == "SUCCESS"
         step("upstream payout notify status=3 (failed)", pb3_ok, f"HTTP {phc3} body={pht3.strip()!r}")
         pst3 = query_order_status(base, app_id, secret, payin=False, order_no=po_fl)
@@ -645,7 +644,6 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
 def cmd_notify_sim(args: argparse.Namespace) -> int:
     """仅跑上游通知多场景（另含 health）。"""
     base = args.base.rstrip("/")
-    checkout = args.checkout_base.rstrip("/")
     cid = args.channel_id
     lines: list[str] = []
     failed = [False]
@@ -664,8 +662,6 @@ def cmd_notify_sim(args: argparse.Namespace) -> int:
     print(
         "OpenAPI + upstream notify simulation —",
         base,
-        "| checkout",
-        checkout,
         "| payin_ch",
         cid,
         "| payout_ch",
@@ -683,7 +679,6 @@ def cmd_notify_sim(args: argparse.Namespace) -> int:
 def cmd_run_all(args: argparse.Namespace) -> int:
     """默认一键：health → 余额 → 代收/代付各 3 笔 + 上游回调模拟全部状态 → 余额。"""
     base = args.base.rstrip("/")
-    checkout = args.checkout_base.rstrip("/")
     cid = args.channel_id
     app_id = args.app_id
     secret = args.secret
@@ -718,8 +713,6 @@ def cmd_run_all(args: argparse.Namespace) -> int:
     print(
         "OpenAPI smoke —",
         base,
-        "| checkout",
-        checkout,
         "| payin_ch",
         cid,
         "| payout_ch",
@@ -837,11 +830,6 @@ def main() -> int:
         help="一键跑通：health → 余额 → 代收/代付各 3 笔 + mock 上游回调（全部状态）→ 余额",
     )
     s0.add_argument(
-        "--checkout-base",
-        default="http://127.0.0.1:8092",
-        help="gateway CheckoutServer，用于 POST /v1/callback/upstream/payin|payout",
-    )
-    s0.add_argument(
         "--channel-id",
         type=int,
         default=1,
@@ -908,12 +896,7 @@ def main() -> int:
 
     s7 = sub.add_parser(
         "notify-sim",
-        help="多笔代收/代付 + 向 checkout 投递 mock_psp_alt 上游回调（MD5），覆盖成功/处理中/失败",
-    )
-    s7.add_argument(
-        "--checkout-base",
-        default="http://127.0.0.1:8092",
-        help="gateway CheckoutServer 基址，默认 8092",
+        help="多笔代收/代付 + 向同一 --base(OpenAPI) 投递 /v1/callback/upstream/* mock 上游回调（MD5），覆盖成功/处理中/失败",
     )
     s7.add_argument(
         "--channel-id",

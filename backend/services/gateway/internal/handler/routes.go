@@ -73,6 +73,26 @@ func RegisterOpenAPIHandlers(server *rest.Server, serverCtx *svc.ServiceContext)
 			}...,
 		),
 	)
+	// 通道异步回调与 OpenAPI 同端口；不走商户验签/限流（上游 PSP / 平台内部路由）
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/callback/notify",
+				Handler: checkouthandler.UpstreamNotifyHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/callback/upstream/payin",
+				Handler: checkouthandler.UpstreamPayinNotifyHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/v1/callback/upstream/payout",
+				Handler: checkouthandler.UpstreamPayoutNotifyHandler(serverCtx),
+			},
+		},
+	)
 }
 
 func RegisterMerchantHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
@@ -164,16 +184,6 @@ func RegisterMerchantHandlers(server *rest.Server, serverCtx *svc.ServiceContext
 }
 
 func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/callback/notify",
-				Handler: checkouthandler.UpstreamNotifyHandler(serverCtx),
-			},
-		},
-	)
-
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.OpenAPIParamsParseMiddleware, serverCtx.LoginRateLimitMiddleware},
@@ -553,16 +563,6 @@ func RegisterCheckoutHandlers(server *rest.Server, serverCtx *svc.ServiceContext
 				Method:  http.MethodPost,
 				Path:    "/v1/terminal/pay",
 				Handler: checkouthandler.TerminalPayHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/callback/upstream/payin",
-				Handler: checkouthandler.UpstreamPayinNotifyHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/v1/callback/upstream/payout",
-				Handler: checkouthandler.UpstreamPayoutNotifyHandler(serverCtx),
 			},
 		},
 	)

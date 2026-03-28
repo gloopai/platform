@@ -223,7 +223,7 @@
           <div v-else class="h-48 w-48 rounded-lg border border-dashed border-slate-300 bg-white shadow-inner" />
           <div class="mt-3 max-w-xs text-center text-xs leading-relaxed text-slate-500">
             内容由 <code class="rounded bg-slate-100 px-1 font-mono text-[10px]">POST /v1/terminal/pay</code> 返回；联调支付完成后可用仓库
-            <code class="font-mono text-[10px]">simulate_upstream</code> 模拟回调。
+            <code class="font-mono text-[10px]">devtools simulate-upstream</code> 模拟回调。
           </div>
         </div>
         <div class="mt-4 grid grid-cols-2 gap-3">
