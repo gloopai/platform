@@ -1,13 +1,11 @@
-package base
+package contracts
 
 import (
 	"context"
 	"net/http"
 )
 
-// ChannelDriver is the single bound handle for one channels row: identity, normalized payin/payout
-// RPCs, and async notify verification. Implementations parse BindInput.ChannelConfigJSON in
-// OpenChannel / OpenPayin (same object for both when using a unified factory).
+// ChannelDriver is the bound handle for one channels row.
 type ChannelDriver interface {
 	DriverKey() string
 	ChannelID() int64
@@ -31,7 +29,6 @@ type BaseChannelDriver struct {
 	ChannelID int64
 }
 
-// NewBaseChannelDriver builds identity for embedding; override methods on the outer type.
 func NewBaseChannelDriver(channelID int64, driverKey string) BaseChannelDriver {
 	return BaseChannelDriver{DriverKey: driverKey, ChannelID: channelID}
 }
@@ -44,9 +41,7 @@ func (*BaseChannelDriver) QueryPayment(context.Context, *QueryPaymentReq) (*Quer
 	return nil, ErrUnsupported
 }
 
-func (*BaseChannelDriver) Makeup(context.Context, *MakeupReq) error {
-	return ErrUnsupported
-}
+func (*BaseChannelDriver) Makeup(context.Context, *MakeupReq) error { return ErrUnsupported }
 
 func (*BaseChannelDriver) VerifyPayinNotify(context.Context, *http.Request) (*PayinNotifyParsed, error) {
 	return nil, ErrUnsupported

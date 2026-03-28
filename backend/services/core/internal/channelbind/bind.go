@@ -1,27 +1,69 @@
-// Hub centralizes payin routing (KV vs DB) and [channeldriver.ChannelDriver] access for core.
+// Package channelbind: DB+KV → BindInput, payin routing, and PSP driver registry.
 package channelbind
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
-	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/consulx"
+	"github.com/gloopai/pay/core/internal/channelbind/psp"
+	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	hm "github.com/gloopai/pay/core/internal/channelbind/psp/drivers/hexmeta"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
-// HubConfig wires dependencies for [Hub]. Snapshot fields may be nil when Consul is not used.
+// Resolver loads channel rows and merged channel_config (KV overrides DB column).
+type Resolver struct {
+	Ch   *store.ChannelsStore
+	Snap *kvcache.ChannelSnapshot
+}
+
+func NewResolver(ch *store.ChannelsStore, snap *kvcache.ChannelSnapshot) *Resolver {
+	return &Resolver{Ch: ch, Snap: snap}
+}
+
+func (r *Resolver) ResolveBindInput(ctx context.Context, channelID int64) (contracts.BindInput, error) {
+	if r == nil || r.Ch == nil {
+		return contracts.BindInput{}, fmt.Errorf("channelbind: nil resolver")
+	}
+	if channelID <= 0 {
+		return contracts.BindInput{}, fmt.Errorf("channelbind: invalid channel_id")
+	}
+	row, err := r.Ch.AdminGetByID(ctx, channelID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return contracts.BindInput{}, fmt.Errorf("channelbind: channel %d not found", channelID)
+		}
+		return contracts.BindInput{}, err
+	}
+	cc := kvcache.PickChannelConfig(r.Snap, channelID, row.ChannelConfig)
+	raw := strings.TrimSpace(cc)
+	dk := strings.TrimSpace(row.PayinType)
+	if dk != hm.DriverKey {
+		if err := validateChannelConfigJSON(raw); err != nil {
+			return contracts.BindInput{}, err
+		}
+	}
+	return contracts.BindInput{
+		ChannelID:         channelID,
+		DriverKey:         dk,
+		ChannelConfigJSON: raw,
+	}, nil
+}
+
+// HubConfig wires routing snapshots + registry for one process.
 type HubConfig struct {
-	Channels *store.ChannelsStore
-	// PayinProducts is used when memory routing is not ready (merchant product allowlist DB path).
+	Channels      *store.ChannelsStore
 	PayinProducts *store.PayinProductsStore
-
-	Registry *channeldriver.Registry
-	Resolver channeldriver.ChannelResolver
-
+	Registry      *psp.Registry
+	Resolver      psp.ChannelResolver
 	RuntimeConfig *consulx.ConfigStore
 
 	PayinProductSnapshot         *kvcache.PayinProductSnapshot
@@ -30,17 +72,13 @@ type HubConfig struct {
 	MerchantPayinGrantsSnapshot  *kvcache.MerchantPayinGrantsSnapshot
 }
 
-// Hub combines payin routing and channel driver resolution for one core process.
+// Hub: OpenAPI payin routing (memory vs DB) + cached drivers.
 type Hub struct {
 	cfg HubConfig
 }
 
-// NewHub returns a hub; cfg.Registry and cfg.Resolver must be non-nil for GetDriver.
-func NewHub(cfg HubConfig) *Hub {
-	return &Hub{cfg: cfg}
-}
+func NewHub(cfg HubConfig) *Hub { return &Hub{cfg: cfg} }
 
-// MemoryReady matches OpenAPI hot-path: Consul routing snapshots are wired.
 func (h *Hub) MemoryReady() bool {
 	if h == nil {
 		return false
@@ -55,7 +93,6 @@ func (h *Hub) MemoryReady() bool {
 		c.MerchantPayinGrantsSnapshot != nil
 }
 
-// RoutePayin selects channel_id and payin_product_id by product code (payin_type) and amount.
 func (h *Hub) RoutePayin(ctx context.Context, payinProductCode string, amount int64) (channelID, payinProductID int64, err error) {
 	if h == nil || h.cfg.Channels == nil {
 		return 0, 0, status.Error(codes.FailedPrecondition, "channels not configured")
@@ -73,14 +110,13 @@ func (h *Hub) RoutePayin(ctx context.Context, payinProductCode string, amount in
 		}
 		return ch, pid, nil
 	}
-	channelID, payProductID, err := h.cfg.Channels.Route(ctx, payinProductCode, amount)
+	cid, ppid, err := h.cfg.Channels.Route(ctx, payinProductCode, amount)
 	if err != nil {
 		return 0, 0, status.Error(codes.FailedPrecondition, err.Error())
 	}
-	return channelID, payProductID, nil
+	return cid, ppid, nil
 }
 
-// MerchantPayinProductAllowed returns nil if the merchant may use this payin product code (OpenAPI payin_type).
 func (h *Hub) MerchantPayinProductAllowed(ctx context.Context, merchantID, payinProductCode string) error {
 	if h == nil {
 		return status.Error(codes.Internal, "channel hub not configured")
@@ -110,8 +146,7 @@ func (h *Hub) MerchantPayinProductAllowed(ctx context.Context, merchantID, payin
 	return nil
 }
 
-// GetDriver returns a cached [channeldriver.ChannelDriver] for channel_id with merged channel_config (KV + DB).
-func (h *Hub) GetDriver(ctx context.Context, channelID int64) (channeldriver.ChannelDriver, error) {
+func (h *Hub) GetDriver(ctx context.Context, channelID int64) (contracts.ChannelDriver, error) {
 	if h == nil || h.cfg.Registry == nil {
 		return nil, fmt.Errorf("channelbind: registry not configured")
 	}
@@ -121,7 +156,6 @@ func (h *Hub) GetDriver(ctx context.Context, channelID int64) (channeldriver.Cha
 	return h.cfg.Registry.GetChannelDriver(ctx, channelID, h.cfg.Resolver)
 }
 
-// InvalidateDriverCache drops the in-process driver after channel_config / KV changes.
 func (h *Hub) InvalidateDriverCache(channelID int64) {
 	if h == nil || h.cfg.Registry == nil {
 		return
@@ -129,18 +163,28 @@ func (h *Hub) InvalidateDriverCache(channelID int64) {
 	h.cfg.Registry.InvalidateChannelDriver(channelID)
 }
 
-// OpenPayin builds a driver from an explicit [channeldriver.BindInput].
-func (h *Hub) OpenPayin(in channeldriver.BindInput) (channeldriver.ChannelDriver, error) {
+func (h *Hub) OpenPayin(in contracts.BindInput) (contracts.ChannelDriver, error) {
 	if h == nil || h.cfg.Registry == nil {
-		return nil, channeldriver.ErrNoDriver
+		return nil, contracts.ErrNoDriver
 	}
 	return h.cfg.Registry.OpenPayin(in)
 }
 
-// OpenPayout builds a payout driver from [channeldriver.BindInput].
-func (h *Hub) OpenPayout(in channeldriver.BindInput) (channeldriver.ChannelDriver, error) {
+func (h *Hub) OpenPayout(in contracts.BindInput) (contracts.ChannelDriver, error) {
 	if h == nil || h.cfg.Registry == nil {
-		return nil, channeldriver.ErrNoDriver
+		return nil, contracts.ErrNoDriver
 	}
 	return h.cfg.Registry.OpenPayout(in)
+}
+
+func validateChannelConfigJSON(s string) error {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil
+	}
+	var v interface{}
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return fmt.Errorf("channel_config must be valid JSON")
+	}
+	return nil
 }

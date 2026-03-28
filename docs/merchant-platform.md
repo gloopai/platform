@@ -42,7 +42,7 @@
 
 别名 **`@/`** 指向 `src/`，见 `vite.config.ts` 与 `tsconfig.app.json`。
 
-**本地 `npm run dev` 时的反向代理**（`frontend/apps/merchant/vite.config.ts`）：网关按端口拆成多路 HTTP 服务，开发代理需把路径指到正确端口。开放接口与商户控制台共用 `/v1/merchant` 前缀时，须把 **`/v1/merchant/balance/query`（签名）** 指到 **OpenAPI 8090**，把 **`/v1/merchant/*`（控制台 Token）** 指到 **MerchantServer 8088**，因此配置里 **更长前缀写在前面**；**`/v1/callback/*`**（含 `notify`、上游 `upstream`）与开放接口同在 **OpenAPIServer 8090**（见 `gateway-api.yaml`）。
+**本地 `npm run dev` 时的反向代理**（`frontend/apps/merchant/vite.config.ts`）：网关按端口拆成多路 HTTP 服务，开发代理需把路径指到正确端口。开放接口与商户控制台共用 `/v1/merchant` 前缀时，须把 **`/v1/merchant/balance/query`（签名）** 指到 **OpenAPI 8090**，把 **`/v1/merchant/*`（控制台 Token）** 指到 **MerchantServer 8088**，因此配置里 **更长前缀写在前面**；**`/v1/callback/*`**（含 `notify`、通道 `channel`）与开放接口同在 **OpenAPIServer 8090**（见 `gateway-api.yaml`）。
 
 订单相关接口中的 **`pay_product_code`** 表示对外「支付产品」编码（与开放 API `pay_type` 一致），与内部 `channel_id`（上游实例）不同，见 [`通道与支付产品.md`](./通道与支付产品.md)。
 

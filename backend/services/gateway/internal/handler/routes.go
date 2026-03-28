@@ -83,13 +83,13 @@ func RegisterOpenAPIHandlers(server *rest.Server, serverCtx *svc.ServiceContext)
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/v1/callback/upstream/payin",
-				Handler: checkouthandler.UpstreamPayinNotifyHandler(serverCtx),
+				Path:    "/v1/callback/channel/payin",
+				Handler: checkouthandler.ChannelPayinNotifyHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/v1/callback/upstream/payout",
-				Handler: checkouthandler.UpstreamPayoutNotifyHandler(serverCtx),
+				Path:    "/v1/callback/channel/payout",
+				Handler: checkouthandler.ChannelPayoutNotifyHandler(serverCtx),
 			},
 		},
 	)

@@ -19,32 +19,37 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Channel_Route_FullMethodName                           = "/channel.Channel/Route"
-	Channel_PreparePayinOrder_FullMethodName               = "/channel.Channel/PreparePayinOrder"
-	Channel_GetSignSecret_FullMethodName                   = "/channel.Channel/GetSignSecret"
-	Channel_GetChannel_FullMethodName                      = "/channel.Channel/GetChannel"
-	Channel_ListChannels_FullMethodName                    = "/channel.Channel/ListChannels"
-	Channel_CreateChannel_FullMethodName                   = "/channel.Channel/CreateChannel"
-	Channel_UpdateChannel_FullMethodName                   = "/channel.Channel/UpdateChannel"
-	Channel_GetRoutingSummary_FullMethodName               = "/channel.Channel/GetRoutingSummary"
-	Channel_ListTerminalPayinProducts_FullMethodName       = "/channel.Channel/ListTerminalPayinProducts"
-	Channel_MerchantHasPayinProductCode_FullMethodName     = "/channel.Channel/MerchantHasPayinProductCode"
-	Channel_ResolveLockedChannelForMerchant_FullMethodName = "/channel.Channel/ResolveLockedChannelForMerchant"
-	Channel_GetPayinProductDisplayName_FullMethodName      = "/channel.Channel/GetPayinProductDisplayName"
-	Channel_AdminListPayinProducts_FullMethodName          = "/channel.Channel/AdminListPayinProducts"
-	Channel_AdminCreatePayinProduct_FullMethodName         = "/channel.Channel/AdminCreatePayinProduct"
-	Channel_AdminUpdatePayinProduct_FullMethodName         = "/channel.Channel/AdminUpdatePayinProduct"
-	Channel_AdminListPayinProductBindings_FullMethodName   = "/channel.Channel/AdminListPayinProductBindings"
-	Channel_AdminUpsertPayinProductBinding_FullMethodName  = "/channel.Channel/AdminUpsertPayinProductBinding"
-	Channel_AdminUpdatePayinProductBinding_FullMethodName  = "/channel.Channel/AdminUpdatePayinProductBinding"
-	Channel_AdminDeletePayinProductBinding_FullMethodName  = "/channel.Channel/AdminDeletePayinProductBinding"
-	Channel_AdminListPayoutProducts_FullMethodName         = "/channel.Channel/AdminListPayoutProducts"
-	Channel_AdminCreatePayoutProduct_FullMethodName        = "/channel.Channel/AdminCreatePayoutProduct"
-	Channel_AdminUpdatePayoutProduct_FullMethodName        = "/channel.Channel/AdminUpdatePayoutProduct"
-	Channel_AdminListPayoutProductBindings_FullMethodName  = "/channel.Channel/AdminListPayoutProductBindings"
-	Channel_AdminUpsertPayoutProductBinding_FullMethodName = "/channel.Channel/AdminUpsertPayoutProductBinding"
-	Channel_AdminUpdatePayoutProductBinding_FullMethodName = "/channel.Channel/AdminUpdatePayoutProductBinding"
-	Channel_AdminDeletePayoutProductBinding_FullMethodName = "/channel.Channel/AdminDeletePayoutProductBinding"
+	Channel_Route_FullMethodName                            = "/channel.Channel/Route"
+	Channel_PreparePayinOrder_FullMethodName                = "/channel.Channel/PreparePayinOrder"
+	Channel_GetSignSecret_FullMethodName                    = "/channel.Channel/GetSignSecret"
+	Channel_GetChannel_FullMethodName                       = "/channel.Channel/GetChannel"
+	Channel_ChannelCreatePayment_FullMethodName             = "/channel.Channel/ChannelCreatePayment"
+	Channel_ChannelVerifyPayinNotify_FullMethodName         = "/channel.Channel/ChannelVerifyPayinNotify"
+	Channel_ChannelBuildPayinNotifyResponse_FullMethodName  = "/channel.Channel/ChannelBuildPayinNotifyResponse"
+	Channel_ChannelVerifyPayoutNotify_FullMethodName        = "/channel.Channel/ChannelVerifyPayoutNotify"
+	Channel_ChannelBuildPayoutNotifyResponse_FullMethodName = "/channel.Channel/ChannelBuildPayoutNotifyResponse"
+	Channel_ListChannels_FullMethodName                     = "/channel.Channel/ListChannels"
+	Channel_CreateChannel_FullMethodName                    = "/channel.Channel/CreateChannel"
+	Channel_UpdateChannel_FullMethodName                    = "/channel.Channel/UpdateChannel"
+	Channel_GetRoutingSummary_FullMethodName                = "/channel.Channel/GetRoutingSummary"
+	Channel_ListTerminalPayinProducts_FullMethodName        = "/channel.Channel/ListTerminalPayinProducts"
+	Channel_MerchantHasPayinProductCode_FullMethodName      = "/channel.Channel/MerchantHasPayinProductCode"
+	Channel_ResolveLockedChannelForMerchant_FullMethodName  = "/channel.Channel/ResolveLockedChannelForMerchant"
+	Channel_GetPayinProductDisplayName_FullMethodName       = "/channel.Channel/GetPayinProductDisplayName"
+	Channel_AdminListPayinProducts_FullMethodName           = "/channel.Channel/AdminListPayinProducts"
+	Channel_AdminCreatePayinProduct_FullMethodName          = "/channel.Channel/AdminCreatePayinProduct"
+	Channel_AdminUpdatePayinProduct_FullMethodName          = "/channel.Channel/AdminUpdatePayinProduct"
+	Channel_AdminListPayinProductBindings_FullMethodName    = "/channel.Channel/AdminListPayinProductBindings"
+	Channel_AdminUpsertPayinProductBinding_FullMethodName   = "/channel.Channel/AdminUpsertPayinProductBinding"
+	Channel_AdminUpdatePayinProductBinding_FullMethodName   = "/channel.Channel/AdminUpdatePayinProductBinding"
+	Channel_AdminDeletePayinProductBinding_FullMethodName   = "/channel.Channel/AdminDeletePayinProductBinding"
+	Channel_AdminListPayoutProducts_FullMethodName          = "/channel.Channel/AdminListPayoutProducts"
+	Channel_AdminCreatePayoutProduct_FullMethodName         = "/channel.Channel/AdminCreatePayoutProduct"
+	Channel_AdminUpdatePayoutProduct_FullMethodName         = "/channel.Channel/AdminUpdatePayoutProduct"
+	Channel_AdminListPayoutProductBindings_FullMethodName   = "/channel.Channel/AdminListPayoutProductBindings"
+	Channel_AdminUpsertPayoutProductBinding_FullMethodName  = "/channel.Channel/AdminUpsertPayoutProductBinding"
+	Channel_AdminUpdatePayoutProductBinding_FullMethodName  = "/channel.Channel/AdminUpdatePayoutProductBinding"
+	Channel_AdminDeletePayoutProductBinding_FullMethodName  = "/channel.Channel/AdminDeletePayoutProductBinding"
 )
 
 // ChannelClient is the client API for Channel service.
@@ -57,6 +62,12 @@ type ChannelClient interface {
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error)
+	// 上游 PSP：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
+	ChannelCreatePayment(ctx context.Context, in *ChannelCreatePaymentReq, opts ...grpc.CallOption) (*ChannelCreatePaymentResp, error)
+	ChannelVerifyPayinNotify(ctx context.Context, in *ChannelVerifyPayinNotifyReq, opts ...grpc.CallOption) (*ChannelVerifyPayinNotifyResp, error)
+	ChannelBuildPayinNotifyResponse(ctx context.Context, in *ChannelBuildPayinNotifyResponseReq, opts ...grpc.CallOption) (*ChannelBuildPayinNotifyResponseResp, error)
+	ChannelVerifyPayoutNotify(ctx context.Context, in *ChannelVerifyPayoutNotifyReq, opts ...grpc.CallOption) (*ChannelVerifyPayoutNotifyResp, error)
+	ChannelBuildPayoutNotifyResponse(ctx context.Context, in *ChannelBuildPayoutNotifyResponseReq, opts ...grpc.CallOption) (*ChannelBuildPayoutNotifyResponseResp, error)
 	ListChannels(ctx context.Context, in *ListChannelsReq, opts ...grpc.CallOption) (*ListChannelsResp, error)
 	CreateChannel(ctx context.Context, in *UpsertChannelReq, opts ...grpc.CallOption) (*UpsertChannelResp, error)
 	UpdateChannel(ctx context.Context, in *UpsertChannelReq, opts ...grpc.CallOption) (*UpsertChannelResp, error)
@@ -123,6 +134,56 @@ func (c *channelClient) GetChannel(ctx context.Context, in *GetChannelReq, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetChannelResp)
 	err := c.cc.Invoke(ctx, Channel_GetChannel_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) ChannelCreatePayment(ctx context.Context, in *ChannelCreatePaymentReq, opts ...grpc.CallOption) (*ChannelCreatePaymentResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChannelCreatePaymentResp)
+	err := c.cc.Invoke(ctx, Channel_ChannelCreatePayment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) ChannelVerifyPayinNotify(ctx context.Context, in *ChannelVerifyPayinNotifyReq, opts ...grpc.CallOption) (*ChannelVerifyPayinNotifyResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChannelVerifyPayinNotifyResp)
+	err := c.cc.Invoke(ctx, Channel_ChannelVerifyPayinNotify_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) ChannelBuildPayinNotifyResponse(ctx context.Context, in *ChannelBuildPayinNotifyResponseReq, opts ...grpc.CallOption) (*ChannelBuildPayinNotifyResponseResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChannelBuildPayinNotifyResponseResp)
+	err := c.cc.Invoke(ctx, Channel_ChannelBuildPayinNotifyResponse_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) ChannelVerifyPayoutNotify(ctx context.Context, in *ChannelVerifyPayoutNotifyReq, opts ...grpc.CallOption) (*ChannelVerifyPayoutNotifyResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChannelVerifyPayoutNotifyResp)
+	err := c.cc.Invoke(ctx, Channel_ChannelVerifyPayoutNotify_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) ChannelBuildPayoutNotifyResponse(ctx context.Context, in *ChannelBuildPayoutNotifyResponseReq, opts ...grpc.CallOption) (*ChannelBuildPayoutNotifyResponseResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChannelBuildPayoutNotifyResponseResp)
+	err := c.cc.Invoke(ctx, Channel_ChannelBuildPayoutNotifyResponse_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +420,12 @@ type ChannelServer interface {
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error)
+	// 上游 PSP：代收创建、异步通知验签与应答正文（仅 core 内加载 driver；其他服务只走本 RPC）
+	ChannelCreatePayment(context.Context, *ChannelCreatePaymentReq) (*ChannelCreatePaymentResp, error)
+	ChannelVerifyPayinNotify(context.Context, *ChannelVerifyPayinNotifyReq) (*ChannelVerifyPayinNotifyResp, error)
+	ChannelBuildPayinNotifyResponse(context.Context, *ChannelBuildPayinNotifyResponseReq) (*ChannelBuildPayinNotifyResponseResp, error)
+	ChannelVerifyPayoutNotify(context.Context, *ChannelVerifyPayoutNotifyReq) (*ChannelVerifyPayoutNotifyResp, error)
+	ChannelBuildPayoutNotifyResponse(context.Context, *ChannelBuildPayoutNotifyResponseReq) (*ChannelBuildPayoutNotifyResponseResp, error)
 	ListChannels(context.Context, *ListChannelsReq) (*ListChannelsResp, error)
 	CreateChannel(context.Context, *UpsertChannelReq) (*UpsertChannelResp, error)
 	UpdateChannel(context.Context, *UpsertChannelReq) (*UpsertChannelResp, error)
@@ -402,6 +469,21 @@ func (UnimplementedChannelServer) GetSignSecret(context.Context, *GetSignSecretR
 }
 func (UnimplementedChannelServer) GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetChannel not implemented")
+}
+func (UnimplementedChannelServer) ChannelCreatePayment(context.Context, *ChannelCreatePaymentReq) (*ChannelCreatePaymentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelCreatePayment not implemented")
+}
+func (UnimplementedChannelServer) ChannelVerifyPayinNotify(context.Context, *ChannelVerifyPayinNotifyReq) (*ChannelVerifyPayinNotifyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelVerifyPayinNotify not implemented")
+}
+func (UnimplementedChannelServer) ChannelBuildPayinNotifyResponse(context.Context, *ChannelBuildPayinNotifyResponseReq) (*ChannelBuildPayinNotifyResponseResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelBuildPayinNotifyResponse not implemented")
+}
+func (UnimplementedChannelServer) ChannelVerifyPayoutNotify(context.Context, *ChannelVerifyPayoutNotifyReq) (*ChannelVerifyPayoutNotifyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelVerifyPayoutNotify not implemented")
+}
+func (UnimplementedChannelServer) ChannelBuildPayoutNotifyResponse(context.Context, *ChannelBuildPayoutNotifyResponseReq) (*ChannelBuildPayoutNotifyResponseResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelBuildPayoutNotifyResponse not implemented")
 }
 func (UnimplementedChannelServer) ListChannels(context.Context, *ListChannelsReq) (*ListChannelsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListChannels not implemented")
@@ -558,6 +640,96 @@ func _Channel_GetChannel_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChannelServer).GetChannel(ctx, req.(*GetChannelReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_ChannelCreatePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelCreatePaymentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).ChannelCreatePayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_ChannelCreatePayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).ChannelCreatePayment(ctx, req.(*ChannelCreatePaymentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_ChannelVerifyPayinNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelVerifyPayinNotifyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).ChannelVerifyPayinNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_ChannelVerifyPayinNotify_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).ChannelVerifyPayinNotify(ctx, req.(*ChannelVerifyPayinNotifyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_ChannelBuildPayinNotifyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelBuildPayinNotifyResponseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).ChannelBuildPayinNotifyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_ChannelBuildPayinNotifyResponse_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).ChannelBuildPayinNotifyResponse(ctx, req.(*ChannelBuildPayinNotifyResponseReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_ChannelVerifyPayoutNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelVerifyPayoutNotifyReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).ChannelVerifyPayoutNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_ChannelVerifyPayoutNotify_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).ChannelVerifyPayoutNotify(ctx, req.(*ChannelVerifyPayoutNotifyReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_ChannelBuildPayoutNotifyResponse_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelBuildPayoutNotifyResponseReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).ChannelBuildPayoutNotifyResponse(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_ChannelBuildPayoutNotifyResponse_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).ChannelBuildPayoutNotifyResponse(ctx, req.(*ChannelBuildPayoutNotifyResponseReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -980,6 +1152,26 @@ var Channel_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetChannel",
 			Handler:    _Channel_GetChannel_Handler,
+		},
+		{
+			MethodName: "ChannelCreatePayment",
+			Handler:    _Channel_ChannelCreatePayment_Handler,
+		},
+		{
+			MethodName: "ChannelVerifyPayinNotify",
+			Handler:    _Channel_ChannelVerifyPayinNotify_Handler,
+		},
+		{
+			MethodName: "ChannelBuildPayinNotifyResponse",
+			Handler:    _Channel_ChannelBuildPayinNotifyResponse_Handler,
+		},
+		{
+			MethodName: "ChannelVerifyPayoutNotify",
+			Handler:    _Channel_ChannelVerifyPayoutNotify_Handler,
+		},
+		{
+			MethodName: "ChannelBuildPayoutNotifyResponse",
+			Handler:    _Channel_ChannelBuildPayoutNotifyResponse_Handler,
 		},
 		{
 			MethodName: "ListChannels",

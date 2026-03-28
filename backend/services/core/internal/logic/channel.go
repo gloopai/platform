@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/gloopai/pay/common/channelconfig"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
 	"github.com/gloopai/pay/core/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -61,12 +60,6 @@ func (l *GetSignSecretLogic) GetSignSecret(in *channelpb.GetSignSecretReq) (*cha
 	if !in.GetAuthoritativeDb() {
 		if snap, ok := l.svcCtx.ChannelSnapshot.Get(in.GetChannelId()); ok && snap != nil {
 			sec := strings.TrimSpace(snap.SignSecret)
-			uc := strings.TrimSpace(snap.ChannelConfig)
-			if uc != "" {
-				if js := channelconfig.StringFromJSONObject(uc, "sign_secret"); js != "" {
-					sec = js
-				}
-			}
 			return &channelpb.GetSignSecretResp{SignSecret: sec}, nil
 		}
 	}

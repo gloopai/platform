@@ -18,6 +18,6 @@ BizRedis:
   Password: "yourpassword"
   DB: 1
 
-# 上游异步回调基址（与 OpenAPIServer 同端口，默认 :8090），用于 mock_psp CreatePayment 的 notifyUrl
-Upstream:
+# 通道异步回调基址（与 OpenAPIServer 同端口，默认 :8090），用于 CreatePayment 的 notifyUrl
+Channel:
   CheckoutNotifyBaseURL: "http://127.0.0.1:8090"

@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Checkout 开放收银与上游异步通知（API / 终端 / 回调）。
+// Checkout 开放收银与通道异步通知（API / 终端 / 回调）。
 type Checkout struct {
 	logx.Logger
 	ctx    context.Context
@@ -38,7 +38,7 @@ func NewCheckout(ctx context.Context, svcCtx *svc.ServiceContext) *Checkout {
 }
 
 // openAPIRejectChannelIDParam rejects signed JSON/query that still carries channel_id.
-// Merchants integrate with the platform only; upstream PSP routing is internal.
+// Merchants integrate with the platform only; channel routing is internal.
 func openAPIRejectChannelIDParam(ctx context.Context) error {
 	p, ok := middleware.OpenAPIParamsFromContext(ctx)
 	if !ok {
@@ -48,7 +48,7 @@ func openAPIRejectChannelIDParam(ctx context.Context) error {
 	if v == "" || v == "0" {
 		return nil
 	}
-	return status.Error(codes.InvalidArgument, "channel_id is not allowed on OpenAPI; upstream routing is determined by the platform")
+	return status.Error(codes.InvalidArgument, "channel_id is not allowed on OpenAPI; channel routing is determined by the platform")
 }
 
 // CreateOrder 代收下单（OpenAPI POST /v1/payin/order）。

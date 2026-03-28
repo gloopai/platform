@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/common/grpcclient/channelclient"
 	"github.com/gloopai/pay/trade/internal/config"
@@ -19,10 +18,8 @@ type ServiceContext struct {
 	PayOrders      *store.PayinOrdersStore
 	PayoutOrders   *store.PayoutOrdersStore
 	OrderStats     *store.OrderStatsStore
-	NotifyLogs     *store.NotifyLogsStore
-	// ChannelDrivers: temporary for terminal pay; prefer channel gRPC to core for driver access.
-	ChannelDrivers *channeldriver.Registry
-	ChannelRpc     channelclient.Channel
+	NotifyLogs *store.NotifyLogsStore
+	ChannelRpc channelclient.Channel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -42,8 +39,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		DB:       c.BizRedis.DB,
 	})
 	coreCli := zrpc.MustNewClient(c.CoreRpc)
-	reg := channeldriver.NewRegistry()
-	_ = channeldriver.RegisterBuiltInDrivers(reg)
 	return &ServiceContext{
 		Config:         c,
 		Gorm:           gdb,
@@ -51,8 +46,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PayOrders:      store.NewPayinOrdersStore(gdb),
 		PayoutOrders:   store.NewPayoutOrdersStore(gdb),
 		OrderStats:     store.NewOrderStatsStore(gdb),
-		NotifyLogs:     store.NewNotifyLogsStore(gdb),
-		ChannelDrivers: reg,
-		ChannelRpc:     channelclient.NewChannel(coreCli),
+		NotifyLogs: store.NewNotifyLogsStore(gdb),
+		ChannelRpc: channelclient.NewChannel(coreCli),
 	}
 }

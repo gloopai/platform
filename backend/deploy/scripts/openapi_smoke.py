@@ -3,19 +3,19 @@
 OpenAPI 联调脚本：代收/代付下单与查单、余额（gateway OpenAPIServer，默认 :8090）。
 
 - 签名与 gateway internal/middleware/sign_md5.go 的 Md5Sign 一致。
-- 代收/代付创建接口不允许携带 channel_id（上游路由由平台决定）；请勿在请求体中包含该字段。
+- 代收/代付创建接口不允许携带 channel_id（通道路由由平台决定）；请勿在请求体中包含该字段。
 - 业务成功以统一 JSON 信封 code=2000 为准（与 apiresp.CodeSuccess 一致）。
 
-主入口（默认 `run` = health/余额 + 代收 3 笔 + 代付 3 笔 + 向同一 OpenAPI 基址投递 `/v1/callback/upstream/*` mock 上游通知，覆盖成功/处理中/失败）：
+主入口（默认 `run` = health/余额 + 代收 3 笔 + 代付 3 笔 + 向同一 OpenAPI 基址投递 `/v1/callback/channel/*` mock 通道通知，覆盖成功/处理中/失败）：
 
     python3 openapi_smoke.py
     python3 openapi_smoke.py run
 
-仅跑上游通知场景（无余额前后对比）：
+仅跑通道通知场景（无余额前后对比）：
 
     python3 openapi_smoke.py notify-sim
 
-需可访问 OpenAPI（默认 8090；`/v1/callback/*` 与验签接口同端口）。seed_demo 仅保留 mock-psp-alt：代收/代付上游回调均为 mock_psp_alt 的 MD5+snake_case；--channel-id 与 --payout-channel-id 一般同为 `SELECT id FROM channels WHERE name='mock-psp-alt'`（空库常为 1，删过旧 mock-psp 后常为 2）。
+需可访问 OpenAPI（默认 8090；`/v1/callback/*` 与验签接口同端口）。seed_demo 仅保留 mock-psp-alt：代收/代付通道回调均为 mock_psp_alt 的 MD5+snake_case；--channel-id 与 --payout-channel-id 一般同为 `SELECT id FROM channels WHERE name='mock-psp-alt'`（空库常为 1，删过旧 mock-psp 后常为 2）。
 
 单步子命令仍可用：payin-create / payout-create / payin-query / payout-query / balance / check
 """
@@ -76,7 +76,7 @@ def build_mock_payin_notify(
     amount_minor: int,
 ) -> dict[str, Any]:
     """
-    mock_psp_alt（mockpsp2）代收异步：snake_case + MD5（与 channeldriver/mockpsp2.VerifyPayinNotify 一致）。
+    mock_psp_alt（mockpsp2）代收异步：snake_case + MD5（与通道 driver VerifyPayinNotify 一致）。
     若通道仍为 mock_psp（mock-psp），需改用 camelCase+HMAC，勿与此混用。
     """
     ts = str(int(time.time() * 1000))
@@ -122,7 +122,7 @@ def build_mock_payout_notify(
     reference_no: str,
 ) -> dict[str, Any]:
     """
-    mock_psp_alt 代付异步：snake_case + MD5（与 channeldriver/mockpsp2.VerifyPayoutNotify 一致）。
+    mock_psp_alt 代付异步：snake_case + MD5（与通道 driver VerifyPayoutNotify 一致）。
     mock_psp（仅 mock-psp）为 camelCase+HMAC，勿混用。
     """
     ts = str(int(time.time() * 1000))
@@ -149,14 +149,14 @@ def build_mock_payout_notify(
     }
 
 
-def upstream_callback_url(openapi_base: str, kind: str, channel_id: int, platform_order_no: str) -> str:
+def channel_notify_callback_url(openapi_base: str, kind: str, channel_id: int, platform_order_no: str) -> str:
     on = urllib.parse.quote(platform_order_no, safe="")
-    path = "/v1/callback/upstream/payin" if kind == "payin" else "/v1/callback/upstream/payout"
+    path = "/v1/callback/channel/payin" if kind == "payin" else "/v1/callback/channel/payout"
     return f"{openapi_base.rstrip('/')}{path}?channel_id={channel_id}&order_no={on}"
 
 
-def post_upstream_json(openapi_base: str, kind: str, channel_id: int, platform_order_no: str, body: dict[str, Any]) -> tuple[int, str]:
-    url = upstream_callback_url(openapi_base, kind, channel_id, platform_order_no)
+def post_channel_notify_json(openapi_base: str, kind: str, channel_id: int, platform_order_no: str, body: dict[str, Any]) -> tuple[int, str]:
+    url = channel_notify_callback_url(openapi_base, kind, channel_id, platform_order_no)
     return _post_json(url, body)
 
 
@@ -468,9 +468,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="2",
             amount_minor=payin_amt,
         )
-        uhc, uht = post_upstream_json(base, "payin", cid, pno_ok, body)
+        uhc, uht = post_channel_notify_json(base, "payin", cid, pno_ok, body)
         ub_ok = uhc == 200 and uht.strip() == "SUCCESS"
-        step("upstream payin notify status=2 (success)", ub_ok, f"HTTP {uhc} body={uht.strip()!r}")
+        step("channel payin notify status=2 (success)", ub_ok, f"HTTP {uhc} body={uht.strip()!r}")
         st = query_order_status(base, app_id, secret, payin=True, order_no=pno_ok)
         step("payin query status==1 (paid)", st == 1, f"status={st!r}")
 
@@ -500,9 +500,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="1",
             amount_minor=payin_amt,
         )
-        uhc2, uht2 = post_upstream_json(base, "payin", cid, pno_pr, body2)
+        uhc2, uht2 = post_channel_notify_json(base, "payin", cid, pno_pr, body2)
         ub2 = uhc2 == 200 and uht2.strip() == "FAIL"
-        step("upstream payin notify status=1 (processing → PSP FAIL)", ub2, f"HTTP {uhc2} body={uht2.strip()!r}")
+        step("channel payin notify status=1 (processing → PSP FAIL)", ub2, f"HTTP {uhc2} body={uht2.strip()!r}")
         st2 = query_order_status(base, app_id, secret, payin=True, order_no=pno_pr)
         step("payin query still pending (0)", st2 == 0, f"status={st2!r}")
 
@@ -532,9 +532,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             status="3",
             amount_minor=payin_amt,
         )
-        uhc3, uht3 = post_upstream_json(base, "payin", cid, pno_f, body3)
+        uhc3, uht3 = post_channel_notify_json(base, "payin", cid, pno_f, body3)
         ub3 = uhc3 == 200 and uht3.strip() == "FAIL"
-        step("upstream payin notify status=3 (failed → PSP FAIL)", ub3, f"HTTP {uhc3} body={uht3.strip()!r}")
+        step("channel payin notify status=3 (failed → PSP FAIL)", ub3, f"HTTP {uhc3} body={uht3.strip()!r}")
         st3 = query_order_status(base, app_id, secret, payin=True, order_no=pno_f)
         step("payin query still pending (0)", st3 == 0, f"status={st3!r}")
 
@@ -566,9 +566,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="UTR-OK-001",
         )
-        phc, pht = post_upstream_json(base, "payout", payout_cid, po_no, pb)
+        phc, pht = post_channel_notify_json(base, "payout", payout_cid, po_no, pb)
         pb_ok = phc == 200 and pht.strip() == "SUCCESS"
-        step("upstream payout notify status=2 (success)", pb_ok, f"HTTP {phc} body={pht.strip()!r}")
+        step("channel payout notify status=2 (success)", pb_ok, f"HTTP {phc} body={pht.strip()!r}")
         pst = query_order_status(base, app_id, secret, payin=False, order_no=po_no)
         step("payout query status==1 (success)", pst == 1, f"status={pst!r}")
 
@@ -599,9 +599,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc2, pht2 = post_upstream_json(base, "payout", payout_cid, po_pr, pb2)
+        phc2, pht2 = post_channel_notify_json(base, "payout", payout_cid, po_pr, pb2)
         pb2_ok = phc2 == 200 and pht2.strip() == "SUCCESS"
-        step("upstream payout notify status=1 (processing ACK)", pb2_ok, f"HTTP {phc2} body={pht2.strip()!r}")
+        step("channel payout notify status=1 (processing ACK)", pb2_ok, f"HTTP {phc2} body={pht2.strip()!r}")
         pst2 = query_order_status(base, app_id, secret, payin=False, order_no=po_pr)
         step("payout query still pending (0)", pst2 == 0, f"status={pst2!r}")
 
@@ -632,9 +632,9 @@ def run_notify_scenario_steps(args: argparse.Namespace) -> tuple[bool, list[str]
             amount_minor=payout_amt,
             reference_no="",
         )
-        phc3, pht3 = post_upstream_json(base, "payout", payout_cid, po_fl, pb3)
+        phc3, pht3 = post_channel_notify_json(base, "payout", payout_cid, po_fl, pb3)
         pb3_ok = phc3 == 200 and pht3.strip() == "SUCCESS"
-        step("upstream payout notify status=3 (failed)", pb3_ok, f"HTTP {phc3} body={pht3.strip()!r}")
+        step("channel payout notify status=3 (failed)", pb3_ok, f"HTTP {phc3} body={pht3.strip()!r}")
         pst3 = query_order_status(base, app_id, secret, payin=False, order_no=po_fl)
         step("payout query status==2 (failed)", pst3 == 2, f"status={pst3!r}")
 
@@ -660,7 +660,7 @@ def cmd_notify_sim(args: argparse.Namespace) -> int:
     failed[0] = failed[0] or nf
 
     print(
-        "OpenAPI + upstream notify simulation —",
+        "OpenAPI + channel notify simulation —",
         base,
         "| payin_ch",
         cid,
@@ -896,7 +896,7 @@ def main() -> int:
 
     s7 = sub.add_parser(
         "notify-sim",
-        help="多笔代收/代付 + 向同一 --base(OpenAPI) 投递 /v1/callback/upstream/* mock 上游回调（MD5），覆盖成功/处理中/失败",
+        help="多笔代收/代付 + 向同一 --base(OpenAPI) 投递 /v1/callback/channel/* mock 通道回调（MD5），覆盖成功/处理中/失败",
     )
     s7.add_argument(
         "--channel-id",

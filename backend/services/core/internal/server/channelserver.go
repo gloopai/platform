@@ -7,11 +7,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gloopai/pay/common/channelconfig"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/model"
 	channelpb "github.com/gloopai/pay/common/pb/channel"
+	"github.com/gloopai/pay/core/internal/channelbind/psp/drivers/hexmeta"
 	"github.com/gloopai/pay/core/internal/configsync"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/logic"
@@ -47,24 +47,41 @@ func (s *ChannelServer) GetSignSecret(ctx context.Context, in *channelpb.GetSign
 	return l.GetSignSecret(in)
 }
 
+func enrichChannelRowForGet(c *model.Channel) *channelpb.ChannelRow {
+	row := toChannelRow(c)
+	if row == nil || c == nil {
+		return row
+	}
+	var bindJSON string
+	if strings.TrimSpace(c.PayinType) == hexmeta.DriverKey {
+		bj, err := hexmeta.CanonicalBindJSON(c)
+		if err != nil {
+			bindJSON = ""
+		} else {
+			bindJSON = bj
+		}
+		row.EffectiveGatewayUrl = hexmeta.EffectiveGatewayURL(c)
+	} else {
+		bindJSON = strings.TrimSpace(c.ChannelConfig)
+		row.EffectiveGatewayUrl = strings.TrimSpace(c.GatewayUrl)
+	}
+	row.BindChannelConfigJson = bindJSON
+	return row
+}
+
 func toChannelRow(c *model.Channel) *channelpb.ChannelRow {
 	if c == nil {
 		return nil
 	}
 	return &channelpb.ChannelRow{
-		Id:                c.ID,
-		Name:              c.Name,
-		PayinType:         c.PayinType,
-		GatewayUrl:        c.GatewayUrl,
-		ChannelMerchantNo: c.ChannelMerchantNo,
-		RsaPrivateKey:     c.RsaPrivateKey,
-		SignSecret:        c.SignSecret,
-		ChannelConfig: channelconfig.ChannelConfigJSONForAPI(c.ChannelConfig, channelconfig.LegacyChannelFields{
-			GatewayURL:        c.GatewayUrl,
-			ChannelMerchantNo: c.ChannelMerchantNo,
-			SignSecret:        c.SignSecret,
-			RSAPrivateKey:     c.RsaPrivateKey,
-		}),
+		Id:                    c.ID,
+		Name:                  c.Name,
+		PayinType:             c.PayinType,
+		GatewayUrl:            c.GatewayUrl,
+		ChannelMerchantNo:     c.ChannelMerchantNo,
+		RsaPrivateKey:         c.RsaPrivateKey,
+		SignSecret:            c.SignSecret,
+		ChannelConfig:         c.ChannelConfig,
 		Weight:                c.Weight,
 		MinAmount:             c.MinAmount,
 		MaxAmount:             c.MaxAmount,
@@ -204,13 +221,13 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 			}
 			return nil, err
 		}
-		return &channelpb.GetChannelResp{Channel: toChannelRow(ch)}, nil
+		return &channelpb.GetChannelResp{Channel: enrichChannelRowForGet(ch)}, nil
 	}
 	if snap, ok := s.svcCtx.ChannelSnapshot.Get(req.GetChannelId()); ok && snap != nil {
 		ch := store.KVToChannel(snap)
 		effective := *ch
 		effective.ChannelConfig = kvcache.PickChannelConfig(s.svcCtx.ChannelSnapshot, ch.ID, ch.ChannelConfig)
-		return &channelpb.GetChannelResp{Channel: toChannelRow(&effective)}, nil
+		return &channelpb.GetChannelResp{Channel: enrichChannelRowForGet(&effective)}, nil
 	}
 	ch, err := s.svcCtx.Channels.AdminGetByID(ctx, req.GetChannelId())
 	if err != nil {
@@ -221,7 +238,7 @@ func (s *ChannelServer) GetChannel(ctx context.Context, req *channelpb.GetChanne
 	}
 	effective := *ch
 	effective.ChannelConfig = kvcache.PickChannelConfig(s.svcCtx.ChannelSnapshot, ch.ID, ch.ChannelConfig)
-	return &channelpb.GetChannelResp{Channel: toChannelRow(&effective)}, nil
+	return &channelpb.GetChannelResp{Channel: enrichChannelRowForGet(&effective)}, nil
 }
 
 func (s *ChannelServer) ListChannels(ctx context.Context, _ *channelpb.ListChannelsReq) (*channelpb.ListChannelsResp, error) {
@@ -248,9 +265,6 @@ func (s *ChannelServer) CreateChannel(ctx context.Context, req *channelpb.Upsert
 	}
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
-	}
-	if err := channelconfig.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	ch := fromUpsertReq(req)
 	id, err := s.svcCtx.Channels.AdminCreate(ctx, ch)
@@ -280,9 +294,6 @@ func (s *ChannelServer) UpdateChannel(ctx context.Context, req *channelpb.Upsert
 	}
 	if req.GetMaxAmount() > 0 && req.GetMinAmount() > req.GetMaxAmount() {
 		return nil, status.Error(codes.InvalidArgument, "min_amount must be <= max_amount")
-	}
-	if err := channelconfig.ValidateChannelConfigJSON(req.GetChannelConfig()); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	ch := fromUpsertReq(req)
 	if err := s.svcCtx.Channels.AdminUpdate(ctx, req.GetId(), ch); err != nil {

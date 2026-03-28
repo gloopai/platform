@@ -1,0 +1,21 @@
+package psp
+
+import (
+	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	"github.com/gloopai/pay/core/internal/channelbind/psp/drivers/hexmeta"
+	"github.com/gloopai/pay/core/internal/kvcache"
+	"github.com/gloopai/pay/core/internal/store"
+)
+
+// RegisterBuiltInDrivers registers all drivers under drivers/. Call once at process startup.
+func RegisterBuiltInDrivers(r *Registry, ch *store.ChannelsStore, snap *kvcache.ChannelSnapshot) error {
+	if r == nil {
+		return nil
+	}
+	r.channels = ch
+	r.channelSnap = snap
+	r.Register(hexmeta.DriverKey, func(in contracts.BindInput) (contracts.ChannelDriver, error) {
+		return hexmeta.NewDriver(in.ChannelID, ch, snap)
+	})
+	return nil
+}

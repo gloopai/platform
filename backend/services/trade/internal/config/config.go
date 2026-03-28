@@ -21,8 +21,8 @@ type Config struct {
 		ID      string `json:",optional"`
 		Host    string `json:",optional"`
 	}
-	// Upstream PSP callbacks: base URL of gateway OpenAPIServer (same host/port as signed OpenAPI) for notifyUrl (e.g. http://127.0.0.1:8090).
-	Upstream struct {
+	// Channel async callbacks: base URL of gateway OpenAPIServer (same host/port as signed OpenAPI) for notifyUrl (e.g. http://127.0.0.1:8090).
+	Channel struct {
 		CheckoutNotifyBaseURL string `json:",optional"`
 	}
 }

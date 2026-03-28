@@ -17,7 +17,7 @@ func main() {
 	switch os.Args[1] {
 	case "check-pay-invariants":
 		runCheckPayInvariants()
-	case "simulate-channel", "simulate-upstream":
+	case "simulate-channel":
 		runSimulateChannelNotify(os.Args[2:])
 	case "-h", "--help", "help":
 		usage()
@@ -33,7 +33,7 @@ func usage() {
 
 Subcommands:
   check-pay-invariants   DB invariant checks (payin orders vs fund_logs). Env: PAY_PLATFORM_MYSQL_DSN or MYSQL_*.
-  simulate-channel       POST /v1/callback/notify with MD5 sign (OpenAPI base, default :8090). Alias: simulate-upstream.
+  simulate-channel       POST /v1/callback/notify with MD5 sign (OpenAPI base, default :8090).
 
 Examples:
   go run ./cmd/devtools check-pay-invariants

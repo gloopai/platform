@@ -6,7 +6,6 @@ import (
 	"math/rand/v2"
 	"strings"
 
-	"github.com/gloopai/pay/common/channelconfig"
 	"github.com/gloopai/pay/common/model"
 	"gorm.io/gorm"
 )
@@ -158,15 +157,6 @@ func (s *ChannelsStore) GetGatewayURLAndPayinType(ctx context.Context, channelID
 		return "", "", tx.Error
 	}
 	gw := r.GatewayURL
-	uc := strings.TrimSpace(r.ChannelConfig)
-	if o := strings.TrimSpace(consulConfigJSONOverride); o != "" {
-		uc = o
-	}
-	if uc != "" {
-		if jg := channelconfig.StringFromJSONObject(uc, "gateway_url"); jg != "" {
-			gw = jg
-		}
-	}
 	return gw, r.PayinType, nil
 }
 
@@ -186,15 +176,6 @@ func (s *ChannelsStore) GetSignSecret(ctx context.Context, channelId int64, cons
 		return "", tx.Error
 	}
 	sec := r.SignSecret
-	uc := strings.TrimSpace(r.ChannelConfig)
-	if o := strings.TrimSpace(consulConfigJSONOverride); o != "" {
-		uc = o
-	}
-	if uc != "" {
-		if js := channelconfig.StringFromJSONObject(uc, "sign_secret"); js != "" {
-			sec = js
-		}
-	}
 	return sec, nil
 }
 

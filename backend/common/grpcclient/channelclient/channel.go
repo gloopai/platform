@@ -46,6 +46,12 @@ type (
 		AdminUpsertPayoutProductBinding(ctx context.Context, in *channel.AdminUpsertPayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpsertPayoutProductBindingResp, error)
 		AdminUpdatePayoutProductBinding(ctx context.Context, in *channel.AdminUpdatePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminUpdatePayoutProductBindingResp, error)
 		AdminDeletePayoutProductBinding(ctx context.Context, in *channel.AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayoutProductBindingResp, error)
+
+		ChannelCreatePayment(ctx context.Context, in *channel.ChannelCreatePaymentReq, opts ...grpc.CallOption) (*channel.ChannelCreatePaymentResp, error)
+		ChannelVerifyPayinNotify(ctx context.Context, in *channel.ChannelVerifyPayinNotifyReq, opts ...grpc.CallOption) (*channel.ChannelVerifyPayinNotifyResp, error)
+		ChannelBuildPayinNotifyResponse(ctx context.Context, in *channel.ChannelBuildPayinNotifyResponseReq, opts ...grpc.CallOption) (*channel.ChannelBuildPayinNotifyResponseResp, error)
+		ChannelVerifyPayoutNotify(ctx context.Context, in *channel.ChannelVerifyPayoutNotifyReq, opts ...grpc.CallOption) (*channel.ChannelVerifyPayoutNotifyResp, error)
+		ChannelBuildPayoutNotifyResponse(ctx context.Context, in *channel.ChannelBuildPayoutNotifyResponseReq, opts ...grpc.CallOption) (*channel.ChannelBuildPayoutNotifyResponseResp, error)
 	}
 
 	defaultChannel struct {
@@ -163,4 +169,24 @@ func (m *defaultChannel) AdminUpdatePayoutProductBinding(ctx context.Context, in
 
 func (m *defaultChannel) AdminDeletePayoutProductBinding(ctx context.Context, in *channel.AdminDeletePayoutProductBindingReq, opts ...grpc.CallOption) (*channel.AdminDeletePayoutProductBindingResp, error) {
 	return m.client().AdminDeletePayoutProductBinding(ctx, in, opts...)
+}
+
+func (m *defaultChannel) ChannelCreatePayment(ctx context.Context, in *channel.ChannelCreatePaymentReq, opts ...grpc.CallOption) (*channel.ChannelCreatePaymentResp, error) {
+	return m.client().ChannelCreatePayment(ctx, in, opts...)
+}
+
+func (m *defaultChannel) ChannelVerifyPayinNotify(ctx context.Context, in *channel.ChannelVerifyPayinNotifyReq, opts ...grpc.CallOption) (*channel.ChannelVerifyPayinNotifyResp, error) {
+	return m.client().ChannelVerifyPayinNotify(ctx, in, opts...)
+}
+
+func (m *defaultChannel) ChannelBuildPayinNotifyResponse(ctx context.Context, in *channel.ChannelBuildPayinNotifyResponseReq, opts ...grpc.CallOption) (*channel.ChannelBuildPayinNotifyResponseResp, error) {
+	return m.client().ChannelBuildPayinNotifyResponse(ctx, in, opts...)
+}
+
+func (m *defaultChannel) ChannelVerifyPayoutNotify(ctx context.Context, in *channel.ChannelVerifyPayoutNotifyReq, opts ...grpc.CallOption) (*channel.ChannelVerifyPayoutNotifyResp, error) {
+	return m.client().ChannelVerifyPayoutNotify(ctx, in, opts...)
+}
+
+func (m *defaultChannel) ChannelBuildPayoutNotifyResponse(ctx context.Context, in *channel.ChannelBuildPayoutNotifyResponseReq, opts ...grpc.CallOption) (*channel.ChannelBuildPayoutNotifyResponseResp, error) {
+	return m.client().ChannelBuildPayoutNotifyResponse(ctx, in, opts...)
 }

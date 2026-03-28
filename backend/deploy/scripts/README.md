@@ -4,7 +4,7 @@
 
 对 **OpenAPI**（gateway `OpenAPIServer`，默认 `http://127.0.0.1:8090`）做联调。签名与 gateway `Md5Sign` 一致；成功以响应 JSON 信封 **`code == 2000`** 为准。
 
-**依赖**：Python 3.10+（仅标准库）。子命令 **`run` / `notify-sim`** 中的上游回调请求发往 **`--base` 同一 OpenAPI 地址**（默认 `http://127.0.0.1:8090`）下的 `POST /v1/callback/upstream/*`。
+**依赖**：Python 3.10+（仅标准库）。子命令 **`run` / `notify-sim`** 中的通道回调请求发往 **`--base` 同一 OpenAPI 地址**（默认 `http://127.0.0.1:8090`）下的 `POST /v1/callback/channel/*`。
 
 ### 一键全流程（推荐）
 

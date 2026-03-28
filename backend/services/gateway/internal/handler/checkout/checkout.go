@@ -1,4 +1,4 @@
-// 收银台终端与上游回调（挂 AdminServer / CheckoutServer）
+// 收银台终端与通道回调（挂 AdminServer / CheckoutServer）
 package handler
 
 import (
@@ -31,19 +31,19 @@ func ChannelNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
-func UpstreamPayinNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ChannelPayinNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		l.UpstreamPayinNotify(w, r)
+		l.ChannelPayinNotify(w, r)
 	}
 }
 
-func UpstreamPayoutNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ChannelPayoutNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = requestx.Ensure(r, w)
 		l := logic.NewCheckout(r.Context(), svcCtx)
-		l.UpstreamPayoutNotify(w, r)
+		l.ChannelPayoutNotify(w, r)
 	}
 }
 

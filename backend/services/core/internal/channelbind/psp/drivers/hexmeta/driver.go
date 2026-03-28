@@ -1,49 +1,61 @@
+// Package hexmeta: India Hexmeta-style PSP (docs/in/README.md).
 package hexmeta
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/core/internal/channelbind/channeldriver/base"
+	"github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
+	"github.com/gloopai/pay/core/internal/kvcache"
+	"github.com/gloopai/pay/core/internal/store"
 )
 
-// DriverKey is the channels.payin_type / driver_key value for this PSP (India Hexmeta-style API).
+const apiPrefix = "/exposed/v1"
+
+// DriverKey is channels.payin_type for this implementation.
 const DriverKey = "hexmeta_in"
 
-// Driver implements [base.ChannelDriver] for the upstream described in docs/in/README.md.
-type Driver struct {
-	base.BaseChannelDriver
-	cfg    *Config
+type cfg struct {
+	GatewayURL string
+	AppID      string
+	Secret     string
+}
+
+type driver struct {
+	contracts.BaseChannelDriver
+	cfg    *cfg
 	client *http.Client
 }
 
-// New parses channel_config and returns a bound driver.
-func New(channelID int64, bindJSON string) (*Driver, error) {
-	cfg, err := parseConfig(bindJSON)
+// NewDriver loads channel row via DB + KV snapshot (same as Resolver), merges JSON in hexmeta, then [parseConfig].
+func NewDriver(channelID int64, ch *store.ChannelsStore, snap *kvcache.ChannelSnapshot) (contracts.ChannelDriver, error) {
+	if channelID <= 0 {
+		return nil, fmt.Errorf("hexmeta: invalid channel_id")
+	}
+	merged, err := CanonicalBindJSONFromKV(ch, snap, channelID)
 	if err != nil {
 		return nil, err
 	}
-	return &Driver{
-		BaseChannelDriver: base.NewBaseChannelDriver(channelID, DriverKey),
-		cfg:               cfg,
-		client: &http.Client{
-			Timeout: 30 * time.Second,
-		},
+	c, err := parseConfig(merged)
+	if err != nil {
+		return nil, err
+	}
+	return &driver{
+		BaseChannelDriver: contracts.NewBaseChannelDriver(channelID, DriverKey),
+		cfg:               c,
+		client:            &http.Client{Timeout: 30 * time.Second},
 	}, nil
 }
 
-func (d *Driver) DriverKey() string { return DriverKey }
+func (d *driver) DriverKey() string { return DriverKey }
+func (d *driver) ChannelID() int64  { return d.BaseChannelDriver.ChannelID }
 
-func (d *Driver) ChannelID() int64 { return d.BaseChannelDriver.ChannelID }
-
-func (d *Driver) CreatePayment(ctx context.Context, req *base.CreatePaymentReq) (*base.CreatePaymentResp, error) {
+func (d *driver) CreatePayment(ctx context.Context, req *contracts.CreatePaymentReq) (*contracts.CreatePaymentResp, error) {
 	if req == nil {
 		return nil, fmt.Errorf("hexmeta: nil CreatePaymentReq")
 	}
@@ -69,38 +81,36 @@ func (d *Driver) CreatePayment(ctx context.Context, req *base.CreatePaymentReq) 
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return nil, fmt.Errorf("hexmeta: decode create payment data: %w", err)
 	}
-	return &base.CreatePaymentResp{
+	return &contracts.CreatePaymentResp{
 		ChannelOrderNo: strings.TrimSpace(data.SysOrderNo),
 		PayURL:         strings.TrimSpace(data.PayURL),
 	}, nil
 }
 
-func (d *Driver) QueryPayment(ctx context.Context, req *base.QueryPaymentReq) (*base.QueryPaymentResp, error) {
+func (d *driver) QueryPayment(ctx context.Context, req *contracts.QueryPaymentReq) (*contracts.QueryPaymentResp, error) {
 	if req == nil {
 		return nil, fmt.Errorf("hexmeta: nil QueryPaymentReq")
 	}
-	body := map[string]string{
-		"orderNo": req.MerchantOrderNo,
-	}
+	body := map[string]string{"orderNo": req.MerchantOrderNo}
 	raw, err := d.postJSON(ctx, "/query/payment", body)
 	if err != nil {
 		return nil, err
 	}
 	var data struct {
-		AppID        string `json:"appId"`
-		OrderNo      string `json:"orderNo"`
-		SysOrderNo   string `json:"sysOrderNo"`
-		Amount       string `json:"amount"`
-		Status       string `json:"status"`
-		ReferenceNo  string `json:"referenceNo"`
-		FailReason   string `json:"failReason"`
+		AppID       string `json:"appId"`
+		OrderNo     string `json:"orderNo"`
+		SysOrderNo  string `json:"sysOrderNo"`
+		Amount      string `json:"amount"`
+		Status      string `json:"status"`
+		ReferenceNo string `json:"referenceNo"`
+		FailReason  string `json:"failReason"`
 	}
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return nil, fmt.Errorf("hexmeta: decode query payment: %w", err)
 	}
 	amt, _ := strconv.ParseInt(strings.TrimSpace(data.Amount), 10, 64)
 	st := strings.TrimSpace(data.Status)
-	return &base.QueryPaymentResp{
+	return &contracts.QueryPaymentResp{
 		AppID:           strings.TrimSpace(data.AppID),
 		MerchantOrderNo: strings.TrimSpace(data.OrderNo),
 		ChannelOrderNo:  strings.TrimSpace(data.SysOrderNo),
@@ -112,7 +122,7 @@ func (d *Driver) QueryPayment(ctx context.Context, req *base.QueryPaymentReq) (*
 	}, nil
 }
 
-func (d *Driver) Makeup(ctx context.Context, req *base.MakeupReq) error {
+func (d *driver) Makeup(ctx context.Context, req *contracts.MakeupReq) error {
 	if req == nil {
 		return fmt.Errorf("hexmeta: nil MakeupReq")
 	}
@@ -124,7 +134,7 @@ func (d *Driver) Makeup(ctx context.Context, req *base.MakeupReq) error {
 	return err
 }
 
-func (d *Driver) VerifyPayinNotify(ctx context.Context, r *http.Request) (*base.PayinNotifyParsed, error) {
+func (d *driver) VerifyPayinNotify(ctx context.Context, r *http.Request) (*contracts.PayinNotifyParsed, error) {
 	_ = ctx
 	raw, err := readNotifyBody(r)
 	if err != nil {
@@ -136,7 +146,7 @@ func (d *Driver) VerifyPayinNotify(ctx context.Context, r *http.Request) (*base.
 	}
 	amt, _ := strconv.ParseInt(strings.TrimSpace(m["amount"]), 10, 64)
 	st := strings.TrimSpace(m["status"])
-	return &base.PayinNotifyParsed{
+	return &contracts.PayinNotifyParsed{
 		MerchantOrderNo: strings.TrimSpace(m["orderNo"]),
 		ChannelOrderNo:  strings.TrimSpace(m["sysOrderNo"]),
 		PaidAmountMinor: amt,
@@ -145,7 +155,7 @@ func (d *Driver) VerifyPayinNotify(ctx context.Context, r *http.Request) (*base.
 	}, nil
 }
 
-func (d *Driver) CreatePayout(ctx context.Context, req *base.CreatePayoutReq) (*base.CreatePayoutResp, error) {
+func (d *driver) CreatePayout(ctx context.Context, req *contracts.CreatePayoutReq) (*contracts.CreatePayoutResp, error) {
 	if req == nil {
 		return nil, fmt.Errorf("hexmeta: nil CreatePayoutReq")
 	}
@@ -175,16 +185,16 @@ func (d *Driver) CreatePayout(ctx context.Context, req *base.CreatePayoutReq) (*
 	if err := json.Unmarshal(raw, &data); err != nil {
 		return nil, fmt.Errorf("hexmeta: decode create payout: %w", err)
 	}
-	return &base.CreatePayoutResp{ChannelOrderNo: strings.TrimSpace(data.SysOrderNo)}, nil
+	return &contracts.CreatePayoutResp{ChannelOrderNo: strings.TrimSpace(data.SysOrderNo)}, nil
 }
 
-func (d *Driver) QueryPayout(ctx context.Context, req *base.QueryPayoutReq) (*base.QueryPayoutResp, error) {
+func (d *driver) QueryPayout(ctx context.Context, req *contracts.QueryPayoutReq) (*contracts.QueryPayoutResp, error) {
 	_ = ctx
 	_ = req
-	return nil, base.ErrUnsupported
+	return nil, contracts.ErrUnsupported
 }
 
-func (d *Driver) VerifyPayoutNotify(ctx context.Context, r *http.Request) (*base.PayoutNotifyParsed, error) {
+func (d *driver) VerifyPayoutNotify(ctx context.Context, r *http.Request) (*contracts.PayoutNotifyParsed, error) {
 	_ = ctx
 	raw, err := readNotifyBody(r)
 	if err != nil {
@@ -196,7 +206,7 @@ func (d *Driver) VerifyPayoutNotify(ctx context.Context, r *http.Request) (*base
 	}
 	amt, _ := strconv.ParseInt(strings.TrimSpace(m["amount"]), 10, 64)
 	st := strings.TrimSpace(m["status"])
-	return &base.PayoutNotifyParsed{
+	return &contracts.PayoutNotifyParsed{
 		MerchantOrderNo: strings.TrimSpace(m["orderNo"]),
 		ChannelOrderNo:  strings.TrimSpace(m["sysOrderNo"]),
 		AmountMinor:     amt,
@@ -206,7 +216,7 @@ func (d *Driver) VerifyPayoutNotify(ctx context.Context, r *http.Request) (*base
 	}, nil
 }
 
-func (d *Driver) QueryBalance(ctx context.Context) (*base.BalanceSnapshot, error) {
+func (d *driver) QueryBalance(ctx context.Context) (*contracts.BalanceSnapshot, error) {
 	body := map[string]string{}
 	raw, err := d.postJSON(ctx, "/query/balance", body)
 	if err != nil {
@@ -223,90 +233,9 @@ func (d *Driver) QueryBalance(ctx context.Context) (*base.BalanceSnapshot, error
 	avail, _ := strconv.ParseInt(strings.TrimSpace(data.AvailableBalance), 10, 64)
 	unset, _ := strconv.ParseInt(strings.TrimSpace(data.UnsettledAmount), 10, 64)
 	frozen, _ := strconv.ParseInt(strings.TrimSpace(data.FrozenAmount), 10, 64)
-	return &base.BalanceSnapshot{
+	return &contracts.BalanceSnapshot{
 		AvailableMinor: avail,
 		UnsettledMinor: unset,
 		FrozenMinor:    frozen,
 	}, nil
-}
-
-func parsePayinStatus(s string) base.PayinOrderStatus {
-	switch s {
-	case "1":
-		return base.PayinStatusProcessing
-	case "2":
-		return base.PayinStatusSuccess
-	case "3":
-		return base.PayinStatusFailed
-	default:
-		return base.PayinStatusUnknown
-	}
-}
-
-func parsePayoutStatus(s string) base.PayoutOrderStatus {
-	switch s {
-	case "1":
-		return base.PayoutStatusProcessing
-	case "2":
-		return base.PayoutStatusSuccess
-	case "3":
-		return base.PayoutStatusFailed
-	default:
-		return base.PayoutStatusUnknown
-	}
-}
-
-func wayCodeStr(w base.PayoutWayCode) string {
-	switch w {
-	case base.PayoutWayUPI:
-		return "2"
-	default:
-		return "1"
-	}
-}
-
-func fillPayerName(s string) string {
-	s = strings.TrimSpace(s)
-	if s != "" {
-		return s
-	}
-	return randomName()
-}
-
-func fillPayerPhone(s string) string {
-	s = strings.TrimSpace(s)
-	if s != "" {
-		return s
-	}
-	return randomPhoneIN()
-}
-
-func fillPayerEmail(s string) string {
-	s = strings.TrimSpace(s)
-	if s != "" {
-		return s
-	}
-	return randomGmail()
-}
-
-func randomDigits(n int) string {
-	const digits = "0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		v, _ := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
-		b[i] = digits[v.Int64()]
-	}
-	return string(b)
-}
-
-func randomName() string {
-	return "User" + randomDigits(6)
-}
-
-func randomPhoneIN() string {
-	return "9" + randomDigits(9)
-}
-
-func randomGmail() string {
-	return randomDigits(9) + "@gmail.com"
 }

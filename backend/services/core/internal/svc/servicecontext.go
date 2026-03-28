@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gloopai/pay/core/channeldriver"
 	"github.com/gloopai/pay/common/configkv"
 	"github.com/gloopai/pay/common/consulx"
 	"github.com/gloopai/pay/common/dbdsn"
 	"github.com/gloopai/pay/core/internal/channelbind"
+	"github.com/gloopai/pay/core/internal/channelbind/psp"
+	ct "github.com/gloopai/pay/core/internal/channelbind/psp/contracts"
 	"github.com/gloopai/pay/core/internal/config"
 	"github.com/gloopai/pay/core/internal/kvcache"
 	"github.com/gloopai/pay/core/internal/store"
@@ -36,7 +37,7 @@ type ServiceContext struct {
 	MerchantPayoutGrantsSnapshot  *kvcache.MerchantPayoutGrantsSnapshot
 	PayinProductBindingsSnapshot  *kvcache.PayinProductBindingsSnapshot
 	PayoutProductBindingsSnapshot *kvcache.PayoutProductBindingsSnapshot
-	// ChannelHub owns routing (KV/DB) + [channeldriver.Registry] + bind resolver for this process.
+	// ChannelHub owns routing (KV/DB) + PSP registry + bind resolver for this process.
 	ChannelHub *channelbind.Hub
 }
 
@@ -79,9 +80,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		payoutBindSnap = kvcache.NewPayoutProductBindingsSnapshot(cfg)
 		payoutBindSnap.Start(context.Background())
 	}
-	reg := channeldriver.NewRegistry()
-	_ = channeldriver.RegisterBuiltInDrivers(reg)
 	chStore := store.NewChannelsStore(gdb)
+	reg := psp.NewRegistry()
+	_ = psp.RegisterBuiltInDrivers(reg, chStore, channelSnap)
 	bindRes := channelbind.NewResolver(chStore, channelSnap)
 	payinProdStore := store.NewPayinProductsStore(gdb)
 	hub := channelbind.NewHub(channelbind.HubConfig{
@@ -119,9 +120,9 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 }
 
-// GetChannelDriver returns a cached [channeldriver.ChannelDriver] for one channel row.
+// GetChannelDriver returns a cached ChannelDriver (psp/contracts) for one channel row.
 // This is the supported entrypoint for channel_id + merged config inside core.
-func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (channeldriver.ChannelDriver, error) {
+func (s *ServiceContext) GetChannelDriver(ctx context.Context, channelID int64) (ct.ChannelDriver, error) {
 	if s == nil || s.ChannelHub == nil {
 		return nil, fmt.Errorf("svc: ChannelHub not configured")
 	}
