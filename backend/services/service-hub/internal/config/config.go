@@ -5,7 +5,11 @@ import "github.com/zeromicro/go-zero/zrpc"
 type Config struct {
 	zrpc.RpcServerConf
 	Timezone string `json:",optional"`
-	Mysql    struct {
+	Nsq      struct {
+		NsqdTCPAddr       string `json:",optional"`
+		PortalNotifyTopic string `json:",optional"`
+	} `json:",optional"`
+	Mysql struct {
 		DataSource             string
 		MaxOpenConns           int   `json:",optional"`
 		MaxIdleConns           int   `json:",optional"`

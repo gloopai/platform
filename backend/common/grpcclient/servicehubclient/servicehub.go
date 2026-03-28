@@ -20,6 +20,8 @@ type (
 	MarkPayoutSuccessReq        = servicehub.MarkPayoutSuccessReq
 	MarkPayoutFailedReq         = servicehub.MarkPayoutFailedReq
 	MarkPayoutResultResp        = servicehub.MarkPayoutResultResp
+	PublishPortalNotificationReq  = servicehub.PublishPortalNotificationReq
+	PublishPortalNotificationResp = servicehub.PublishPortalNotificationResp
 	AdminUser                   = servicehub.AdminUser
 	AdminUserPublic             = servicehub.AdminUserPublic
 
@@ -71,6 +73,9 @@ type ServiceHub interface {
 	ListAdminApiRules(ctx context.Context) ([]*AdminApiRule, error)
 	UpsertAdminApiRule(ctx context.Context, method, pathPattern, permKey, remark string, status int64) (*AdminApiRule, error)
 	DeleteAdminApiRule(ctx context.Context, id int64) (bool, error)
+
+	// Notifications (Redis fan-out; SSE served by service-hub HTTP)
+	PublishPortalNotification(ctx context.Context, req *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
 }
 
 type defaultClient struct {
@@ -461,4 +466,8 @@ func (d *defaultClient) DeleteAdminApiRule(ctx context.Context, id int64) (bool,
 		return false, nil
 	}
 	return r.Ok, nil
+}
+
+func (d *defaultClient) PublishPortalNotification(ctx context.Context, req *servicehub.PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {
+	return d.cli.PublishPortalNotification(ctx, req)
 }

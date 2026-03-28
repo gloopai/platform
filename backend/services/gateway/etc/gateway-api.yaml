@@ -81,3 +81,4 @@ OpsMonitor:
 Nsq:
   NsqdTCPAddr: 127.0.0.1:4150
   Topic: merchant_notice
+  PortalNotifyTopic: pay.notify.portal

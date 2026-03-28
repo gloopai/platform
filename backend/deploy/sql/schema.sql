@@ -373,3 +373,21 @@ CREATE TABLE IF NOT EXISTS admin_api_rules (
   UNIQUE KEY uk_method_path (method, path_pattern),
   KEY idx_perm (perm_key, status, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 门户通知（管理台/商户台）：PublishPortalNotification 落库；实时推送仍走 NSQ，离线仅丢推送、记录保留
+CREATE TABLE IF NOT EXISTS portal_notifications (
+  id CHAR(36) NOT NULL,
+  portal VARCHAR(16) NOT NULL COMMENT 'admin | merchant',
+  broadcast TINYINT NOT NULL DEFAULT 0,
+  title VARCHAR(512) NOT NULL DEFAULT '',
+  body TEXT,
+  severity VARCHAR(16) NOT NULL DEFAULT 'info',
+  link_path VARCHAR(512) NOT NULL DEFAULT '',
+  link_query_json TEXT,
+  meta_json TEXT,
+  target_admin_ids TEXT COMMENT 'JSON array of int64, e.g. [1,2]; empty array for broadcast',
+  target_merchant_ids TEXT COMMENT 'JSON array of merchant id strings',
+  created_at DATETIME(3) NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_portal_created (portal, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

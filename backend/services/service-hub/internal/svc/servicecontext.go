@@ -1,22 +1,28 @@
 package svc
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gloopai/pay/common/dbdsn"
+	ntf "github.com/gloopai/pay/common/notify"
 	"github.com/gloopai/pay/service-hub/internal/config"
+	hubnotify "github.com/gloopai/pay/service-hub/internal/notify"
 	"github.com/gloopai/pay/service-hub/internal/store"
+	"github.com/nsqio/go-nsq"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
-	Config         config.Config
-	AdminUsers     *store.AdminUsersStore
-	AdminRbac      *store.AdminRbacStore
-	AdminRbacCfg   *store.AdminRbacConfigStore
-	GlobalSettings *store.GlobalSettingsStore
-	PayoutOrders   *store.PayoutOrdersStore
+	Config               config.Config
+	AdminUsers           *store.AdminUsersStore
+	AdminRbac            *store.AdminRbacStore
+	AdminRbacCfg         *store.AdminRbacConfigStore
+	GlobalSettings       *store.GlobalSettingsStore
+	PayoutOrders         *store.PayoutOrdersStore
+	PortalNotifications  *store.PortalNotificationsStore
+	NotifyPublisher      *hubnotify.Publisher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -40,12 +46,34 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err := sqlDB.Ping(); err != nil {
 		panic(err)
 	}
-	return &ServiceContext{
-		Config:         c,
-		AdminUsers:     store.NewAdminUsersStore(gdb),
-		AdminRbac:      store.NewAdminRbacStore(gdb),
-		AdminRbacCfg:   store.NewAdminRbacConfigStore(gdb),
-		GlobalSettings: store.NewGlobalSettingsStore(gdb),
-		PayoutOrders:   store.NewPayoutOrdersStore(gdb),
+
+	portalNotifStore := store.NewPortalNotificationsStore(gdb)
+
+	var notifyPublisher *hubnotify.Publisher
+	if addr := strings.TrimSpace(c.Nsq.NsqdTCPAddr); addr != "" {
+		producer, err := nsq.NewProducer(addr, nsq.NewConfig())
+		if err != nil {
+			panic(err)
+		}
+		if err := producer.Ping(); err != nil {
+			panic(err)
+		}
+		topic := strings.TrimSpace(c.Nsq.PortalNotifyTopic)
+		if topic == "" {
+			topic = ntf.PortalNotifyTopic
+		}
+		notifyPublisher = hubnotify.NewPublisher(producer, topic, portalNotifStore)
 	}
+
+	svcCtx := &ServiceContext{
+		Config:              c,
+		AdminUsers:          store.NewAdminUsersStore(gdb),
+		AdminRbac:           store.NewAdminRbacStore(gdb),
+		AdminRbacCfg:        store.NewAdminRbacConfigStore(gdb),
+		GlobalSettings:      store.NewGlobalSettingsStore(gdb),
+		PayoutOrders:        store.NewPayoutOrdersStore(gdb),
+		PortalNotifications: portalNotifStore,
+		NotifyPublisher:     notifyPublisher,
+	}
+	return svcCtx
 }

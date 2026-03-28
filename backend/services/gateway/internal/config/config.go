@@ -57,7 +57,8 @@ type Config struct {
 		Services []string `json:",optional"`
 	}
 	Nsq struct {
-		NsqdTCPAddr string
-		Topic       string
+		NsqdTCPAddr       string
+		Topic             string
+		PortalNotifyTopic string `json:",optional"`
 	}
 }

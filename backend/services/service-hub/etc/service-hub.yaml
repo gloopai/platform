@@ -1,6 +1,9 @@
 Name: payment.rpc.service-hub
 ListenOn: 0.0.0.0:8094
 Timezone: Asia/Shanghai
+Nsq:
+  NsqdTCPAddr: 127.0.0.1:4150
+  PortalNotifyTopic: pay.notify.portal
 Middlewares:
   Trace: true
   Stat: true

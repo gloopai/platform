@@ -522,3 +522,14 @@ func (s *ServiceHubServer) DeleteAdminApiRule(ctx context.Context, req *serviceh
 	}
 	return &servicehub.DeleteAdminApiRuleResp{Ok: true}, nil
 }
+
+func (s *ServiceHubServer) PublishPortalNotification(ctx context.Context, req *servicehub.PublishPortalNotificationReq) (*servicehub.PublishPortalNotificationResp, error) {
+	if s.svcCtx.NotifyPublisher == nil {
+		return nil, status.Error(codes.FailedPrecondition, "notify nsq not configured")
+	}
+	id, err := s.svcCtx.NotifyPublisher.Publish(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &servicehub.PublishPortalNotificationResp{NotificationId: id}, nil
+}

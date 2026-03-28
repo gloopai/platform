@@ -19,39 +19,40 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServiceHub_FindAdminUserByUsername_FullMethodName = "/servicehub.ServiceHub/FindAdminUserByUsername"
-	ServiceHub_ListAdminUsers_FullMethodName          = "/servicehub.ServiceHub/ListAdminUsers"
-	ServiceHub_GetDisplaySettings_FullMethodName      = "/servicehub.ServiceHub/GetDisplaySettings"
-	ServiceHub_UpsertDisplaySettings_FullMethodName   = "/servicehub.ServiceHub/UpsertDisplaySettings"
-	ServiceHub_MarkPayoutSuccess_FullMethodName       = "/servicehub.ServiceHub/MarkPayoutSuccess"
-	ServiceHub_MarkPayoutFailed_FullMethodName        = "/servicehub.ServiceHub/MarkPayoutFailed"
-	ServiceHub_GetAdminRbacMyMenus_FullMethodName     = "/servicehub.ServiceHub/GetAdminRbacMyMenus"
-	ServiceHub_ListAdminRoles_FullMethodName          = "/servicehub.ServiceHub/ListAdminRoles"
-	ServiceHub_CreateAdminRole_FullMethodName         = "/servicehub.ServiceHub/CreateAdminRole"
-	ServiceHub_UpdateAdminRole_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminRole"
-	ServiceHub_DeleteAdminRole_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminRole"
-	ServiceHub_ListAdminMenus_FullMethodName          = "/servicehub.ServiceHub/ListAdminMenus"
-	ServiceHub_CreateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/CreateAdminMenu"
-	ServiceHub_UpdateAdminMenu_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminMenu"
-	ServiceHub_DeleteAdminMenu_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminMenu"
-	ServiceHub_GetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRoleMenus"
-	ServiceHub_SetAdminRoleMenus_FullMethodName       = "/servicehub.ServiceHub/SetAdminRoleMenus"
-	ServiceHub_GetAdminUserRoles_FullMethodName       = "/servicehub.ServiceHub/GetAdminUserRoles"
-	ServiceHub_SetAdminUserRoles_FullMethodName       = "/servicehub.ServiceHub/SetAdminUserRoles"
-	ServiceHub_GetAdminRbacMyPerms_FullMethodName     = "/servicehub.ServiceHub/GetAdminRbacMyPerms"
-	ServiceHub_ListAdminPermissions_FullMethodName    = "/servicehub.ServiceHub/ListAdminPermissions"
-	ServiceHub_CreateAdminPermission_FullMethodName   = "/servicehub.ServiceHub/CreateAdminPermission"
-	ServiceHub_UpdateAdminPermission_FullMethodName   = "/servicehub.ServiceHub/UpdateAdminPermission"
-	ServiceHub_DeleteAdminPermission_FullMethodName   = "/servicehub.ServiceHub/DeleteAdminPermission"
-	ServiceHub_GetAdminRolePermKeys_FullMethodName    = "/servicehub.ServiceHub/GetAdminRolePermKeys"
-	ServiceHub_SetAdminRolePermKeys_FullMethodName    = "/servicehub.ServiceHub/SetAdminRolePermKeys"
-	ServiceHub_ListAdminApiRules_FullMethodName       = "/servicehub.ServiceHub/ListAdminApiRules"
-	ServiceHub_UpsertAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/UpsertAdminApiRule"
-	ServiceHub_DeleteAdminApiRule_FullMethodName      = "/servicehub.ServiceHub/DeleteAdminApiRule"
-	ServiceHub_CreateAdminUser_FullMethodName         = "/servicehub.ServiceHub/CreateAdminUser"
-	ServiceHub_UpdateAdminUser_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminUser"
-	ServiceHub_DeleteAdminUser_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminUser"
-	ServiceHub_GetAdminUserById_FullMethodName        = "/servicehub.ServiceHub/GetAdminUserById"
+	ServiceHub_FindAdminUserByUsername_FullMethodName   = "/servicehub.ServiceHub/FindAdminUserByUsername"
+	ServiceHub_ListAdminUsers_FullMethodName            = "/servicehub.ServiceHub/ListAdminUsers"
+	ServiceHub_GetDisplaySettings_FullMethodName        = "/servicehub.ServiceHub/GetDisplaySettings"
+	ServiceHub_UpsertDisplaySettings_FullMethodName     = "/servicehub.ServiceHub/UpsertDisplaySettings"
+	ServiceHub_MarkPayoutSuccess_FullMethodName         = "/servicehub.ServiceHub/MarkPayoutSuccess"
+	ServiceHub_MarkPayoutFailed_FullMethodName          = "/servicehub.ServiceHub/MarkPayoutFailed"
+	ServiceHub_GetAdminRbacMyMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRbacMyMenus"
+	ServiceHub_ListAdminRoles_FullMethodName            = "/servicehub.ServiceHub/ListAdminRoles"
+	ServiceHub_CreateAdminRole_FullMethodName           = "/servicehub.ServiceHub/CreateAdminRole"
+	ServiceHub_UpdateAdminRole_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminRole"
+	ServiceHub_DeleteAdminRole_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminRole"
+	ServiceHub_ListAdminMenus_FullMethodName            = "/servicehub.ServiceHub/ListAdminMenus"
+	ServiceHub_CreateAdminMenu_FullMethodName           = "/servicehub.ServiceHub/CreateAdminMenu"
+	ServiceHub_UpdateAdminMenu_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminMenu"
+	ServiceHub_DeleteAdminMenu_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminMenu"
+	ServiceHub_GetAdminRoleMenus_FullMethodName         = "/servicehub.ServiceHub/GetAdminRoleMenus"
+	ServiceHub_SetAdminRoleMenus_FullMethodName         = "/servicehub.ServiceHub/SetAdminRoleMenus"
+	ServiceHub_GetAdminUserRoles_FullMethodName         = "/servicehub.ServiceHub/GetAdminUserRoles"
+	ServiceHub_SetAdminUserRoles_FullMethodName         = "/servicehub.ServiceHub/SetAdminUserRoles"
+	ServiceHub_GetAdminRbacMyPerms_FullMethodName       = "/servicehub.ServiceHub/GetAdminRbacMyPerms"
+	ServiceHub_ListAdminPermissions_FullMethodName      = "/servicehub.ServiceHub/ListAdminPermissions"
+	ServiceHub_CreateAdminPermission_FullMethodName     = "/servicehub.ServiceHub/CreateAdminPermission"
+	ServiceHub_UpdateAdminPermission_FullMethodName     = "/servicehub.ServiceHub/UpdateAdminPermission"
+	ServiceHub_DeleteAdminPermission_FullMethodName     = "/servicehub.ServiceHub/DeleteAdminPermission"
+	ServiceHub_GetAdminRolePermKeys_FullMethodName      = "/servicehub.ServiceHub/GetAdminRolePermKeys"
+	ServiceHub_SetAdminRolePermKeys_FullMethodName      = "/servicehub.ServiceHub/SetAdminRolePermKeys"
+	ServiceHub_ListAdminApiRules_FullMethodName         = "/servicehub.ServiceHub/ListAdminApiRules"
+	ServiceHub_UpsertAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/UpsertAdminApiRule"
+	ServiceHub_DeleteAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/DeleteAdminApiRule"
+	ServiceHub_CreateAdminUser_FullMethodName           = "/servicehub.ServiceHub/CreateAdminUser"
+	ServiceHub_UpdateAdminUser_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminUser"
+	ServiceHub_DeleteAdminUser_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminUser"
+	ServiceHub_GetAdminUserById_FullMethodName          = "/servicehub.ServiceHub/GetAdminUserById"
+	ServiceHub_PublishPortalNotification_FullMethodName = "/servicehub.ServiceHub/PublishPortalNotification"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
@@ -97,6 +98,8 @@ type ServiceHubClient interface {
 	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
 	DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error)
 	GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error)
+	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+	PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error)
 }
 
 type serviceHubClient struct {
@@ -437,6 +440,16 @@ func (c *serviceHubClient) GetAdminUserById(ctx context.Context, in *GetAdminUse
 	return out, nil
 }
 
+func (c *serviceHubClient) PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishPortalNotificationResp)
+	err := c.cc.Invoke(ctx, ServiceHub_PublishPortalNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceHubServer is the server API for ServiceHub service.
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
@@ -480,6 +493,8 @@ type ServiceHubServer interface {
 	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
 	DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error)
 	GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error)
+	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+	PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
 	mustEmbedUnimplementedServiceHubServer()
 }
 
@@ -588,6 +603,9 @@ func (UnimplementedServiceHubServer) DeleteAdminUser(context.Context, *DeleteAdm
 }
 func (UnimplementedServiceHubServer) GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdminUserById not implemented")
+}
+func (UnimplementedServiceHubServer) PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishPortalNotification not implemented")
 }
 func (UnimplementedServiceHubServer) mustEmbedUnimplementedServiceHubServer() {}
 func (UnimplementedServiceHubServer) testEmbeddedByValue()                    {}
@@ -1204,6 +1222,24 @@ func _ServiceHub_GetAdminUserById_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_PublishPortalNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishPortalNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).PublishPortalNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_PublishPortalNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).PublishPortalNotification(ctx, req.(*PublishPortalNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceHub_ServiceDesc is the grpc.ServiceDesc for ServiceHub service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1342,6 +1378,10 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAdminUserById",
 			Handler:    _ServiceHub_GetAdminUserById_Handler,
+		},
+		{
+			MethodName: "PublishPortalNotification",
+			Handler:    _ServiceHub_PublishPortalNotification_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

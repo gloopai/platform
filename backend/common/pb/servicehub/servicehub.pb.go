@@ -21,6 +21,56 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// NotificationPortal matches Redis/SSE routing; MERCHANT reserved for merchant console.
+type NotificationPortal int32
+
+const (
+	NotificationPortal_NOTIFICATION_PORTAL_UNSPECIFIED NotificationPortal = 0
+	NotificationPortal_NOTIFICATION_PORTAL_ADMIN       NotificationPortal = 1
+	NotificationPortal_NOTIFICATION_PORTAL_MERCHANT    NotificationPortal = 2
+)
+
+// Enum value maps for NotificationPortal.
+var (
+	NotificationPortal_name = map[int32]string{
+		0: "NOTIFICATION_PORTAL_UNSPECIFIED",
+		1: "NOTIFICATION_PORTAL_ADMIN",
+		2: "NOTIFICATION_PORTAL_MERCHANT",
+	}
+	NotificationPortal_value = map[string]int32{
+		"NOTIFICATION_PORTAL_UNSPECIFIED": 0,
+		"NOTIFICATION_PORTAL_ADMIN":       1,
+		"NOTIFICATION_PORTAL_MERCHANT":    2,
+	}
+)
+
+func (x NotificationPortal) Enum() *NotificationPortal {
+	p := new(NotificationPortal)
+	*p = x
+	return p
+}
+
+func (x NotificationPortal) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NotificationPortal) Descriptor() protoreflect.EnumDescriptor {
+	return file_servicehub_proto_enumTypes[0].Descriptor()
+}
+
+func (NotificationPortal) Type() protoreflect.EnumType {
+	return &file_servicehub_proto_enumTypes[0]
+}
+
+func (x NotificationPortal) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NotificationPortal.Descriptor instead.
+func (NotificationPortal) EnumDescriptor() ([]byte, []int) {
+	return file_servicehub_proto_rawDescGZIP(), []int{0}
+}
+
 type FindAdminUserByUsernameReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
@@ -3703,6 +3753,172 @@ func (x *GetAdminUserByIdResp) GetUser() *AdminUser {
 	return nil
 }
 
+type PublishPortalNotificationReq struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Portal NotificationPortal     `protobuf:"varint,1,opt,name=portal,proto3,enum=servicehub.NotificationPortal" json:"portal,omitempty"`
+	// If true, deliver to all connected clients for that portal (admin or merchant).
+	Broadcast bool `protobuf:"varint,2,opt,name=broadcast,proto3" json:"broadcast,omitempty"`
+	// When broadcast=false and portal=ADMIN: target these admin user ids.
+	AdminUserIds []int64 `protobuf:"varint,3,rep,packed,name=admin_user_ids,json=adminUserIds,proto3" json:"admin_user_ids,omitempty"`
+	// When broadcast=false and portal=MERCHANT: target these merchant ids (string ids).
+	MerchantIds []string `protobuf:"bytes,4,rep,name=merchant_ids,json=merchantIds,proto3" json:"merchant_ids,omitempty"`
+	Title       string   `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
+	Body        string   `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty"`
+	// info | warning | error (UI hint)
+	Severity string `protobuf:"bytes,7,opt,name=severity,proto3" json:"severity,omitempty"`
+	// Vue-router path e.g. "/payin-orders"
+	LinkPath string `protobuf:"bytes,8,opt,name=link_path,json=linkPath,proto3" json:"link_path,omitempty"`
+	// JSON object as string for query params
+	LinkQueryJson string `protobuf:"bytes,9,opt,name=link_query_json,json=linkQueryJson,proto3" json:"link_query_json,omitempty"`
+	MetaJson      string `protobuf:"bytes,10,opt,name=meta_json,json=metaJson,proto3" json:"meta_json,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PublishPortalNotificationReq) Reset() {
+	*x = PublishPortalNotificationReq{}
+	mi := &file_servicehub_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishPortalNotificationReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishPortalNotificationReq) ProtoMessage() {}
+
+func (x *PublishPortalNotificationReq) ProtoReflect() protoreflect.Message {
+	mi := &file_servicehub_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishPortalNotificationReq.ProtoReflect.Descriptor instead.
+func (*PublishPortalNotificationReq) Descriptor() ([]byte, []int) {
+	return file_servicehub_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *PublishPortalNotificationReq) GetPortal() NotificationPortal {
+	if x != nil {
+		return x.Portal
+	}
+	return NotificationPortal_NOTIFICATION_PORTAL_UNSPECIFIED
+}
+
+func (x *PublishPortalNotificationReq) GetBroadcast() bool {
+	if x != nil {
+		return x.Broadcast
+	}
+	return false
+}
+
+func (x *PublishPortalNotificationReq) GetAdminUserIds() []int64 {
+	if x != nil {
+		return x.AdminUserIds
+	}
+	return nil
+}
+
+func (x *PublishPortalNotificationReq) GetMerchantIds() []string {
+	if x != nil {
+		return x.MerchantIds
+	}
+	return nil
+}
+
+func (x *PublishPortalNotificationReq) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *PublishPortalNotificationReq) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *PublishPortalNotificationReq) GetSeverity() string {
+	if x != nil {
+		return x.Severity
+	}
+	return ""
+}
+
+func (x *PublishPortalNotificationReq) GetLinkPath() string {
+	if x != nil {
+		return x.LinkPath
+	}
+	return ""
+}
+
+func (x *PublishPortalNotificationReq) GetLinkQueryJson() string {
+	if x != nil {
+		return x.LinkQueryJson
+	}
+	return ""
+}
+
+func (x *PublishPortalNotificationReq) GetMetaJson() string {
+	if x != nil {
+		return x.MetaJson
+	}
+	return ""
+}
+
+type PublishPortalNotificationResp struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	NotificationId string                 `protobuf:"bytes,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PublishPortalNotificationResp) Reset() {
+	*x = PublishPortalNotificationResp{}
+	mi := &file_servicehub_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PublishPortalNotificationResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PublishPortalNotificationResp) ProtoMessage() {}
+
+func (x *PublishPortalNotificationResp) ProtoReflect() protoreflect.Message {
+	mi := &file_servicehub_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PublishPortalNotificationResp.ProtoReflect.Descriptor instead.
+func (*PublishPortalNotificationResp) Descriptor() ([]byte, []int) {
+	return file_servicehub_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *PublishPortalNotificationResp) GetNotificationId() string {
+	if x != nil {
+		return x.NotificationId
+	}
+	return ""
+}
+
 var File_servicehub_proto protoreflect.FileDescriptor
 
 const file_servicehub_proto_rawDesc = "" +
@@ -3935,7 +4151,25 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x13GetAdminUserByIdReq\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"A\n" +
 	"\x14GetAdminUserByIdResp\x12)\n" +
-	"\x04user\x18\x01 \x01(\v2\x15.servicehub.AdminUserR\x04user2\xbd\x17\n" +
+	"\x04user\x18\x01 \x01(\v2\x15.servicehub.AdminUserR\x04user\"\xe5\x02\n" +
+	"\x1cPublishPortalNotificationReq\x126\n" +
+	"\x06portal\x18\x01 \x01(\x0e2\x1e.servicehub.NotificationPortalR\x06portal\x12\x1c\n" +
+	"\tbroadcast\x18\x02 \x01(\bR\tbroadcast\x12$\n" +
+	"\x0eadmin_user_ids\x18\x03 \x03(\x03R\fadminUserIds\x12!\n" +
+	"\fmerchant_ids\x18\x04 \x03(\tR\vmerchantIds\x12\x14\n" +
+	"\x05title\x18\x05 \x01(\tR\x05title\x12\x12\n" +
+	"\x04body\x18\x06 \x01(\tR\x04body\x12\x1a\n" +
+	"\bseverity\x18\a \x01(\tR\bseverity\x12\x1b\n" +
+	"\tlink_path\x18\b \x01(\tR\blinkPath\x12&\n" +
+	"\x0flink_query_json\x18\t \x01(\tR\rlinkQueryJson\x12\x1b\n" +
+	"\tmeta_json\x18\n" +
+	" \x01(\tR\bmetaJson\"H\n" +
+	"\x1dPublishPortalNotificationResp\x12'\n" +
+	"\x0fnotification_id\x18\x01 \x01(\tR\x0enotificationId*z\n" +
+	"\x12NotificationPortal\x12#\n" +
+	"\x1fNOTIFICATION_PORTAL_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19NOTIFICATION_PORTAL_ADMIN\x10\x01\x12 \n" +
+	"\x1cNOTIFICATION_PORTAL_MERCHANT\x10\x022\xaf\x18\n" +
 	"\n" +
 	"ServiceHub\x12j\n" +
 	"\x17FindAdminUserByUsername\x12&.servicehub.FindAdminUserByUsernameReq\x1a'.servicehub.FindAdminUserByUsernameResp\x12O\n" +
@@ -3970,7 +4204,8 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x0fCreateAdminUser\x12\x1e.servicehub.CreateAdminUserReq\x1a\x1f.servicehub.CreateAdminUserResp\x12R\n" +
 	"\x0fUpdateAdminUser\x12\x1e.servicehub.UpdateAdminUserReq\x1a\x1f.servicehub.UpdateAdminUserResp\x12R\n" +
 	"\x0fDeleteAdminUser\x12\x1e.servicehub.DeleteAdminUserReq\x1a\x1f.servicehub.DeleteAdminUserResp\x12U\n" +
-	"\x10GetAdminUserById\x12\x1f.servicehub.GetAdminUserByIdReq\x1a .servicehub.GetAdminUserByIdRespB8Z6github.com/gloopai/pay/common/pb/servicehub;servicehubb\x06proto3"
+	"\x10GetAdminUserById\x12\x1f.servicehub.GetAdminUserByIdReq\x1a .servicehub.GetAdminUserByIdResp\x12p\n" +
+	"\x19PublishPortalNotification\x12(.servicehub.PublishPortalNotificationReq\x1a).servicehub.PublishPortalNotificationRespB8Z6github.com/gloopai/pay/common/pb/servicehub;servicehubb\x06proto3"
 
 var (
 	file_servicehub_proto_rawDescOnce sync.Once
@@ -3984,168 +4219,175 @@ func file_servicehub_proto_rawDescGZIP() []byte {
 	return file_servicehub_proto_rawDescData
 }
 
-var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 70)
+var file_servicehub_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 72)
 var file_servicehub_proto_goTypes = []any{
-	(*FindAdminUserByUsernameReq)(nil),  // 0: servicehub.FindAdminUserByUsernameReq
-	(*FindAdminUserByUsernameResp)(nil), // 1: servicehub.FindAdminUserByUsernameResp
-	(*AdminUser)(nil),                   // 2: servicehub.AdminUser
-	(*AdminUserPublic)(nil),             // 3: servicehub.AdminUserPublic
-	(*ListAdminUsersReq)(nil),           // 4: servicehub.ListAdminUsersReq
-	(*ListAdminUsersResp)(nil),          // 5: servicehub.ListAdminUsersResp
-	(*GetDisplaySettingsReq)(nil),       // 6: servicehub.GetDisplaySettingsReq
-	(*GetDisplaySettingsResp)(nil),      // 7: servicehub.GetDisplaySettingsResp
-	(*UpsertDisplaySettingsReq)(nil),    // 8: servicehub.UpsertDisplaySettingsReq
-	(*MarkPayoutSuccessReq)(nil),        // 9: servicehub.MarkPayoutSuccessReq
-	(*MarkPayoutFailedReq)(nil),         // 10: servicehub.MarkPayoutFailedReq
-	(*MarkPayoutResultResp)(nil),        // 11: servicehub.MarkPayoutResultResp
-	(*GetAdminRbacMyMenusReq)(nil),      // 12: servicehub.GetAdminRbacMyMenusReq
-	(*AdminMenu)(nil),                   // 13: servicehub.AdminMenu
-	(*GetAdminRbacMyMenusResp)(nil),     // 14: servicehub.GetAdminRbacMyMenusResp
-	(*ListAdminRolesReq)(nil),           // 15: servicehub.ListAdminRolesReq
-	(*AdminRole)(nil),                   // 16: servicehub.AdminRole
-	(*ListAdminRolesResp)(nil),          // 17: servicehub.ListAdminRolesResp
-	(*CreateAdminRoleReq)(nil),          // 18: servicehub.CreateAdminRoleReq
-	(*CreateAdminRoleResp)(nil),         // 19: servicehub.CreateAdminRoleResp
-	(*UpdateAdminRoleReq)(nil),          // 20: servicehub.UpdateAdminRoleReq
-	(*UpdateAdminRoleResp)(nil),         // 21: servicehub.UpdateAdminRoleResp
-	(*DeleteAdminRoleReq)(nil),          // 22: servicehub.DeleteAdminRoleReq
-	(*DeleteAdminRoleResp)(nil),         // 23: servicehub.DeleteAdminRoleResp
-	(*ListAdminMenusReq)(nil),           // 24: servicehub.ListAdminMenusReq
-	(*ListAdminMenusResp)(nil),          // 25: servicehub.ListAdminMenusResp
-	(*CreateAdminMenuReq)(nil),          // 26: servicehub.CreateAdminMenuReq
-	(*CreateAdminMenuResp)(nil),         // 27: servicehub.CreateAdminMenuResp
-	(*UpdateAdminMenuReq)(nil),          // 28: servicehub.UpdateAdminMenuReq
-	(*UpdateAdminMenuResp)(nil),         // 29: servicehub.UpdateAdminMenuResp
-	(*DeleteAdminMenuReq)(nil),          // 30: servicehub.DeleteAdminMenuReq
-	(*DeleteAdminMenuResp)(nil),         // 31: servicehub.DeleteAdminMenuResp
-	(*GetAdminRoleMenusReq)(nil),        // 32: servicehub.GetAdminRoleMenusReq
-	(*GetAdminRoleMenusResp)(nil),       // 33: servicehub.GetAdminRoleMenusResp
-	(*SetAdminRoleMenusReq)(nil),        // 34: servicehub.SetAdminRoleMenusReq
-	(*SetAdminRoleMenusResp)(nil),       // 35: servicehub.SetAdminRoleMenusResp
-	(*GetAdminUserRolesReq)(nil),        // 36: servicehub.GetAdminUserRolesReq
-	(*GetAdminUserRolesResp)(nil),       // 37: servicehub.GetAdminUserRolesResp
-	(*SetAdminUserRolesReq)(nil),        // 38: servicehub.SetAdminUserRolesReq
-	(*SetAdminUserRolesResp)(nil),       // 39: servicehub.SetAdminUserRolesResp
-	(*GetAdminRbacMyPermsReq)(nil),      // 40: servicehub.GetAdminRbacMyPermsReq
-	(*GetAdminRbacMyPermsResp)(nil),     // 41: servicehub.GetAdminRbacMyPermsResp
-	(*AdminPermission)(nil),             // 42: servicehub.AdminPermission
-	(*ListAdminPermissionsReq)(nil),     // 43: servicehub.ListAdminPermissionsReq
-	(*ListAdminPermissionsResp)(nil),    // 44: servicehub.ListAdminPermissionsResp
-	(*CreateAdminPermissionReq)(nil),    // 45: servicehub.CreateAdminPermissionReq
-	(*CreateAdminPermissionResp)(nil),   // 46: servicehub.CreateAdminPermissionResp
-	(*UpdateAdminPermissionReq)(nil),    // 47: servicehub.UpdateAdminPermissionReq
-	(*UpdateAdminPermissionResp)(nil),   // 48: servicehub.UpdateAdminPermissionResp
-	(*DeleteAdminPermissionReq)(nil),    // 49: servicehub.DeleteAdminPermissionReq
-	(*DeleteAdminPermissionResp)(nil),   // 50: servicehub.DeleteAdminPermissionResp
-	(*GetAdminRolePermKeysReq)(nil),     // 51: servicehub.GetAdminRolePermKeysReq
-	(*GetAdminRolePermKeysResp)(nil),    // 52: servicehub.GetAdminRolePermKeysResp
-	(*SetAdminRolePermKeysReq)(nil),     // 53: servicehub.SetAdminRolePermKeysReq
-	(*SetAdminRolePermKeysResp)(nil),    // 54: servicehub.SetAdminRolePermKeysResp
-	(*AdminApiRule)(nil),                // 55: servicehub.AdminApiRule
-	(*ListAdminApiRulesReq)(nil),        // 56: servicehub.ListAdminApiRulesReq
-	(*ListAdminApiRulesResp)(nil),       // 57: servicehub.ListAdminApiRulesResp
-	(*UpsertAdminApiRuleReq)(nil),       // 58: servicehub.UpsertAdminApiRuleReq
-	(*UpsertAdminApiRuleResp)(nil),      // 59: servicehub.UpsertAdminApiRuleResp
-	(*DeleteAdminApiRuleReq)(nil),       // 60: servicehub.DeleteAdminApiRuleReq
-	(*DeleteAdminApiRuleResp)(nil),      // 61: servicehub.DeleteAdminApiRuleResp
-	(*CreateAdminUserReq)(nil),          // 62: servicehub.CreateAdminUserReq
-	(*CreateAdminUserResp)(nil),         // 63: servicehub.CreateAdminUserResp
-	(*UpdateAdminUserReq)(nil),          // 64: servicehub.UpdateAdminUserReq
-	(*UpdateAdminUserResp)(nil),         // 65: servicehub.UpdateAdminUserResp
-	(*DeleteAdminUserReq)(nil),          // 66: servicehub.DeleteAdminUserReq
-	(*DeleteAdminUserResp)(nil),         // 67: servicehub.DeleteAdminUserResp
-	(*GetAdminUserByIdReq)(nil),         // 68: servicehub.GetAdminUserByIdReq
-	(*GetAdminUserByIdResp)(nil),        // 69: servicehub.GetAdminUserByIdResp
+	(NotificationPortal)(0),               // 0: servicehub.NotificationPortal
+	(*FindAdminUserByUsernameReq)(nil),    // 1: servicehub.FindAdminUserByUsernameReq
+	(*FindAdminUserByUsernameResp)(nil),   // 2: servicehub.FindAdminUserByUsernameResp
+	(*AdminUser)(nil),                     // 3: servicehub.AdminUser
+	(*AdminUserPublic)(nil),               // 4: servicehub.AdminUserPublic
+	(*ListAdminUsersReq)(nil),             // 5: servicehub.ListAdminUsersReq
+	(*ListAdminUsersResp)(nil),            // 6: servicehub.ListAdminUsersResp
+	(*GetDisplaySettingsReq)(nil),         // 7: servicehub.GetDisplaySettingsReq
+	(*GetDisplaySettingsResp)(nil),        // 8: servicehub.GetDisplaySettingsResp
+	(*UpsertDisplaySettingsReq)(nil),      // 9: servicehub.UpsertDisplaySettingsReq
+	(*MarkPayoutSuccessReq)(nil),          // 10: servicehub.MarkPayoutSuccessReq
+	(*MarkPayoutFailedReq)(nil),           // 11: servicehub.MarkPayoutFailedReq
+	(*MarkPayoutResultResp)(nil),          // 12: servicehub.MarkPayoutResultResp
+	(*GetAdminRbacMyMenusReq)(nil),        // 13: servicehub.GetAdminRbacMyMenusReq
+	(*AdminMenu)(nil),                     // 14: servicehub.AdminMenu
+	(*GetAdminRbacMyMenusResp)(nil),       // 15: servicehub.GetAdminRbacMyMenusResp
+	(*ListAdminRolesReq)(nil),             // 16: servicehub.ListAdminRolesReq
+	(*AdminRole)(nil),                     // 17: servicehub.AdminRole
+	(*ListAdminRolesResp)(nil),            // 18: servicehub.ListAdminRolesResp
+	(*CreateAdminRoleReq)(nil),            // 19: servicehub.CreateAdminRoleReq
+	(*CreateAdminRoleResp)(nil),           // 20: servicehub.CreateAdminRoleResp
+	(*UpdateAdminRoleReq)(nil),            // 21: servicehub.UpdateAdminRoleReq
+	(*UpdateAdminRoleResp)(nil),           // 22: servicehub.UpdateAdminRoleResp
+	(*DeleteAdminRoleReq)(nil),            // 23: servicehub.DeleteAdminRoleReq
+	(*DeleteAdminRoleResp)(nil),           // 24: servicehub.DeleteAdminRoleResp
+	(*ListAdminMenusReq)(nil),             // 25: servicehub.ListAdminMenusReq
+	(*ListAdminMenusResp)(nil),            // 26: servicehub.ListAdminMenusResp
+	(*CreateAdminMenuReq)(nil),            // 27: servicehub.CreateAdminMenuReq
+	(*CreateAdminMenuResp)(nil),           // 28: servicehub.CreateAdminMenuResp
+	(*UpdateAdminMenuReq)(nil),            // 29: servicehub.UpdateAdminMenuReq
+	(*UpdateAdminMenuResp)(nil),           // 30: servicehub.UpdateAdminMenuResp
+	(*DeleteAdminMenuReq)(nil),            // 31: servicehub.DeleteAdminMenuReq
+	(*DeleteAdminMenuResp)(nil),           // 32: servicehub.DeleteAdminMenuResp
+	(*GetAdminRoleMenusReq)(nil),          // 33: servicehub.GetAdminRoleMenusReq
+	(*GetAdminRoleMenusResp)(nil),         // 34: servicehub.GetAdminRoleMenusResp
+	(*SetAdminRoleMenusReq)(nil),          // 35: servicehub.SetAdminRoleMenusReq
+	(*SetAdminRoleMenusResp)(nil),         // 36: servicehub.SetAdminRoleMenusResp
+	(*GetAdminUserRolesReq)(nil),          // 37: servicehub.GetAdminUserRolesReq
+	(*GetAdminUserRolesResp)(nil),         // 38: servicehub.GetAdminUserRolesResp
+	(*SetAdminUserRolesReq)(nil),          // 39: servicehub.SetAdminUserRolesReq
+	(*SetAdminUserRolesResp)(nil),         // 40: servicehub.SetAdminUserRolesResp
+	(*GetAdminRbacMyPermsReq)(nil),        // 41: servicehub.GetAdminRbacMyPermsReq
+	(*GetAdminRbacMyPermsResp)(nil),       // 42: servicehub.GetAdminRbacMyPermsResp
+	(*AdminPermission)(nil),               // 43: servicehub.AdminPermission
+	(*ListAdminPermissionsReq)(nil),       // 44: servicehub.ListAdminPermissionsReq
+	(*ListAdminPermissionsResp)(nil),      // 45: servicehub.ListAdminPermissionsResp
+	(*CreateAdminPermissionReq)(nil),      // 46: servicehub.CreateAdminPermissionReq
+	(*CreateAdminPermissionResp)(nil),     // 47: servicehub.CreateAdminPermissionResp
+	(*UpdateAdminPermissionReq)(nil),      // 48: servicehub.UpdateAdminPermissionReq
+	(*UpdateAdminPermissionResp)(nil),     // 49: servicehub.UpdateAdminPermissionResp
+	(*DeleteAdminPermissionReq)(nil),      // 50: servicehub.DeleteAdminPermissionReq
+	(*DeleteAdminPermissionResp)(nil),     // 51: servicehub.DeleteAdminPermissionResp
+	(*GetAdminRolePermKeysReq)(nil),       // 52: servicehub.GetAdminRolePermKeysReq
+	(*GetAdminRolePermKeysResp)(nil),      // 53: servicehub.GetAdminRolePermKeysResp
+	(*SetAdminRolePermKeysReq)(nil),       // 54: servicehub.SetAdminRolePermKeysReq
+	(*SetAdminRolePermKeysResp)(nil),      // 55: servicehub.SetAdminRolePermKeysResp
+	(*AdminApiRule)(nil),                  // 56: servicehub.AdminApiRule
+	(*ListAdminApiRulesReq)(nil),          // 57: servicehub.ListAdminApiRulesReq
+	(*ListAdminApiRulesResp)(nil),         // 58: servicehub.ListAdminApiRulesResp
+	(*UpsertAdminApiRuleReq)(nil),         // 59: servicehub.UpsertAdminApiRuleReq
+	(*UpsertAdminApiRuleResp)(nil),        // 60: servicehub.UpsertAdminApiRuleResp
+	(*DeleteAdminApiRuleReq)(nil),         // 61: servicehub.DeleteAdminApiRuleReq
+	(*DeleteAdminApiRuleResp)(nil),        // 62: servicehub.DeleteAdminApiRuleResp
+	(*CreateAdminUserReq)(nil),            // 63: servicehub.CreateAdminUserReq
+	(*CreateAdminUserResp)(nil),           // 64: servicehub.CreateAdminUserResp
+	(*UpdateAdminUserReq)(nil),            // 65: servicehub.UpdateAdminUserReq
+	(*UpdateAdminUserResp)(nil),           // 66: servicehub.UpdateAdminUserResp
+	(*DeleteAdminUserReq)(nil),            // 67: servicehub.DeleteAdminUserReq
+	(*DeleteAdminUserResp)(nil),           // 68: servicehub.DeleteAdminUserResp
+	(*GetAdminUserByIdReq)(nil),           // 69: servicehub.GetAdminUserByIdReq
+	(*GetAdminUserByIdResp)(nil),          // 70: servicehub.GetAdminUserByIdResp
+	(*PublishPortalNotificationReq)(nil),  // 71: servicehub.PublishPortalNotificationReq
+	(*PublishPortalNotificationResp)(nil), // 72: servicehub.PublishPortalNotificationResp
 }
 var file_servicehub_proto_depIdxs = []int32{
-	2,  // 0: servicehub.FindAdminUserByUsernameResp.user:type_name -> servicehub.AdminUser
-	3,  // 1: servicehub.ListAdminUsersResp.users:type_name -> servicehub.AdminUserPublic
-	13, // 2: servicehub.GetAdminRbacMyMenusResp.menus:type_name -> servicehub.AdminMenu
-	16, // 3: servicehub.ListAdminRolesResp.roles:type_name -> servicehub.AdminRole
-	16, // 4: servicehub.CreateAdminRoleResp.role:type_name -> servicehub.AdminRole
-	16, // 5: servicehub.UpdateAdminRoleResp.role:type_name -> servicehub.AdminRole
-	13, // 6: servicehub.ListAdminMenusResp.menus:type_name -> servicehub.AdminMenu
-	13, // 7: servicehub.CreateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
-	13, // 8: servicehub.UpdateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
-	42, // 9: servicehub.ListAdminPermissionsResp.permissions:type_name -> servicehub.AdminPermission
-	42, // 10: servicehub.CreateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
-	42, // 11: servicehub.UpdateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
-	55, // 12: servicehub.ListAdminApiRulesResp.rules:type_name -> servicehub.AdminApiRule
-	55, // 13: servicehub.UpsertAdminApiRuleResp.rule:type_name -> servicehub.AdminApiRule
-	3,  // 14: servicehub.CreateAdminUserResp.user:type_name -> servicehub.AdminUserPublic
-	3,  // 15: servicehub.UpdateAdminUserResp.user:type_name -> servicehub.AdminUserPublic
-	2,  // 16: servicehub.GetAdminUserByIdResp.user:type_name -> servicehub.AdminUser
-	0,  // 17: servicehub.ServiceHub.FindAdminUserByUsername:input_type -> servicehub.FindAdminUserByUsernameReq
-	4,  // 18: servicehub.ServiceHub.ListAdminUsers:input_type -> servicehub.ListAdminUsersReq
-	6,  // 19: servicehub.ServiceHub.GetDisplaySettings:input_type -> servicehub.GetDisplaySettingsReq
-	8,  // 20: servicehub.ServiceHub.UpsertDisplaySettings:input_type -> servicehub.UpsertDisplaySettingsReq
-	9,  // 21: servicehub.ServiceHub.MarkPayoutSuccess:input_type -> servicehub.MarkPayoutSuccessReq
-	10, // 22: servicehub.ServiceHub.MarkPayoutFailed:input_type -> servicehub.MarkPayoutFailedReq
-	12, // 23: servicehub.ServiceHub.GetAdminRbacMyMenus:input_type -> servicehub.GetAdminRbacMyMenusReq
-	15, // 24: servicehub.ServiceHub.ListAdminRoles:input_type -> servicehub.ListAdminRolesReq
-	18, // 25: servicehub.ServiceHub.CreateAdminRole:input_type -> servicehub.CreateAdminRoleReq
-	20, // 26: servicehub.ServiceHub.UpdateAdminRole:input_type -> servicehub.UpdateAdminRoleReq
-	22, // 27: servicehub.ServiceHub.DeleteAdminRole:input_type -> servicehub.DeleteAdminRoleReq
-	24, // 28: servicehub.ServiceHub.ListAdminMenus:input_type -> servicehub.ListAdminMenusReq
-	26, // 29: servicehub.ServiceHub.CreateAdminMenu:input_type -> servicehub.CreateAdminMenuReq
-	28, // 30: servicehub.ServiceHub.UpdateAdminMenu:input_type -> servicehub.UpdateAdminMenuReq
-	30, // 31: servicehub.ServiceHub.DeleteAdminMenu:input_type -> servicehub.DeleteAdminMenuReq
-	32, // 32: servicehub.ServiceHub.GetAdminRoleMenus:input_type -> servicehub.GetAdminRoleMenusReq
-	34, // 33: servicehub.ServiceHub.SetAdminRoleMenus:input_type -> servicehub.SetAdminRoleMenusReq
-	36, // 34: servicehub.ServiceHub.GetAdminUserRoles:input_type -> servicehub.GetAdminUserRolesReq
-	38, // 35: servicehub.ServiceHub.SetAdminUserRoles:input_type -> servicehub.SetAdminUserRolesReq
-	40, // 36: servicehub.ServiceHub.GetAdminRbacMyPerms:input_type -> servicehub.GetAdminRbacMyPermsReq
-	43, // 37: servicehub.ServiceHub.ListAdminPermissions:input_type -> servicehub.ListAdminPermissionsReq
-	45, // 38: servicehub.ServiceHub.CreateAdminPermission:input_type -> servicehub.CreateAdminPermissionReq
-	47, // 39: servicehub.ServiceHub.UpdateAdminPermission:input_type -> servicehub.UpdateAdminPermissionReq
-	49, // 40: servicehub.ServiceHub.DeleteAdminPermission:input_type -> servicehub.DeleteAdminPermissionReq
-	51, // 41: servicehub.ServiceHub.GetAdminRolePermKeys:input_type -> servicehub.GetAdminRolePermKeysReq
-	53, // 42: servicehub.ServiceHub.SetAdminRolePermKeys:input_type -> servicehub.SetAdminRolePermKeysReq
-	56, // 43: servicehub.ServiceHub.ListAdminApiRules:input_type -> servicehub.ListAdminApiRulesReq
-	58, // 44: servicehub.ServiceHub.UpsertAdminApiRule:input_type -> servicehub.UpsertAdminApiRuleReq
-	60, // 45: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
-	62, // 46: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
-	64, // 47: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
-	66, // 48: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
-	68, // 49: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
-	1,  // 50: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
-	5,  // 51: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
-	7,  // 52: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	7,  // 53: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	11, // 54: servicehub.ServiceHub.MarkPayoutSuccess:output_type -> servicehub.MarkPayoutResultResp
-	11, // 55: servicehub.ServiceHub.MarkPayoutFailed:output_type -> servicehub.MarkPayoutResultResp
-	14, // 56: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
-	17, // 57: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
-	19, // 58: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
-	21, // 59: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
-	23, // 60: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
-	25, // 61: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
-	27, // 62: servicehub.ServiceHub.CreateAdminMenu:output_type -> servicehub.CreateAdminMenuResp
-	29, // 63: servicehub.ServiceHub.UpdateAdminMenu:output_type -> servicehub.UpdateAdminMenuResp
-	31, // 64: servicehub.ServiceHub.DeleteAdminMenu:output_type -> servicehub.DeleteAdminMenuResp
-	33, // 65: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
-	35, // 66: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
-	37, // 67: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
-	39, // 68: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
-	41, // 69: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
-	44, // 70: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
-	46, // 71: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
-	48, // 72: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
-	50, // 73: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
-	52, // 74: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
-	54, // 75: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
-	57, // 76: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
-	59, // 77: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
-	61, // 78: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
-	63, // 79: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
-	65, // 80: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
-	67, // 81: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
-	69, // 82: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
-	50, // [50:83] is the sub-list for method output_type
-	17, // [17:50] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	3,  // 0: servicehub.FindAdminUserByUsernameResp.user:type_name -> servicehub.AdminUser
+	4,  // 1: servicehub.ListAdminUsersResp.users:type_name -> servicehub.AdminUserPublic
+	14, // 2: servicehub.GetAdminRbacMyMenusResp.menus:type_name -> servicehub.AdminMenu
+	17, // 3: servicehub.ListAdminRolesResp.roles:type_name -> servicehub.AdminRole
+	17, // 4: servicehub.CreateAdminRoleResp.role:type_name -> servicehub.AdminRole
+	17, // 5: servicehub.UpdateAdminRoleResp.role:type_name -> servicehub.AdminRole
+	14, // 6: servicehub.ListAdminMenusResp.menus:type_name -> servicehub.AdminMenu
+	14, // 7: servicehub.CreateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
+	14, // 8: servicehub.UpdateAdminMenuResp.menu:type_name -> servicehub.AdminMenu
+	43, // 9: servicehub.ListAdminPermissionsResp.permissions:type_name -> servicehub.AdminPermission
+	43, // 10: servicehub.CreateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
+	43, // 11: servicehub.UpdateAdminPermissionResp.permission:type_name -> servicehub.AdminPermission
+	56, // 12: servicehub.ListAdminApiRulesResp.rules:type_name -> servicehub.AdminApiRule
+	56, // 13: servicehub.UpsertAdminApiRuleResp.rule:type_name -> servicehub.AdminApiRule
+	4,  // 14: servicehub.CreateAdminUserResp.user:type_name -> servicehub.AdminUserPublic
+	4,  // 15: servicehub.UpdateAdminUserResp.user:type_name -> servicehub.AdminUserPublic
+	3,  // 16: servicehub.GetAdminUserByIdResp.user:type_name -> servicehub.AdminUser
+	0,  // 17: servicehub.PublishPortalNotificationReq.portal:type_name -> servicehub.NotificationPortal
+	1,  // 18: servicehub.ServiceHub.FindAdminUserByUsername:input_type -> servicehub.FindAdminUserByUsernameReq
+	5,  // 19: servicehub.ServiceHub.ListAdminUsers:input_type -> servicehub.ListAdminUsersReq
+	7,  // 20: servicehub.ServiceHub.GetDisplaySettings:input_type -> servicehub.GetDisplaySettingsReq
+	9,  // 21: servicehub.ServiceHub.UpsertDisplaySettings:input_type -> servicehub.UpsertDisplaySettingsReq
+	10, // 22: servicehub.ServiceHub.MarkPayoutSuccess:input_type -> servicehub.MarkPayoutSuccessReq
+	11, // 23: servicehub.ServiceHub.MarkPayoutFailed:input_type -> servicehub.MarkPayoutFailedReq
+	13, // 24: servicehub.ServiceHub.GetAdminRbacMyMenus:input_type -> servicehub.GetAdminRbacMyMenusReq
+	16, // 25: servicehub.ServiceHub.ListAdminRoles:input_type -> servicehub.ListAdminRolesReq
+	19, // 26: servicehub.ServiceHub.CreateAdminRole:input_type -> servicehub.CreateAdminRoleReq
+	21, // 27: servicehub.ServiceHub.UpdateAdminRole:input_type -> servicehub.UpdateAdminRoleReq
+	23, // 28: servicehub.ServiceHub.DeleteAdminRole:input_type -> servicehub.DeleteAdminRoleReq
+	25, // 29: servicehub.ServiceHub.ListAdminMenus:input_type -> servicehub.ListAdminMenusReq
+	27, // 30: servicehub.ServiceHub.CreateAdminMenu:input_type -> servicehub.CreateAdminMenuReq
+	29, // 31: servicehub.ServiceHub.UpdateAdminMenu:input_type -> servicehub.UpdateAdminMenuReq
+	31, // 32: servicehub.ServiceHub.DeleteAdminMenu:input_type -> servicehub.DeleteAdminMenuReq
+	33, // 33: servicehub.ServiceHub.GetAdminRoleMenus:input_type -> servicehub.GetAdminRoleMenusReq
+	35, // 34: servicehub.ServiceHub.SetAdminRoleMenus:input_type -> servicehub.SetAdminRoleMenusReq
+	37, // 35: servicehub.ServiceHub.GetAdminUserRoles:input_type -> servicehub.GetAdminUserRolesReq
+	39, // 36: servicehub.ServiceHub.SetAdminUserRoles:input_type -> servicehub.SetAdminUserRolesReq
+	41, // 37: servicehub.ServiceHub.GetAdminRbacMyPerms:input_type -> servicehub.GetAdminRbacMyPermsReq
+	44, // 38: servicehub.ServiceHub.ListAdminPermissions:input_type -> servicehub.ListAdminPermissionsReq
+	46, // 39: servicehub.ServiceHub.CreateAdminPermission:input_type -> servicehub.CreateAdminPermissionReq
+	48, // 40: servicehub.ServiceHub.UpdateAdminPermission:input_type -> servicehub.UpdateAdminPermissionReq
+	50, // 41: servicehub.ServiceHub.DeleteAdminPermission:input_type -> servicehub.DeleteAdminPermissionReq
+	52, // 42: servicehub.ServiceHub.GetAdminRolePermKeys:input_type -> servicehub.GetAdminRolePermKeysReq
+	54, // 43: servicehub.ServiceHub.SetAdminRolePermKeys:input_type -> servicehub.SetAdminRolePermKeysReq
+	57, // 44: servicehub.ServiceHub.ListAdminApiRules:input_type -> servicehub.ListAdminApiRulesReq
+	59, // 45: servicehub.ServiceHub.UpsertAdminApiRule:input_type -> servicehub.UpsertAdminApiRuleReq
+	61, // 46: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
+	63, // 47: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
+	65, // 48: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
+	67, // 49: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
+	69, // 50: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
+	71, // 51: servicehub.ServiceHub.PublishPortalNotification:input_type -> servicehub.PublishPortalNotificationReq
+	2,  // 52: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
+	6,  // 53: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
+	8,  // 54: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	8,  // 55: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	12, // 56: servicehub.ServiceHub.MarkPayoutSuccess:output_type -> servicehub.MarkPayoutResultResp
+	12, // 57: servicehub.ServiceHub.MarkPayoutFailed:output_type -> servicehub.MarkPayoutResultResp
+	15, // 58: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
+	18, // 59: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
+	20, // 60: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
+	22, // 61: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
+	24, // 62: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
+	26, // 63: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
+	28, // 64: servicehub.ServiceHub.CreateAdminMenu:output_type -> servicehub.CreateAdminMenuResp
+	30, // 65: servicehub.ServiceHub.UpdateAdminMenu:output_type -> servicehub.UpdateAdminMenuResp
+	32, // 66: servicehub.ServiceHub.DeleteAdminMenu:output_type -> servicehub.DeleteAdminMenuResp
+	34, // 67: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
+	36, // 68: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
+	38, // 69: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
+	40, // 70: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
+	42, // 71: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
+	45, // 72: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
+	47, // 73: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
+	49, // 74: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
+	51, // 75: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
+	53, // 76: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
+	55, // 77: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
+	58, // 78: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
+	60, // 79: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
+	62, // 80: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
+	64, // 81: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
+	66, // 82: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
+	68, // 83: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
+	70, // 84: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
+	72, // 85: servicehub.ServiceHub.PublishPortalNotification:output_type -> servicehub.PublishPortalNotificationResp
+	52, // [52:86] is the sub-list for method output_type
+	18, // [18:52] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_servicehub_proto_init() }
@@ -4158,13 +4400,14 @@ func file_servicehub_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   70,
+			NumEnums:      1,
+			NumMessages:   72,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_servicehub_proto_goTypes,
 		DependencyIndexes: file_servicehub_proto_depIdxs,
+		EnumInfos:         file_servicehub_proto_enumTypes,
 		MessageInfos:      file_servicehub_proto_msgTypes,
 	}.Build()
 	File_servicehub_proto = out.File

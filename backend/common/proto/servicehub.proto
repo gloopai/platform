@@ -46,6 +46,9 @@ service ServiceHub {
   rpc UpdateAdminUser(UpdateAdminUserReq) returns (UpdateAdminUserResp);
   rpc DeleteAdminUser(DeleteAdminUserReq) returns (DeleteAdminUserResp);
   rpc GetAdminUserById(GetAdminUserByIdReq) returns (GetAdminUserByIdResp);
+
+  // ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+  rpc PublishPortalNotification(PublishPortalNotificationReq) returns (PublishPortalNotificationResp);
 }
 
 message FindAdminUserByUsernameReq {
@@ -344,3 +347,33 @@ message DeleteAdminUserResp { bool ok = 1; }
 
 message GetAdminUserByIdReq { int64 id = 1; }
 message GetAdminUserByIdResp { AdminUser user = 1; }
+
+// NotificationPortal matches Redis/SSE routing; MERCHANT reserved for merchant console.
+enum NotificationPortal {
+  NOTIFICATION_PORTAL_UNSPECIFIED = 0;
+  NOTIFICATION_PORTAL_ADMIN = 1;
+  NOTIFICATION_PORTAL_MERCHANT = 2;
+}
+
+message PublishPortalNotificationReq {
+  NotificationPortal portal = 1;
+  // If true, deliver to all connected clients for that portal (admin or merchant).
+  bool broadcast = 2;
+  // When broadcast=false and portal=ADMIN: target these admin user ids.
+  repeated int64 admin_user_ids = 3;
+  // When broadcast=false and portal=MERCHANT: target these merchant ids (string ids).
+  repeated string merchant_ids = 4;
+  string title = 5;
+  string body = 6;
+  // info | warning | error (UI hint)
+  string severity = 7;
+  // Vue-router path e.g. "/payin-orders"
+  string link_path = 8;
+  // JSON object as string for query params
+  string link_query_json = 9;
+  string meta_json = 10;
+}
+
+message PublishPortalNotificationResp {
+  string notification_id = 1;
+}
