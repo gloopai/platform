@@ -38,6 +38,10 @@ func (s *ChannelServer) Route(ctx context.Context, in *channelpb.RouteReq) (*cha
 	return l.Route(in)
 }
 
+func (s *ChannelServer) PreparePayinOrder(ctx context.Context, in *channelpb.PreparePayinOrderReq) (*channelpb.PreparePayinOrderResp, error) {
+	return logic.PreparePayinOrder(ctx, s.svcCtx, in)
+}
+
 func (s *ChannelServer) GetSignSecret(ctx context.Context, in *channelpb.GetSignSecretReq) (*channelpb.GetSignSecretResp, error) {
 	l := logic.NewGetSignSecretLogic(ctx, s.svcCtx)
 	return l.GetSignSecret(in)

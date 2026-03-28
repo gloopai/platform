@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Channel_Route_FullMethodName                           = "/channel.Channel/Route"
+	Channel_PreparePayinOrder_FullMethodName               = "/channel.Channel/PreparePayinOrder"
 	Channel_GetSignSecret_FullMethodName                   = "/channel.Channel/GetSignSecret"
 	Channel_GetChannel_FullMethodName                      = "/channel.Channel/GetChannel"
 	Channel_ListChannels_FullMethodName                    = "/channel.Channel/ListChannels"
@@ -51,6 +52,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChannelClient interface {
 	Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
+	// OpenAPI 代收下单：白名单 + 选路 + GetMerchant（计费用）合并为一次往返，降低网关延迟。
+	PreparePayinOrder(ctx context.Context, in *PreparePayinOrderReq, opts ...grpc.CallOption) (*PreparePayinOrderResp, error)
 	GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(ctx context.Context, in *GetChannelReq, opts ...grpc.CallOption) (*GetChannelResp, error)
@@ -90,6 +93,16 @@ func (c *channelClient) Route(ctx context.Context, in *RouteReq, opts ...grpc.Ca
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RouteResp)
 	err := c.cc.Invoke(ctx, Channel_Route_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *channelClient) PreparePayinOrder(ctx context.Context, in *PreparePayinOrderReq, opts ...grpc.CallOption) (*PreparePayinOrderResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PreparePayinOrderResp)
+	err := c.cc.Invoke(ctx, Channel_PreparePayinOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -341,6 +354,8 @@ func (c *channelClient) AdminDeletePayoutProductBinding(ctx context.Context, in 
 // for forward compatibility.
 type ChannelServer interface {
 	Route(context.Context, *RouteReq) (*RouteResp, error)
+	// OpenAPI 代收下单：白名单 + 选路 + GetMerchant（计费用）合并为一次往返，降低网关延迟。
+	PreparePayinOrder(context.Context, *PreparePayinOrderReq) (*PreparePayinOrderResp, error)
 	GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error)
 	// 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
 	GetChannel(context.Context, *GetChannelReq) (*GetChannelResp, error)
@@ -378,6 +393,9 @@ type UnimplementedChannelServer struct{}
 
 func (UnimplementedChannelServer) Route(context.Context, *RouteReq) (*RouteResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Route not implemented")
+}
+func (UnimplementedChannelServer) PreparePayinOrder(context.Context, *PreparePayinOrderReq) (*PreparePayinOrderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PreparePayinOrder not implemented")
 }
 func (UnimplementedChannelServer) GetSignSecret(context.Context, *GetSignSecretReq) (*GetSignSecretResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSignSecret not implemented")
@@ -486,6 +504,24 @@ func _Channel_Route_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChannelServer).Route(ctx, req.(*RouteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Channel_PreparePayinOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PreparePayinOrderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChannelServer).PreparePayinOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Channel_PreparePayinOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChannelServer).PreparePayinOrder(ctx, req.(*PreparePayinOrderReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -932,6 +968,10 @@ var Channel_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Route",
 			Handler:    _Channel_Route_Handler,
+		},
+		{
+			MethodName: "PreparePayinOrder",
+			Handler:    _Channel_PreparePayinOrder_Handler,
 		},
 		{
 			MethodName: "GetSignSecret",

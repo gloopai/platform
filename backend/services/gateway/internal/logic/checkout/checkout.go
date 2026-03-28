@@ -53,10 +53,8 @@ func openAPIRejectChannelIDParam(ctx context.Context) error {
 
 // CreateOrder 代收下单（OpenAPI POST /v1/payin/order）。
 // 失败排查顺序（中间件先于本函数）：验签/时间戳/nonce 防重放/IP 白名单/限流 → 本函数：
-//  1) MerchantHasPayinProductCode：商户若存在任一启用的 merchant_payin_products 行则为「白名单模式」，
-//     此时 payin_type 必须在白名单内；否则为开放模式（仅后续路由约束）。
-//  2) Channel Route：trade 按 payin_products + payin_product_channels + channels 选路；无候选则 FailedPrecondition（多为 no available channel）。
-//  3) OrderRpc.CreateOrder：Redis 锁与幂等；Redis 不可用会 Internal「redis error」。
+//  1) Channel.PreparePayinOrder：白名单 + 选路 + 商户快照（计费），单次 RPC（见 core）。
+//  2) OrderRpc.CreateOrder：Redis 锁与幂等；Redis 不可用会 Internal「redis error」。
 func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
 	if err := openAPIRejectChannelIDParam(c.ctx); err != nil {
 		return nil, err
@@ -74,43 +72,27 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 		ppid             int64
 	)
 
-	if payinType != "" {
-		has, err := c.svcCtx.ChannelRpc.MerchantHasPayinProductCode(c.ctx, &channelpb.MerchantHasPayinProductCodeReq{
-			MerchantId: merchantID, PayinProductCode: payinType,
-		})
-		if err != nil {
-			c.Errorf("action=create_payin_order stage=merchant_has_payin_product rpc_err merchant_id=%s payin_type=%s err=%v", merchantID, payinType, err)
-			return nil, status.Error(codes.Internal, "check merchant pay products failed")
+	prep, err := c.svcCtx.ChannelRpc.PreparePayinOrder(c.ctx, &channelpb.PreparePayinOrderReq{
+		MerchantId: merchantID,
+		Amount:     req.Amount,
+		PayinType:  payinType,
+	})
+	if err != nil {
+		if payinType != "" {
+			c.Errorf("action=create_payin_order stage=prepare_payin_order merchant_id=%s payin_type=%s amount=%d err=%v", merchantID, payinType, req.Amount, err)
+		} else {
+			c.Errorf("action=create_payin_order stage=prepare_payin_order merchant_id=%s amount=%d err=%v", merchantID, req.Amount, err)
 		}
-		if !has.GetOk() {
-			c.Infof("action=create_payin_order stage=merchant_has_payin_product denied merchant_id=%s payin_type=%s", merchantID, payinType)
-			return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
-		}
-		route, err := c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
-			Amount:    req.Amount,
-			PayinType: payinType,
-		})
-		if err != nil {
-			c.Errorf("action=create_payin_order stage=route_failed merchant_id=%s payin_type=%s amount=%d err=%v", merchantID, payinType, req.Amount, err)
-			return nil, err
-		}
-		cid = route.GetChannelId()
-		ppid = route.GetPayinProductId()
-		if cid <= 0 {
-			c.Errorf("action=create_payin_order stage=route_empty_channel merchant_id=%s payin_type=%s amount=%d", merchantID, payinType, req.Amount)
-			return nil, status.Error(codes.FailedPrecondition, "no available channel for payin_type")
-		}
-		payinProductCode = payinType
-		channelLocked = 0
-	} else {
-		cid, ppid = 0, 0
-		payinProductCode = ""
-		channelLocked = 0
+		return nil, err
 	}
+	cid = prep.GetChannelId()
+	ppid = prep.GetPayinProductId()
+	payinProductCode = prep.GetPayinProductCode()
+	channelLocked = 0
 
 	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := int64(1), int64(0), int64(0), int64(0), req.Amount
-	if info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID}); ge == nil {
-		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = calcPayinFeeSnapshot(info.GetMerchant(), ppid, req.Amount)
+	if m := prep.GetMerchant(); m != nil {
+		feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount = calcPayinFeeSnapshot(m, ppid, req.Amount)
 	}
 
 	r, err := c.svcCtx.OrderRpc.CreateOrder(c.ctx, &orderclient.CreateOrderReq{

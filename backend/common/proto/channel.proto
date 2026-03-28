@@ -3,8 +3,12 @@ syntax = "proto3";
 package channel;
 option go_package = "github.com/gloopai/pay/common/pb/channel;channel";
 
+import "merchant.proto";
+
 service Channel {
   rpc Route(RouteReq) returns(RouteResp);
+  // OpenAPI 代收下单：白名单 + 选路 + GetMerchant（计费用）合并为一次往返，降低网关延迟。
+  rpc PreparePayinOrder(PreparePayinOrderReq) returns (PreparePayinOrderResp);
   rpc GetSignSecret(GetSignSecretReq) returns(GetSignSecretResp);
 
   // 按主键取单条通道（供通道回调等按 channel_id 热路径，避免 ListChannels 全表扫描）
@@ -46,6 +50,20 @@ message RouteReq {
 message RouteResp {
   int64 channel_id = 1;
   int64 payin_product_id = 2;
+}
+
+message PreparePayinOrderReq {
+  string merchant_id = 1;
+  int64 amount = 2;
+  // 支付产品 code；空表示不跑选路与白名单（channel_id/payin_product_id 为 0），仍返回 merchant 供计费。
+  string payin_type = 3;
+}
+
+message PreparePayinOrderResp {
+  int64 channel_id = 1;
+  int64 payin_product_id = 2;
+  string payin_product_code = 3;
+  merchant.MerchantInfo merchant = 4;
 }
 
 message GetSignSecretReq {

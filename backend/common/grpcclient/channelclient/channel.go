@@ -17,6 +17,7 @@ type (
 
 	Channel interface {
 		Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error)
+		PreparePayinOrder(ctx context.Context, in *channel.PreparePayinOrderReq, opts ...grpc.CallOption) (*channel.PreparePayinOrderResp, error)
 		GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error)
 
 		GetChannel(ctx context.Context, in *channel.GetChannelReq, opts ...grpc.CallOption) (*channel.GetChannelResp, error)
@@ -62,6 +63,10 @@ func (m *defaultChannel) client() channel.ChannelClient {
 
 func (m *defaultChannel) Route(ctx context.Context, in *RouteReq, opts ...grpc.CallOption) (*RouteResp, error) {
 	return m.client().Route(ctx, in, opts...)
+}
+
+func (m *defaultChannel) PreparePayinOrder(ctx context.Context, in *channel.PreparePayinOrderReq, opts ...grpc.CallOption) (*channel.PreparePayinOrderResp, error) {
+	return m.client().PreparePayinOrder(ctx, in, opts...)
 }
 
 func (m *defaultChannel) GetSignSecret(ctx context.Context, in *GetSignSecretReq, opts ...grpc.CallOption) (*GetSignSecretResp, error) {
