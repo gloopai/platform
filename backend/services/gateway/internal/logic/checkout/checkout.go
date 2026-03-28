@@ -51,6 +51,12 @@ func openAPIRejectChannelIDParam(ctx context.Context) error {
 	return status.Error(codes.InvalidArgument, "channel_id is not allowed on OpenAPI; upstream routing is determined by the platform")
 }
 
+// CreateOrder 代收下单（OpenAPI POST /v1/payin/order）。
+// 失败排查顺序（中间件先于本函数）：验签/时间戳/nonce 防重放/IP 白名单/限流 → 本函数：
+//  1) MerchantHasPayinProductCode：商户若存在任一启用的 merchant_payin_products 行则为「白名单模式」，
+//     此时 payin_type 必须在白名单内；否则为开放模式（仅后续路由约束）。
+//  2) Channel Route：trade 按 payin_products + payin_product_channels + channels 选路；无候选则 FailedPrecondition（多为 no available channel）。
+//  3) OrderRpc.CreateOrder：Redis 锁与幂等；Redis 不可用会 Internal「redis error」。
 func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrderResp, err error) {
 	if err := openAPIRejectChannelIDParam(c.ctx); err != nil {
 		return nil, err
@@ -73,9 +79,11 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 			MerchantId: merchantID, PayinProductCode: payinType,
 		})
 		if err != nil {
+			c.Errorf("action=create_payin_order stage=merchant_has_payin_product rpc_err merchant_id=%s payin_type=%s err=%v", merchantID, payinType, err)
 			return nil, status.Error(codes.Internal, "check merchant pay products failed")
 		}
 		if !has.GetOk() {
+			c.Infof("action=create_payin_order stage=merchant_has_payin_product denied merchant_id=%s payin_type=%s", merchantID, payinType)
 			return nil, status.Error(codes.PermissionDenied, "payin_type not enabled for this merchant")
 		}
 		route, err := c.svcCtx.ChannelRpc.Route(c.ctx, &channelclient.RouteReq{
@@ -83,10 +91,15 @@ func (c *Checkout) CreateOrder(req *types.CreateOrderReq) (resp *types.CreateOrd
 			PayinType: payinType,
 		})
 		if err != nil {
+			c.Errorf("action=create_payin_order stage=route_failed merchant_id=%s payin_type=%s amount=%d err=%v", merchantID, payinType, req.Amount, err)
 			return nil, err
 		}
 		cid = route.GetChannelId()
 		ppid = route.GetPayinProductId()
+		if cid <= 0 {
+			c.Errorf("action=create_payin_order stage=route_empty_channel merchant_id=%s payin_type=%s amount=%d", merchantID, payinType, req.Amount)
+			return nil, status.Error(codes.FailedPrecondition, "no available channel for payin_type")
+		}
 		payinProductCode = payinType
 		channelLocked = 0
 	} else {
@@ -178,6 +191,9 @@ func (c *Checkout) QueryOrder(req *types.QueryOrderReq) (resp *types.QueryOrderR
 	}, nil
 }
 
+// CreatePayoutOrder 代付下单（OpenAPI POST /v1/payout/order）。
+// 失败排查：验签等同 CreateOrder → AdminListPayoutProducts 解析 code → GetMerchant 校验代付授权
+// → OrderRpc.CreatePayoutOrder → DebitPayout 扣款（余额不足则失败并尝试将单置失败）。
 func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.CreateOrderResp, error) {
 	if err := openAPIRejectChannelIDParam(c.ctx); err != nil {
 		return nil, err
@@ -197,6 +213,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 	payoutCodeNorm := payoutCode
 	pl, err := c.svcCtx.ChannelRpc.AdminListPayoutProducts(c.ctx, &channelpb.AdminListPayoutProductsReq{})
 	if err != nil {
+		c.Errorf("request_id=%s action=create_payout_order stage=list_payout_products err=%v", reqID, err)
 		return nil, status.Error(codes.Internal, "list payout products failed")
 	}
 	var resolvedPayoutProductID int64
@@ -210,6 +227,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 		}
 	}
 	if resolvedPayoutProductID <= 0 {
+		c.Infof("request_id=%s action=create_payout_order stage=unknown_payout_code merchant_id=%s code=%s", reqID, merchantID, payoutCodeNorm)
 		return nil, status.Error(codes.InvalidArgument, "unknown payout_product_code")
 	}
 	info, ge := c.svcCtx.MerchantRpc.GetMerchant(c.ctx, &merchantclient.GetMerchantReq{MerchantId: merchantID})
@@ -236,6 +254,7 @@ func (c *Checkout) CreatePayoutOrder(req *types.CreatePayinOrderReq) (*types.Cre
 		}
 	}
 	if !grantOk {
+		c.Infof("request_id=%s action=create_payout_order stage=payout_grant_denied merchant_id=%s payout_product_id=%d code=%s", reqID, merchantID, resolvedPayoutProductID, payoutCodeNorm)
 		return nil, status.Error(codes.PermissionDenied, "payout_product_code not enabled for merchant")
 	}
 	feeMode, feeRateBps, feeFixedAmount, feeAmount, netAmount := calcPayoutFeeSnapshot(m, resolvedPayoutProductID, req.Amount)
