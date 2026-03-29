@@ -1,4 +1,4 @@
-// Package psp: driver registry and in-process ChannelDriver cache. Built-in drivers are registered in NewRegistry.
+// Package psp: in-process ChannelDriver cache. Each channels.driver_key maps to a constructor registered via Register (see NewRegistry for built-ins).
 package psp
 
 import (
@@ -17,13 +17,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// DriverFactory builds a [contracts.ChannelDriver] for one channels.id (config loaded inside the driver).
-type DriverFactory func(channelID int64) (contracts.ChannelDriver, error)
-
-// Registry maps channels.driver_key to constructors and caches instances per channel_id.
+// Registry maps channels.driver_key → constructor; caches one ChannelDriver per channel_id.
 type Registry struct {
 	mu          sync.RWMutex
-	factories   map[string]DriverFactory
+	factories   map[string]func(int64) (contracts.ChannelDriver, error)
 	cache       map[int64]cachedDriver
 	channels    *store.ChannelsStore
 	channelSnap *kvcache.ChannelSnapshot
@@ -35,23 +32,20 @@ type cachedDriver struct {
 	drv       contracts.ChannelDriver
 }
 
-// NewRegistry builds a registry with built-in drivers (hexmeta) wired to the same DB + channel KV snapshot as GetChannelDriver.
+// NewRegistry wires DB + channel KV snapshot and registers built-in drivers (see register_builtin.go).
 func NewRegistry(ch *store.ChannelsStore, snap *kvcache.ChannelSnapshot) *Registry {
 	r := &Registry{
-		factories:   make(map[string]DriverFactory),
+		factories:   make(map[string]func(int64) (contracts.ChannelDriver, error)),
 		cache:       make(map[int64]cachedDriver),
 		channels:    ch,
 		channelSnap: snap,
 	}
-	if ch != nil {
-		r.Register(hexmeta.DriverKey, func(channelID int64) (contracts.ChannelDriver, error) {
-			return hexmeta.NewDriver(channelID, ch, snap)
-		})
-	}
+	registerBuiltinDrivers(r, ch, snap)
 	return r
 }
 
-func (r *Registry) Register(key string, f DriverFactory) {
+// Register maps driver_key (channels.driver_key) to a constructor. Call from init or tests; not safe to swap a key at runtime if cache may hold old drivers.
+func (r *Registry) Register(key string, f func(int64) (contracts.ChannelDriver, error)) {
 	if r == nil {
 		return
 	}
@@ -62,7 +56,7 @@ func (r *Registry) Register(key string, f DriverFactory) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.factories == nil {
-		r.factories = make(map[string]DriverFactory)
+		r.factories = make(map[string]func(int64) (contracts.ChannelDriver, error))
 	}
 	r.factories[key] = f
 }
