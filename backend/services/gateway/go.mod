@@ -6,22 +6,20 @@ replace github.com/gloopai/pay/common => ../../common
 
 require (
 	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
-	github.com/go-sql-driver/mysql v1.9.3
-	github.com/nsqio/go-nsq v1.1.0
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/zeromicro/go-zero v1.10.0
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
 	golang.org/x/crypto v0.46.0
 	google.golang.org/grpc v1.79.3
-	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.31.1
 )
 
-require github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+require (
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	gorm.io/gorm v1.31.1 // indirect
+)
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
@@ -40,11 +38,10 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/uuid v1.6.0
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/grafana/pyroscope-go v1.2.7 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.9 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect

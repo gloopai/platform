@@ -81,26 +81,12 @@ if ! is_listening 6379; then
   fi
 fi
 
-if ! is_listening 4150; then
-  if command -v nsqlookupd >/dev/null 2>&1 && command -v nsqd >/dev/null 2>&1; then
-    start_bg "nsqlookupd" "${ROOT_DIR}" "nsqlookupd -tcp-address=127.0.0.1:4160 -http-address=127.0.0.1:4161"
-    sleep 0.3
-    start_bg "nsqd" "${ROOT_DIR}" "nsqd -tcp-address=127.0.0.1:4150 -http-address=127.0.0.1:4151 -lookupd-tcp-address=127.0.0.1:4160"
-    sleep 0.6
-  else
-    echo "[nsq] not running on :4150 and nsq binaries not found"
-  fi
-fi
-
 if ! is_listening 3306; then
-  echo "[mysql] not listening on :3306 (services may fail)"
+  echo "[mysql] not listening on :3306 (service-hub may fail)"
 fi
 
-start_bg "trade" "${ROOT_DIR}/backend/services/trade" "go run . -f etc/trade.yaml"
-start_bg "core" "${ROOT_DIR}/backend/services/core" "go run . -f etc/core.yaml"
 start_bg "service-hub" "${ROOT_DIR}/backend/services/service-hub" "go run . -f etc/service-hub.yaml"
 start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gateway-api.yaml"
-start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -f etc/notice-consumer.yaml"
 
 if [ -f "${ROOT_DIR}/frontend/package.json" ]; then
   if ! is_listening 5176; then

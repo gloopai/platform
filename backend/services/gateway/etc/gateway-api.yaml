@@ -1,83 +1,38 @@
 ServiceName: gateway
 
-# HTTP：本进程四路 Rest（独立端口对外）
-#   8080  AdminServer     /v1/admin/*、/ready
-#   8088  MerchantServer  /v1/merchant/*
-#   8090  OpenAPIServer   /v1/payin|payout/*（验签）、/v1/callback/*（通道回调，无商户验签）
-#   8092  CheckoutServer  /v1/terminal/*（收银终端）
-# gRPC：trade :8081（订单）、core :8084（商户/结算/通道与支付产品）、service-hub :8094
+# 脚手架：仅 Admin HTTP（见 gateway.go）
 AdminServer:
   Name: gateway-admin-api
   Host: 0.0.0.0
   Port: 8080
-MerchantServer:
-  Name: gateway-merchant-api
-  Host: 0.0.0.0
-  Port: 8088
-OpenAPIServer:
-  Name: gateway-openapi-api
-  Host: 0.0.0.0
-  Port: 8090
-CheckoutServer:
-  Name: gateway-checkout-api
-  Host: 0.0.0.0
-  Port: 8092
 
 Timezone: Asia/Shanghai
 
-# OpenAPI 请求体上限、是否信任反向代理转发的客户端 IP（与 OpenAPIServer 端口无关）
 OpenAPI:
   MaxBodyBytes: 262144
   TrustForwardedFor: false
 
-# 本进程在 Consul 中的注册（当前仅 admin 对外服务发现）
 Consul:
   Addr: 127.0.0.1:8500
   Service: gateway-admin-api
 
-# Redis：OpenAPI 防重放与限流（可同一实例，使用不同 DB）
-ReplayGuard:
-  RedisAddr: 127.0.0.1:6379
-  RedisPassword: "yourpassword"
-  RedisDB: 2
-  KeyPrefix: pay:openapi:replay
-  AllowedSkewSeconds: 300
-  TTLSeconds: 600
+# 登录限流（与 Admin /login 共用 Redis）
 RateLimit:
   RedisAddr: 127.0.0.1:6379
   RedisPassword: "yourpassword"
   RedisDB: 3
-  KeyPrefix: pay:openapi:ratelimit
-  # -1 = 关闭 OpenAPI 限流（本地压测）；0 = 未配置时用默认 600；线上可改为 600 等正整数
-  OpenAPILimitPerWindow: -1
-  OpenAPIWindowSeconds: 60
+  KeyPrefix: gateway:admin:ratelimit
   LoginLimitPerWindow: 60
   LoginWindowSeconds: 60
 
-# 管理端口令、JWT、收银台前端基址（重定向等）
 AdminToken: admin_token_change_me
 JwtSecret: jwt_secret_change_me
-CheckoutBaseUrl: http://127.0.0.1:5174/
 
-# 下游 gRPC（Consul 服务名与各 rpc 服务 Name/Consul.Service 一致）
-CoreRpc:
-  Target: consul://127.0.0.1:8500/payment.rpc.core
-  Middlewares:
-    Trace: true
-TradeRpc:
-  Target: consul://127.0.0.1:8500/payment.rpc.trade
-  Middlewares:
-    Trace: true
 ServiceHubRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.service-hub
   Middlewares:
     Trace: true
 
-# 运维监控页额外展示的 Consul 服务名（默认还会包含 gateway / trade / core 等）
+# 运维页额外 Consul 服务名（可选）
 OpsMonitor:
-  Services:
-    - payment.worker.notice-consumer
-
-Nsq:
-  NsqdTCPAddr: 127.0.0.1:4150
-  Topic: merchant_notice
+  Services: []

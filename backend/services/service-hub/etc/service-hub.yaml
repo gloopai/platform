@@ -1,8 +1,9 @@
 Name: payment.rpc.service-hub
 ListenOn: 0.0.0.0:8094
 Timezone: Asia/Shanghai
+# 脚手架：不强制 NSQ；需门户实时通知时填写 NsqdTCPAddr
 Nsq:
-  NsqdTCPAddr: 127.0.0.1:4150
+  NsqdTCPAddr: ""
   PortalNotifyTopic: pay.notify.portal
 Middlewares:
   Trace: true

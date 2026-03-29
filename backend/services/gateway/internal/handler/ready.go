@@ -13,17 +13,8 @@ func ReadyHandler(ctx *svc.ServiceContext) http.HandlerFunc {
 	if ctx.ServiceHubConn != nil {
 		checks = append(checks, healthx.GRPCHealthCheck("service_hub_grpc", ctx.ServiceHubConn, "", 1200*time.Millisecond))
 	}
-	if ctx.ReplayRedis != nil {
-		checks = append(checks, healthx.RedisPing("redis_replay", ctx.ReplayRedis))
-	}
 	if ctx.RateRedis != nil {
 		checks = append(checks, healthx.RedisPing("redis_ratelimit", ctx.RateRedis))
-	}
-	if ctx.TradeConn != nil {
-		checks = append(checks, healthx.GRPCHealthCheck("trade_grpc", ctx.TradeConn, "", 1200*time.Millisecond))
-	}
-	if ctx.CoreConn != nil {
-		checks = append(checks, healthx.GRPCHealthCheck("core_grpc", ctx.CoreConn, "", 1200*time.Millisecond))
 	}
 	return healthx.HTTPHandler(checks...)
 }

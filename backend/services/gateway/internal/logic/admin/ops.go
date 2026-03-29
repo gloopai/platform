@@ -25,21 +25,11 @@ func (a *AdminOps) ServicesStatus() (*types.OpsServicesResp, error) {
 	if s := strings.TrimSpace(c.Consul.Service); s != "" {
 		services = append(services, s)
 	}
-	// zrpc target: consul://host:8500/serviceName
-	if t := strings.TrimSpace(c.TradeRpc.Target); t != "" {
+	if t := strings.TrimSpace(c.ServiceHubRpc.Target); t != "" {
 		if parts := strings.Split(t, "/"); len(parts) > 0 {
 			services = append(services, parts[len(parts)-1])
 		}
 	}
-	if t := strings.TrimSpace(c.CoreRpc.Target); t != "" {
-		if parts := strings.Split(t, "/"); len(parts) > 0 {
-			services = append(services, parts[len(parts)-1])
-		}
-	}
-	// default include notice-consumer; can be overridden/extended by OpsMonitor.Services
-	services = append(services, "payment.worker.notice-consumer")
-	// platform DB-backed support RPC (admin users / global settings / payout mark helpers)
-	services = append(services, "payment.rpc.service-hub")
 	for _, s := range c.OpsMonitor.Services {
 		services = append(services, strings.TrimSpace(s))
 	}
