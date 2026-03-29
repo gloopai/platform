@@ -24,8 +24,8 @@
                 P
               </div>
               <div v-show="!sidebarCollapsed" class="min-w-0">
-                <div class="truncate text-sm font-semibold tracking-tight text-white">聚合支付</div>
-                <div class="truncate text-[10px] font-medium text-slate-500">总管理台</div>
+                <div class="truncate text-sm font-semibold tracking-tight text-white">平台脚手架</div>
+                <div class="truncate text-[10px] font-medium text-slate-500">管理后台</div>
               </div>
             </div>
             <button
@@ -140,7 +140,7 @@
 
         <div v-show="!sidebarCollapsed" class="border-t border-white/5 p-3">
           <div class="rounded-lg bg-white/5 px-3 py-2 text-[10px] leading-relaxed text-slate-500">
-            聚合多通道生产环境：变更路由与资金类操作前请二次确认。
+            生产环境：变更权限与角色前请二次确认。
           </div>
         </div>
       </aside>
@@ -160,7 +160,7 @@
             <div class="hidden rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono text-slate-600 lg:block">
                {{ serverTimeText }}
             </div>
-            <!-- <button
+            <button
               type="button"
               class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
               @click="broadcastRefresh"
@@ -169,7 +169,7 @@
                 <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               刷新数据
-            </button> -->
+            </button>
 
             <div ref="userMenuRoot" class="relative">
               <button

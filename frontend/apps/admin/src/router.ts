@@ -2,22 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginPage from './views/LoginPage.vue'
 import AdminLayout from './views/AdminLayout.vue'
-import ChannelHealthPage from './views/modules/channel-health/ChannelHealthPage.vue'
-import ChannelsPage from './views/modules/channels/ChannelsPage.vue'
-import MerchantsPage from './views/modules/merchants/MerchantsPage.vue'
-import MerchantDepositPage from './views/modules/merchants/MerchantDepositPage.vue'
-import PayinProductsPage from './views/modules/pay-products/PayinProductsPage.vue'
-import PayoutProductsPage from './views/modules/pay-products/PayoutProductsPage.vue'
-import RouteStrategyPage from './views/modules/routing/RouteStrategyPage.vue'
-import PayinOrdersPage from './views/modules/orders/PayinOrdersPage.vue'
-import PayoutOrdersPage from './views/modules/orders/PayoutOrdersPage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
-import RefundsPage from './views/modules/refunds/RefundsPage.vue'
-import ReconcilePage from './views/modules/reconcile/ReconcilePage.vue'
-import SettlementLogsPage from './views/modules/settlement/SettlementLogsPage.vue'
-import SettlementWithdrawalsPage from './views/modules/settlement/SettlementWithdrawalsPage.vue'
-import SettlementWithdrawalListPage from './views/modules/settlement/SettlementWithdrawalListPage.vue'
-import StatsPage from './views/modules/stats/StatsPage.vue'
 import SystemPage from './views/modules/system/SystemPage.vue'
 import RbacLayout from './views/modules/rbac/RbacLayout.vue'
 import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
@@ -35,23 +20,7 @@ export const router = createRouter({
       path: '/',
       component: AdminLayout,
       children: [
-        { path: '', redirect: '/stats' },
-        { path: 'stats', component: StatsPage },
-        { path: 'merchants', component: MerchantsPage },
-        { path: 'merchants/deposit', component: MerchantDepositPage },
-        { path: 'channels', component: ChannelsPage },
-        { path: 'merchant-payin-products', component: PayinProductsPage },
-        { path: 'merchant-payout-products', component: PayoutProductsPage },
-        { path: 'routing', component: RouteStrategyPage },
-        { path: 'channel-health', component: ChannelHealthPage },
-        { path: 'payin-orders', component: PayinOrdersPage },
-        { path: 'payout-orders', component: PayoutOrdersPage },
-        { path: 'refunds', component: RefundsPage },
-        { path: 'reconcile', component: ReconcilePage },
-        { path: 'settlement', redirect: '/settlement/withdrawals' },
-        { path: 'settlement/logs', component: SettlementLogsPage },
-        { path: 'settlement/withdrawals', component: SettlementWithdrawalsPage },
-        { path: 'settlement/withdrawals/list', component: SettlementWithdrawalListPage },
+        { path: '', redirect: '/rbac/overview' },
         { path: 'system', component: SystemPage },
         { path: 'ops', component: OpsPage },
         {

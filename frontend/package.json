@@ -8,8 +8,7 @@
   ],
   "scripts": {
     "dev": "npm --workspace @pay/admin run dev",
-    "build": "npm --workspace @pay/admin run build",
-    "postman:export": "node ../scripts/postman/generate-postman.mjs"
+    "build": "npm --workspace @pay/admin run build"
   },
   "dependencies": {
     "blueimp-md5": "^2.19.0",

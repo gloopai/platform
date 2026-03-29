@@ -116,9 +116,8 @@ print_url "service-hub" "grpc://127.0.0.1:8094 (Consul: payment.rpc.service-hub)
 print_url "admin" "http://127.0.0.1:5176/"
 echo "db init:"
 echo "  bash backend/deploy/init_demo.sh"
-echo "demo accounts:"
-echo "  admin:   admin / admin123"
-echo "  merchant:m_demo / demo_secret"
+echo "demo account:"
+echo "  admin: admin / admin123"
 for i in "${!PIDS[@]}"; do
   echo "  ${NAMES[$i]}: ${PIDS[$i]}"
 done

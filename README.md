@@ -1,13 +1,14 @@
-# pay-platform
+# pay-platform（`scaffold/platform-admin`）
 
-四方聚合支付相关单体/微服务与前端（管理台、商户台、收银台等）。
+本分支为 **管理端平台脚手架**：仅保留 **Admin 网关路由**（登录、RBAC、后台用户、展示配置）、**管理端前端**（权限与安全、系统与运维），已删除商户台/收银台/开放 API 等前端应用、支付业务网关 handler 与演示数据。
 
-> **分支 `scaffold/platform-admin`**：管理端脚手架线。网关进程 **仅监听 Admin HTTP**（`:8080`）；`dev-up.sh` 只拉起 **管理端前端**；`frontend/package.json` 的 workspaces 仅 **`apps/admin`**。说明见 [`docs/项目脚手架.md`](docs/项目脚手架.md)。合并回主线前请评估是否恢复多路 HTTP 与多前端。
+## 本地运行
 
-## 本地把主路径跑通
+1. **MySQL**：创建库（默认名 `pay`），执行 `bash backend/deploy/init_demo.sh`（按脚本内变量配置账号；默认演示账号 **`admin` / `admin123`**）。
+2. **依赖**：Consul、Redis、NSQ — 与 `dev-up.sh` 一致（网关 `Ready` 与 `svc` 依赖下游 gRPC / Redis）。
+3. **启动**：`bash dev-up.sh`（网关 Admin `http://127.0.0.1:8080`，管理端 `http://127.0.0.1:5176`）。
+4. **前端**：`cd frontend && npm install && npm run dev`。
 
-1. 初始化数据库：`bash backend/deploy/init_demo.sh`（按脚本内说明配置 MySQL 账号）  
-2. 启动：`bash dev-up.sh`（网关 Admin `http://127.0.0.1:8080`，管理端 `http://127.0.0.1:5176`）  
-3. **脚手架分支**：登录管理台做配置 / RBAC 等即可；完整支付链路见 [`docs/端到端联调一遍.md`](docs/端到端联调一遍.md)（需使用含商户 / OpenAPI / 收银台网关端口的分支）。
+说明与裁剪清单见 [`docs/项目脚手架.md`](docs/项目脚手架.md)；管理端 UI 约定见 [`docs/管理端前端开发规范.md`](docs/管理端前端开发规范.md)。
 
-更多：[`docs/开发计划.md`](docs/开发计划.md)、[`docs/MVP与后续迭代.md`](docs/MVP与后续迭代.md)、开放接口错误格式 [`docs/开放API错误码.md`](docs/开放API错误码.md)。
+若需完整聚合支付能力与多前端，请使用 **`0.1` / `main`** 等业务分支。
