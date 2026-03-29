@@ -103,31 +103,16 @@ start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gatew
 start_bg "notice-consumer" "${ROOT_DIR}/backend/services/notice-consumer" "go run . -f etc/notice-consumer.yaml"
 
 if [ -f "${ROOT_DIR}/frontend/package.json" ]; then
-  if ! is_listening 5173; then
-    start_bg "fe-portal" "${ROOT_DIR}/frontend" "npm run dev:portal"
-  fi
-  if ! is_listening 5174; then
-    start_bg "fe-checkout" "${ROOT_DIR}/frontend" "npm run dev:checkout"
-  fi
-  if ! is_listening 5175; then
-    start_bg "fe-merchant" "${ROOT_DIR}/frontend" "npm run dev:merchant"
-  fi
   if ! is_listening 5176; then
-    start_bg "fe-admin" "${ROOT_DIR}/frontend" "npm run dev:admin"
+    start_bg "fe-admin" "${ROOT_DIR}/frontend" "npm run dev"
   fi
 fi
 
 echo "running. logs: ${LOG_DIR}"
 echo "urls:"
-echo "  gateway HTTP（四路，见 backend/services/gateway/etc/gateway-api.yaml）:"
+echo "  gateway（scaffold/platform-admin：仅 Admin HTTP）:"
 print_url "gateway-admin" "http://127.0.0.1:8080/  (Admin: /v1/admin/*)"
-print_url "gateway-merchant" "http://127.0.0.1:8088/  (Merchant: /v1/merchant/*)"
-print_url "gateway-openapi" "http://127.0.0.1:8090/  (Open: /v1/payin|payout/* 验签 + /v1/callback/*)"
-print_url "gateway-checkout" "http://127.0.0.1:8092/  (Checkout: /v1/terminal/*)"
 print_url "service-hub" "grpc://127.0.0.1:8094 (Consul: payment.rpc.service-hub)"
-print_url "portal" "http://127.0.0.1:5173/"
-print_url "checkout" "http://127.0.0.1:5174/?order_no=YOUR_ORDER_NO"
-print_url "merchant" "http://127.0.0.1:5175/"
 print_url "admin" "http://127.0.0.1:5176/"
 echo "db init:"
 echo "  bash backend/deploy/init_demo.sh"

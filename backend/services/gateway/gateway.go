@@ -45,20 +45,12 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 
+	// scaffold/platform-admin: 仅启动 Admin HTTP（商户 / OpenAPI / Checkout 端口不监听；配置文件中仍可保留对应段供参考）
 	adminServer := rest.MustNewServer(c.AdminServer)
-	merchantServer := rest.MustNewServer(c.MerchantServer)
-	openAPIServer := rest.MustNewServer(c.OpenAPIServer)
-	checkoutServer := rest.MustNewServer(c.CheckoutServer)
-	servers := []*rest.Server{adminServer, merchantServer, openAPIServer, checkoutServer}
-	for _, s := range servers {
-		s.Use(middleware.NewTraceHeaderMiddleware().Handle)
-		handler.RegisterCommonHandlers(s, ctx)
-	}
-
+	adminServer.Use(middleware.NewTraceHeaderMiddleware().Handle)
+	handler.RegisterCommonHandlers(adminServer, ctx)
 	handler.RegisterAdminHandlers(adminServer, ctx)
-	handler.RegisterMerchantHandlers(merchantServer, ctx)
-	handler.RegisterOpenAPIHandlers(openAPIServer, ctx)
-	handler.RegisterCheckoutHandlers(checkoutServer, ctx)
+	servers := []*rest.Server{adminServer}
 
 	adminServer.AddRoutes(
 		[]rest.Route{
@@ -83,9 +75,6 @@ func main() {
 	)
 
 	fmt.Printf("Starting admin API at %s:%d...\n", c.AdminServer.Host, c.AdminServer.Port)
-	fmt.Printf("Starting merchant API at %s:%d...\n", c.MerchantServer.Host, c.MerchantServer.Port)
-	fmt.Printf("Starting openapi API at %s:%d...\n", c.OpenAPIServer.Host, c.OpenAPIServer.Port)
-	fmt.Printf("Starting checkout API at %s:%d...\n", c.CheckoutServer.Host, c.CheckoutServer.Port)
 
 	regService := strings.TrimSpace(c.Consul.Service)
 	if regService == "" {

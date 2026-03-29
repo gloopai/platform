@@ -4,16 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "workspaces": [
-    "apps/*"
+    "apps/admin"
   ],
   "scripts": {
-    "dev": "npm run dev:portal",
-    "build": "npm run build:apps",
-    "dev:portal": "npm --workspace @pay/portal run dev",
-    "dev:checkout": "npm --workspace @pay/checkout run dev",
-    "dev:merchant": "npm --workspace @pay/merchant run dev",
-    "dev:admin": "npm --workspace @pay/admin run dev",
-    "build:apps": "npm -ws --if-present run build",
+    "dev": "npm --workspace @pay/admin run dev",
+    "build": "npm --workspace @pay/admin run build",
     "postman:export": "node ../scripts/postman/generate-postman.mjs"
   },
   "dependencies": {
