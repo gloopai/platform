@@ -206,31 +206,6 @@ func (s *ServiceHubServer) GetAdminUserById(ctx context.Context, req *servicehub
 	}, nil
 }
 
-func (s *ServiceHubServer) MarkPayoutSuccess(ctx context.Context, req *servicehub.MarkPayoutSuccessReq) (*servicehub.MarkPayoutResultResp, error) {
-	orderNo := strings.TrimSpace(req.GetOrderNo())
-	channelTradeNo := strings.TrimSpace(req.GetChannelTradeNo())
-	if orderNo == "" {
-		return nil, status.Error(codes.InvalidArgument, "order_no required")
-	}
-	changed, err := s.svcCtx.PayoutOrders.MarkSuccess(ctx, orderNo, channelTradeNo)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-	return &servicehub.MarkPayoutResultResp{Changed: changed}, nil
-}
-
-func (s *ServiceHubServer) MarkPayoutFailed(ctx context.Context, req *servicehub.MarkPayoutFailedReq) (*servicehub.MarkPayoutResultResp, error) {
-	orderNo := strings.TrimSpace(req.GetOrderNo())
-	if orderNo == "" {
-		return nil, status.Error(codes.InvalidArgument, "order_no required")
-	}
-	changed, err := s.svcCtx.PayoutOrders.MarkFailed(ctx, orderNo)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-	return &servicehub.MarkPayoutResultResp{Changed: changed}, nil
-}
-
 func (s *ServiceHubServer) GetAdminRbacMyMenus(ctx context.Context, req *servicehub.GetAdminRbacMyMenusReq) (*servicehub.GetAdminRbacMyMenusResp, error) {
 	uid := req.GetAdminUserId()
 	if uid <= 0 {

@@ -1,273 +1,4 @@
-CREATE TABLE IF NOT EXISTS merchants (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  merchant_id VARCHAR(64) NOT NULL,
-  app_id VARCHAR(64) NOT NULL,
-  email VARCHAR(128) NOT NULL,
-  app_secret VARCHAR(128) NOT NULL,
-  password_hash VARCHAR(128) NOT NULL,
-  status TINYINT NOT NULL DEFAULT 1,
-  ip_whitelist TEXT NULL,
-  payin_balance BIGINT NOT NULL DEFAULT 0,
-  available_balance BIGINT NOT NULL DEFAULT 0,
-  frozen_balance BIGINT NOT NULL DEFAULT 0,
-  withdrawn_amount BIGINT NOT NULL DEFAULT 0,
-  notify_url VARCHAR(512) NULL,
-  return_url VARCHAR(512) NULL,
-  merchant_config TEXT NULL COMMENT '商户自由 JSON（与 Consul 双写）',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_merchant_id (merchant_id),
-  UNIQUE KEY uk_app_id (app_id),
-  UNIQUE KEY uk_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 新商户数字型 merchant_id（10 位零填充）的原子自增序列；留空创建时由 Core 取号
-CREATE TABLE IF NOT EXISTS merchant_numeric_seq (
-  slot TINYINT UNSIGNED NOT NULL,
-  next_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (slot)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO merchant_numeric_seq (slot, next_id) VALUES (1, 0)
-ON DUPLICATE KEY UPDATE next_id = merchant_numeric_seq.next_id;
-
--- 支付通道：可单独开通代收/代付能力；平台相对通道(PSP)的费率在通道级配置
-CREATE TABLE IF NOT EXISTS channels (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  name VARCHAR(64) NOT NULL,
-  driver_key VARCHAR(32) NULL COMMENT 'PSP 驱动标识，与 Registry 注册键一致',
-  gateway_url VARCHAR(512) NULL,
-  channel_merchant_no VARCHAR(128) NULL,
-  rsa_private_key TEXT NULL,
-  sign_secret VARCHAR(128) NULL,
-  channel_config TEXT NULL COMMENT '通道对接自由 JSON 文本（管理台整段保存）',
-  weight INT NOT NULL DEFAULT 100,
-  min_amount BIGINT NOT NULL DEFAULT 0,
-  max_amount BIGINT NOT NULL DEFAULT 0,
-  supports_payin TINYINT NOT NULL DEFAULT 1,
-  supports_payout TINYINT NOT NULL DEFAULT 0,
-  channel_payin_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代收通道成本比例：万分比整数(=round(百分数×100))',
-  channel_payout_rate_bps INT NOT NULL DEFAULT 0 COMMENT '代付通道成本比例：同上',
-  channel_payout_fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '代付通道计费模式：1=仅比例 2=仅固定 3=固定+比例',
-  channel_payout_fixed_fee BIGINT NOT NULL DEFAULT 0 COMMENT '代付通道固定手续费（分）',
-  enabled TINYINT NOT NULL DEFAULT 1,
-  fuse_enabled TINYINT NOT NULL DEFAULT 0,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY idx_enabled_driverkey (enabled, driver_key),
-  KEY idx_enabled_fuse (enabled, fuse_enabled)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 对外代收产品（微信、支付宝等）
-CREATE TABLE IF NOT EXISTS payin_products (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  code VARCHAR(32) NOT NULL,
-  name VARCHAR(64) NOT NULL,
-  sort_order INT NOT NULL DEFAULT 0,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  product_config TEXT NULL COMMENT '产品自由 JSON（与 Consul 双写）',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_payin_product_code (code),
-  KEY idx_enabled_sort (enabled, sort_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 对外代付产品（代付到卡/钱包等）
-CREATE TABLE IF NOT EXISTS payout_products (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  code VARCHAR(32) NOT NULL,
-  name VARCHAR(64) NOT NULL,
-  sort_order INT NOT NULL DEFAULT 0,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  product_config TEXT NULL COMMENT '产品自由 JSON（与 Consul 双写）',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_payout_product_code (code),
-  KEY idx_enabled_sort (enabled, sort_order)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 代收产品 ↔ 通道（仅权重与启用；费率见 channels / 商户授权）
-CREATE TABLE IF NOT EXISTS payin_product_channels (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  payin_product_id BIGINT UNSIGNED NOT NULL,
-  channel_id BIGINT UNSIGNED NOT NULL,
-  weight INT NOT NULL DEFAULT 100,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_product_channel (payin_product_id, channel_id),
-  KEY idx_channel (channel_id),
-  CONSTRAINT fk_ppc_product FOREIGN KEY (payin_product_id) REFERENCES payin_products (id) ON DELETE CASCADE,
-  CONSTRAINT fk_ppc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 代付产品 ↔ 通道（仅权重与启用；费率见 channels / 商户授权）
-CREATE TABLE IF NOT EXISTS payout_product_channels (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  payout_product_id BIGINT UNSIGNED NOT NULL,
-  channel_id BIGINT UNSIGNED NOT NULL,
-  weight INT NOT NULL DEFAULT 100,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_payout_product_channel (payout_product_id, channel_id),
-  KEY idx_channel (channel_id),
-  CONSTRAINT fk_ppoc_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE,
-  CONSTRAINT fk_ppoc_channel FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 商户代收产品白名单；merchant_rate_bps NULL 视为对客比例 0（万分比整数）
-CREATE TABLE IF NOT EXISTS merchant_payin_products (
-  merchant_id VARCHAR(64) NOT NULL,
-  payin_product_id BIGINT UNSIGNED NOT NULL,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  sort_order INT NOT NULL DEFAULT 0,
-  merchant_rate_bps INT NULL COMMENT '对客代收比例：万分比整数(=round(百分数×100))，NULL 视为 0',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (merchant_id, payin_product_id),
-  KEY idx_merchant (merchant_id, enabled),
-  CONSTRAINT fk_mpp_product FOREIGN KEY (payin_product_id) REFERENCES payin_products (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 商户代付产品白名单
-CREATE TABLE IF NOT EXISTS merchant_payout_products (
-  merchant_id VARCHAR(64) NOT NULL,
-  payout_product_id BIGINT UNSIGNED NOT NULL,
-  enabled TINYINT NOT NULL DEFAULT 1,
-  sort_order INT NOT NULL DEFAULT 0,
-  fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '计费模式：1=仅比例 2=仅固定 3=固定+比例',
-  merchant_rate_bps INT NULL COMMENT '对客代付比例部分：万分比整数(=round(百分数×100))，NULL 视为 0',
-  fee_fixed_amount BIGINT NOT NULL DEFAULT 0 COMMENT '对客代付固定部分（分）',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (merchant_id, payout_product_id),
-  KEY idx_merchant (merchant_id, enabled),
-  CONSTRAINT fk_mppo_product FOREIGN KEY (payout_product_id) REFERENCES payout_products (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS payin_orders (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  order_no VARCHAR(64) NOT NULL,
-  merchant_id VARCHAR(64) NOT NULL,
-  merchant_order_no VARCHAR(64) NOT NULL,
-  amount BIGINT NOT NULL,
-  currency VARCHAR(8) NOT NULL DEFAULT 'CNY',
-  status TINYINT NOT NULL DEFAULT 0,
-  channel_id BIGINT NOT NULL DEFAULT 0,
-  payin_product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  payin_product_code VARCHAR(32) NULL,
-  channel_locked TINYINT NOT NULL DEFAULT 0 COMMENT '1=商户指定通道，收银台不可切换',
-  paid_amount BIGINT NOT NULL DEFAULT 0,
-  fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '计费模式：1=仅比例 2=仅固定 3=固定+比例',
-  fee_rate_bps INT NOT NULL DEFAULT 0 COMMENT '对客比例：万分比整数(=round(百分数×100))，下单快照',
-  fee_fixed_amount BIGINT NOT NULL DEFAULT 0 COMMENT '对客固定部分（分），下单快照',
-  fee_amount BIGINT NOT NULL DEFAULT 0 COMMENT '手续费总额（分），下单快照',
-  net_amount BIGINT NOT NULL DEFAULT 0 COMMENT '净额（分），下单快照',
-  return_url VARCHAR(512) NULL,
-  notify_url VARCHAR(512) NULL,
-  channel_trade_no VARCHAR(128) NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_pay_order_no (order_no),
-  UNIQUE KEY uk_pay_merchant_order (merchant_id, merchant_order_no),
-  KEY idx_merchant_created (merchant_id, created_at),
-  KEY idx_status_updated (status, updated_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS payout_orders (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  order_no VARCHAR(64) NOT NULL,
-  merchant_id VARCHAR(64) NOT NULL,
-  merchant_order_no VARCHAR(64) NOT NULL,
-  amount BIGINT NOT NULL,
-  currency VARCHAR(8) NOT NULL DEFAULT 'CNY',
-  status TINYINT NOT NULL DEFAULT 0,
-  channel_id BIGINT NOT NULL DEFAULT 0,
-  payout_product_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
-  payout_product_code VARCHAR(32) NULL,
-  paid_amount BIGINT NOT NULL DEFAULT 0,
-  fee_mode TINYINT NOT NULL DEFAULT 1 COMMENT '计费模式：1=仅比例 2=仅固定 3=固定+比例',
-  fee_rate_bps INT NOT NULL DEFAULT 0 COMMENT '对客比例：万分比整数(=round(百分数×100))，下单快照',
-  fee_fixed_amount BIGINT NOT NULL DEFAULT 0 COMMENT '对客固定部分（分），下单快照',
-  fee_amount BIGINT NOT NULL DEFAULT 0 COMMENT '手续费总额（分），下单快照',
-  net_amount BIGINT NOT NULL DEFAULT 0 COMMENT '净额（分），下单快照',
-  notify_url VARCHAR(512) NULL,
-  channel_trade_no VARCHAR(128) NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_payout_order_no (order_no),
-  UNIQUE KEY uk_payout_merchant_order (merchant_id, merchant_order_no),
-  KEY idx_merchant_created (merchant_id, created_at),
-  KEY idx_status_updated (status, updated_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS fund_logs (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  merchant_id VARCHAR(64) NOT NULL,
-  order_no VARCHAR(64) NOT NULL,
-  change_type VARCHAR(32) NOT NULL,
-  amount BIGINT NOT NULL,
-  balance_before BIGINT NOT NULL,
-  balance_after BIGINT NOT NULL,
-  reason VARCHAR(128) NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_order_change (order_no, change_type),
-  KEY idx_merchant_created (merchant_id, created_at),
-  KEY idx_fund_logs_merchant_order_type (merchant_id, order_no, change_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 提现申请单（phase2）
-CREATE TABLE IF NOT EXISTS merchant_withdrawals (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  withdraw_no VARCHAR(64) NOT NULL COMMENT '平台提现单号',
-  merchant_id VARCHAR(64) NOT NULL,
-  apply_amount BIGINT NOT NULL COMMENT '申请金额（分）',
-  fee_amount BIGINT NOT NULL DEFAULT 0 COMMENT '手续费（分）',
-  net_amount BIGINT NOT NULL COMMENT '实付金额（分）',
-  fiat_debit_amount BIGINT NOT NULL DEFAULT 0 COMMENT '审核通过时扣减的法币余额（分）',
-  status TINYINT NOT NULL DEFAULT 0 COMMENT '0=待审核 1=已驳回 2=待打款 3=打款中 4=成功 5=失败',
-  receive_account VARCHAR(128) NOT NULL DEFAULT '' COMMENT '收款账号/卡号',
-  receive_name VARCHAR(64) NOT NULL DEFAULT '' COMMENT '收款人',
-  bank_name VARCHAR(128) NOT NULL DEFAULT '' COMMENT '银行/机构名称',
-  apply_note VARCHAR(255) NOT NULL DEFAULT '',
-  review_note VARCHAR(255) NOT NULL DEFAULT '',
-  payout_note VARCHAR(255) NOT NULL DEFAULT '',
-  reviewed_by VARCHAR(64) NOT NULL DEFAULT '',
-  reviewed_at TIMESTAMP NULL DEFAULT NULL,
-  payouted_by VARCHAR(64) NOT NULL DEFAULT '',
-  payouted_at TIMESTAMP NULL DEFAULT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_withdraw_no (withdraw_no),
-  KEY idx_merchant_created (merchant_id, created_at),
-  KEY idx_status_created (status, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS merchant_notify_logs (
-  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  merchant_id VARCHAR(64) NOT NULL,
-  order_no VARCHAR(64) NOT NULL,
-  notify_url VARCHAR(512) NOT NULL,
-  attempt INT NOT NULL DEFAULT 0,
-  http_status INT NOT NULL DEFAULT 0,
-  response_body TEXT NULL,
-  error_msg VARCHAR(256) NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY idx_order_created (order_no, created_at),
-  KEY idx_merchant_created (merchant_id, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- scaffold/platform-admin：仅平台管理端 + service-hub 所需表（无商户/通道/订单等业务表）
 
 CREATE TABLE IF NOT EXISTS admin_users (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -289,7 +20,6 @@ CREATE TABLE IF NOT EXISTS global_settings (
   PRIMARY KEY (setting_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 管理台 RBAC：角色/菜单（当前只做到菜单粒度；操作权限预留）
 CREATE TABLE IF NOT EXISTS admin_roles (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   code VARCHAR(64) NOT NULL,
@@ -308,7 +38,7 @@ CREATE TABLE IF NOT EXISTS admin_menus (
   label VARCHAR(64) NOT NULL,
   icon VARCHAR(32) NOT NULL DEFAULT '',
   kind TINYINT NOT NULL DEFAULT 1 COMMENT '1=leaf 2=group',
-  path VARCHAR(128) NULL COMMENT 'leaf 路由路径，形如 /stats',
+  path VARCHAR(128) NULL,
   sort_order INT NOT NULL DEFAULT 0,
   placement VARCHAR(16) NOT NULL DEFAULT 'left' COMMENT 'left=左侧导航 avatar=头像下拉',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -338,7 +68,6 @@ CREATE TABLE IF NOT EXISTS admin_role_menus (
   CONSTRAINT fk_admin_role_menus_menu FOREIGN KEY (menu_id) REFERENCES admin_menus (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 管理台 RBAC：操作权限点（接口/按钮级）
 CREATE TABLE IF NOT EXISTS admin_permissions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   perm_key VARCHAR(128) NOT NULL,
@@ -364,11 +93,10 @@ CREATE TABLE IF NOT EXISTS admin_role_permissions (
   CONSTRAINT fk_admin_role_perms_perm FOREIGN KEY (perm_id) REFERENCES admin_permissions (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 管理台 RBAC：接口规则（方法 + path pattern -> perm_key），用于免改代码配置权限映射
 CREATE TABLE IF NOT EXISTS admin_api_rules (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   method VARCHAR(16) NOT NULL,
-  path_pattern VARCHAR(255) NOT NULL COMMENT '支持 :param 段，如 /v1/admin/merchants/:merchant_id',
+  path_pattern VARCHAR(255) NOT NULL COMMENT '支持 :param 段',
   perm_key VARCHAR(128) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   remark VARCHAR(255) NOT NULL DEFAULT '',
@@ -379,7 +107,7 @@ CREATE TABLE IF NOT EXISTS admin_api_rules (
   KEY idx_perm (perm_key, status, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 门户通知（管理台/商户台）：PublishPortalNotification 落库；实时推送仍走 NSQ，离线仅丢推送、记录保留
+-- 门户通知落库（可选 NSQ 推送）；service-hub PublishPortalNotification 使用
 CREATE TABLE IF NOT EXISTS portal_notifications (
   id CHAR(36) NOT NULL,
   portal VARCHAR(16) NOT NULL COMMENT 'admin | merchant',
@@ -390,7 +118,7 @@ CREATE TABLE IF NOT EXISTS portal_notifications (
   link_path VARCHAR(512) NOT NULL DEFAULT '',
   link_query_json TEXT,
   meta_json TEXT,
-  target_admin_ids TEXT COMMENT 'JSON array of int64, e.g. [1,2]; empty array for broadcast',
+  target_admin_ids TEXT COMMENT 'JSON array of int64',
   target_merchant_ids TEXT COMMENT 'JSON array of merchant id strings',
   created_at DATETIME(3) NOT NULL,
   PRIMARY KEY (id),

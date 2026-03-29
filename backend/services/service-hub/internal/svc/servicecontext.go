@@ -19,9 +19,8 @@ type ServiceContext struct {
 	AdminUsers           *store.AdminUsersStore
 	AdminRbac            *store.AdminRbacStore
 	AdminRbacCfg         *store.AdminRbacConfigStore
-	GlobalSettings       *store.GlobalSettingsStore
-	PayoutOrders         *store.PayoutOrdersStore
-	PortalNotifications  *store.PortalNotificationsStore
+	GlobalSettings      *store.GlobalSettingsStore
+	PortalNotifications *store.PortalNotificationsStore
 	NotifyPublisher      *hubnotify.Publisher
 }
 
@@ -71,7 +70,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminRbac:           store.NewAdminRbacStore(gdb),
 		AdminRbacCfg:        store.NewAdminRbacConfigStore(gdb),
 		GlobalSettings:      store.NewGlobalSettingsStore(gdb),
-		PayoutOrders:        store.NewPayoutOrdersStore(gdb),
 		PortalNotifications: portalNotifStore,
 		NotifyPublisher:     notifyPublisher,
 	}

@@ -3,14 +3,12 @@ syntax = "proto3";
 package servicehub;
 option go_package = "github.com/gloopai/pay/common/pb/servicehub;servicehub";
 
-// 平台支撑数据（admin_users / global_settings / payout_orders 辅助更新）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
 service ServiceHub {
   rpc FindAdminUserByUsername(FindAdminUserByUsernameReq) returns (FindAdminUserByUsernameResp);
   rpc ListAdminUsers(ListAdminUsersReq) returns (ListAdminUsersResp);
   rpc GetDisplaySettings(GetDisplaySettingsReq) returns (GetDisplaySettingsResp);
   rpc UpsertDisplaySettings(UpsertDisplaySettingsReq) returns (GetDisplaySettingsResp);
-  rpc MarkPayoutSuccess(MarkPayoutSuccessReq) returns (MarkPayoutResultResp);
-  rpc MarkPayoutFailed(MarkPayoutFailedReq) returns (MarkPayoutResultResp);
 
   // ---- Admin RBAC (menu-level now; action-level reserved) ----
   rpc GetAdminRbacMyMenus(GetAdminRbacMyMenusReq) returns (GetAdminRbacMyMenusResp);
@@ -100,19 +98,6 @@ message UpsertDisplaySettingsReq {
   double fiat_to_usdt_rate = 4;
   int64 admin_mfa_enabled = 5;
   int64 merchant_numeric_id_start = 6;
-}
-
-message MarkPayoutSuccessReq {
-  string order_no = 1;
-  string channel_trade_no = 2;
-}
-
-message MarkPayoutFailedReq {
-  string order_no = 1;
-}
-
-message MarkPayoutResultResp {
-  bool changed = 1;
 }
 
 // ---------------- RBAC messages ----------------

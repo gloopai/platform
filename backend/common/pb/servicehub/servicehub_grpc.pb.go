@@ -23,8 +23,6 @@ const (
 	ServiceHub_ListAdminUsers_FullMethodName            = "/servicehub.ServiceHub/ListAdminUsers"
 	ServiceHub_GetDisplaySettings_FullMethodName        = "/servicehub.ServiceHub/GetDisplaySettings"
 	ServiceHub_UpsertDisplaySettings_FullMethodName     = "/servicehub.ServiceHub/UpsertDisplaySettings"
-	ServiceHub_MarkPayoutSuccess_FullMethodName         = "/servicehub.ServiceHub/MarkPayoutSuccess"
-	ServiceHub_MarkPayoutFailed_FullMethodName          = "/servicehub.ServiceHub/MarkPayoutFailed"
 	ServiceHub_GetAdminRbacMyMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRbacMyMenus"
 	ServiceHub_ListAdminRoles_FullMethodName            = "/servicehub.ServiceHub/ListAdminRoles"
 	ServiceHub_CreateAdminRole_FullMethodName           = "/servicehub.ServiceHub/CreateAdminRole"
@@ -59,14 +57,12 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 平台支撑数据（admin_users / global_settings / payout_orders 辅助更新）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
 type ServiceHubClient interface {
 	FindAdminUserByUsername(ctx context.Context, in *FindAdminUserByUsernameReq, opts ...grpc.CallOption) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(ctx context.Context, in *ListAdminUsersReq, opts ...grpc.CallOption) (*ListAdminUsersResp, error)
 	GetDisplaySettings(ctx context.Context, in *GetDisplaySettingsReq, opts ...grpc.CallOption) (*GetDisplaySettingsResp, error)
 	UpsertDisplaySettings(ctx context.Context, in *UpsertDisplaySettingsReq, opts ...grpc.CallOption) (*GetDisplaySettingsResp, error)
-	MarkPayoutSuccess(ctx context.Context, in *MarkPayoutSuccessReq, opts ...grpc.CallOption) (*MarkPayoutResultResp, error)
-	MarkPayoutFailed(ctx context.Context, in *MarkPayoutFailedReq, opts ...grpc.CallOption) (*MarkPayoutResultResp, error)
 	// ---- Admin RBAC (menu-level now; action-level reserved) ----
 	GetAdminRbacMyMenus(ctx context.Context, in *GetAdminRbacMyMenusReq, opts ...grpc.CallOption) (*GetAdminRbacMyMenusResp, error)
 	ListAdminRoles(ctx context.Context, in *ListAdminRolesReq, opts ...grpc.CallOption) (*ListAdminRolesResp, error)
@@ -144,26 +140,6 @@ func (c *serviceHubClient) UpsertDisplaySettings(ctx context.Context, in *Upsert
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetDisplaySettingsResp)
 	err := c.cc.Invoke(ctx, ServiceHub_UpsertDisplaySettings_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) MarkPayoutSuccess(ctx context.Context, in *MarkPayoutSuccessReq, opts ...grpc.CallOption) (*MarkPayoutResultResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarkPayoutResultResp)
-	err := c.cc.Invoke(ctx, ServiceHub_MarkPayoutSuccess_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) MarkPayoutFailed(ctx context.Context, in *MarkPayoutFailedReq, opts ...grpc.CallOption) (*MarkPayoutResultResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarkPayoutResultResp)
-	err := c.cc.Invoke(ctx, ServiceHub_MarkPayoutFailed_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -454,14 +430,12 @@ func (c *serviceHubClient) PublishPortalNotification(ctx context.Context, in *Pu
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
 //
-// 平台支撑数据（admin_users / global_settings / payout_orders 辅助更新）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
 type ServiceHubServer interface {
 	FindAdminUserByUsername(context.Context, *FindAdminUserByUsernameReq) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(context.Context, *ListAdminUsersReq) (*ListAdminUsersResp, error)
 	GetDisplaySettings(context.Context, *GetDisplaySettingsReq) (*GetDisplaySettingsResp, error)
 	UpsertDisplaySettings(context.Context, *UpsertDisplaySettingsReq) (*GetDisplaySettingsResp, error)
-	MarkPayoutSuccess(context.Context, *MarkPayoutSuccessReq) (*MarkPayoutResultResp, error)
-	MarkPayoutFailed(context.Context, *MarkPayoutFailedReq) (*MarkPayoutResultResp, error)
 	// ---- Admin RBAC (menu-level now; action-level reserved) ----
 	GetAdminRbacMyMenus(context.Context, *GetAdminRbacMyMenusReq) (*GetAdminRbacMyMenusResp, error)
 	ListAdminRoles(context.Context, *ListAdminRolesReq) (*ListAdminRolesResp, error)
@@ -516,12 +490,6 @@ func (UnimplementedServiceHubServer) GetDisplaySettings(context.Context, *GetDis
 }
 func (UnimplementedServiceHubServer) UpsertDisplaySettings(context.Context, *UpsertDisplaySettingsReq) (*GetDisplaySettingsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpsertDisplaySettings not implemented")
-}
-func (UnimplementedServiceHubServer) MarkPayoutSuccess(context.Context, *MarkPayoutSuccessReq) (*MarkPayoutResultResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MarkPayoutSuccess not implemented")
-}
-func (UnimplementedServiceHubServer) MarkPayoutFailed(context.Context, *MarkPayoutFailedReq) (*MarkPayoutResultResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MarkPayoutFailed not implemented")
 }
 func (UnimplementedServiceHubServer) GetAdminRbacMyMenus(context.Context, *GetAdminRbacMyMenusReq) (*GetAdminRbacMyMenusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdminRbacMyMenus not implemented")
@@ -696,42 +664,6 @@ func _ServiceHub_UpsertDisplaySettings_Handler(srv interface{}, ctx context.Cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceHubServer).UpsertDisplaySettings(ctx, req.(*UpsertDisplaySettingsReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_MarkPayoutSuccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MarkPayoutSuccessReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).MarkPayoutSuccess(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_MarkPayoutSuccess_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).MarkPayoutSuccess(ctx, req.(*MarkPayoutSuccessReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_MarkPayoutFailed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MarkPayoutFailedReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).MarkPayoutFailed(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_MarkPayoutFailed_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).MarkPayoutFailed(ctx, req.(*MarkPayoutFailedReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1262,14 +1194,6 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertDisplaySettings",
 			Handler:    _ServiceHub_UpsertDisplaySettings_Handler,
-		},
-		{
-			MethodName: "MarkPayoutSuccess",
-			Handler:    _ServiceHub_MarkPayoutSuccess_Handler,
-		},
-		{
-			MethodName: "MarkPayoutFailed",
-			Handler:    _ServiceHub_MarkPayoutFailed_Handler,
 		},
 		{
 			MethodName: "GetAdminRbacMyMenus",

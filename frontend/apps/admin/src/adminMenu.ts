@@ -21,6 +21,12 @@ export type AdminMenuEntry = AdminMenuLeaf | AdminMenuGroup
 
 export const defaultAdminMenu: AdminMenuEntry[] = [
   {
+    kind: 'leaf',
+    to: '/home',
+    label: '工作台',
+    icon: 'chart',
+  },
+  {
     kind: 'group',
     key: 'rbac',
     label: '权限与安全',
@@ -47,6 +53,7 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
 ]
 
 export const adminPathTitle: Record<string, string> = {
+  '/home': '工作台',
   '/system': '系统管理',
   '/ops': '运维监控',
   '/rbac': '权限与安全',

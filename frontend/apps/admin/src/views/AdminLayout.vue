@@ -578,9 +578,9 @@ async function loadMenu() {
     if (allowed.length && !allowed.includes(route.path)) {
       await router.replace(allowed[0])
     }
-    if (!allowed.length && route.path !== '/login') {
-      // No authorized menu path for this account: keep UI shell but hide sidebar entries.
-      await router.replace('/')
+    if (!allowed.length && route.path !== '/login' && route.path !== '/home') {
+      // 无可见菜单时落在工作台壳层；勿 replace('/')（会再跳到 /home，若 my_menu 仍为空则与下方逻辑死循环）
+      await router.replace('/home')
     }
   } catch {
     // Fail-safe: never fallback to full static menu when permission fetch fails.

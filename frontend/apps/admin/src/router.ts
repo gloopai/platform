@@ -2,15 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginPage from './views/LoginPage.vue'
 import AdminLayout from './views/AdminLayout.vue'
+import HomePage from './views/HomePage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
 import SystemPage from './views/modules/system/SystemPage.vue'
 import RbacLayout from './views/modules/rbac/RbacLayout.vue'
-import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
 import MenuManagementPage from './views/modules/rbac/menu-management/MenuManagementPage.vue'
 import RbacRolesPage from './views/modules/rbac/RbacRolesPage.vue'
 import RbacAdminUsersPage from './views/modules/rbac/RbacAdminUsersPage.vue'
 import RbacFeaturePointsPage from './views/modules/rbac/RbacFeaturePointsPage.vue'
 import RbacApiRulesPage from './views/modules/rbac/RbacApiRulesPage.vue'
+import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -20,7 +21,8 @@ export const router = createRouter({
       path: '/',
       component: AdminLayout,
       children: [
-        { path: '', redirect: '/rbac/overview' },
+        { path: '', redirect: '/home' },
+        { path: 'home', component: HomePage },
         { path: 'system', component: SystemPage },
         { path: 'ops', component: OpsPage },
         {
@@ -52,6 +54,8 @@ router.beforeEach((to) => {
     if (raw) {
       const allowed = JSON.parse(raw) as string[]
       if (Array.isArray(allowed) && allowed.length) {
+        // 工作台为默认落地页，避免因缓存里尚未写入 /home 而被误拦
+        if (to.path === '/home') return true
         if (
           (to.path === '/rbac/features' || to.path === '/rbac/api-rules') &&
           allowed.includes('/rbac/menus')

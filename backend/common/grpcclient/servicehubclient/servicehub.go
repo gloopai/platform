@@ -16,10 +16,7 @@ type (
 	ListAdminUsersResp          = servicehub.ListAdminUsersResp
 	GetDisplaySettingsReq       = servicehub.GetDisplaySettingsReq
 	GetDisplaySettingsResp      = servicehub.GetDisplaySettingsResp
-	UpsertDisplaySettingsReq    = servicehub.UpsertDisplaySettingsReq
-	MarkPayoutSuccessReq        = servicehub.MarkPayoutSuccessReq
-	MarkPayoutFailedReq         = servicehub.MarkPayoutFailedReq
-	MarkPayoutResultResp        = servicehub.MarkPayoutResultResp
+	UpsertDisplaySettingsReq      = servicehub.UpsertDisplaySettingsReq
 	PublishPortalNotificationReq  = servicehub.PublishPortalNotificationReq
 	PublishPortalNotificationResp = servicehub.PublishPortalNotificationResp
 	AdminUser                   = servicehub.AdminUser
@@ -31,14 +28,12 @@ type (
 	AdminApiRule    = servicehub.AdminApiRule
 )
 
-// ServiceHub 平台支撑数据 RPC（admin_users / global_settings / payout_orders 辅助）
+// ServiceHub 平台支撑数据 RPC（admin_users / global_settings / RBAC / 门户通知）
 type ServiceHub interface {
 	FindAdminUserByUsername(ctx context.Context, username string) (*AdminUser, error)
 	ListAdminUsers(ctx context.Context) ([]*AdminUserPublic, error)
 	GetDisplaySettings(ctx context.Context) (*GetDisplaySettingsResp, error)
 	UpsertDisplaySettings(ctx context.Context, country, currency, symbol string, fiatToUsdtRate float64, adminMfaEnabled int64, merchantNumericIDStart int64) error
-	MarkPayoutSuccess(ctx context.Context, orderNo, channelTradeNo string) (bool, error)
-	MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error)
 
 	CreateAdminUser(ctx context.Context, username, passwordHash string, status int64) (*AdminUserPublic, error)
 	UpdateAdminUser(ctx context.Context, id int64, status int64, passwordHash, mfaSecret *string, mfaEnabled *int64) (*AdminUserPublic, error)
@@ -184,31 +179,6 @@ func (d *defaultClient) GetAdminUserById(ctx context.Context, id int64) (*AdminU
 		return nil, nil
 	}
 	return r.User, nil
-}
-
-func (d *defaultClient) MarkPayoutSuccess(ctx context.Context, orderNo, channelTradeNo string) (bool, error) {
-	r, err := d.cli.MarkPayoutSuccess(ctx, &servicehub.MarkPayoutSuccessReq{
-		OrderNo:          orderNo,
-		ChannelTradeNo:   channelTradeNo,
-	})
-	if err != nil {
-		return false, err
-	}
-	if r == nil {
-		return false, nil
-	}
-	return r.Changed, nil
-}
-
-func (d *defaultClient) MarkPayoutFailed(ctx context.Context, orderNo string) (bool, error) {
-	r, err := d.cli.MarkPayoutFailed(ctx, &servicehub.MarkPayoutFailedReq{OrderNo: orderNo})
-	if err != nil {
-		return false, err
-	}
-	if r == nil {
-		return false, nil
-	}
-	return r.Changed, nil
 }
 
 func (d *defaultClient) GetAdminRbacMyMenus(ctx context.Context, adminUserID int64) ([]*AdminMenu, error) {

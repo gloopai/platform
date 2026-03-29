@@ -76,7 +76,7 @@ async function login() {
     }
     saveAdminIdentity(username.value)
     saveAdminSession({ token: data.token, expiresAt: data.expires_at })
-    await router.replace('/stats')
+    await router.replace('/home')
   } catch {
     error.value = '网络错误'
   } finally {

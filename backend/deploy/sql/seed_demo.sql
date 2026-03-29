@@ -1,21 +1,29 @@
 -- 脚手架演示数据：管理员、RBAC（仅权限与安全 + 系统与运维）、global_settings
 -- 不含商户 / 通道 / 订单等业务演示数据。
+--
+-- MySQL 8.0.20+：ON DUPLICATE KEY UPDATE 中勿用 VALUES(col)，改用 INSERT ... AS new + new.col。
+-- 重置菜单/RBAC：TRUNCATE 父表时 MySQL 会因外键拒绝，故先 SET FOREIGN_KEY_CHECKS=0（仅本会话）。
 
 INSERT INTO admin_users (username, password_hash, status)
-VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1)
-ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);
+VALUES ('admin', '$2a$10$KT9JCR/85vRqDuRyUGR28O.69/Y5VjbtqmkyX7epzLsKAfcny/rpK', 1) AS new
+ON DUPLICATE KEY UPDATE password_hash = new.password_hash, status = new.status;
 
 INSERT INTO admin_roles (code, name, status)
-VALUES ('super_admin', '超级管理员', 1)
-ON DUPLICATE KEY UPDATE name = VALUES(name), status = VALUES(status);
+VALUES ('super_admin', '超级管理员', 1) AS new
+ON DUPLICATE KEY UPDATE name = new.name, status = new.status;
 
-DELETE FROM admin_role_menus;
-DELETE FROM admin_role_permissions;
-DELETE FROM admin_permissions;
-DELETE FROM admin_api_rules;
-DELETE FROM admin_menus;
+SET @OLD_FK_CHECKS = @@SESSION.FOREIGN_KEY_CHECKS;
+SET SESSION FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE admin_role_menus;
+TRUNCATE TABLE admin_role_permissions;
+TRUNCATE TABLE admin_api_rules;
+TRUNCATE TABLE admin_permissions;
+TRUNCATE TABLE admin_menus;
+SET SESSION FOREIGN_KEY_CHECKS = @OLD_FK_CHECKS;
 
+-- 根级：工作台（登录后默认页），再为分组（sort_order 决定侧栏顺序）
 INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_order) VALUES
+  (0, 'menu.home', '工作台', 'chart', 1, '/home', 5),
   (0, 'group.rbac', '权限与安全', 'shield', 2, NULL, 10),
   (0, 'group.system', '系统与运维', 'cog', 2, NULL, 20);
 
@@ -77,35 +85,37 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('POST', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
   ('PUT', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, ''),
   ('DELETE', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, '')
+AS new
 ON DUPLICATE KEY UPDATE
-  perm_key = VALUES(perm_key),
-  status = VALUES(status),
-  remark = VALUES(remark);
+  perm_key = new.perm_key,
+  status = new.status,
+  remark = new.remark;
 
 INSERT INTO admin_user_roles (admin_user_id, role_id)
 SELECT au.id, ar.id
 FROM admin_users au
 JOIN admin_roles ar ON ar.code = 'super_admin'
 WHERE au.username = 'admin'
-ON DUPLICATE KEY UPDATE role_id = VALUES(role_id);
+ON DUPLICATE KEY UPDATE role_id = ar.id;
 
 INSERT INTO admin_role_menus (role_id, menu_id)
 SELECT ar.id, am.id
 FROM admin_roles ar
 JOIN admin_menus am
 WHERE ar.code = 'super_admin'
-ON DUPLICATE KEY UPDATE menu_id = VALUES(menu_id);
+ON DUPLICATE KEY UPDATE menu_id = am.id;
 
 INSERT INTO admin_role_permissions (role_id, perm_id)
 SELECT ar.id, ap.id
 FROM admin_roles ar
 JOIN admin_permissions ap
 WHERE ar.code = 'super_admin'
-ON DUPLICATE KEY UPDATE perm_id = VALUES(perm_id);
+ON DUPLICATE KEY UPDATE perm_id = ap.id;
 
 INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('country_code', 'CN'),
   ('currency_code', 'CNY'),
   ('currency_symbol', '¥'),
   ('merchant_numeric_id_start', '5000000000')
-ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+AS new
+ON DUPLICATE KEY UPDATE setting_value = new.setting_value;

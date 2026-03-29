@@ -4,7 +4,6 @@ package apiresp
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,35 +14,17 @@ const CodeSuccess = 2000
 const (
 	CodeInvalidParams = 4001
 
-	CodeAppIDRequired     = 4002
-	CodeSignRequired      = 4003
-	CodeTimestampRequired = 4004
-	CodeInvalidTimestamp  = 4005
-	CodeNonceRequired     = 4006
+	CodeUnauthorized = 4010
 
-	CodeUnauthorized     = 4010
-	CodeMerchantNotFound = 4011
-	CodeMerchantDisabled = 4012
-	CodeInvalidSign      = 4013
+	CodeForbidden = 4030
 
-	CodeForbidden            = 4030
-	CodePayProductNotEnabled = 4031
-	CodeIPNotAllowed         = 4032
-
-	CodeNotFound      = 4040
-	CodeOrderNotFound = 4041
+	CodeNotFound = 4040
 
 	CodePayloadTooLarge = 4130
 
-	CodeConflict      = 4090
-	CodeReplayRequest = 4091
-
 	CodeTooManyRequests = 4290
 
-	CodeFailedPrecondition  = 4220
-	CodeInsufficientBalance = 4221
-	CodePayoutPendingExists = 4222
-	CodeNoAvailableChannel  = 4223
+	CodeFailedPrecondition = 4220
 
 	CodeInternal    = 5000
 	CodeUnavailable = 5003
@@ -106,27 +87,10 @@ func grpcToBiz(c codes.Code, msg string) (code int, outMsg string) {
 	case codes.InvalidArgument:
 		return CodeInvalidParams, outMsg
 	case codes.NotFound:
-		code := CodeNotFound
-		if strings.Contains(strings.ToLower(msg), "order") {
-			code = CodeOrderNotFound
-		}
-		return code, outMsg
+		return CodeNotFound, outMsg
 	case codes.PermissionDenied:
-		if strings.Contains(msg, "payin_type not enabled") || strings.Contains(msg, "payin_product_code not enabled") {
-			return CodePayProductNotEnabled, outMsg
-		}
 		return CodeForbidden, outMsg
 	case codes.FailedPrecondition:
-		lowerMsg := strings.ToLower(msg)
-		if strings.Contains(lowerMsg, "insufficient available balance") {
-			return CodeInsufficientBalance, outMsg
-		}
-		if strings.Contains(lowerMsg, "payout order already exists and pending") {
-			return CodePayoutPendingExists, outMsg
-		}
-		if strings.Contains(lowerMsg, "no available channel") {
-			return CodeNoAvailableChannel, outMsg
-		}
 		return CodeFailedPrecondition, outMsg
 	case codes.Unauthenticated:
 		return CodeUnauthorized, outMsg
