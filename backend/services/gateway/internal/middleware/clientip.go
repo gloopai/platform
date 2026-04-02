@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ClientHost returns the client IP (host only) for rate limiting and IP whitelist checks.
+// ClientHost returns the client IP (host only) for rate limiting and audit logs.
 // When trustForwarded is false, only RemoteAddr is used (safe default).
 // When true, X-Forwarded-For (first hop) or X-Real-IP is used if present — only enable behind a trusted reverse proxy.
 func ClientHost(r *http.Request, trustForwarded bool) string {
@@ -32,7 +32,6 @@ func ClientHost(r *http.Request, trustForwarded bool) string {
 }
 
 func stripZone(ip string) string {
-	// IPv6 zone id: fe80::1%en0
 	if i := strings.IndexByte(ip, '%'); i >= 0 {
 		return ip[:i]
 	}

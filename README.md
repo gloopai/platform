@@ -15,7 +15,7 @@
 
 - 网关 Admin：`http://127.0.0.1:8080`
 - 管理端：`http://127.0.0.1:5176`
-- service-hub gRPC：`127.0.0.1:8094`（Consul：`payment.rpc.service-hub`）
+- service-hub gRPC：`127.0.0.1:8094`（Consul：`platform.rpc.service-hub`）
 
 说明见 [`docs/项目脚手架.md`](docs/项目脚手架.md)、[`docs/管理端前端开发规范.md`](docs/管理端前端开发规范.md)。
 

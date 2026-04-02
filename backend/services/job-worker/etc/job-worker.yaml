@@ -8,8 +8,8 @@ Mysql:
   ConnMaxLifetimeSeconds: 300
 
 Worker:
-  # 每个进程须唯一。同级副本可用环境变量覆盖：JOB_WORKER_ID=payment.worker.job-worker-2
-  ID: payment.worker.job-worker-1
+  # 每个进程须唯一。同级副本可用环境变量覆盖：JOB_WORKER_ID=platform.worker.job-worker-2
+  ID: platform.worker.job-worker-1
   PollIntervalSeconds: 5
   MaxClaimPerTick: 10
   MaxEnqueueDuePerTick: 50

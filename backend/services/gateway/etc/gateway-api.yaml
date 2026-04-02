@@ -34,7 +34,7 @@ AdminOpLog:
     - GET /v1/admin/op_logs
 
 ServiceHubRpc:
-  Target: consul://127.0.0.1:8500/payment.rpc.service-hub
+  Target: consul://127.0.0.1:8500/platform.rpc.service-hub
   Middlewares:
     Trace: true
 
