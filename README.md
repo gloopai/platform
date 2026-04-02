@@ -21,16 +21,47 @@
 
 ## 与业务仓库同步
 
-**pay-platform** 使用 **`github.com/gloopai/pay/...`**。把本仓库合并进 pay 时，需将 import 与 `go.mod` 中的 **`gloopai/platform` 改回 `gloopai/pay`**（可用 IDE 全局替换或合并脚本）。
+本仓库的 Go 模块为 **`github.com/gloopai/platform/...`**，前端为 **`@platform/*`**。合并进 **pay** 或 **ec** 后，必须把前缀改回各产品自己的（下面有脚本，避免手改遗漏）。
 
-**ec-platform** 已使用 **`github.com/gloopai/ec/...`**，与 pay 并列，无需与 pay 共用模块前缀。
+### 通用步骤（两个产品都一样）
 
-添加 remote 并合并示例：
+1. 在 **pay-platform** 或 **ec-platform** 里加一次 upstream（若已加可跳过）：
+
+   ```bash
+   git remote add platform https://github.com/gloopai/platform.git
+   ```
+
+2. 取回并合并（在你当前开发分支上）：
+
+   ```bash
+   git fetch platform
+   git merge platform/main
+   ```
+
+   解决冲突、提交。
+
+3. 按目标产品执行 **改写 import / 包名 / 部分 YAML**（见下节），再在各 `backend/**/` 里 **`go mod tidy`**，前端目录 **`npm install`**，最后 **`go build`** / 前端构建自测。
+
+### pay-platform
+
+合并完成后在 **pay-platform 根目录**执行：
 
 ```bash
-git remote add platform https://github.com/gloopai/platform.git
-git fetch platform
-git merge platform/main
+./scripts/platform-admin-repo.sh rewrite-imports-pay
 ```
 
-详见业务仓库内 `scripts/platform-admin-repo.sh` 说明。
+会把 `gloopai/platform` → `gloopai/pay`、`@platform/` → `@pay/`、`platform.notify.portal` → `pay.notify.portal`，并把 Consul 里的 **`platform.rpc.*`** 改成与现有支付栈一致的 **`payment.rpc.*`**。
+
+说明与首次推送用法见 **`scripts/platform-admin-repo.sh`** 文件头注释。
+
+### ec-platform
+
+合并完成后在 **ec-platform 根目录**执行：
+
+```bash
+bash scripts/sync-from-platform.sh
+```
+
+会把 `gloopai/platform` → `gloopai/ec`、`@platform/` → `@ec/`、**`platform.notify.portal`** → **`ec.notify.portal`**。Consul 服务名在本仓库与脚手架中均为 **`platform.rpc.*`**，一般无需再改。
+
+（首次使用可先 `chmod +x scripts/sync-from-platform.sh`。）
