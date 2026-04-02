@@ -1,8 +1,8 @@
 Timezone: Asia/Shanghai
 
-# 须与 service-hub、init_demo 使用同一库（默认库名 pay；密码改为你本机 root 密码）
+# 须与 service-hub、init_demo 使用同一库（脚手架默认库名 platform；密码改为你本机 root 密码）
 Mysql:
-  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/platform?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
   MaxOpenConns: 20
   MaxIdleConns: 10
   ConnMaxLifetimeSeconds: 300

@@ -9,7 +9,7 @@ SQL_DIR="${ROOT}/sql"
 MYSQL_HOST="${MYSQL_HOST:-127.0.0.1}"
 MYSQL_PORT="${MYSQL_PORT:-3306}"
 MYSQL_USER="${MYSQL_USER:-root}"
-MYSQL_DB="${MYSQL_DB:-pay}"
+MYSQL_DB="${MYSQL_DB:-platform}"
 
 MYSQL_ARGS=( -h"${MYSQL_HOST}" -P"${MYSQL_PORT}" -u"${MYSQL_USER}" )
 if [ -n "${MYSQL_PWD:-}" ]; then
