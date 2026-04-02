@@ -1,0 +1,18 @@
+{
+  "name": "@platform/admin-shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "description": "管理端壳（布局、登录、路由守卫等将逐步迁入）；pay/ec 通过 file: 本地依赖，无需发布 npm。",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  }
+}

@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "workspaces": [
-    "apps/admin"
+    "apps/admin",
+    "packages/*"
   ],
   "scripts": {
     "dev": "npm --workspace @platform/admin run dev",
