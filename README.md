@@ -2,6 +2,7 @@
 
 **管理端平台脚手架**（自 `pay-platform` 的 `scaffold/platform-admin` 拆出，独立仓库）。
 
+- **本地路径**：建议放在 **`gloopai/platform-admin`**（与 `gloopai/pay/pay-platform` 同级；从 `pay-platform` 根目录看为 **`../../platform-admin`**）。
 - **进程**：`gateway`（Admin HTTP）+ `service-hub`（gRPC）+ `job-worker`（定时任务）。
 - **网关**：登录、RBAC、后台用户、展示配置、运维、定时任务与操作日志等；`ServiceContext` 主要连接 **service-hub** 与 **Redis（登录限流）**。
 - **前端**：管理端（`frontend/`）。
