@@ -41,6 +41,7 @@ INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_orde
   (@gid_system, 'menu.system_op_logs', '操作日志', '', 1, '/system/op-logs', 12),
   (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20),
   (@gid_system, 'menu.scheduled_jobs', '定时任务', '', 1, '/scheduled-jobs', 30),
+  (@gid_system, 'menu.job_worker_nodes', 'Job 节点', '', 1, '/job-worker-nodes', 32),
   (@gid_system, 'menu.scheduled_job_runs', '任务日志', '', 1, '/scheduled-job-runs', 35);
 
 INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALUES
@@ -55,7 +56,7 @@ INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALU
   ('admin.jobs.read', '定时任务-读取', 'jobs', 'menu.scheduled_jobs', 1),
   ('admin.jobs.write', '定时任务-写入', 'jobs', 'menu.scheduled_jobs', 1),
   ('admin.jobs.run', '定时任务-执行', 'jobs', 'menu.scheduled_jobs', 1),
-  ('admin.jobs.nodes.read', 'Job 节点-读取', 'jobs', 'menu.scheduled_jobs', 1),
+  ('admin.jobs.nodes.read', 'Job 节点-读取', 'jobs', 'menu.job_worker_nodes', 1),
   ('admin.jobs.logs.read', '定时任务日志-读取', 'jobs', 'menu.scheduled_job_runs', 1);
 
 INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VALUES
