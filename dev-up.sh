@@ -86,6 +86,9 @@ if ! is_listening 3306; then
 fi
 
 start_bg "service-hub" "${ROOT_DIR}/backend/services/service-hub" "go run . -f etc/service-hub.yaml"
+start_bg "job-worker" "${ROOT_DIR}/backend/services/job-worker" "go run . -f etc/job-worker.yaml"
+# 可选第二实例（模拟多节点）；不需要可注释
+start_bg "job-worker-2" "${ROOT_DIR}/backend/services/job-worker" "JOB_WORKER_ID=payment.worker.job-worker-2 go run . -f etc/job-worker.yaml"
 start_bg "gateway" "${ROOT_DIR}/backend/services/gateway" "go run . -f etc/gateway-api.yaml"
 
 if [ -f "${ROOT_DIR}/frontend/package.json" ]; then
@@ -99,6 +102,7 @@ echo "urls:"
 echo "  gateway（scaffold/platform-admin：仅 Admin HTTP）:"
 print_url "gateway-admin" "http://127.0.0.1:8080/  (Admin: /v1/admin/*)"
 print_url "service-hub" "grpc://127.0.0.1:8094 (Consul: payment.rpc.service-hub)"
+print_url "job-worker" "无 HTTP；见 .dev-logs/job-worker*.log"
 print_url "admin" "http://127.0.0.1:5176/"
 echo "db init:"
 echo "  bash backend/deploy/init_demo.sh"

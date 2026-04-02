@@ -1,6 +1,6 @@
 Timezone: Asia/Shanghai
 
-# 与 trade / service-hub 等服务的 Mysql.DataSource 保持一致（密码须与本地 MySQL 一致）
+# 须与 service-hub、init_demo 使用同一库（默认库名 pay；密码改为你本机 root 密码）
 Mysql:
   DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
   MaxOpenConns: 20

@@ -11,8 +11,9 @@ Middlewares:
 Consul:
   Addr: 127.0.0.1:8500
   Service: payment.rpc.service-hub
+# 须与 backend/deploy/init_demo.sh 默认 MYSQL_DB、job-worker 的 Mysql.DataSource 使用同一库名
 Mysql:
-  DataSource: root:your_password@tcp(127.0.0.1:3306)/platform?charset=utf8mb4&parseTime=true
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true
   MaxOpenConns: 30
   MaxIdleConns: 10
   ConnMaxLifetimeSeconds: 3600
