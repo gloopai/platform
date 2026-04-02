@@ -7,12 +7,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gloopai/pay/common/consulx"
-	servicehubpb "github.com/gloopai/pay/common/pb/servicehub"
-	"github.com/gloopai/pay/common/timex"
-	"github.com/gloopai/pay/service-hub/internal/config"
-	"github.com/gloopai/pay/service-hub/internal/server"
-	"github.com/gloopai/pay/service-hub/internal/svc"
+	"github.com/gloopai/platform/common/consulx"
+	servicehubpb "github.com/gloopai/platform/common/pb/servicehub"
+	"github.com/gloopai/platform/common/timex"
+	"github.com/gloopai/platform/service-hub/internal/config"
+	"github.com/gloopai/platform/service-hub/internal/server"
+	"github.com/gloopai/platform/service-hub/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"

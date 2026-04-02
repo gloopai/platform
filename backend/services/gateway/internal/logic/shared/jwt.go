@@ -3,7 +3,7 @@ package shared
 import (
 	"time"
 
-	"github.com/gloopai/pay/common/jwtutil"
+	"github.com/gloopai/platform/common/jwtutil"
 )
 
 func IssueAdminJWT(secret string, adminID int64, ttl time.Duration) (string, time.Time, error) {

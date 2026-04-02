@@ -1,11 +1,11 @@
-module github.com/gloopai/pay/job-worker
+module github.com/gloopai/platform/job-worker
 
 go 1.25.7
 
-replace github.com/gloopai/pay/common => ../../common
+replace github.com/gloopai/platform/common => ../../common
 
 require (
-	github.com/gloopai/pay/common v0.0.0-00010101000000-000000000000
+	github.com/gloopai/platform/common v0.0.0-00010101000000-000000000000
 	github.com/zeromicro/go-zero v1.10.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.1

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/gloopai/pay/common/pb/servicehub"
+	"github.com/gloopai/platform/common/pb/servicehub"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

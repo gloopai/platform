@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gloopai/pay/common/configkv"
+	"github.com/gloopai/platform/common/configkv"
 	"github.com/hashicorp/consul/api"
 )
 

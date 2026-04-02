@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	adminlogic "github.com/gloopai/pay/gateway/internal/logic/admin"
-	"github.com/gloopai/pay/gateway/internal/svc"
+	adminlogic "github.com/gloopai/platform/gateway/internal/logic/admin"
+	"github.com/gloopai/platform/gateway/internal/svc"
 )
 
 func NewAdminAuth(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminAuth {

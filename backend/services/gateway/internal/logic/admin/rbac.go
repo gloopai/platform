@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/middleware"
-	"github.com/gloopai/pay/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/middleware"
+	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

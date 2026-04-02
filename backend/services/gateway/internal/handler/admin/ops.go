@@ -4,9 +4,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gloopai/pay/gateway/internal/apiresp"
-	"github.com/gloopai/pay/gateway/internal/logic"
-	"github.com/gloopai/pay/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
+	"github.com/gloopai/platform/gateway/internal/logic"
+	"github.com/gloopai/platform/gateway/internal/svc"
 )
 
 func AdminOpsServicesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

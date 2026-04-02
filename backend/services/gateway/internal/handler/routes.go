@@ -5,8 +5,8 @@ package handler
 import (
 	"net/http"
 
-	adminhandler "github.com/gloopai/pay/gateway/internal/handler/admin"
-	"github.com/gloopai/pay/gateway/internal/svc"
+	adminhandler "github.com/gloopai/platform/gateway/internal/handler/admin"
+	"github.com/gloopai/platform/gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

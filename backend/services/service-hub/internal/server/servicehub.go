@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/common/pb/servicehub"
-	"github.com/gloopai/pay/service-hub/internal/store"
-	"github.com/gloopai/pay/service-hub/internal/svc"
+	"github.com/gloopai/platform/common/pb/servicehub"
+	"github.com/gloopai/platform/service-hub/internal/store"
+	"github.com/gloopai/platform/service-hub/internal/svc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"

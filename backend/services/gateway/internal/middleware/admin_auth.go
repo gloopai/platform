@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/apiresp"
-	"github.com/gloopai/pay/gateway/internal/logic/shared"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
+	"github.com/gloopai/platform/gateway/internal/logic/shared"
 )
 
 type AdminAuth struct {

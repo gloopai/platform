@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gloopai/pay/common/jobkeys"
-	"github.com/gloopai/pay/job-worker/internal/store"
-	"github.com/gloopai/pay/job-worker/internal/svc"
+	"github.com/gloopai/platform/common/jobkeys"
+	"github.com/gloopai/platform/job-worker/internal/store"
+	"github.com/gloopai/platform/job-worker/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 

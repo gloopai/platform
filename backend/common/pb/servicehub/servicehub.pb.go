@@ -6365,7 +6365,7 @@ const file_proto_servicehub_proto_rawDesc = "" +
 	"\x0fUpdateAdminUser\x12\x1e.servicehub.UpdateAdminUserReq\x1a\x1f.servicehub.UpdateAdminUserResp\x12R\n" +
 	"\x0fDeleteAdminUser\x12\x1e.servicehub.DeleteAdminUserReq\x1a\x1f.servicehub.DeleteAdminUserResp\x12U\n" +
 	"\x10GetAdminUserById\x12\x1f.servicehub.GetAdminUserByIdReq\x1a .servicehub.GetAdminUserByIdResp\x12p\n" +
-	"\x19PublishPortalNotification\x12(.servicehub.PublishPortalNotificationReq\x1a).servicehub.PublishPortalNotificationRespB8Z6github.com/gloopai/pay/common/pb/servicehub;servicehubb\x06proto3"
+	"\x19PublishPortalNotification\x12(.servicehub.PublishPortalNotificationReq\x1a).servicehub.PublishPortalNotificationRespB8Z6github.com/gloopai/platform/common/pb/servicehub;servicehubb\x06proto3"
 
 var (
 	file_proto_servicehub_proto_rawDescOnce sync.Once

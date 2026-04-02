@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	servicehubpb "github.com/gloopai/pay/common/pb/servicehub"
-	"github.com/gloopai/pay/gateway/internal/svc"
-	"github.com/gloopai/pay/gateway/internal/types"
+	servicehubpb "github.com/gloopai/platform/common/pb/servicehub"
+	"github.com/gloopai/platform/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 

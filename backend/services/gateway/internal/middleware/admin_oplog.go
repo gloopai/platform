@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
-	"github.com/gloopai/pay/gateway/internal/requestx"
+	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/gateway/internal/requestx"
 )
 
 type AdminOpLog struct {

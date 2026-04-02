@@ -1,4 +1,4 @@
-module github.com/gloopai/pay/common
+module github.com/gloopai/platform/common
 
 go 1.25.1
 

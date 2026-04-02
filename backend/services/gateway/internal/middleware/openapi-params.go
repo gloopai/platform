@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gloopai/pay/gateway/internal/apiresp"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
 )
 
 type openAPIParamsKeyType struct{}

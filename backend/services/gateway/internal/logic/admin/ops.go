@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/gloopai/pay/common/consulx"
-	"github.com/gloopai/pay/gateway/internal/svc"
-	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/platform/common/consulx"
+	"github.com/gloopai/platform/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/types"
 )
 
 type AdminOps struct {

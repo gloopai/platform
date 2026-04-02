@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gloopai/pay/common/timex"
+	"github.com/gloopai/platform/common/timex"
 )
 
 // WithTimezone ensures MySQL DSN uses local parse location and a configured session time_zone.

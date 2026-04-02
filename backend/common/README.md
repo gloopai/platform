@@ -1,4 +1,4 @@
-# `github.com/gloopai/pay/common`
+# `github.com/gloopai/platform/common`
 
 单 module、多子包；服务通过 `replace ../../common` 引用。
 

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/gateway/internal/logic/shared"
-	"github.com/gloopai/pay/gateway/internal/svc"
-	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/platform/gateway/internal/logic/shared"
+	"github.com/gloopai/platform/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/pquerna/otp/totp"
 	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/crypto/bcrypt"

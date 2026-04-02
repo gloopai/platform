@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/gateway/internal/apiresp"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/redis/go-redis/v9"
 )
 

@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
-	"github.com/gloopai/pay/gateway/internal/apiresp"
+	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
 )
 
 // AdminRBAC enforces permission keys for admin APIs.

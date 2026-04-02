@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gloopai/pay/common/timex"
-	"github.com/gloopai/pay/job-worker/internal/config"
-	"github.com/gloopai/pay/job-worker/internal/runner"
-	"github.com/gloopai/pay/job-worker/internal/svc"
+	"github.com/gloopai/platform/common/timex"
+	"github.com/gloopai/platform/job-worker/internal/config"
+	"github.com/gloopai/platform/job-worker/internal/runner"
+	"github.com/gloopai/platform/job-worker/internal/svc"
 	"github.com/zeromicro/go-zero/core/conf"
 )
 

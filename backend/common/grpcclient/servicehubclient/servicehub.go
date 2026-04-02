@@ -3,7 +3,7 @@ package servicehubclient
 import (
 	"context"
 
-	"github.com/gloopai/pay/common/pb/servicehub"
+	"github.com/gloopai/platform/common/pb/servicehub"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

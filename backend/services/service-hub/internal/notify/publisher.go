@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	ntf "github.com/gloopai/pay/common/notify"
-	"github.com/gloopai/pay/common/pb/servicehub"
-	"github.com/gloopai/pay/service-hub/internal/store"
+	ntf "github.com/gloopai/platform/common/notify"
+	"github.com/gloopai/platform/common/pb/servicehub"
+	"github.com/gloopai/platform/service-hub/internal/store"
 	"github.com/nsqio/go-nsq"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

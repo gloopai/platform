@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gloopai/pay/job-worker/internal/store"
+	"github.com/gloopai/platform/job-worker/internal/store"
 )
 
 // ------------------------------

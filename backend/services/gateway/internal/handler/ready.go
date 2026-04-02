@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gloopai/pay/common/healthx"
-	"github.com/gloopai/pay/gateway/internal/svc"
+	"github.com/gloopai/platform/common/healthx"
+	"github.com/gloopai/platform/gateway/internal/svc"
 )
 
 func ReadyHandler(ctx *svc.ServiceContext) http.HandlerFunc {

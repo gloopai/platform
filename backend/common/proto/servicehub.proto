@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package servicehub;
-option go_package = "github.com/gloopai/pay/common/pb/servicehub;servicehub";
+option go_package = "github.com/gloopai/platform/common/pb/servicehub;servicehub";
 
 // 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
 service ServiceHub {

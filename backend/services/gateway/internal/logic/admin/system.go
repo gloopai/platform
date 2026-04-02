@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
-	"github.com/gloopai/pay/gateway/internal/svc"
-	"github.com/gloopai/pay/gateway/internal/types"
+	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/pquerna/otp/totp"
 	"github.com/skip2/go-qrcode"
 	"github.com/zeromicro/go-zero/core/logx"

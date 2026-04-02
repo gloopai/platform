@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/pay/common/jobkeys"
+	"github.com/gloopai/platform/common/jobkeys"
 	"gorm.io/gorm"
 )
 

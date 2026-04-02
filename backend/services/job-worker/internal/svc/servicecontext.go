@@ -3,9 +3,9 @@ package svc
 import (
 	"time"
 
-	"github.com/gloopai/pay/common/dbdsn"
-	"github.com/gloopai/pay/job-worker/internal/config"
-	"github.com/gloopai/pay/job-worker/internal/store"
+	"github.com/gloopai/platform/common/dbdsn"
+	"github.com/gloopai/platform/job-worker/internal/config"
+	"github.com/gloopai/platform/job-worker/internal/store"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
