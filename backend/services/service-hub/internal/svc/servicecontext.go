@@ -19,6 +19,8 @@ type ServiceContext struct {
 	AdminUsers           *store.AdminUsersStore
 	AdminRbac            *store.AdminRbacStore
 	AdminRbacCfg         *store.AdminRbacConfigStore
+	AdminOpLogs          *store.AdminOperationLogsStore
+	ScheduledJobs        *store.ScheduledJobsStore
 	GlobalSettings      *store.GlobalSettingsStore
 	PortalNotifications *store.PortalNotificationsStore
 	NotifyPublisher      *hubnotify.Publisher
@@ -69,6 +71,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminUsers:          store.NewAdminUsersStore(gdb),
 		AdminRbac:           store.NewAdminRbacStore(gdb),
 		AdminRbacCfg:        store.NewAdminRbacConfigStore(gdb),
+		AdminOpLogs:         store.NewAdminOperationLogsStore(gdb),
+		ScheduledJobs:       store.NewScheduledJobsStore(gdb),
 		GlobalSettings:      store.NewGlobalSettingsStore(gdb),
 		PortalNotifications: portalNotifStore,
 		NotifyPublisher:     notifyPublisher,

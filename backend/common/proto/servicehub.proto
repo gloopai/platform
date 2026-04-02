@@ -3,7 +3,7 @@ syntax = "proto3";
 package servicehub;
 option go_package = "github.com/gloopai/pay/common/pb/servicehub;servicehub";
 
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
 service ServiceHub {
   rpc FindAdminUserByUsername(FindAdminUserByUsernameReq) returns (FindAdminUserByUsernameResp);
   rpc ListAdminUsers(ListAdminUsersReq) returns (ListAdminUsersResp);
@@ -38,6 +38,21 @@ service ServiceHub {
   rpc ListAdminApiRules(ListAdminApiRulesReq) returns (ListAdminApiRulesResp);
   rpc UpsertAdminApiRule(UpsertAdminApiRuleReq) returns (UpsertAdminApiRuleResp);
   rpc DeleteAdminApiRule(DeleteAdminApiRuleReq) returns (DeleteAdminApiRuleResp);
+
+  // ---- Admin operation audit logs ----
+  rpc RecordAdminOperationLog(RecordAdminOperationLogReq) returns (RecordAdminOperationLogResp);
+  rpc ListAdminOperationLogs(ListAdminOperationLogsReq) returns (ListAdminOperationLogsResp);
+
+  // ---- Scheduled jobs ----
+  rpc ListScheduledJobs(ListScheduledJobsReq) returns (ListScheduledJobsResp);
+  rpc CreateScheduledJob(CreateScheduledJobReq) returns (CreateScheduledJobResp);
+  rpc UpdateScheduledJob(UpdateScheduledJobReq) returns (UpdateScheduledJobResp);
+  rpc ToggleScheduledJob(ToggleScheduledJobReq) returns (ToggleScheduledJobResp);
+  rpc RunScheduledJobNow(RunScheduledJobNowReq) returns (RunScheduledJobNowResp);
+  rpc ListScheduledJobRuns(ListScheduledJobRunsReq) returns (ListScheduledJobRunsResp);
+  rpc GetScheduledJobRun(GetScheduledJobRunReq) returns (GetScheduledJobRunResp);
+  rpc RetryScheduledJobRun(RetryScheduledJobRunReq) returns (RetryScheduledJobRunResp);
+  rpc ListJobWorkerNodes(ListJobWorkerNodesReq) returns (ListJobWorkerNodesResp);
 
   // ---- Admin users / MFA ----
   rpc CreateAdminUser(CreateAdminUserReq) returns (CreateAdminUserResp);
@@ -261,8 +276,17 @@ message AdminPermission {
   string menu_key = 6;
 }
 
-message ListAdminPermissionsReq {}
-message ListAdminPermissionsResp { repeated AdminPermission permissions = 1; }
+// page_size=0：不分页，返回全部（兼容旧客户端与网关中间件缓存全量规则）。
+message ListAdminPermissionsReq {
+  int64 page = 1;       // 1-based；仅当 page_size>0 时有效
+  int64 page_size = 2;  // 每页条数；0 表示不分页
+  string q = 3;       // 可选；匹配 label / perm_key / menu_key / category（子串）
+  string menu_key = 4; // 可选筛选：空=全部；"__empty__"=未绑定菜单（menu_key 为空）
+}
+message ListAdminPermissionsResp {
+  repeated AdminPermission permissions = 1;
+  int64 total = 2;
+}
 
 message CreateAdminPermissionReq {
   string perm_key = 1;
@@ -298,8 +322,16 @@ message AdminApiRule {
   int64 status = 5;
   string remark = 6;
 }
-message ListAdminApiRulesReq {}
-message ListAdminApiRulesResp { repeated AdminApiRule rules = 1; }
+message ListAdminApiRulesReq {
+  int64 page = 1;
+  int64 page_size = 2; // 0 = 不分页，返回全部
+  string q = 3;        // 可选；匹配 method / path_pattern / perm_key / remark
+  string perm_key = 4; // 可选；精确匹配 perm_key；空=不过滤
+}
+message ListAdminApiRulesResp {
+  repeated AdminApiRule rules = 1;
+  int64 total = 2;
+}
 message UpsertAdminApiRuleReq {
   string method = 1;
   string path_pattern = 2;
@@ -361,4 +393,189 @@ message PublishPortalNotificationReq {
 
 message PublishPortalNotificationResp {
   string notification_id = 1;
+}
+
+message ScheduledJob {
+  int64 id = 1;
+  string job_key = 2;
+  string name = 3;
+  string category = 4;
+  bool enabled = 5;
+  bool builtin = 6;
+  string schedule_type = 7;
+  string cron_expr = 8;
+  int64 interval_seconds = 9;
+  string timezone = 10;
+  string payload_json = 11;
+  string concurrency_policy = 12;
+  string misfire_policy = 13;
+  int64 max_retry = 14;
+  int64 retry_backoff_seconds = 15;
+  int64 next_run_at = 16;
+  int64 last_run_at = 17;
+  string last_status = 18;
+  string last_error = 19;
+  string updated_by = 20;
+}
+
+message ScheduledJobRun {
+  int64 id = 1;
+  int64 job_id = 2;
+  string job_key = 3;
+  string job_name = 4;
+  string trigger_type = 5;
+  int64 scheduled_at = 6;
+  int64 started_at = 7;
+  int64 finished_at = 8;
+  int64 duration_ms = 9;
+  string status = 10;
+  int64 attempt = 11;
+  string worker_id = 12;
+  string summary = 13;
+  string error_code = 14;
+  string error_message = 15;
+  string output_json = 16;
+  string correlation_id = 17;
+}
+
+message ListScheduledJobsReq {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+message ListScheduledJobsResp {
+  repeated ScheduledJob jobs = 1;
+  int64 total = 2;
+}
+
+message CreateScheduledJobReq {
+  string job_key = 1;
+  string name = 2;
+  string category = 3;
+  bool enabled = 4;
+  string schedule_type = 5;
+  string cron_expr = 6;
+  int64 interval_seconds = 7;
+  string timezone = 8;
+  string payload_json = 9;
+  string concurrency_policy = 10;
+  string misfire_policy = 11;
+  int64 max_retry = 12;
+  int64 retry_backoff_seconds = 13;
+  string updated_by = 14;
+}
+message CreateScheduledJobResp { ScheduledJob job = 1; }
+
+message UpdateScheduledJobReq {
+  int64 id = 1;
+  string name = 2;
+  string category = 3;
+  string schedule_type = 4;
+  string cron_expr = 5;
+  int64 interval_seconds = 6;
+  string timezone = 7;
+  string payload_json = 8;
+  string concurrency_policy = 9;
+  string misfire_policy = 10;
+  int64 max_retry = 11;
+  int64 retry_backoff_seconds = 12;
+  int64 next_run_at = 13;
+  string updated_by = 14;
+}
+message UpdateScheduledJobResp { ScheduledJob job = 1; }
+
+message ToggleScheduledJobReq {
+  int64 id = 1;
+  bool enabled = 2;
+  string updated_by = 3;
+}
+message ToggleScheduledJobResp { ScheduledJob job = 1; }
+
+message RunScheduledJobNowReq {
+  int64 id = 1;
+  string correlation_id = 2;
+}
+message RunScheduledJobNowResp { bool ok = 1; }
+
+message ListScheduledJobRunsReq {
+  int64 job_id = 1;
+  string status = 2;
+  string trigger_type = 3;
+  int64 limit = 4;
+  int64 offset = 5;
+}
+message ListScheduledJobRunsResp {
+  repeated ScheduledJobRun runs = 1;
+  int64 total = 2;
+}
+
+message GetScheduledJobRunReq { int64 id = 1; }
+message GetScheduledJobRunResp { ScheduledJobRun run = 1; }
+
+message RetryScheduledJobRunReq { int64 id = 1; }
+message RetryScheduledJobRunResp { bool ok = 1; }
+
+message ListJobWorkerNodesReq {}
+message JobWorkerNode {
+  string worker_id = 1;
+  string hostname = 2;
+  int64 last_heartbeat_at = 3;
+  int64 running_tasks = 4;
+  int64 success_last_hour = 5;
+}
+message ListJobWorkerNodesResp {
+  repeated JobWorkerNode nodes = 1;
+  int64 queued_total = 2;
+}
+
+message RecordAdminOperationLogReq {
+  string request_id = 1;
+  int64 admin_user_id = 2;
+  string admin_username = 3;
+  string operator_ip = 4;
+  string user_agent = 5;
+  string method = 6;
+  string path = 7;
+  string query_string = 8;
+  string perm_key = 9;
+  int32 http_status = 10;
+  bool success = 11;
+  int64 duration_ms = 12;
+  string error_message = 13;
+}
+
+message RecordAdminOperationLogResp {}
+
+message ListAdminOperationLogsReq {
+  int64 start_sec = 1;
+  int64 end_sec = 2;
+  int64 admin_user_id = 3;
+  string method = 4;
+  string path_keyword = 5;
+  string perm_key = 6;
+  optional bool success = 7;
+  int64 limit = 8;
+  int64 offset = 9;
+}
+
+message AdminOperationLogRow {
+  int64 id = 1;
+  int64 created_at = 2;
+  string request_id = 3;
+  int64 admin_user_id = 4;
+  string admin_username = 5;
+  string operator_ip = 6;
+  string user_agent = 7;
+  string method = 8;
+  string path = 9;
+  string query_string = 10;
+  string perm_key = 11;
+  int32 http_status = 12;
+  bool success = 13;
+  int64 duration_ms = 14;
+  string error_message = 15;
+}
+
+message ListAdminOperationLogsResp {
+  repeated AdminOperationLogRow rows = 1;
+  int64 total = 2;
 }

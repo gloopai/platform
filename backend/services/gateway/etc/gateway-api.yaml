@@ -28,6 +28,11 @@ RateLimit:
 AdminToken: admin_token_change_me
 JwtSecret: jwt_secret_change_me
 
+# 操作审计异步写入 service-hub；Exclude 可减轻高频只读接口压力（示例：GET 列表）
+AdminOpLog:
+  Exclude:
+    - GET /v1/admin/op_logs
+
 ServiceHubRpc:
   Target: consul://127.0.0.1:8500/payment.rpc.service-hub
   Middlewares:

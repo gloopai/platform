@@ -38,15 +38,50 @@ func NewAdminRbacConfigStore(db *gorm.DB) *AdminRbacConfigStore {
 }
 
 func (s *AdminRbacConfigStore) ListPermissions(ctx context.Context) ([]AdminPermission, error) {
-	var out []AdminPermission
-	if err := s.db.WithContext(ctx).
-		Table("admin_permissions").
-		Select("id, perm_key, label, category, menu_key, status").
-		Order("menu_key ASC, category ASC, perm_key ASC").
-		Find(&out).Error; err != nil {
-		return nil, err
+	rows, _, err := s.ListPermissionsPaged(ctx, 0, 0, "", "")
+	return rows, err
+}
+
+// ListPermissionsPaged 返回一页权限点；page_size<=0 时不分页（返回全部匹配行）。
+func (s *AdminRbacConfigStore) ListPermissionsPaged(ctx context.Context, page, pageSize int64, q, menuKeyFilter string) ([]AdminPermission, int64, error) {
+	tx := s.db.WithContext(ctx).Table("admin_permissions").Select("id, perm_key, label, category, menu_key, status")
+	tx = applyPermissionFilters(tx, q, menuKeyFilter)
+	var total int64
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
-	return out, nil
+	q2 := s.db.WithContext(ctx).Table("admin_permissions").Select("id, perm_key, label, category, menu_key, status")
+	q2 = applyPermissionFilters(q2, q, menuKeyFilter)
+	q2 = q2.Order("perm_key ASC")
+	if pageSize > 0 {
+		if page < 1 {
+			page = 1
+		}
+		offset := (page - 1) * pageSize
+		q2 = q2.Offset(int(offset)).Limit(int(pageSize))
+	}
+	var out []AdminPermission
+	if err := q2.Find(&out).Error; err != nil {
+		return nil, 0, err
+	}
+	return out, total, nil
+}
+
+func applyPermissionFilters(tx *gorm.DB, q, menuKeyFilter string) *gorm.DB {
+	switch strings.TrimSpace(menuKeyFilter) {
+	case "__empty__":
+		tx = tx.Where("(menu_key IS NULL OR menu_key = '')")
+	case "":
+		// no menu filter
+	default:
+		tx = tx.Where("menu_key = ?", strings.TrimSpace(menuKeyFilter))
+	}
+	qs := strings.TrimSpace(q)
+	if qs != "" {
+		like := "%" + qs + "%"
+		tx = tx.Where("(label LIKE ? OR perm_key LIKE ? OR menu_key LIKE ? OR IFNULL(category,'') LIKE ?)", like, like, like, like)
+	}
+	return tx
 }
 
 func (s *AdminRbacConfigStore) CreatePermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error) {
@@ -184,15 +219,46 @@ func (s *AdminRbacConfigStore) SetRolePermKeys(ctx context.Context, roleID int64
 }
 
 func (s *AdminRbacConfigStore) ListApiRules(ctx context.Context) ([]AdminApiRule, error) {
-	var out []AdminApiRule
-	if err := s.db.WithContext(ctx).
-		Table("admin_api_rules").
-		Select("id, method, path_pattern, perm_key, status, remark, created_at, updated_at").
-		Order("method ASC, path_pattern ASC").
-		Find(&out).Error; err != nil {
-		return nil, err
+	rows, _, err := s.ListApiRulesPaged(ctx, 0, 0, "", "")
+	return rows, err
+}
+
+// ListApiRulesPaged 返回一页接口规则；page_size<=0 时不分页。
+func (s *AdminRbacConfigStore) ListApiRulesPaged(ctx context.Context, page, pageSize int64, q, permKey string) ([]AdminApiRule, int64, error) {
+	tx := s.db.WithContext(ctx).Table("admin_api_rules").Select("id, method, path_pattern, perm_key, status, remark, created_at, updated_at")
+	tx = applyApiRuleFilters(tx, q, permKey)
+	var total int64
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
-	return out, nil
+	q2 := s.db.WithContext(ctx).Table("admin_api_rules").Select("id, method, path_pattern, perm_key, status, remark, created_at, updated_at")
+	q2 = applyApiRuleFilters(q2, q, permKey)
+	q2 = q2.Order("method ASC, path_pattern ASC")
+	if pageSize > 0 {
+		if page < 1 {
+			page = 1
+		}
+		offset := (page - 1) * pageSize
+		q2 = q2.Offset(int(offset)).Limit(int(pageSize))
+	}
+	var out []AdminApiRule
+	if err := q2.Find(&out).Error; err != nil {
+		return nil, 0, err
+	}
+	return out, total, nil
+}
+
+func applyApiRuleFilters(tx *gorm.DB, q, permKey string) *gorm.DB {
+	pk := strings.TrimSpace(permKey)
+	if pk != "" {
+		tx = tx.Where("perm_key = ?", pk)
+	}
+	qs := strings.TrimSpace(q)
+	if qs != "" {
+		like := "%" + qs + "%"
+		tx = tx.Where("(method LIKE ? OR path_pattern LIKE ? OR perm_key LIKE ? OR IFNULL(remark,'') LIKE ?)", like, like, like, like)
+	}
+	return tx
 }
 
 func (s *AdminRbacConfigStore) ListEnabledApiRules(ctx context.Context) ([]AdminApiRule, error) {

@@ -1,0 +1,19 @@
+Timezone: Asia/Shanghai
+
+# 与 trade / service-hub 等服务的 Mysql.DataSource 保持一致（密码须与本地 MySQL 一致）
+Mysql:
+  DataSource: root:your_password@tcp(127.0.0.1:3306)/pay?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  MaxOpenConns: 20
+  MaxIdleConns: 10
+  ConnMaxLifetimeSeconds: 300
+
+Worker:
+  # 每个进程须唯一。同级副本可用环境变量覆盖：JOB_WORKER_ID=payment.worker.job-worker-2
+  ID: payment.worker.job-worker-1
+  PollIntervalSeconds: 5
+  MaxClaimPerTick: 10
+  MaxEnqueueDuePerTick: 50
+  # running 超过该秒数仍未结束则判为僵死，标记 failed，便于后续 queued 被认领（0=关闭）
+  StaleRunningSeconds: 900
+  # 心跳写入 job_worker_heartbeats，管理台「Job 节点」展示；0 则默认 15
+  HeartbeatIntervalSeconds: 15

@@ -22,3 +22,7 @@ func NewAdminOps(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.Ad
 func NewAdminRbac(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminRbac {
 	return adminlogic.NewAdminRbac(ctx, svcCtx)
 }
+
+func NewAdminJobs(ctx context.Context, svcCtx *svc.ServiceContext) *adminlogic.AdminJobs {
+	return adminlogic.NewAdminJobs(ctx, svcCtx)
+}

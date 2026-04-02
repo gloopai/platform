@@ -2,8 +2,11 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gloopai/pay/common/pb/servicehub"
 	"github.com/gloopai/pay/service-hub/internal/store"
@@ -401,8 +404,10 @@ func (s *ServiceHubServer) GetAdminRbacMyPerms(ctx context.Context, req *service
 	return &servicehub.GetAdminRbacMyPermsResp{IsSuperAdmin: isSuper, PermKeys: keys}, nil
 }
 
-func (s *ServiceHubServer) ListAdminPermissions(ctx context.Context, _ *servicehub.ListAdminPermissionsReq) (*servicehub.ListAdminPermissionsResp, error) {
-	rows, err := s.svcCtx.AdminRbacCfg.ListPermissions(ctx)
+func (s *ServiceHubServer) ListAdminPermissions(ctx context.Context, req *servicehub.ListAdminPermissionsReq) (*servicehub.ListAdminPermissionsResp, error) {
+	page := req.GetPage()
+	pageSize := req.GetPageSize()
+	rows, total, err := s.svcCtx.AdminRbacCfg.ListPermissionsPaged(ctx, page, pageSize, req.GetQ(), req.GetMenuKey())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -417,7 +422,7 @@ func (s *ServiceHubServer) ListAdminPermissions(ctx context.Context, _ *serviceh
 			Status:   p.Status,
 		})
 	}
-	return &servicehub.ListAdminPermissionsResp{Permissions: out}, nil
+	return &servicehub.ListAdminPermissionsResp{Permissions: out, Total: total}, nil
 }
 
 func (s *ServiceHubServer) CreateAdminPermission(ctx context.Context, req *servicehub.CreateAdminPermissionReq) (*servicehub.CreateAdminPermissionResp, error) {
@@ -462,8 +467,10 @@ func (s *ServiceHubServer) SetAdminRolePermKeys(ctx context.Context, req *servic
 	return &servicehub.SetAdminRolePermKeysResp{Ok: true}, nil
 }
 
-func (s *ServiceHubServer) ListAdminApiRules(ctx context.Context, _ *servicehub.ListAdminApiRulesReq) (*servicehub.ListAdminApiRulesResp, error) {
-	rows, err := s.svcCtx.AdminRbacCfg.ListApiRules(ctx)
+func (s *ServiceHubServer) ListAdminApiRules(ctx context.Context, req *servicehub.ListAdminApiRulesReq) (*servicehub.ListAdminApiRulesResp, error) {
+	page := req.GetPage()
+	pageSize := req.GetPageSize()
+	rows, total, err := s.svcCtx.AdminRbacCfg.ListApiRulesPaged(ctx, page, pageSize, req.GetQ(), req.GetPermKey())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -478,7 +485,7 @@ func (s *ServiceHubServer) ListAdminApiRules(ctx context.Context, _ *servicehub.
 			Remark:      r.Remark,
 		})
 	}
-	return &servicehub.ListAdminApiRulesResp{Rules: out}, nil
+	return &servicehub.ListAdminApiRulesResp{Rules: out, Total: total}, nil
 }
 
 func (s *ServiceHubServer) UpsertAdminApiRule(ctx context.Context, req *servicehub.UpsertAdminApiRuleReq) (*servicehub.UpsertAdminApiRuleResp, error) {
@@ -498,6 +505,282 @@ func (s *ServiceHubServer) DeleteAdminApiRule(ctx context.Context, req *serviceh
 	return &servicehub.DeleteAdminApiRuleResp{Ok: true}, nil
 }
 
+func (s *ServiceHubServer) RecordAdminOperationLog(ctx context.Context, req *servicehub.RecordAdminOperationLogReq) (*servicehub.RecordAdminOperationLogResp, error) {
+	row := &store.AdminOperationLogRow{
+		RequestID:     strings.TrimSpace(req.GetRequestId()),
+		AdminUserID:   req.GetAdminUserId(),
+		AdminUsername: strings.TrimSpace(req.GetAdminUsername()),
+		OperatorIP:    strings.TrimSpace(req.GetOperatorIp()),
+		UserAgent:     strings.TrimSpace(req.GetUserAgent()),
+		Method:        strings.ToUpper(strings.TrimSpace(req.GetMethod())),
+		Path:          strings.TrimSpace(req.GetPath()),
+		QueryString:   strings.TrimSpace(req.GetQueryString()),
+		PermKey:       strings.TrimSpace(req.GetPermKey()),
+		HTTPStatus:    req.GetHttpStatus(),
+		Success:       req.GetSuccess(),
+		DurationMs:    req.GetDurationMs(),
+		ErrorMessage:  strings.TrimSpace(req.GetErrorMessage()),
+	}
+	if err := s.svcCtx.AdminOpLogs.Insert(ctx, row); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.RecordAdminOperationLogResp{}, nil
+}
+
+func (s *ServiceHubServer) ListAdminOperationLogs(ctx context.Context, req *servicehub.ListAdminOperationLogsReq) (*servicehub.ListAdminOperationLogsResp, error) {
+	var successPtr *bool
+	if req.Success != nil {
+		v := req.GetSuccess()
+		successPtr = &v
+	}
+	rows, total, err := s.svcCtx.AdminOpLogs.List(
+		ctx,
+		req.GetStartSec(),
+		req.GetEndSec(),
+		req.GetAdminUserId(),
+		req.GetMethod(),
+		req.GetPathKeyword(),
+		req.GetPermKey(),
+		successPtr,
+		req.GetLimit(),
+		req.GetOffset(),
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	out := make([]*servicehub.AdminOperationLogRow, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, &servicehub.AdminOperationLogRow{
+			Id:            r.ID,
+			CreatedAt:     r.CreatedAt.UnixMilli(),
+			RequestId:     r.RequestID,
+			AdminUserId:   r.AdminUserID,
+			AdminUsername: r.AdminUsername,
+			OperatorIp:    r.OperatorIP,
+			UserAgent:     r.UserAgent,
+			Method:        r.Method,
+			Path:          r.Path,
+			QueryString:   r.QueryString,
+			PermKey:       r.PermKey,
+			HttpStatus:    r.HTTPStatus,
+			Success:       r.Success,
+			DurationMs:    r.DurationMs,
+			ErrorMessage:  r.ErrorMessage,
+		})
+	}
+	return &servicehub.ListAdminOperationLogsResp{Rows: out, Total: total}, nil
+}
+
+func toUnixSec(v sql.NullTime) int64 {
+	if !v.Valid {
+		return 0
+	}
+	return v.Time.Unix()
+}
+
+func mapScheduledJob(x *store.ScheduledJob) *servicehub.ScheduledJob {
+	if x == nil {
+		return nil
+	}
+	return &servicehub.ScheduledJob{
+		Id:                  x.ID,
+		JobKey:              x.JobKey,
+		Name:                x.Name,
+		Category:            x.Category,
+		Enabled:             x.Enabled == 1,
+		Builtin:             x.Builtin == 1,
+		ScheduleType:        x.ScheduleType,
+		CronExpr:            x.CronExpr,
+		IntervalSeconds:     x.IntervalSeconds,
+		Timezone:            x.Timezone,
+		PayloadJson:         x.PayloadJSON,
+		ConcurrencyPolicy:   x.ConcurrencyPolicy,
+		MisfirePolicy:       x.MisfirePolicy,
+		MaxRetry:            x.MaxRetry,
+		RetryBackoffSeconds: x.RetryBackoffSeconds,
+		NextRunAt:           toUnixSec(x.NextRunAt),
+		LastRunAt:           toUnixSec(x.LastRunAt),
+		LastStatus:          x.LastStatus,
+		LastError:           x.LastError,
+		UpdatedBy:           x.UpdatedBy,
+	}
+}
+
+func mapScheduledJobRun(x *store.ScheduledJobRunWithJob) *servicehub.ScheduledJobRun {
+	if x == nil {
+		return nil
+	}
+	return &servicehub.ScheduledJobRun{
+		Id:            x.ID,
+		JobId:         x.JobID,
+		JobKey:        x.JobKey,
+		JobName:       x.Name,
+		TriggerType:   x.TriggerType,
+		ScheduledAt:   toUnixSec(x.ScheduledAt),
+		StartedAt:     toUnixSec(x.StartedAt),
+		FinishedAt:    toUnixSec(x.FinishedAt),
+		DurationMs:    x.DurationMs,
+		Status:        x.Status,
+		Attempt:       x.Attempt,
+		WorkerId:      x.WorkerID,
+		Summary:       x.Summary,
+		ErrorCode:     x.ErrorCode,
+		ErrorMessage:  x.ErrorMessage,
+		OutputJson:    x.OutputJSON,
+		CorrelationId: x.CorrelationID,
+	}
+}
+
+func (s *ServiceHubServer) ListScheduledJobs(ctx context.Context, req *servicehub.ListScheduledJobsReq) (*servicehub.ListScheduledJobsResp, error) {
+	rows, total, err := s.svcCtx.ScheduledJobs.ListJobs(ctx, req.GetLimit(), req.GetOffset())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	out := make([]*servicehub.ScheduledJob, 0, len(rows))
+	for i := range rows {
+		cp := rows[i]
+		out = append(out, mapScheduledJob(&cp))
+	}
+	return &servicehub.ListScheduledJobsResp{Jobs: out, Total: total}, nil
+}
+
+func (s *ServiceHubServer) CreateScheduledJob(ctx context.Context, req *servicehub.CreateScheduledJobReq) (*servicehub.CreateScheduledJobResp, error) {
+	in := &store.ScheduledJob{
+		JobKey:              req.GetJobKey(),
+		Name:                req.GetName(),
+		Category:            req.GetCategory(),
+		Enabled:             boolToInt64(req.GetEnabled()),
+		Builtin:             0,
+		ScheduleType:        req.GetScheduleType(),
+		CronExpr:            req.GetCronExpr(),
+		IntervalSeconds:     req.GetIntervalSeconds(),
+		Timezone:            req.GetTimezone(),
+		PayloadJSON:         req.GetPayloadJson(),
+		ConcurrencyPolicy:   req.GetConcurrencyPolicy(),
+		MisfirePolicy:       req.GetMisfirePolicy(),
+		MaxRetry:            req.GetMaxRetry(),
+		RetryBackoffSeconds: req.GetRetryBackoffSeconds(),
+		UpdatedBy:           req.GetUpdatedBy(),
+	}
+	r, err := s.svcCtx.ScheduledJobs.CreateJob(ctx, in)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.CreateScheduledJobResp{Job: mapScheduledJob(r)}, nil
+}
+
+func (s *ServiceHubServer) UpdateScheduledJob(ctx context.Context, req *servicehub.UpdateScheduledJobReq) (*servicehub.UpdateScheduledJobResp, error) {
+	in := &store.ScheduledJob{
+		ID:                  req.GetId(),
+		Name:                req.GetName(),
+		Category:            req.GetCategory(),
+		ScheduleType:        req.GetScheduleType(),
+		CronExpr:            req.GetCronExpr(),
+		IntervalSeconds:     req.GetIntervalSeconds(),
+		Timezone:            req.GetTimezone(),
+		PayloadJSON:         req.GetPayloadJson(),
+		ConcurrencyPolicy:   req.GetConcurrencyPolicy(),
+		MisfirePolicy:       req.GetMisfirePolicy(),
+		MaxRetry:            req.GetMaxRetry(),
+		RetryBackoffSeconds: req.GetRetryBackoffSeconds(),
+		UpdatedBy:           req.GetUpdatedBy(),
+	}
+	if ts := req.GetNextRunAt(); ts > 0 {
+		in.NextRunAt = sql.NullTime{Time: time.Unix(ts, 0), Valid: true}
+	}
+	r, err := s.svcCtx.ScheduledJobs.UpdateJob(ctx, in)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.UpdateScheduledJobResp{Job: mapScheduledJob(r)}, nil
+}
+
+func (s *ServiceHubServer) ToggleScheduledJob(ctx context.Context, req *servicehub.ToggleScheduledJobReq) (*servicehub.ToggleScheduledJobResp, error) {
+	r, err := s.svcCtx.ScheduledJobs.ToggleJob(ctx, req.GetId(), req.GetEnabled(), req.GetUpdatedBy())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	return &servicehub.ToggleScheduledJobResp{Job: mapScheduledJob(r)}, nil
+}
+
+func (s *ServiceHubServer) RunScheduledJobNow(ctx context.Context, req *servicehub.RunScheduledJobNowReq) (*servicehub.RunScheduledJobNowResp, error) {
+	if req.GetId() <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "id required")
+	}
+	job, err := s.svcCtx.ScheduledJobs.GetJobByID(ctx, req.GetId())
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "job not found")
+	}
+	corr := strings.TrimSpace(req.GetCorrelationId())
+	if corr == "" {
+		corr = fmt.Sprintf("manual_%d", time.Now().UnixNano())
+	}
+	if _, err := s.svcCtx.ScheduledJobs.QueueJobRun(ctx, job.ID, "manual", corr, 1); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.RunScheduledJobNowResp{Ok: true}, nil
+}
+
+func (s *ServiceHubServer) ListScheduledJobRuns(ctx context.Context, req *servicehub.ListScheduledJobRunsReq) (*servicehub.ListScheduledJobRunsResp, error) {
+	rows, total, err := s.svcCtx.ScheduledJobs.ListRuns(
+		ctx,
+		req.GetJobId(),
+		req.GetStatus(),
+		req.GetTriggerType(),
+		req.GetLimit(),
+		req.GetOffset(),
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	out := make([]*servicehub.ScheduledJobRun, 0, len(rows))
+	for i := range rows {
+		cp := rows[i]
+		out = append(out, mapScheduledJobRun(&cp))
+	}
+	return &servicehub.ListScheduledJobRunsResp{Runs: out, Total: total}, nil
+}
+
+func (s *ServiceHubServer) GetScheduledJobRun(ctx context.Context, req *servicehub.GetScheduledJobRunReq) (*servicehub.GetScheduledJobRunResp, error) {
+	r, err := s.svcCtx.ScheduledJobs.GetRunByID(ctx, req.GetId())
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "run not found")
+	}
+	return &servicehub.GetScheduledJobRunResp{Run: mapScheduledJobRun(r)}, nil
+}
+
+func (s *ServiceHubServer) RetryScheduledJobRun(ctx context.Context, req *servicehub.RetryScheduledJobRunReq) (*servicehub.RetryScheduledJobRunResp, error) {
+	if _, err := s.svcCtx.ScheduledJobs.RetryRun(ctx, req.GetId()); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.RetryScheduledJobRunResp{Ok: true}, nil
+}
+
+func mapJobWorkerNode(x *store.JobWorkerNode) *servicehub.JobWorkerNode {
+	if x == nil {
+		return nil
+	}
+	return &servicehub.JobWorkerNode{
+		WorkerId:        x.WorkerID,
+		Hostname:        x.Hostname,
+		LastHeartbeatAt: toUnixSec(x.LastHeartbeatAt),
+		RunningTasks:    x.RunningTasks,
+		SuccessLastHour: x.SuccessLastHour,
+	}
+}
+
+func (s *ServiceHubServer) ListJobWorkerNodes(ctx context.Context, _ *servicehub.ListJobWorkerNodesReq) (*servicehub.ListJobWorkerNodesResp, error) {
+	rows, queued, err := s.svcCtx.ScheduledJobs.ListJobWorkerNodes(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	out := make([]*servicehub.JobWorkerNode, 0, len(rows))
+	for i := range rows {
+		out = append(out, mapJobWorkerNode(&rows[i]))
+	}
+	return &servicehub.ListJobWorkerNodesResp{Nodes: out, QueuedTotal: queued}, nil
+}
+
 func (s *ServiceHubServer) PublishPortalNotification(ctx context.Context, req *servicehub.PublishPortalNotificationReq) (*servicehub.PublishPortalNotificationResp, error) {
 	if s.svcCtx.NotifyPublisher == nil {
 		return nil, status.Error(codes.FailedPrecondition, "notify nsq not configured")
@@ -507,4 +790,11 @@ func (s *ServiceHubServer) PublishPortalNotification(ctx context.Context, req *s
 		return nil, err
 	}
 	return &servicehub.PublishPortalNotificationResp{NotificationId: id}, nil
+}
+
+func boolToInt64(v bool) int64 {
+	if v {
+		return 1
+	}
+	return 0
 }

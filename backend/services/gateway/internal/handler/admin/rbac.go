@@ -317,12 +317,12 @@ func AdminListRbacPermissionsHandler(svcCtx *svc.ServiceContext) http.HandlerFun
 		if !requireRbacManage(svcCtx, w, r) {
 			return
 		}
-		rows, err := svcCtx.ServiceHub.ListAdminPermissions(r.Context())
+		rows, total, err := svcCtx.ServiceHub.ListAdminPermissions(r.Context(), 0, 0, "", "")
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 			return
 		}
-		apiresp.OK(w, map[string]any{"permissions": rows})
+		apiresp.OK(w, map[string]any{"permissions": rows, "total": total})
 	}
 }
 
@@ -451,12 +451,12 @@ func AdminListRbacApiRulesHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if !requireRbacManage(svcCtx, w, r) {
 			return
 		}
-		rows, err := svcCtx.ServiceHub.ListAdminApiRules(r.Context())
+		rows, total, err := svcCtx.ServiceHub.ListAdminApiRules(r.Context(), 0, 0, "", "")
 		if err != nil {
 			apiresp.WriteFromGRPC(w, err)
 			return
 		}
-		apiresp.OK(w, map[string]any{"rules": rows})
+		apiresp.OK(w, map[string]any{"rules": rows, "total": total})
 	}
 }
 

@@ -47,7 +47,10 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
     icon: 'cog',
     children: [
       { to: '/system', label: '系统管理' },
+      { to: '/system/op-logs', label: '操作日志' },
       { to: '/ops', label: '运维监控' },
+      { to: '/scheduled-jobs', label: '定时任务' },
+      { to: '/scheduled-job-runs', label: '任务日志' },
     ],
   },
 ]
@@ -55,7 +58,10 @@ export const defaultAdminMenu: AdminMenuEntry[] = [
 export const adminPathTitle: Record<string, string> = {
   '/home': '工作台',
   '/system': '系统管理',
+  '/system/op-logs': '操作日志',
   '/ops': '运维监控',
+  '/scheduled-jobs': '定时任务',
+  '/scheduled-job-runs': '任务日志',
   '/rbac': '权限与安全',
   '/rbac/overview': '配置总览',
   '/rbac/menus': '菜单管理',

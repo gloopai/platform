@@ -143,7 +143,7 @@ func (m *AdminRBACMiddleware) getApiRules(r *http.Request) ([]apiRule, error) {
 	}
 	m.ruleMu.Unlock()
 
-	rows, err := m.svcHub.ListAdminApiRules(r.Context())
+	rows, _, err := m.svcHub.ListAdminApiRules(r.Context(), 0, 0, "", "")
 	if err != nil {
 		return nil, err
 	}

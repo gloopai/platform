@@ -193,3 +193,20 @@ func AdminUpdateDisplaySettingsHandler(svcCtx *svc.ServiceContext) http.HandlerF
 		}
 	}
 }
+
+func AdminOperationLogsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req types.AdminOperationLogsReq
+		if err := httpx.Parse(r, &req); err != nil {
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
+			return
+		}
+		l := logic.NewAdminSystem(r.Context(), svcCtx)
+		resp, err := l.ListAdminOperationLogs(&req)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}

@@ -38,7 +38,10 @@ INSERT INTO admin_menus (parent_id, menu_key, label, icon, kind, path, sort_orde
   (@gid_rbac, 'menu.rbac_roles', '角色与授权', '', 1, '/rbac/roles', 30),
   (@gid_rbac, 'menu.rbac_admin_users', '后台用户', '', 1, '/rbac/admin-users', 35),
   (@gid_system, 'menu.system', '系统管理', '', 1, '/system', 10),
-  (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20);
+  (@gid_system, 'menu.system_op_logs', '操作日志', '', 1, '/system/op-logs', 12),
+  (@gid_system, 'menu.ops', '运维监控', '', 1, '/ops', 20),
+  (@gid_system, 'menu.scheduled_jobs', '定时任务', '', 1, '/scheduled-jobs', 30),
+  (@gid_system, 'menu.scheduled_job_runs', '任务日志', '', 1, '/scheduled-job-runs', 35);
 
 INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALUES
   ('admin.auth.logout', '退出登录', 'auth', 'menu.system', 1),
@@ -47,7 +50,13 @@ INSERT INTO admin_permissions (perm_key, label, category, menu_key, status) VALU
   ('admin.system.write_settings', '系统管理-展示配置写入', 'system', 'menu.system', 1),
   ('admin.admin_users.manage', '后台用户管理（列表、增删改、角色、密码与 MFA）', 'admin_users', 'menu.rbac_admin_users', 1),
   ('admin.rbac.my_menu', 'RBAC-读取我的菜单', 'rbac', 'menu.rbac_overview', 1),
-  ('admin.rbac.manage', 'RBAC-配置管理（菜单/角色/权限/接口）', 'rbac', 'menu.rbac_roles', 1);
+  ('admin.rbac.manage', 'RBAC-配置管理（菜单/角色/权限/接口）', 'rbac', 'menu.rbac_roles', 1),
+  ('admin.op_logs.read', '操作日志-读取', 'system', 'menu.system_op_logs', 1),
+  ('admin.jobs.read', '定时任务-读取', 'jobs', 'menu.scheduled_jobs', 1),
+  ('admin.jobs.write', '定时任务-写入', 'jobs', 'menu.scheduled_jobs', 1),
+  ('admin.jobs.run', '定时任务-执行', 'jobs', 'menu.scheduled_jobs', 1),
+  ('admin.jobs.nodes.read', 'Job 节点-读取', 'jobs', 'menu.scheduled_jobs', 1),
+  ('admin.jobs.logs.read', '定时任务日志-读取', 'jobs', 'menu.scheduled_job_runs', 1);
 
 INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VALUES
   ('POST', '/v1/admin/logout', 'admin.auth.logout', 1, ''),
@@ -84,7 +93,18 @@ INSERT INTO admin_api_rules (method, path_pattern, perm_key, status, remark) VAL
   ('GET', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
   ('POST', '/v1/admin/rbac/api_rules', 'admin.rbac.manage', 1, ''),
   ('PUT', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, ''),
-  ('DELETE', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, '')
+  ('DELETE', '/v1/admin/rbac/api_rules/:id', 'admin.rbac.manage', 1, ''),
+  ('GET', '/v1/admin/op_logs', 'admin.op_logs.read', 1, '管理后台操作日志查询'),
+  ('GET', '/v1/admin/jobs/keys', 'admin.jobs.read', 1, '可选 job_key 列表'),
+  ('GET', '/v1/admin/job_workers', 'admin.jobs.nodes.read', 1, 'job-worker 节点与负载'),
+  ('GET', '/v1/admin/jobs', 'admin.jobs.read', 1, ''),
+  ('POST', '/v1/admin/jobs', 'admin.jobs.write', 1, ''),
+  ('PUT', '/v1/admin/jobs/:id', 'admin.jobs.write', 1, ''),
+  ('POST', '/v1/admin/jobs/:id/toggle', 'admin.jobs.write', 1, ''),
+  ('POST', '/v1/admin/jobs/:id/run', 'admin.jobs.run', 1, ''),
+  ('GET', '/v1/admin/job_runs', 'admin.jobs.logs.read', 1, ''),
+  ('GET', '/v1/admin/job_runs/:id', 'admin.jobs.logs.read', 1, ''),
+  ('POST', '/v1/admin/job_runs/:id/retry', 'admin.jobs.run', 1, '')
 AS new
 ON DUPLICATE KEY UPDATE
   perm_key = new.perm_key,
@@ -119,3 +139,29 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('merchant_numeric_id_start', '5000000000')
 AS new
 ON DUPLICATE KEY UPDATE setting_value = new.setting_value;
+
+-- 默认定时任务（job-worker 需单独进程；test_log_heartbeat 默认关闭）
+INSERT INTO scheduled_jobs (
+  job_key, name, category, enabled, builtin, schedule_type, interval_seconds, timezone,
+  payload_json, concurrency_policy, misfire_policy, max_retry, retry_backoff_seconds,
+  next_run_at, updated_by
+) VALUES
+  ('test_log_heartbeat', '测试-时间日志', 'demo', 0, 1, 'fixed_interval', 30, 'Asia/Shanghai',
+   '{}', 'forbid', 'run_once', 0, 0, DATE_ADD(NOW(), INTERVAL 1 MINUTE), 'seed_demo'),
+  ('admin_operation_logs_cleanup', '系统运维-操作日志清理', 'system', 1, 1, 'fixed_interval', 3600, 'Asia/Shanghai',
+   '{"retention_days":30}', 'forbid', 'run_once', 2, 60, DATE_ADD(NOW(), INTERVAL 2 MINUTE), 'seed_demo')
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  category = VALUES(category),
+  enabled = VALUES(enabled),
+  builtin = VALUES(builtin),
+  schedule_type = VALUES(schedule_type),
+  interval_seconds = VALUES(interval_seconds),
+  timezone = VALUES(timezone),
+  payload_json = VALUES(payload_json),
+  concurrency_policy = VALUES(concurrency_policy),
+  misfire_policy = VALUES(misfire_policy),
+  max_retry = VALUES(max_retry),
+  retry_backoff_seconds = VALUES(retry_backoff_seconds),
+  next_run_at = VALUES(next_run_at),
+  updated_by = VALUES(updated_by);

@@ -124,3 +124,94 @@ CREATE TABLE IF NOT EXISTS portal_notifications (
   PRIMARY KEY (id),
   KEY idx_portal_created (portal, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 定时任务定义（系统默认 + 自定义）
+CREATE TABLE IF NOT EXISTS scheduled_jobs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  job_key VARCHAR(64) NOT NULL,
+  name VARCHAR(128) NOT NULL,
+  category VARCHAR(64) NOT NULL DEFAULT 'system',
+  enabled TINYINT NOT NULL DEFAULT 1,
+  builtin TINYINT NOT NULL DEFAULT 0 COMMENT '1=系统默认任务',
+  schedule_type VARCHAR(16) NOT NULL DEFAULT 'fixed_interval' COMMENT 'fixed_interval | cron',
+  cron_expr VARCHAR(64) NOT NULL DEFAULT '',
+  interval_seconds BIGINT NOT NULL DEFAULT 60,
+  timezone VARCHAR(64) NOT NULL DEFAULT 'Asia/Shanghai',
+  payload_json TEXT NULL COMMENT '任务参数 JSON',
+  concurrency_policy VARCHAR(16) NOT NULL DEFAULT 'forbid' COMMENT 'forbid | allow',
+  misfire_policy VARCHAR(16) NOT NULL DEFAULT 'run_once' COMMENT 'run_once | skip',
+  max_retry INT NOT NULL DEFAULT 3,
+  retry_backoff_seconds INT NOT NULL DEFAULT 30,
+  next_run_at DATETIME NULL,
+  last_run_at DATETIME NULL,
+  last_status VARCHAR(16) NOT NULL DEFAULT '',
+  last_error VARCHAR(255) NOT NULL DEFAULT '',
+  updated_by VARCHAR(64) NOT NULL DEFAULT '',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_job_key (job_key),
+  KEY idx_enabled_next_run (enabled, next_run_at),
+  KEY idx_builtin_category (builtin, category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 定时任务运行日志
+CREATE TABLE IF NOT EXISTS scheduled_job_runs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  job_id BIGINT UNSIGNED NOT NULL,
+  trigger_type VARCHAR(16) NOT NULL DEFAULT 'scheduler' COMMENT 'scheduler | manual | retry',
+  scheduled_at DATETIME NULL,
+  started_at DATETIME NULL,
+  finished_at DATETIME NULL,
+  duration_ms BIGINT NOT NULL DEFAULT 0,
+  status VARCHAR(16) NOT NULL DEFAULT 'queued' COMMENT 'queued | running | success | failed | skipped | timeout',
+  attempt INT NOT NULL DEFAULT 1,
+  worker_id VARCHAR(64) NOT NULL DEFAULT '',
+  summary VARCHAR(255) NOT NULL DEFAULT '',
+  error_code VARCHAR(64) NOT NULL DEFAULT '',
+  error_message VARCHAR(255) NOT NULL DEFAULT '',
+  output_json TEXT NULL,
+  correlation_id VARCHAR(128) NOT NULL DEFAULT '',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_job_created (job_id, created_at),
+  KEY idx_status_scheduled (status, scheduled_at),
+  KEY idx_worker_status (worker_id, status),
+  CONSTRAINT fk_scheduled_runs_job FOREIGN KEY (job_id) REFERENCES scheduled_jobs (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- job-worker 进程心跳（管理台展示节点与负载）
+CREATE TABLE IF NOT EXISTS job_worker_heartbeats (
+  worker_id VARCHAR(128) NOT NULL,
+  hostname VARCHAR(128) NOT NULL DEFAULT '',
+  last_heartbeat_at DATETIME NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (worker_id),
+  KEY idx_last_heartbeat (last_heartbeat_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 管理后台操作日志（审计）
+CREATE TABLE IF NOT EXISTS admin_operation_logs (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  request_id VARCHAR(64) NOT NULL DEFAULT '',
+  admin_user_id BIGINT NOT NULL DEFAULT 0,
+  admin_username VARCHAR(64) NOT NULL DEFAULT '',
+  operator_ip VARCHAR(64) NOT NULL DEFAULT '',
+  user_agent VARCHAR(512) NOT NULL DEFAULT '',
+  method VARCHAR(16) NOT NULL DEFAULT '',
+  path VARCHAR(255) NOT NULL DEFAULT '',
+  query_string VARCHAR(1024) NOT NULL DEFAULT '',
+  perm_key VARCHAR(128) NOT NULL DEFAULT '',
+  http_status INT NOT NULL DEFAULT 0,
+  success TINYINT NOT NULL DEFAULT 0,
+  duration_ms INT NOT NULL DEFAULT 0,
+  error_message VARCHAR(512) NOT NULL DEFAULT '',
+  PRIMARY KEY (id),
+  KEY idx_oplog_created (created_at),
+  KEY idx_oplog_admin_created (admin_user_id, created_at),
+  KEY idx_oplog_perm_created (perm_key, created_at),
+  KEY idx_oplog_success_created (success, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

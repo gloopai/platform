@@ -12,6 +12,9 @@ import RbacAdminUsersPage from './views/modules/rbac/RbacAdminUsersPage.vue'
 import RbacFeaturePointsPage from './views/modules/rbac/RbacFeaturePointsPage.vue'
 import RbacApiRulesPage from './views/modules/rbac/RbacApiRulesPage.vue'
 import RbacOverviewPage from './views/modules/rbac/RbacOverviewPage.vue'
+import OperationLogsPage from './views/modules/system/OperationLogsPage.vue'
+import ScheduledJobsPage from './views/modules/jobs/ScheduledJobsPage.vue'
+import ScheduledJobRunsPage from './views/modules/jobs/ScheduledJobRunsPage.vue'
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -24,6 +27,9 @@ export const router = createRouter({
         { path: '', redirect: '/home' },
         { path: 'home', component: HomePage },
         { path: 'system', component: SystemPage },
+        { path: 'system/op-logs', component: OperationLogsPage },
+        { path: 'scheduled-jobs', component: ScheduledJobsPage },
+        { path: 'scheduled-job-runs', component: ScheduledJobRunsPage },
         { path: 'ops', component: OpsPage },
         {
           path: 'rbac',

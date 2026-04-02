@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"strings"
+	"time"
 
+	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
 	"github.com/gloopai/pay/gateway/internal/svc"
 	"github.com/gloopai/pay/gateway/internal/types"
 	"github.com/pquerna/otp/totp"
@@ -157,6 +159,66 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 		AdminMfaEnabled:        req.AdminMfaEnabled,
 		MerchantNumericIdStart: start,
 	}, nil
+}
+
+func (a *AdminSystem) ListAdminOperationLogs(req *types.AdminOperationLogsReq) (*types.AdminOperationLogsResp, error) {
+	now := time.Now()
+	startSec := req.StartSec
+	endSec := req.EndSec
+	if startSec == 0 && endSec == 0 {
+		endSec = now.Unix()
+		startSec = now.Add(-24 * time.Hour).Unix()
+	} else if endSec == 0 {
+		endSec = now.Unix()
+	} else if startSec == 0 {
+		startSec = time.Unix(endSec, 0).Add(-24 * time.Hour).Unix()
+	}
+	grpcReq := &servicehubclient.ListAdminOperationLogsReq{
+		StartSec:    startSec,
+		EndSec:      endSec,
+		AdminUserId: req.AdminUserID,
+		Method:      strings.ToUpper(strings.TrimSpace(req.Method)),
+		PathKeyword: strings.TrimSpace(req.PathKeyword),
+		PermKey:     strings.TrimSpace(req.PermKey),
+		Limit:       req.Limit,
+		Offset:      req.Offset,
+	}
+	switch strings.TrimSpace(req.Success) {
+	case "1":
+		v := true
+		grpcReq.Success = &v
+	case "0":
+		v := false
+		grpcReq.Success = &v
+	}
+	rows, total, err := a.svcCtx.ServiceHub.ListAdminOperationLogs(a.ctx, grpcReq)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]types.AdminOperationLogRow, 0, len(rows))
+	for _, r := range rows {
+		if r == nil {
+			continue
+		}
+		out = append(out, types.AdminOperationLogRow{
+			ID:            r.GetId(),
+			CreatedAt:     r.GetCreatedAt(),
+			RequestID:     r.GetRequestId(),
+			AdminUserID:   r.GetAdminUserId(),
+			AdminUsername: r.GetAdminUsername(),
+			OperatorIP:    r.GetOperatorIp(),
+			UserAgent:     r.GetUserAgent(),
+			Method:        r.GetMethod(),
+			Path:          r.GetPath(),
+			QueryString:   r.GetQueryString(),
+			PermKey:       r.GetPermKey(),
+			HTTPStatus:    r.GetHttpStatus(),
+			Success:       r.GetSuccess(),
+			DurationMs:    r.GetDurationMs(),
+			ErrorMessage:  r.GetErrorMessage(),
+		})
+	}
+	return &types.AdminOperationLogsResp{Rows: out, Total: total}, nil
 }
 
 func (a *AdminSystem) CreateAdminUser(req *types.AdminCreateUserReq) (*types.AdminUsersResp, error) {

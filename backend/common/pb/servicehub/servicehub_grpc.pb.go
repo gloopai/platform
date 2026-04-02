@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: servicehub.proto
+// source: proto/servicehub.proto
 
 package servicehub
 
@@ -46,6 +46,17 @@ const (
 	ServiceHub_ListAdminApiRules_FullMethodName         = "/servicehub.ServiceHub/ListAdminApiRules"
 	ServiceHub_UpsertAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/UpsertAdminApiRule"
 	ServiceHub_DeleteAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/DeleteAdminApiRule"
+	ServiceHub_RecordAdminOperationLog_FullMethodName   = "/servicehub.ServiceHub/RecordAdminOperationLog"
+	ServiceHub_ListAdminOperationLogs_FullMethodName    = "/servicehub.ServiceHub/ListAdminOperationLogs"
+	ServiceHub_ListScheduledJobs_FullMethodName         = "/servicehub.ServiceHub/ListScheduledJobs"
+	ServiceHub_CreateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/CreateScheduledJob"
+	ServiceHub_UpdateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/UpdateScheduledJob"
+	ServiceHub_ToggleScheduledJob_FullMethodName        = "/servicehub.ServiceHub/ToggleScheduledJob"
+	ServiceHub_RunScheduledJobNow_FullMethodName        = "/servicehub.ServiceHub/RunScheduledJobNow"
+	ServiceHub_ListScheduledJobRuns_FullMethodName      = "/servicehub.ServiceHub/ListScheduledJobRuns"
+	ServiceHub_GetScheduledJobRun_FullMethodName        = "/servicehub.ServiceHub/GetScheduledJobRun"
+	ServiceHub_RetryScheduledJobRun_FullMethodName      = "/servicehub.ServiceHub/RetryScheduledJobRun"
+	ServiceHub_ListJobWorkerNodes_FullMethodName        = "/servicehub.ServiceHub/ListJobWorkerNodes"
 	ServiceHub_CreateAdminUser_FullMethodName           = "/servicehub.ServiceHub/CreateAdminUser"
 	ServiceHub_UpdateAdminUser_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminUser"
 	ServiceHub_DeleteAdminUser_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminUser"
@@ -57,7 +68,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
 type ServiceHubClient interface {
 	FindAdminUserByUsername(ctx context.Context, in *FindAdminUserByUsernameReq, opts ...grpc.CallOption) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(ctx context.Context, in *ListAdminUsersReq, opts ...grpc.CallOption) (*ListAdminUsersResp, error)
@@ -89,6 +100,19 @@ type ServiceHubClient interface {
 	ListAdminApiRules(ctx context.Context, in *ListAdminApiRulesReq, opts ...grpc.CallOption) (*ListAdminApiRulesResp, error)
 	UpsertAdminApiRule(ctx context.Context, in *UpsertAdminApiRuleReq, opts ...grpc.CallOption) (*UpsertAdminApiRuleResp, error)
 	DeleteAdminApiRule(ctx context.Context, in *DeleteAdminApiRuleReq, opts ...grpc.CallOption) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin operation audit logs ----
+	RecordAdminOperationLog(ctx context.Context, in *RecordAdminOperationLogReq, opts ...grpc.CallOption) (*RecordAdminOperationLogResp, error)
+	ListAdminOperationLogs(ctx context.Context, in *ListAdminOperationLogsReq, opts ...grpc.CallOption) (*ListAdminOperationLogsResp, error)
+	// ---- Scheduled jobs ----
+	ListScheduledJobs(ctx context.Context, in *ListScheduledJobsReq, opts ...grpc.CallOption) (*ListScheduledJobsResp, error)
+	CreateScheduledJob(ctx context.Context, in *CreateScheduledJobReq, opts ...grpc.CallOption) (*CreateScheduledJobResp, error)
+	UpdateScheduledJob(ctx context.Context, in *UpdateScheduledJobReq, opts ...grpc.CallOption) (*UpdateScheduledJobResp, error)
+	ToggleScheduledJob(ctx context.Context, in *ToggleScheduledJobReq, opts ...grpc.CallOption) (*ToggleScheduledJobResp, error)
+	RunScheduledJobNow(ctx context.Context, in *RunScheduledJobNowReq, opts ...grpc.CallOption) (*RunScheduledJobNowResp, error)
+	ListScheduledJobRuns(ctx context.Context, in *ListScheduledJobRunsReq, opts ...grpc.CallOption) (*ListScheduledJobRunsResp, error)
+	GetScheduledJobRun(ctx context.Context, in *GetScheduledJobRunReq, opts ...grpc.CallOption) (*GetScheduledJobRunResp, error)
+	RetryScheduledJobRun(ctx context.Context, in *RetryScheduledJobRunReq, opts ...grpc.CallOption) (*RetryScheduledJobRunResp, error)
+	ListJobWorkerNodes(ctx context.Context, in *ListJobWorkerNodesReq, opts ...grpc.CallOption) (*ListJobWorkerNodesResp, error)
 	// ---- Admin users / MFA ----
 	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
 	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
@@ -376,6 +400,116 @@ func (c *serviceHubClient) DeleteAdminApiRule(ctx context.Context, in *DeleteAdm
 	return out, nil
 }
 
+func (c *serviceHubClient) RecordAdminOperationLog(ctx context.Context, in *RecordAdminOperationLogReq, opts ...grpc.CallOption) (*RecordAdminOperationLogResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecordAdminOperationLogResp)
+	err := c.cc.Invoke(ctx, ServiceHub_RecordAdminOperationLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListAdminOperationLogs(ctx context.Context, in *ListAdminOperationLogsReq, opts ...grpc.CallOption) (*ListAdminOperationLogsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAdminOperationLogsResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListAdminOperationLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListScheduledJobs(ctx context.Context, in *ListScheduledJobsReq, opts ...grpc.CallOption) (*ListScheduledJobsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduledJobsResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListScheduledJobs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) CreateScheduledJob(ctx context.Context, in *CreateScheduledJobReq, opts ...grpc.CallOption) (*CreateScheduledJobResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateScheduledJobResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateScheduledJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateScheduledJob(ctx context.Context, in *UpdateScheduledJobReq, opts ...grpc.CallOption) (*UpdateScheduledJobResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateScheduledJobResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateScheduledJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ToggleScheduledJob(ctx context.Context, in *ToggleScheduledJobReq, opts ...grpc.CallOption) (*ToggleScheduledJobResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ToggleScheduledJobResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ToggleScheduledJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) RunScheduledJobNow(ctx context.Context, in *RunScheduledJobNowReq, opts ...grpc.CallOption) (*RunScheduledJobNowResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RunScheduledJobNowResp)
+	err := c.cc.Invoke(ctx, ServiceHub_RunScheduledJobNow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListScheduledJobRuns(ctx context.Context, in *ListScheduledJobRunsReq, opts ...grpc.CallOption) (*ListScheduledJobRunsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduledJobRunsResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListScheduledJobRuns_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) GetScheduledJobRun(ctx context.Context, in *GetScheduledJobRunReq, opts ...grpc.CallOption) (*GetScheduledJobRunResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetScheduledJobRunResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetScheduledJobRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) RetryScheduledJobRun(ctx context.Context, in *RetryScheduledJobRunReq, opts ...grpc.CallOption) (*RetryScheduledJobRunResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RetryScheduledJobRunResp)
+	err := c.cc.Invoke(ctx, ServiceHub_RetryScheduledJobRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) ListJobWorkerNodes(ctx context.Context, in *ListJobWorkerNodesReq, opts ...grpc.CallOption) (*ListJobWorkerNodesResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListJobWorkerNodesResp)
+	err := c.cc.Invoke(ctx, ServiceHub_ListJobWorkerNodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateAdminUserResp)
@@ -430,7 +564,7 @@ func (c *serviceHubClient) PublishPortalNotification(ctx context.Context, in *Pu
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
 //
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知）
+// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
 type ServiceHubServer interface {
 	FindAdminUserByUsername(context.Context, *FindAdminUserByUsernameReq) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(context.Context, *ListAdminUsersReq) (*ListAdminUsersResp, error)
@@ -462,6 +596,19 @@ type ServiceHubServer interface {
 	ListAdminApiRules(context.Context, *ListAdminApiRulesReq) (*ListAdminApiRulesResp, error)
 	UpsertAdminApiRule(context.Context, *UpsertAdminApiRuleReq) (*UpsertAdminApiRuleResp, error)
 	DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error)
+	// ---- Admin operation audit logs ----
+	RecordAdminOperationLog(context.Context, *RecordAdminOperationLogReq) (*RecordAdminOperationLogResp, error)
+	ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error)
+	// ---- Scheduled jobs ----
+	ListScheduledJobs(context.Context, *ListScheduledJobsReq) (*ListScheduledJobsResp, error)
+	CreateScheduledJob(context.Context, *CreateScheduledJobReq) (*CreateScheduledJobResp, error)
+	UpdateScheduledJob(context.Context, *UpdateScheduledJobReq) (*UpdateScheduledJobResp, error)
+	ToggleScheduledJob(context.Context, *ToggleScheduledJobReq) (*ToggleScheduledJobResp, error)
+	RunScheduledJobNow(context.Context, *RunScheduledJobNowReq) (*RunScheduledJobNowResp, error)
+	ListScheduledJobRuns(context.Context, *ListScheduledJobRunsReq) (*ListScheduledJobRunsResp, error)
+	GetScheduledJobRun(context.Context, *GetScheduledJobRunReq) (*GetScheduledJobRunResp, error)
+	RetryScheduledJobRun(context.Context, *RetryScheduledJobRunReq) (*RetryScheduledJobRunResp, error)
+	ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error)
 	// ---- Admin users / MFA ----
 	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
 	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
@@ -559,6 +706,39 @@ func (UnimplementedServiceHubServer) UpsertAdminApiRule(context.Context, *Upsert
 }
 func (UnimplementedServiceHubServer) DeleteAdminApiRule(context.Context, *DeleteAdminApiRuleReq) (*DeleteAdminApiRuleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminApiRule not implemented")
+}
+func (UnimplementedServiceHubServer) RecordAdminOperationLog(context.Context, *RecordAdminOperationLogReq) (*RecordAdminOperationLogResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RecordAdminOperationLog not implemented")
+}
+func (UnimplementedServiceHubServer) ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAdminOperationLogs not implemented")
+}
+func (UnimplementedServiceHubServer) ListScheduledJobs(context.Context, *ListScheduledJobsReq) (*ListScheduledJobsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledJobs not implemented")
+}
+func (UnimplementedServiceHubServer) CreateScheduledJob(context.Context, *CreateScheduledJobReq) (*CreateScheduledJobResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateScheduledJob not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateScheduledJob(context.Context, *UpdateScheduledJobReq) (*UpdateScheduledJobResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateScheduledJob not implemented")
+}
+func (UnimplementedServiceHubServer) ToggleScheduledJob(context.Context, *ToggleScheduledJobReq) (*ToggleScheduledJobResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ToggleScheduledJob not implemented")
+}
+func (UnimplementedServiceHubServer) RunScheduledJobNow(context.Context, *RunScheduledJobNowReq) (*RunScheduledJobNowResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RunScheduledJobNow not implemented")
+}
+func (UnimplementedServiceHubServer) ListScheduledJobRuns(context.Context, *ListScheduledJobRunsReq) (*ListScheduledJobRunsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledJobRuns not implemented")
+}
+func (UnimplementedServiceHubServer) GetScheduledJobRun(context.Context, *GetScheduledJobRunReq) (*GetScheduledJobRunResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetScheduledJobRun not implemented")
+}
+func (UnimplementedServiceHubServer) RetryScheduledJobRun(context.Context, *RetryScheduledJobRunReq) (*RetryScheduledJobRunResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetryScheduledJobRun not implemented")
+}
+func (UnimplementedServiceHubServer) ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListJobWorkerNodes not implemented")
 }
 func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
@@ -1082,6 +1262,204 @@ func _ServiceHub_DeleteAdminApiRule_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_RecordAdminOperationLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecordAdminOperationLogReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).RecordAdminOperationLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_RecordAdminOperationLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).RecordAdminOperationLog(ctx, req.(*RecordAdminOperationLogReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListAdminOperationLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAdminOperationLogsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListAdminOperationLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListAdminOperationLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListAdminOperationLogs(ctx, req.(*ListAdminOperationLogsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListScheduledJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduledJobsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListScheduledJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListScheduledJobs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListScheduledJobs(ctx, req.(*ListScheduledJobsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_CreateScheduledJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateScheduledJobReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateScheduledJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateScheduledJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateScheduledJob(ctx, req.(*CreateScheduledJobReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateScheduledJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateScheduledJobReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateScheduledJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateScheduledJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateScheduledJob(ctx, req.(*UpdateScheduledJobReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ToggleScheduledJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ToggleScheduledJobReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ToggleScheduledJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ToggleScheduledJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ToggleScheduledJob(ctx, req.(*ToggleScheduledJobReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_RunScheduledJobNow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RunScheduledJobNowReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).RunScheduledJobNow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_RunScheduledJobNow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).RunScheduledJobNow(ctx, req.(*RunScheduledJobNowReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListScheduledJobRuns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduledJobRunsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListScheduledJobRuns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListScheduledJobRuns_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListScheduledJobRuns(ctx, req.(*ListScheduledJobRunsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_GetScheduledJobRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetScheduledJobRunReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetScheduledJobRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetScheduledJobRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetScheduledJobRun(ctx, req.(*GetScheduledJobRunReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_RetryScheduledJobRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetryScheduledJobRunReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).RetryScheduledJobRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_RetryScheduledJobRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).RetryScheduledJobRun(ctx, req.(*RetryScheduledJobRunReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_ListJobWorkerNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListJobWorkerNodesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).ListJobWorkerNodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_ListJobWorkerNodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).ListJobWorkerNodes(ctx, req.(*ListJobWorkerNodesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateAdminUserReq)
 	if err := dec(in); err != nil {
@@ -1288,6 +1666,50 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServiceHub_DeleteAdminApiRule_Handler,
 		},
 		{
+			MethodName: "RecordAdminOperationLog",
+			Handler:    _ServiceHub_RecordAdminOperationLog_Handler,
+		},
+		{
+			MethodName: "ListAdminOperationLogs",
+			Handler:    _ServiceHub_ListAdminOperationLogs_Handler,
+		},
+		{
+			MethodName: "ListScheduledJobs",
+			Handler:    _ServiceHub_ListScheduledJobs_Handler,
+		},
+		{
+			MethodName: "CreateScheduledJob",
+			Handler:    _ServiceHub_CreateScheduledJob_Handler,
+		},
+		{
+			MethodName: "UpdateScheduledJob",
+			Handler:    _ServiceHub_UpdateScheduledJob_Handler,
+		},
+		{
+			MethodName: "ToggleScheduledJob",
+			Handler:    _ServiceHub_ToggleScheduledJob_Handler,
+		},
+		{
+			MethodName: "RunScheduledJobNow",
+			Handler:    _ServiceHub_RunScheduledJobNow_Handler,
+		},
+		{
+			MethodName: "ListScheduledJobRuns",
+			Handler:    _ServiceHub_ListScheduledJobRuns_Handler,
+		},
+		{
+			MethodName: "GetScheduledJobRun",
+			Handler:    _ServiceHub_GetScheduledJobRun_Handler,
+		},
+		{
+			MethodName: "RetryScheduledJobRun",
+			Handler:    _ServiceHub_RetryScheduledJobRun_Handler,
+		},
+		{
+			MethodName: "ListJobWorkerNodes",
+			Handler:    _ServiceHub_ListJobWorkerNodes_Handler,
+		},
+		{
 			MethodName: "CreateAdminUser",
 			Handler:    _ServiceHub_CreateAdminUser_Handler,
 		},
@@ -1309,5 +1731,5 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "servicehub.proto",
+	Metadata: "proto/servicehub.proto",
 }

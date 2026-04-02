@@ -22,6 +22,7 @@ type ServiceContext struct {
 	LoginRateLimitMiddleware     rest.Middleware
 	AdminAuthMiddleware          rest.Middleware
 	AdminRBACMiddleware          rest.Middleware
+	AdminOpLogMiddleware         rest.Middleware
 
 	ServiceHub servicehubclient.ServiceHub
 
@@ -88,6 +89,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		).Handle,
 		AdminAuthMiddleware: middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
 		AdminRBACMiddleware: middleware.NewAdminRBACMiddleware(servicehubclient.New(serviceHubCli), 10*time.Second).Handle,
+		AdminOpLogMiddleware: middleware.NewAdminOpLog(servicehubclient.New(serviceHubCli), trustForwarded, c.AdminOpLog.Exclude).Handle,
 
 		ServiceHub: servicehubclient.New(serviceHubCli),
 

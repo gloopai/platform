@@ -30,6 +30,13 @@ type Config struct {
 	AdminToken      string `json:",optional"`
 	JwtSecret       string `json:",optional"`
 	CheckoutBaseUrl string `json:",optional"`
+	AdminOpLog      struct {
+		// Exclude 支持两种格式：
+		// 1) "/v1/admin/op_logs"（匹配任意方法）
+		// 2) "GET /v1/admin/op_logs"（匹配指定方法）
+		// 路径支持 :param 段，如 /v1/admin/rbac/menus/:id
+		Exclude []string `json:",optional"`
+	} `json:",optional"`
 	Consul          struct {
 		Addr    string
 		Service string

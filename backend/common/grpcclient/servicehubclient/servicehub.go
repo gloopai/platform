@@ -10,25 +10,30 @@ import (
 )
 
 type (
-	FindAdminUserByUsernameReq  = servicehub.FindAdminUserByUsernameReq
-	FindAdminUserByUsernameResp = servicehub.FindAdminUserByUsernameResp
-	ListAdminUsersReq           = servicehub.ListAdminUsersReq
-	ListAdminUsersResp          = servicehub.ListAdminUsersResp
-	GetDisplaySettingsReq       = servicehub.GetDisplaySettingsReq
-	GetDisplaySettingsResp      = servicehub.GetDisplaySettingsResp
+	FindAdminUserByUsernameReq    = servicehub.FindAdminUserByUsernameReq
+	FindAdminUserByUsernameResp   = servicehub.FindAdminUserByUsernameResp
+	ListAdminUsersReq             = servicehub.ListAdminUsersReq
+	ListAdminUsersResp            = servicehub.ListAdminUsersResp
+	GetDisplaySettingsReq         = servicehub.GetDisplaySettingsReq
+	GetDisplaySettingsResp        = servicehub.GetDisplaySettingsResp
 	UpsertDisplaySettingsReq      = servicehub.UpsertDisplaySettingsReq
+	RecordAdminOperationLogReq    = servicehub.RecordAdminOperationLogReq
+	ListAdminOperationLogsReq     = servicehub.ListAdminOperationLogsReq
 	PublishPortalNotificationReq  = servicehub.PublishPortalNotificationReq
 	PublishPortalNotificationResp = servicehub.PublishPortalNotificationResp
-	AdminUser                   = servicehub.AdminUser
-	AdminUserPublic             = servicehub.AdminUserPublic
+	AdminUser                     = servicehub.AdminUser
+	AdminUserPublic               = servicehub.AdminUserPublic
+	ScheduledJob                  = servicehub.ScheduledJob
+	ScheduledJobRun               = servicehub.ScheduledJobRun
 
-	AdminMenu       = servicehub.AdminMenu
-	AdminRole       = servicehub.AdminRole
-	AdminPermission = servicehub.AdminPermission
-	AdminApiRule    = servicehub.AdminApiRule
+	AdminMenu            = servicehub.AdminMenu
+	AdminRole            = servicehub.AdminRole
+	AdminPermission      = servicehub.AdminPermission
+	AdminApiRule         = servicehub.AdminApiRule
+	AdminOperationLogRow = servicehub.AdminOperationLogRow
 )
 
-// ServiceHub 平台支撑数据 RPC（admin_users / global_settings / RBAC / 门户通知）
+// ServiceHub 平台支撑数据 RPC（admin_users / global_settings / RBAC / 审计日志 / 定时任务）
 type ServiceHub interface {
 	FindAdminUserByUsername(ctx context.Context, username string) (*AdminUser, error)
 	ListAdminUsers(ctx context.Context) ([]*AdminUserPublic, error)
@@ -59,18 +64,32 @@ type ServiceHub interface {
 	GetAdminRbacMyPerms(ctx context.Context, adminUserID int64) (isSuper bool, permKeys []string, err error)
 
 	// config
-	ListAdminPermissions(ctx context.Context) ([]*AdminPermission, error)
+	// pageSize<=0：不分页（返回全部）；total 为匹配总数。
+	ListAdminPermissions(ctx context.Context, page, pageSize int64, q, menuKey string) ([]*AdminPermission, int64, error)
 	CreateAdminPermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error)
 	UpdateAdminPermission(ctx context.Context, id int64, label, category, menuKey string, status int64) (*AdminPermission, error)
 	DeleteAdminPermission(ctx context.Context, id int64) (bool, error)
 	GetAdminRolePermKeys(ctx context.Context, roleID int64) ([]string, error)
 	SetAdminRolePermKeys(ctx context.Context, roleID int64, permKeys []string) (bool, error)
-	ListAdminApiRules(ctx context.Context) ([]*AdminApiRule, error)
+	ListAdminApiRules(ctx context.Context, page, pageSize int64, q, permKey string) ([]*AdminApiRule, int64, error)
 	UpsertAdminApiRule(ctx context.Context, method, pathPattern, permKey, remark string, status int64) (*AdminApiRule, error)
 	DeleteAdminApiRule(ctx context.Context, id int64) (bool, error)
+	RecordAdminOperationLog(ctx context.Context, req *servicehub.RecordAdminOperationLogReq) error
+	ListAdminOperationLogs(ctx context.Context, req *servicehub.ListAdminOperationLogsReq) ([]*AdminOperationLogRow, int64, error)
 
 	// Notifications (Redis fan-out; SSE served by service-hub HTTP)
 	PublishPortalNotification(ctx context.Context, req *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
+
+	// Scheduled jobs
+	ListScheduledJobs(ctx context.Context, limit, offset int64) ([]*ScheduledJob, int64, error)
+	CreateScheduledJob(ctx context.Context, req *servicehub.CreateScheduledJobReq) (*ScheduledJob, error)
+	UpdateScheduledJob(ctx context.Context, req *servicehub.UpdateScheduledJobReq) (*ScheduledJob, error)
+	ToggleScheduledJob(ctx context.Context, id int64, enabled bool, updatedBy string) (*ScheduledJob, error)
+	RunScheduledJobNow(ctx context.Context, id int64, correlationID string) (bool, error)
+	ListScheduledJobRuns(ctx context.Context, req *servicehub.ListScheduledJobRunsReq) ([]*ScheduledJobRun, int64, error)
+	GetScheduledJobRun(ctx context.Context, id int64) (*ScheduledJobRun, error)
+	RetryScheduledJobRun(ctx context.Context, id int64) (bool, error)
+	ListJobWorkerNodes(ctx context.Context) ([]*servicehub.JobWorkerNode, int64, error)
 }
 
 type defaultClient struct {
@@ -339,15 +358,20 @@ func (d *defaultClient) GetAdminRbacMyPerms(ctx context.Context, adminUserID int
 	return r.IsSuperAdmin, r.PermKeys, nil
 }
 
-func (d *defaultClient) ListAdminPermissions(ctx context.Context) ([]*AdminPermission, error) {
-	r, err := d.cli.ListAdminPermissions(ctx, &servicehub.ListAdminPermissionsReq{})
+func (d *defaultClient) ListAdminPermissions(ctx context.Context, page, pageSize int64, q, menuKey string) ([]*AdminPermission, int64, error) {
+	r, err := d.cli.ListAdminPermissions(ctx, &servicehub.ListAdminPermissionsReq{
+		Page:     page,
+		PageSize: pageSize,
+		Q:        q,
+		MenuKey:  menuKey,
+	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if r == nil {
-		return nil, nil
+		return nil, 0, nil
 	}
-	return r.Permissions, nil
+	return r.Permissions, r.GetTotal(), nil
 }
 
 func (d *defaultClient) CreateAdminPermission(ctx context.Context, permKey, label, category, menuKey string, status int64) (*AdminPermission, error) {
@@ -405,15 +429,20 @@ func (d *defaultClient) SetAdminRolePermKeys(ctx context.Context, roleID int64, 
 	return r.Ok, nil
 }
 
-func (d *defaultClient) ListAdminApiRules(ctx context.Context) ([]*AdminApiRule, error) {
-	r, err := d.cli.ListAdminApiRules(ctx, &servicehub.ListAdminApiRulesReq{})
+func (d *defaultClient) ListAdminApiRules(ctx context.Context, page, pageSize int64, q, permKey string) ([]*AdminApiRule, int64, error) {
+	r, err := d.cli.ListAdminApiRules(ctx, &servicehub.ListAdminApiRulesReq{
+		Page:     page,
+		PageSize: pageSize,
+		Q:        q,
+		PermKey:  permKey,
+	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if r == nil {
-		return nil, nil
+		return nil, 0, nil
 	}
-	return r.Rules, nil
+	return r.Rules, r.GetTotal(), nil
 }
 
 func (d *defaultClient) UpsertAdminApiRule(ctx context.Context, method, pathPattern, permKey, remark string, status int64) (*AdminApiRule, error) {
@@ -438,6 +467,115 @@ func (d *defaultClient) DeleteAdminApiRule(ctx context.Context, id int64) (bool,
 	return r.Ok, nil
 }
 
+func (d *defaultClient) RecordAdminOperationLog(ctx context.Context, req *servicehub.RecordAdminOperationLogReq) error {
+	_, err := d.cli.RecordAdminOperationLog(ctx, req)
+	return err
+}
+
+func (d *defaultClient) ListAdminOperationLogs(ctx context.Context, req *servicehub.ListAdminOperationLogsReq) ([]*AdminOperationLogRow, int64, error) {
+	r, err := d.cli.ListAdminOperationLogs(ctx, req)
+	if err != nil {
+		return nil, 0, err
+	}
+	if r == nil {
+		return nil, 0, nil
+	}
+	return r.Rows, r.Total, nil
+}
+
 func (d *defaultClient) PublishPortalNotification(ctx context.Context, req *servicehub.PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {
 	return d.cli.PublishPortalNotification(ctx, req)
+}
+
+func (d *defaultClient) ListScheduledJobs(ctx context.Context, limit, offset int64) ([]*ScheduledJob, int64, error) {
+	r, err := d.cli.ListScheduledJobs(ctx, &servicehub.ListScheduledJobsReq{Limit: limit, Offset: offset})
+	if err != nil {
+		return nil, 0, err
+	}
+	if r == nil {
+		return nil, 0, nil
+	}
+	return r.Jobs, r.Total, nil
+}
+
+func (d *defaultClient) CreateScheduledJob(ctx context.Context, req *servicehub.CreateScheduledJobReq) (*ScheduledJob, error) {
+	r, err := d.cli.CreateScheduledJob(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Job, nil
+}
+
+func (d *defaultClient) UpdateScheduledJob(ctx context.Context, req *servicehub.UpdateScheduledJobReq) (*ScheduledJob, error) {
+	r, err := d.cli.UpdateScheduledJob(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Job, nil
+}
+
+func (d *defaultClient) ToggleScheduledJob(ctx context.Context, id int64, enabled bool, updatedBy string) (*ScheduledJob, error) {
+	r, err := d.cli.ToggleScheduledJob(ctx, &servicehub.ToggleScheduledJobReq{Id: id, Enabled: enabled, UpdatedBy: updatedBy})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Job, nil
+}
+
+func (d *defaultClient) RunScheduledJobNow(ctx context.Context, id int64, correlationID string) (bool, error) {
+	r, err := d.cli.RunScheduledJobNow(ctx, &servicehub.RunScheduledJobNowReq{Id: id, CorrelationId: correlationID})
+	if err != nil {
+		return false, err
+	}
+	return r != nil && r.Ok, nil
+}
+
+func (d *defaultClient) ListScheduledJobRuns(ctx context.Context, req *servicehub.ListScheduledJobRunsReq) ([]*ScheduledJobRun, int64, error) {
+	r, err := d.cli.ListScheduledJobRuns(ctx, req)
+	if err != nil {
+		return nil, 0, err
+	}
+	if r == nil {
+		return nil, 0, nil
+	}
+	return r.Runs, r.Total, nil
+}
+
+func (d *defaultClient) GetScheduledJobRun(ctx context.Context, id int64) (*ScheduledJobRun, error) {
+	r, err := d.cli.GetScheduledJobRun(ctx, &servicehub.GetScheduledJobRunReq{Id: id})
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		return nil, nil
+	}
+	return r.Run, nil
+}
+
+func (d *defaultClient) RetryScheduledJobRun(ctx context.Context, id int64) (bool, error) {
+	r, err := d.cli.RetryScheduledJobRun(ctx, &servicehub.RetryScheduledJobRunReq{Id: id})
+	if err != nil {
+		return false, err
+	}
+	return r != nil && r.Ok, nil
+}
+
+func (d *defaultClient) ListJobWorkerNodes(ctx context.Context) ([]*servicehub.JobWorkerNode, int64, error) {
+	r, err := d.cli.ListJobWorkerNodes(ctx, &servicehub.ListJobWorkerNodesReq{})
+	if err != nil {
+		return nil, 0, err
+	}
+	if r == nil {
+		return nil, 0, nil
+	}
+	return r.Nodes, r.QueuedTotal, nil
 }

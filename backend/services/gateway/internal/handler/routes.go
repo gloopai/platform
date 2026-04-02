@@ -40,7 +40,7 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AdminAuthMiddleware, serverCtx.AdminRBACMiddleware},
+			[]rest.Middleware{serverCtx.AdminAuthMiddleware, serverCtx.AdminRBACMiddleware, serverCtx.AdminOpLogMiddleware},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
@@ -208,9 +208,64 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: adminhandler.AdminDisplaySettingsHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/op_logs",
+					Handler: adminhandler.AdminOperationLogsHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodPut,
 					Path:    "/v1/admin/display_settings",
 					Handler: adminhandler.AdminUpdateDisplaySettingsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/jobs/keys",
+					Handler: adminhandler.AdminListScheduledJobKeysHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/jobs",
+					Handler: adminhandler.AdminListScheduledJobsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/jobs",
+					Handler: adminhandler.AdminCreateScheduledJobHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPut,
+					Path:    "/v1/admin/jobs/:id",
+					Handler: adminhandler.AdminUpdateScheduledJobHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/jobs/:id/toggle",
+					Handler: adminhandler.AdminToggleScheduledJobHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/jobs/:id/run",
+					Handler: adminhandler.AdminRunScheduledJobHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/job_workers",
+					Handler: adminhandler.AdminListJobWorkerNodesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/job_runs",
+					Handler: adminhandler.AdminListScheduledJobRunsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/v1/admin/job_runs/:id",
+					Handler: adminhandler.AdminGetScheduledJobRunHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/v1/admin/job_runs/:id/retry",
+					Handler: adminhandler.AdminRetryScheduledJobRunHandler(serverCtx),
 				},
 			}...,
 		),
