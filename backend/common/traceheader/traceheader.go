@@ -1,4 +1,5 @@
-package middleware
+// Package traceheader sets OpenTelemetry trace/span IDs on HTTP responses and CORS expose headers.
+package traceheader
 
 import (
 	"net/http"

@@ -14,5 +14,6 @@
 | `timex/` | 进程时区 |
 | `jwtutil/` | JWT 小工具 |
 | `signmd5/` | OpenAPI / 商户回调：排序 `k=v` + `key=secret` 后 MD5 hex |
+| `traceheader/` | HTTP 响应注入 `X-Trace-Id` / `X-Span-Id` 与 CORS expose |
 
 生成代码时只输出到 **`pb/`**，勿再增加与 `pb/*` 重复的生成目录。

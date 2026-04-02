@@ -14,10 +14,10 @@ import (
 
 	"github.com/gloopai/platform/common/consulx"
 	"github.com/gloopai/platform/common/timex"
+	"github.com/gloopai/platform/common/traceheader"
 	"github.com/gloopai/platform/gateway/internal/config"
 	"github.com/gloopai/platform/gateway/internal/handler"
 	adminhandler "github.com/gloopai/platform/gateway/internal/handler/admin"
-	"github.com/gloopai/platform/gateway/internal/middleware"
 	"github.com/gloopai/platform/gateway/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -47,7 +47,7 @@ func main() {
 
 	// scaffold/platform-admin: 仅启动 Admin HTTP（商户 / OpenAPI / Checkout 端口不监听；配置文件中仍可保留对应段供参考）
 	adminServer := rest.MustNewServer(c.AdminServer)
-	adminServer.Use(middleware.NewTraceHeader().Handle)
+	adminServer.Use(traceheader.NewTraceHeader().Handle)
 	handler.RegisterCommonHandlers(adminServer, ctx)
 	handler.RegisterAdminHandlers(adminServer, ctx)
 	servers := []*rest.Server{adminServer}
