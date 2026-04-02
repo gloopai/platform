@@ -7,13 +7,13 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type TraceHeaderMiddleware struct{}
+type TraceHeader struct{}
 
-func NewTraceHeaderMiddleware() *TraceHeaderMiddleware {
-	return &TraceHeaderMiddleware{}
+func NewTraceHeader() *TraceHeader {
+	return &TraceHeader{}
 }
 
-func (m *TraceHeaderMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *TraceHeader) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		spanCtx := trace.SpanContextFromContext(r.Context())
 		if spanCtx.HasTraceID() {

@@ -18,11 +18,11 @@ import (
 type ServiceContext struct {
 	Config config.Config
 
-	OpenAPIParamsParseMiddleware rest.Middleware
-	LoginRateLimitMiddleware     rest.Middleware
-	AdminAuthMiddleware          rest.Middleware
-	AdminRBACMiddleware          rest.Middleware
-	AdminOpLogMiddleware         rest.Middleware
+	OpenAPIParamsParse rest.Middleware
+	LoginRateLimit     rest.Middleware
+	AdminAuth          rest.Middleware
+	AdminRBAC          rest.Middleware
+	AdminOpLog         rest.Middleware
 
 	ServiceHub servicehubclient.ServiceHub
 
@@ -42,7 +42,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if openAPIBodyMax <= 0 {
 		openAPIBodyMax = 262144
 	}
-	openAPIParamsParse := middleware.NewOpenAPIParamsParseMiddleware(openAPIBodyMax).Handle
+	openAPIParamsParse := middleware.NewOpenAPIParamsParse(openAPIBodyMax).Handle
 
 	rateRedisAddr := strings.TrimSpace(c.RateLimit.RedisAddr)
 	if rateRedisAddr == "" {
@@ -83,13 +83,13 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
 
-		OpenAPIParamsParseMiddleware: openAPIParamsParse,
-		LoginRateLimitMiddleware: middleware.NewLoginRateLimitMiddleware(
+		OpenAPIParamsParse: openAPIParamsParse,
+		LoginRateLimit: middleware.NewLoginRateLimit(
 			rateLimiter, ratePrefix, loginLimit, loginWindow, trustForwarded,
 		).Handle,
-		AdminAuthMiddleware: middleware.NewAdminAuthMiddleware(c.AdminToken, c.JwtSecret).Handle,
-		AdminRBACMiddleware: middleware.NewAdminRBACMiddleware(servicehubclient.New(serviceHubCli), 10*time.Second).Handle,
-		AdminOpLogMiddleware: middleware.NewAdminOpLog(servicehubclient.New(serviceHubCli), trustForwarded, c.AdminOpLog.Exclude).Handle,
+		AdminAuth:  middleware.NewAdminAuth(c.AdminToken, c.JwtSecret).Handle,
+		AdminRBAC:  middleware.NewAdminRBAC(servicehubclient.New(serviceHubCli), 10*time.Second).Handle,
+		AdminOpLog: middleware.NewAdminOpLog(servicehubclient.New(serviceHubCli), trustForwarded, c.AdminOpLog.Exclude).Handle,
 
 		ServiceHub: servicehubclient.New(serviceHubCli),
 

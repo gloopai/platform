@@ -7,15 +7,16 @@ import (
 	"time"
 
 	"github.com/gloopai/pay/common/grpcclient/servicehubclient"
+	"github.com/gloopai/pay/gateway/internal/apiresp"
 )
 
-// AdminRBACMiddleware enforces permission keys for admin APIs.
+// AdminRBAC enforces permission keys for admin APIs.
 //
 // Behavior:
 // - For admin APIs without a registered permission key: deny (fail-closed)
 // - For super_admin: allow all
 // - Cache perms per admin_user_id for a short TTL
-type AdminRBACMiddleware struct {
+type AdminRBAC struct {
 	svcHub servicehubclient.ServiceHub
 	ttl    time.Duration
 
@@ -37,14 +38,14 @@ type apiRuleCache struct {
 	rules     []apiRule
 }
 
-func NewAdminRBACMiddleware(svcHub servicehubclient.ServiceHub, ttl time.Duration) *AdminRBACMiddleware {
+func NewAdminRBAC(svcHub servicehubclient.ServiceHub, ttl time.Duration) *AdminRBAC {
 	if ttl <= 0 {
 		ttl = 10 * time.Second
 	}
-	return &AdminRBACMiddleware{svcHub: svcHub, ttl: ttl, cache: make(map[int64]permCache)}
+	return &AdminRBAC{svcHub: svcHub, ttl: ttl, cache: make(map[int64]permCache)}
 }
 
-func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *AdminRBAC) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Only protect admin APIs; login handled elsewhere.
 		if !strings.HasPrefix(r.URL.Path, "/v1/admin/") {
@@ -58,7 +59,7 @@ func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		adminID := AdminIdFromContext(r.Context())
 		if adminID <= 0 {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return
 		}
 
@@ -72,7 +73,7 @@ func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		isSuper, keys, err := m.getPerms(r, adminID)
 		if err != nil {
-			http.Error(w, "forbidden", http.StatusForbidden)
+			apiresp.Fail(w, apiresp.CodeForbidden, err.Error())
 			return
 		}
 		if isSuper {
@@ -82,19 +83,19 @@ func (m *AdminRBACMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		required, err := m.requiredPerm(r)
 		if err != nil {
-			http.Error(w, "forbidden", http.StatusForbidden)
+			apiresp.Fail(w, apiresp.CodeForbidden, err.Error())
 			return
 		}
 		if required == "" {
-			// fail-closed: endpoint exists but no rule configured
-			http.Error(w, "forbidden", http.StatusForbidden)
+			// fail-closed: endpoint exists but no rule configured（请在 admin_api_rules 中补录 method+path_pattern）
+			apiresp.Fail(w, apiresp.CodeForbidden, "forbidden: no api rule for this path")
 			return
 		}
 		if _, ok := keys[required]; ok {
 			next(w, r)
 			return
 		}
-		http.Error(w, "forbidden", http.StatusForbidden)
+		apiresp.Fail(w, apiresp.CodeForbidden, "forbidden")
 	}
 }
 
@@ -115,7 +116,7 @@ func adminSessionBaselineOK(r *http.Request) bool {
 	}
 }
 
-func (m *AdminRBACMiddleware) requiredPerm(r *http.Request) (string, error) {
+func (m *AdminRBAC) requiredPerm(r *http.Request) (string, error) {
 	method := strings.ToUpper(strings.TrimSpace(r.Method))
 	path := strings.TrimSpace(r.URL.Path)
 	rules, err := m.getApiRules(r)
@@ -130,10 +131,14 @@ func (m *AdminRBACMiddleware) requiredPerm(r *http.Request) (string, error) {
 			return ru.permKey, nil
 		}
 	}
+	// 与通道只读同源：未在 admin_api_rules 配置时仍映射到 admin.channels.read，避免漏迁库导致 channel_config 表单无法加载
+	if method == http.MethodGet && path == "/v1/admin/psp_driver_channel_config_schema" {
+		return "admin.channels.read", nil
+	}
 	return "", nil
 }
 
-func (m *AdminRBACMiddleware) getApiRules(r *http.Request) ([]apiRule, error) {
+func (m *AdminRBAC) getApiRules(r *http.Request) ([]apiRule, error) {
 	now := time.Now()
 	m.ruleMu.Lock()
 	if now.Before(m.ruleCache.expiresAt) {
@@ -164,7 +169,7 @@ func (m *AdminRBACMiddleware) getApiRules(r *http.Request) ([]apiRule, error) {
 	return out, nil
 }
 
-func (m *AdminRBACMiddleware) getPerms(r *http.Request, adminID int64) (bool, map[string]struct{}, error) {
+func (m *AdminRBAC) getPerms(r *http.Request, adminID int64) (bool, map[string]struct{}, error) {
 	now := time.Now()
 	m.mu.Lock()
 	if c, ok := m.cache[adminID]; ok && now.Before(c.expiresAt) {

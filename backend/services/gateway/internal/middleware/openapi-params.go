@@ -17,7 +17,7 @@ type openAPIParamsKeyType struct{}
 
 var openAPIParamsContextKey = openAPIParamsKeyType{}
 
-// OpenAPIParamsFromContext returns merged query+JSON params set by OpenAPIParamsParseMiddleware.
+// OpenAPIParamsFromContext returns merged query+JSON params set by OpenAPIParamsParse.
 func OpenAPIParamsFromContext(ctx context.Context) (map[string]string, bool) {
 	p, ok := ctx.Value(openAPIParamsContextKey).(map[string]string)
 	if !ok || p == nil {
@@ -30,19 +30,19 @@ const defaultMaxOpenAPIBodyBytes int64 = 262144
 
 var errOpenAPIBodyTooLarge = errors.New("request body too large")
 
-// OpenAPIParamsParseMiddleware reads query + JSON body once (with size limit) and stores merged params in request context.
-type OpenAPIParamsParseMiddleware struct {
+// OpenAPIParamsParse reads query + JSON body once (with size limit) and stores merged params in request context.
+type OpenAPIParamsParse struct {
 	maxBodyBytes int64
 }
 
-func NewOpenAPIParamsParseMiddleware(maxBodyBytes int64) *OpenAPIParamsParseMiddleware {
+func NewOpenAPIParamsParse(maxBodyBytes int64) *OpenAPIParamsParse {
 	if maxBodyBytes <= 0 {
 		maxBodyBytes = defaultMaxOpenAPIBodyBytes
 	}
-	return &OpenAPIParamsParseMiddleware{maxBodyBytes: maxBodyBytes}
+	return &OpenAPIParamsParse{maxBodyBytes: maxBodyBytes}
 }
 
-func (m *OpenAPIParamsParseMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *OpenAPIParamsParse) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := parseParamsFromRequestWithLimit(r, m.maxBodyBytes)
 		if err != nil {

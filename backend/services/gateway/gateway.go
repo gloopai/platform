@@ -47,7 +47,7 @@ func main() {
 
 	// scaffold/platform-admin: 仅启动 Admin HTTP（商户 / OpenAPI / Checkout 端口不监听；配置文件中仍可保留对应段供参考）
 	adminServer := rest.MustNewServer(c.AdminServer)
-	adminServer.Use(middleware.NewTraceHeaderMiddleware().Handle)
+	adminServer.Use(middleware.NewTraceHeader().Handle)
 	handler.RegisterCommonHandlers(adminServer, ctx)
 	handler.RegisterAdminHandlers(adminServer, ctx)
 	servers := []*rest.Server{adminServer}
@@ -63,7 +63,7 @@ func main() {
 	)
 	adminServer.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{ctx.AdminAuthMiddleware},
+			[]rest.Middleware{ctx.AdminAuth},
 			[]rest.Route{
 				{
 					Method:  http.MethodGet,

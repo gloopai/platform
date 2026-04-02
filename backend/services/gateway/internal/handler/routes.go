@@ -27,7 +27,7 @@ func RegisterCommonHandlers(server *rest.Server, serverCtx *svc.ServiceContext) 
 func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.OpenAPIParamsParseMiddleware, serverCtx.LoginRateLimitMiddleware},
+			[]rest.Middleware{serverCtx.OpenAPIParamsParse, serverCtx.LoginRateLimit},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
@@ -40,7 +40,7 @@ func RegisterAdminHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AdminAuthMiddleware, serverCtx.AdminRBACMiddleware, serverCtx.AdminOpLogMiddleware},
+			[]rest.Middleware{serverCtx.AdminAuth, serverCtx.AdminRBAC, serverCtx.AdminOpLog},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,

@@ -9,7 +9,7 @@ import (
 	"github.com/gloopai/pay/gateway/internal/logic/shared"
 )
 
-type AdminAuthMiddleware struct {
+type AdminAuth struct {
 	masterToken string
 	jwtSecret   string
 }
@@ -25,11 +25,11 @@ func AdminIdFromContext(ctx context.Context) int64 {
 	return id
 }
 
-func NewAdminAuthMiddleware(masterToken, jwtSecret string) *AdminAuthMiddleware {
-	return &AdminAuthMiddleware{masterToken: masterToken, jwtSecret: jwtSecret}
+func NewAdminAuth(masterToken, jwtSecret string) *AdminAuth {
+	return &AdminAuth{masterToken: masterToken, jwtSecret: jwtSecret}
 }
 
-func (m *AdminAuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *AdminAuth) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tok := strings.TrimSpace(r.Header.Get("X-Admin-Token"))
 		if tok == "" {

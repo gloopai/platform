@@ -32,7 +32,7 @@ func (l *RedisRateLimiter) Allow(ctx context.Context, key string, limit int64, w
 	return n <= limit, nil
 }
 
-type OpenAPIRateLimitMiddleware struct {
+type OpenAPIRateLimit struct {
 	limiter              *RedisRateLimiter
 	keyPrefix            string
 	limit                int64
@@ -40,8 +40,8 @@ type OpenAPIRateLimitMiddleware struct {
 	trustForwardedForIPs bool
 }
 
-func NewOpenAPIRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *OpenAPIRateLimitMiddleware {
-	return &OpenAPIRateLimitMiddleware{
+func NewOpenAPIRateLimit(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *OpenAPIRateLimit {
+	return &OpenAPIRateLimit{
 		limiter:              limiter,
 		keyPrefix:            keyPrefix,
 		limit:                limit,
@@ -50,7 +50,7 @@ func NewOpenAPIRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, 
 	}
 }
 
-func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *OpenAPIRateLimit) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
@@ -79,7 +79,7 @@ func (m *OpenAPIRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerF
 	}
 }
 
-type LoginRateLimitMiddleware struct {
+type LoginRateLimit struct {
 	limiter              *RedisRateLimiter
 	keyPrefix            string
 	limit                int64
@@ -87,8 +87,8 @@ type LoginRateLimitMiddleware struct {
 	trustForwardedForIPs bool
 }
 
-func NewLoginRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *LoginRateLimitMiddleware {
-	return &LoginRateLimitMiddleware{
+func NewLoginRateLimit(limiter *RedisRateLimiter, keyPrefix string, limit int64, window time.Duration, trustForwardedForIPs bool) *LoginRateLimit {
+	return &LoginRateLimit{
 		limiter:              limiter,
 		keyPrefix:            keyPrefix,
 		limit:                limit,
@@ -97,7 +97,7 @@ func NewLoginRateLimitMiddleware(limiter *RedisRateLimiter, keyPrefix string, li
 	}
 }
 
-func (m *LoginRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *LoginRateLimit) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		params, err := readParams(r)
 		if err != nil {
