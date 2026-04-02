@@ -5,15 +5,15 @@ import (
 	"strings"
 
 	"github.com/gloopai/platform/common/gatewaymw"
-	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/service-hub/hubclient"
 )
 
 // oplogServiceHub adapts service-hub RPC to [gatewaymw.OpLogHub] for admin operation logs.
 type oplogServiceHub struct {
-	sh servicehubclient.ServiceHub
+	sh hubclient.ServiceHub
 }
 
-func (h oplogServiceHub) ListAdminApiRules(ctx context.Context, page, pageSize int64, q, permKey string) ([]*servicehubclient.AdminApiRule, int64, error) {
+func (h oplogServiceHub) ListAdminApiRules(ctx context.Context, page, pageSize int64, q, permKey string) ([]*hubclient.AdminApiRule, int64, error) {
 	return h.sh.ListAdminApiRules(ctx, page, pageSize, q, permKey)
 }
 
@@ -26,7 +26,7 @@ func (h oplogServiceHub) FetchAdminUsername(ctx context.Context, adminUserID int
 }
 
 func (h oplogServiceHub) RecordOpLog(ctx context.Context, rec gatewaymw.OpLogRecord) error {
-	return h.sh.RecordAdminOperationLog(ctx, &servicehubclient.RecordAdminOperationLogReq{
+	return h.sh.RecordAdminOperationLog(ctx, &hubclient.RecordAdminOperationLogReq{
 		RequestId:     rec.RequestID,
 		AdminUserId:   rec.AdminUserID,
 		AdminUsername: rec.AdminUsername,

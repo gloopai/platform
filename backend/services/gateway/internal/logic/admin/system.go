@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/service-hub/hubclient"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/pquerna/otp/totp"
@@ -173,7 +173,7 @@ func (a *AdminSystem) ListAdminOperationLogs(req *types.AdminOperationLogsReq) (
 	} else if startSec == 0 {
 		startSec = time.Unix(endSec, 0).Add(-24 * time.Hour).Unix()
 	}
-	grpcReq := &servicehubclient.ListAdminOperationLogsReq{
+	grpcReq := &hubclient.ListAdminOperationLogsReq{
 		StartSec:    startSec,
 		EndSec:      endSec,
 		AdminUserId: req.AdminUserID,

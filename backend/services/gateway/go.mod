@@ -4,18 +4,21 @@ go 1.25.7
 
 replace github.com/gloopai/platform/common => ../../common
 
+replace github.com/gloopai/platform/service-hub => ../../services/service-hub
+
 require (
 	github.com/gloopai/platform/common v0.0.0-00010101000000-000000000000
+	github.com/gloopai/platform/service-hub v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/zeromicro/go-zero v1.10.0
 	go.opentelemetry.io/otel v1.39.0
-	go.opentelemetry.io/otel/trace v1.39.0
 	golang.org/x/crypto v0.46.0
 	google.golang.org/grpc v1.79.3
 )
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	gorm.io/gorm v1.31.1 // indirect
 )
 

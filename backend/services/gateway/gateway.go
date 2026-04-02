@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"net/http"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -19,6 +18,7 @@ import (
 	"github.com/gloopai/platform/gateway/internal/handler"
 	adminhandler "github.com/gloopai/platform/gateway/internal/handler/admin"
 	"github.com/gloopai/platform/gateway/internal/svc"
+	"github.com/gloopai/platform/gateway/pkg/adminshell"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -52,27 +52,7 @@ func main() {
 	handler.RegisterAdminHandlers(adminServer, ctx)
 	servers := []*rest.Server{adminServer}
 
-	adminServer.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodGet,
-				Path:    "/ready",
-				Handler: handler.ReadyHandler(ctx),
-			},
-		},
-	)
-	adminServer.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{ctx.AdminAuth},
-			[]rest.Route{
-				{
-					Method:  http.MethodGet,
-					Path:    "/v1/admin/ops/services",
-					Handler: adminhandler.AdminOpsServicesHandler(ctx),
-				},
-			}...,
-		),
-	)
+	adminshell.RegisterInfraRoutes(adminServer, ctx.AdminAuth, handler.ReadyHandler(ctx), adminhandler.AdminOpsServicesHandler(ctx))
 
 	fmt.Printf("Starting admin API at %s:%d...\n", c.AdminServer.Host, c.AdminServer.Port)
 

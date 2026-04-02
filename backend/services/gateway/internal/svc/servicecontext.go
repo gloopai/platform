@@ -7,8 +7,8 @@ import (
 	"github.com/gloopai/platform/common/configkv"
 	"github.com/gloopai/platform/common/consulx"
 	"github.com/gloopai/platform/common/gatewaymw"
-	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
 	"github.com/gloopai/platform/common/requestx"
+	"github.com/gloopai/platform/service-hub/hubclient"
 	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/gloopai/platform/gateway/internal/config"
 	"github.com/redis/go-redis/v9"
@@ -26,7 +26,7 @@ type ServiceContext struct {
 	AdminRBAC          rest.Middleware
 	AdminOpLog         rest.Middleware
 
-	ServiceHub servicehubclient.ServiceHub
+	ServiceHub hubclient.ServiceHub
 
 	RuntimeConfig *consulx.ConfigStore
 
@@ -87,7 +87,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 
-	serviceHub := servicehubclient.New(serviceHubCli)
+	serviceHub := hubclient.New(serviceHubCli)
 
 	return &ServiceContext{
 		Config: c,
@@ -110,7 +110,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			Fail:             apiresp.Fail,
 			CodeUnauthorized: apiresp.CodeUnauthorized,
 		}).Handle,
-		AdminRBAC: gatewaymw.NewAdminRBAC(gatewaymw.AdminRBACOptions[*servicehubclient.AdminApiRule]{
+		AdminRBAC: gatewaymw.NewAdminRBAC(gatewaymw.AdminRBACOptions[*hubclient.AdminApiRule]{
 			Hub:              serviceHub,
 			TTL:              10 * time.Second,
 			Fail:             apiresp.Fail,
@@ -118,7 +118,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			CodeUnauthorized: apiresp.CodeUnauthorized,
 			CodeForbidden:    apiresp.CodeForbidden,
 		}).Handle,
-		AdminOpLog: gatewaymw.NewAdminOpLog(gatewaymw.AdminOpLogOptions[*servicehubclient.AdminApiRule]{
+		AdminOpLog: gatewaymw.NewAdminOpLog(gatewaymw.AdminOpLogOptions[*hubclient.AdminApiRule]{
 			Hub:              oplogServiceHub{sh: serviceHub},
 			TrustForwarded:   trustForwarded,
 			Excludes:         c.AdminOpLog.Exclude,
