@@ -6,7 +6,7 @@ import (
 
 	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/gloopai/platform/gateway/internal/logic"
-	"github.com/gloopai/platform/gateway/internal/requestx"
+	"github.com/gloopai/platform/common/requestx"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"

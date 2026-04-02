@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/gloopai/platform/gateway/internal/middleware"
+	"github.com/gloopai/platform/common/gatewaymw"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
@@ -63,7 +63,7 @@ func menuPlacementStr(placement string) string {
 
 // MyMenu 返回当前登录管理员可见菜单（侧栏 + 头像下拉）。
 func (a *AdminRbac) MyMenu() (*MyMenuResp, error) {
-	adminID := middleware.AdminIdFromContext(a.ctx)
+	adminID := gatewaymw.AdminIDFromContext(a.ctx)
 	if adminID <= 0 {
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}

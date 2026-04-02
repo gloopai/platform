@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gloopai/platform/gateway/internal/logic/shared"
+	"github.com/gloopai/platform/common/jwtutil"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/pquerna/otp/totp"
@@ -59,7 +59,7 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 		}
 	}
 
-	tok, expiresAt, err := shared.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.GetId(), 24*time.Hour)
+	tok, expiresAt, err := jwtutil.IssueAdminJWT(a.svcCtx.Config.JwtSecret, u.GetId(), 24*time.Hour)
 	if err != nil {
 		return nil, err
 	}

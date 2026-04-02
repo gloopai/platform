@@ -1,14 +1,40 @@
-package middleware
+// Package gatewaymw holds HTTP middleware shared by platform and product gateways (RBAC, etc.).
+package gatewaymw
 
 import (
+	"context"
 	"net/http"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
-	"github.com/gloopai/platform/gateway/internal/apiresp"
 )
+
+// RbacRule is satisfied by service-hub AdminApiRule protobuf messages.
+type RbacRule interface {
+	GetStatus() int64
+	GetMethod() string
+	GetPathPattern() string
+	GetPermKey() string
+}
+
+// RbacHub is the minimal service-hub surface for admin API RBAC.
+type RbacHub[TRow RbacRule] interface {
+	GetAdminRbacMyPerms(ctx context.Context, adminUserID int64) (isSuper bool, permKeys []string, err error)
+	ListAdminApiRules(ctx context.Context, page, pageSize int64, q, permKey string) ([]TRow, int64, error)
+}
+
+// AdminRBACOptions configures [AdminRBAC].
+type AdminRBACOptions[TRow RbacRule] struct {
+	Hub RbacHub[TRow]
+	TTL time.Duration
+	// Fail writes a JSON error envelope (e.g. apiresp.Fail).
+	Fail func(w http.ResponseWriter, code int, message string)
+	// AdminIDFromCtx reads the authenticated admin user id (e.g. from JWT middleware).
+	AdminIDFromCtx func(ctx context.Context) int64
+	CodeUnauthorized int
+	CodeForbidden    int
+}
 
 // AdminRBAC enforces permission keys for admin APIs.
 //
@@ -16,9 +42,14 @@ import (
 // - For admin APIs without a registered permission key: deny (fail-closed)
 // - For super_admin: allow all
 // - Cache perms per admin_user_id for a short TTL
-type AdminRBAC struct {
-	svcHub servicehubclient.ServiceHub
+type AdminRBAC[TRow RbacRule] struct {
+	svcHub RbacHub[TRow]
 	ttl    time.Duration
+
+	fail             func(w http.ResponseWriter, code int, message string)
+	adminIDFromCtx   func(ctx context.Context) int64
+	codeUnauthorized int
+	codeForbidden    int
 
 	mu    sync.Mutex
 	cache map[int64]permCache
@@ -38,16 +69,25 @@ type apiRuleCache struct {
 	rules     []apiRule
 }
 
-func NewAdminRBAC(svcHub servicehubclient.ServiceHub, ttl time.Duration) *AdminRBAC {
+// NewAdminRBAC builds RBAC middleware. TTL defaults to 10s when <= 0.
+func NewAdminRBAC[TRow RbacRule](opt AdminRBACOptions[TRow]) *AdminRBAC[TRow] {
+	ttl := opt.TTL
 	if ttl <= 0 {
 		ttl = 10 * time.Second
 	}
-	return &AdminRBAC{svcHub: svcHub, ttl: ttl, cache: make(map[int64]permCache)}
+	return &AdminRBAC[TRow]{
+		svcHub:           opt.Hub,
+		ttl:              ttl,
+		fail:             opt.Fail,
+		adminIDFromCtx:   opt.AdminIDFromCtx,
+		codeUnauthorized: opt.CodeUnauthorized,
+		codeForbidden:    opt.CodeForbidden,
+		cache:            make(map[int64]permCache),
+	}
 }
 
-func (m *AdminRBAC) Handle(next http.HandlerFunc) http.HandlerFunc {
+func (m *AdminRBAC[TRow]) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Only protect admin APIs; login handled elsewhere.
 		if !strings.HasPrefix(r.URL.Path, "/v1/admin/") {
 			next(w, r)
 			return
@@ -57,15 +97,12 @@ func (m *AdminRBAC) Handle(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		adminID := AdminIdFromContext(r.Context())
+		adminID := m.adminIDFromCtx(r.Context())
 		if adminID <= 0 {
-			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
+			m.fail(w, m.codeUnauthorized, "unauthorized")
 			return
 		}
 
-		// 壳层会话：任意已登录管理员都需能拉侧栏菜单、展示类配置与退出，避免因未勾选
-		// admin.rbac.my_menu / admin.system.read_settings / admin.auth.logout 而无法使用后台。
-		// RBAC 配置类 GET（/rbac/menus、permissions、api_rules 等）仍走下方权限校验。
 		if adminSessionBaselineOK(r) {
 			next(w, r)
 			return
@@ -73,7 +110,7 @@ func (m *AdminRBAC) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		isSuper, keys, err := m.getPerms(r, adminID)
 		if err != nil {
-			apiresp.Fail(w, apiresp.CodeForbidden, err.Error())
+			m.fail(w, m.codeForbidden, err.Error())
 			return
 		}
 		if isSuper {
@@ -83,19 +120,18 @@ func (m *AdminRBAC) Handle(next http.HandlerFunc) http.HandlerFunc {
 
 		required, err := m.requiredPerm(r)
 		if err != nil {
-			apiresp.Fail(w, apiresp.CodeForbidden, err.Error())
+			m.fail(w, m.codeForbidden, err.Error())
 			return
 		}
 		if required == "" {
-			// fail-closed: endpoint exists but no rule configured（请在 admin_api_rules 中补录 method+path_pattern）
-			apiresp.Fail(w, apiresp.CodeForbidden, "forbidden: no api rule for this path")
+			m.fail(w, m.codeForbidden, "forbidden: no api rule for this path")
 			return
 		}
 		if _, ok := keys[required]; ok {
 			next(w, r)
 			return
 		}
-		apiresp.Fail(w, apiresp.CodeForbidden, "forbidden")
+		m.fail(w, m.codeForbidden, "forbidden")
 	}
 }
 
@@ -116,7 +152,7 @@ func adminSessionBaselineOK(r *http.Request) bool {
 	}
 }
 
-func (m *AdminRBAC) requiredPerm(r *http.Request) (string, error) {
+func (m *AdminRBAC[TRow]) requiredPerm(r *http.Request) (string, error) {
 	method := strings.ToUpper(strings.TrimSpace(r.Method))
 	path := strings.TrimSpace(r.URL.Path)
 	rules, err := m.getApiRules(r)
@@ -127,18 +163,17 @@ func (m *AdminRBAC) requiredPerm(r *http.Request) (string, error) {
 		if ru.method != method {
 			continue
 		}
-		if matchPattern(ru.pattern, path) {
+		if MatchPathPattern(ru.pattern, path) {
 			return ru.permKey, nil
 		}
 	}
-	// 与通道只读同源：未在 admin_api_rules 配置时仍映射到 admin.channels.read，避免漏迁库导致 channel_config 表单无法加载
 	if method == http.MethodGet && path == "/v1/admin/psp_driver_channel_config_schema" {
 		return "admin.channels.read", nil
 	}
 	return "", nil
 }
 
-func (m *AdminRBAC) getApiRules(r *http.Request) ([]apiRule, error) {
+func (m *AdminRBAC[TRow]) getApiRules(r *http.Request) ([]apiRule, error) {
 	now := time.Now()
 	m.ruleMu.Lock()
 	if now.Before(m.ruleCache.expiresAt) {
@@ -154,7 +189,7 @@ func (m *AdminRBAC) getApiRules(r *http.Request) ([]apiRule, error) {
 	}
 	out := make([]apiRule, 0, len(rows))
 	for _, rr := range rows {
-		if rr == nil || rr.GetStatus() != 1 {
+		if rbacRowIsNil(rr) || rr.GetStatus() != 1 {
 			continue
 		}
 		out = append(out, apiRule{
@@ -169,7 +204,7 @@ func (m *AdminRBAC) getApiRules(r *http.Request) ([]apiRule, error) {
 	return out, nil
 }
 
-func (m *AdminRBAC) getPerms(r *http.Request, adminID int64) (bool, map[string]struct{}, error) {
+func (m *AdminRBAC[TRow]) getPerms(r *http.Request, adminID int64) (bool, map[string]struct{}, error) {
 	now := time.Now()
 	m.mu.Lock()
 	if c, ok := m.cache[adminID]; ok && now.Before(c.expiresAt) {
@@ -207,35 +242,12 @@ type apiRule struct {
 	permKey string
 }
 
-func matchPattern(pattern, path string) bool {
-	if pattern == path {
-		return true
-	}
-	ps := splitPath(pattern)
-	as := splitPath(path)
-	if len(ps) != len(as) {
+func rbacRowIsNil[TRow RbacRule](rr TRow) bool {
+	v := reflect.ValueOf(rr)
+	switch v.Kind() {
+	case reflect.Pointer, reflect.Interface, reflect.Map, reflect.Slice, reflect.Chan, reflect.Func:
+		return v.IsNil()
+	default:
 		return false
 	}
-	for i := 0; i < len(ps); i++ {
-		if strings.HasPrefix(ps[i], ":") {
-			if as[i] == "" {
-				return false
-			}
-			continue
-		}
-		if ps[i] != as[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func splitPath(s string) []string {
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "/")
-	s = strings.TrimSuffix(s, "/")
-	if s == "" {
-		return []string{}
-	}
-	return strings.Split(s, "/")
 }

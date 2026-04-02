@@ -4,9 +4,9 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gloopai/platform/common/gatewaymw"
 	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/gloopai/platform/gateway/internal/logic"
-	"github.com/gloopai/platform/gateway/internal/middleware"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/gloopai/platform/gateway/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -26,7 +26,7 @@ func AdminListUsersHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 func AdminMeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		adminID := middleware.AdminIdFromContext(r.Context())
+		adminID := gatewaymw.AdminIDFromContext(r.Context())
 		if adminID <= 0 {
 			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 			return

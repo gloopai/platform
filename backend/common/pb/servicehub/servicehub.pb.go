@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: proto/servicehub.proto
+// source: servicehub.proto
 
 package servicehub
 
@@ -55,11 +55,11 @@ func (x NotificationPortal) String() string {
 }
 
 func (NotificationPortal) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_servicehub_proto_enumTypes[0].Descriptor()
+	return file_servicehub_proto_enumTypes[0].Descriptor()
 }
 
 func (NotificationPortal) Type() protoreflect.EnumType {
-	return &file_proto_servicehub_proto_enumTypes[0]
+	return &file_servicehub_proto_enumTypes[0]
 }
 
 func (x NotificationPortal) Number() protoreflect.EnumNumber {
@@ -68,7 +68,7 @@ func (x NotificationPortal) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use NotificationPortal.Descriptor instead.
 func (NotificationPortal) EnumDescriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{0}
+	return file_servicehub_proto_rawDescGZIP(), []int{0}
 }
 
 type FindAdminUserByUsernameReq struct {
@@ -80,7 +80,7 @@ type FindAdminUserByUsernameReq struct {
 
 func (x *FindAdminUserByUsernameReq) Reset() {
 	*x = FindAdminUserByUsernameReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[0]
+	mi := &file_servicehub_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -92,7 +92,7 @@ func (x *FindAdminUserByUsernameReq) String() string {
 func (*FindAdminUserByUsernameReq) ProtoMessage() {}
 
 func (x *FindAdminUserByUsernameReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[0]
+	mi := &file_servicehub_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -105,7 +105,7 @@ func (x *FindAdminUserByUsernameReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindAdminUserByUsernameReq.ProtoReflect.Descriptor instead.
 func (*FindAdminUserByUsernameReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{0}
+	return file_servicehub_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *FindAdminUserByUsernameReq) GetUsername() string {
@@ -124,7 +124,7 @@ type FindAdminUserByUsernameResp struct {
 
 func (x *FindAdminUserByUsernameResp) Reset() {
 	*x = FindAdminUserByUsernameResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[1]
+	mi := &file_servicehub_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -136,7 +136,7 @@ func (x *FindAdminUserByUsernameResp) String() string {
 func (*FindAdminUserByUsernameResp) ProtoMessage() {}
 
 func (x *FindAdminUserByUsernameResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[1]
+	mi := &file_servicehub_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -149,7 +149,7 @@ func (x *FindAdminUserByUsernameResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindAdminUserByUsernameResp.ProtoReflect.Descriptor instead.
 func (*FindAdminUserByUsernameResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{1}
+	return file_servicehub_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *FindAdminUserByUsernameResp) GetUser() *AdminUser {
@@ -173,7 +173,7 @@ type AdminUser struct {
 
 func (x *AdminUser) Reset() {
 	*x = AdminUser{}
-	mi := &file_proto_servicehub_proto_msgTypes[2]
+	mi := &file_servicehub_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -185,7 +185,7 @@ func (x *AdminUser) String() string {
 func (*AdminUser) ProtoMessage() {}
 
 func (x *AdminUser) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[2]
+	mi := &file_servicehub_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -198,7 +198,7 @@ func (x *AdminUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUser.ProtoReflect.Descriptor instead.
 func (*AdminUser) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{2}
+	return file_servicehub_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AdminUser) GetId() int64 {
@@ -255,7 +255,7 @@ type AdminUserPublic struct {
 
 func (x *AdminUserPublic) Reset() {
 	*x = AdminUserPublic{}
-	mi := &file_proto_servicehub_proto_msgTypes[3]
+	mi := &file_servicehub_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +267,7 @@ func (x *AdminUserPublic) String() string {
 func (*AdminUserPublic) ProtoMessage() {}
 
 func (x *AdminUserPublic) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[3]
+	mi := &file_servicehub_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +280,7 @@ func (x *AdminUserPublic) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUserPublic.ProtoReflect.Descriptor instead.
 func (*AdminUserPublic) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{3}
+	return file_servicehub_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AdminUserPublic) GetId() int64 {
@@ -319,7 +319,7 @@ type ListAdminUsersReq struct {
 
 func (x *ListAdminUsersReq) Reset() {
 	*x = ListAdminUsersReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[4]
+	mi := &file_servicehub_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -331,7 +331,7 @@ func (x *ListAdminUsersReq) String() string {
 func (*ListAdminUsersReq) ProtoMessage() {}
 
 func (x *ListAdminUsersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[4]
+	mi := &file_servicehub_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -344,7 +344,7 @@ func (x *ListAdminUsersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminUsersReq.ProtoReflect.Descriptor instead.
 func (*ListAdminUsersReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{4}
+	return file_servicehub_proto_rawDescGZIP(), []int{4}
 }
 
 type ListAdminUsersResp struct {
@@ -356,7 +356,7 @@ type ListAdminUsersResp struct {
 
 func (x *ListAdminUsersResp) Reset() {
 	*x = ListAdminUsersResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[5]
+	mi := &file_servicehub_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -368,7 +368,7 @@ func (x *ListAdminUsersResp) String() string {
 func (*ListAdminUsersResp) ProtoMessage() {}
 
 func (x *ListAdminUsersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[5]
+	mi := &file_servicehub_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,7 +381,7 @@ func (x *ListAdminUsersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminUsersResp.ProtoReflect.Descriptor instead.
 func (*ListAdminUsersResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{5}
+	return file_servicehub_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ListAdminUsersResp) GetUsers() []*AdminUserPublic {
@@ -399,7 +399,7 @@ type GetDisplaySettingsReq struct {
 
 func (x *GetDisplaySettingsReq) Reset() {
 	*x = GetDisplaySettingsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[6]
+	mi := &file_servicehub_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -411,7 +411,7 @@ func (x *GetDisplaySettingsReq) String() string {
 func (*GetDisplaySettingsReq) ProtoMessage() {}
 
 func (x *GetDisplaySettingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[6]
+	mi := &file_servicehub_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -424,7 +424,7 @@ func (x *GetDisplaySettingsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDisplaySettingsReq.ProtoReflect.Descriptor instead.
 func (*GetDisplaySettingsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{6}
+	return file_servicehub_proto_rawDescGZIP(), []int{6}
 }
 
 type GetDisplaySettingsResp struct {
@@ -442,7 +442,7 @@ type GetDisplaySettingsResp struct {
 
 func (x *GetDisplaySettingsResp) Reset() {
 	*x = GetDisplaySettingsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[7]
+	mi := &file_servicehub_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -454,7 +454,7 @@ func (x *GetDisplaySettingsResp) String() string {
 func (*GetDisplaySettingsResp) ProtoMessage() {}
 
 func (x *GetDisplaySettingsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[7]
+	mi := &file_servicehub_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,7 +467,7 @@ func (x *GetDisplaySettingsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDisplaySettingsResp.ProtoReflect.Descriptor instead.
 func (*GetDisplaySettingsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{7}
+	return file_servicehub_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetDisplaySettingsResp) GetCountryCode() string {
@@ -526,7 +526,7 @@ type UpsertDisplaySettingsReq struct {
 
 func (x *UpsertDisplaySettingsReq) Reset() {
 	*x = UpsertDisplaySettingsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[8]
+	mi := &file_servicehub_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +538,7 @@ func (x *UpsertDisplaySettingsReq) String() string {
 func (*UpsertDisplaySettingsReq) ProtoMessage() {}
 
 func (x *UpsertDisplaySettingsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[8]
+	mi := &file_servicehub_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +551,7 @@ func (x *UpsertDisplaySettingsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDisplaySettingsReq.ProtoReflect.Descriptor instead.
 func (*UpsertDisplaySettingsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{8}
+	return file_servicehub_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpsertDisplaySettingsReq) GetCountryCode() string {
@@ -605,7 +605,7 @@ type GetAdminRbacMyMenusReq struct {
 
 func (x *GetAdminRbacMyMenusReq) Reset() {
 	*x = GetAdminRbacMyMenusReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[9]
+	mi := &file_servicehub_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -617,7 +617,7 @@ func (x *GetAdminRbacMyMenusReq) String() string {
 func (*GetAdminRbacMyMenusReq) ProtoMessage() {}
 
 func (x *GetAdminRbacMyMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[9]
+	mi := &file_servicehub_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -630,7 +630,7 @@ func (x *GetAdminRbacMyMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyMenusReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyMenusReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{9}
+	return file_servicehub_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetAdminRbacMyMenusReq) GetAdminUserId() int64 {
@@ -657,7 +657,7 @@ type AdminMenu struct {
 
 func (x *AdminMenu) Reset() {
 	*x = AdminMenu{}
-	mi := &file_proto_servicehub_proto_msgTypes[10]
+	mi := &file_servicehub_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +669,7 @@ func (x *AdminMenu) String() string {
 func (*AdminMenu) ProtoMessage() {}
 
 func (x *AdminMenu) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[10]
+	mi := &file_servicehub_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -682,7 +682,7 @@ func (x *AdminMenu) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminMenu.ProtoReflect.Descriptor instead.
 func (*AdminMenu) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{10}
+	return file_servicehub_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AdminMenu) GetId() int64 {
@@ -757,7 +757,7 @@ type GetAdminRbacMyMenusResp struct {
 
 func (x *GetAdminRbacMyMenusResp) Reset() {
 	*x = GetAdminRbacMyMenusResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[11]
+	mi := &file_servicehub_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -769,7 +769,7 @@ func (x *GetAdminRbacMyMenusResp) String() string {
 func (*GetAdminRbacMyMenusResp) ProtoMessage() {}
 
 func (x *GetAdminRbacMyMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[11]
+	mi := &file_servicehub_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -782,7 +782,7 @@ func (x *GetAdminRbacMyMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyMenusResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyMenusResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{11}
+	return file_servicehub_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetAdminRbacMyMenusResp) GetMenus() []*AdminMenu {
@@ -800,7 +800,7 @@ type ListAdminRolesReq struct {
 
 func (x *ListAdminRolesReq) Reset() {
 	*x = ListAdminRolesReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[12]
+	mi := &file_servicehub_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +812,7 @@ func (x *ListAdminRolesReq) String() string {
 func (*ListAdminRolesReq) ProtoMessage() {}
 
 func (x *ListAdminRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[12]
+	mi := &file_servicehub_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +825,7 @@ func (x *ListAdminRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminRolesReq.ProtoReflect.Descriptor instead.
 func (*ListAdminRolesReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{12}
+	return file_servicehub_proto_rawDescGZIP(), []int{12}
 }
 
 type AdminRole struct {
@@ -840,7 +840,7 @@ type AdminRole struct {
 
 func (x *AdminRole) Reset() {
 	*x = AdminRole{}
-	mi := &file_proto_servicehub_proto_msgTypes[13]
+	mi := &file_servicehub_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -852,7 +852,7 @@ func (x *AdminRole) String() string {
 func (*AdminRole) ProtoMessage() {}
 
 func (x *AdminRole) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[13]
+	mi := &file_servicehub_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -865,7 +865,7 @@ func (x *AdminRole) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminRole.ProtoReflect.Descriptor instead.
 func (*AdminRole) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{13}
+	return file_servicehub_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AdminRole) GetId() int64 {
@@ -905,7 +905,7 @@ type ListAdminRolesResp struct {
 
 func (x *ListAdminRolesResp) Reset() {
 	*x = ListAdminRolesResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[14]
+	mi := &file_servicehub_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -917,7 +917,7 @@ func (x *ListAdminRolesResp) String() string {
 func (*ListAdminRolesResp) ProtoMessage() {}
 
 func (x *ListAdminRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[14]
+	mi := &file_servicehub_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -930,7 +930,7 @@ func (x *ListAdminRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminRolesResp.ProtoReflect.Descriptor instead.
 func (*ListAdminRolesResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{14}
+	return file_servicehub_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListAdminRolesResp) GetRoles() []*AdminRole {
@@ -951,7 +951,7 @@ type CreateAdminRoleReq struct {
 
 func (x *CreateAdminRoleReq) Reset() {
 	*x = CreateAdminRoleReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[15]
+	mi := &file_servicehub_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -963,7 +963,7 @@ func (x *CreateAdminRoleReq) String() string {
 func (*CreateAdminRoleReq) ProtoMessage() {}
 
 func (x *CreateAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[15]
+	mi := &file_servicehub_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -976,7 +976,7 @@ func (x *CreateAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{15}
+	return file_servicehub_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CreateAdminRoleReq) GetCode() string {
@@ -1009,7 +1009,7 @@ type CreateAdminRoleResp struct {
 
 func (x *CreateAdminRoleResp) Reset() {
 	*x = CreateAdminRoleResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[16]
+	mi := &file_servicehub_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1021,7 +1021,7 @@ func (x *CreateAdminRoleResp) String() string {
 func (*CreateAdminRoleResp) ProtoMessage() {}
 
 func (x *CreateAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[16]
+	mi := &file_servicehub_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1034,7 +1034,7 @@ func (x *CreateAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{16}
+	return file_servicehub_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateAdminRoleResp) GetRole() *AdminRole {
@@ -1055,7 +1055,7 @@ type UpdateAdminRoleReq struct {
 
 func (x *UpdateAdminRoleReq) Reset() {
 	*x = UpdateAdminRoleReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[17]
+	mi := &file_servicehub_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1067,7 +1067,7 @@ func (x *UpdateAdminRoleReq) String() string {
 func (*UpdateAdminRoleReq) ProtoMessage() {}
 
 func (x *UpdateAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[17]
+	mi := &file_servicehub_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1080,7 +1080,7 @@ func (x *UpdateAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{17}
+	return file_servicehub_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *UpdateAdminRoleReq) GetId() int64 {
@@ -1113,7 +1113,7 @@ type UpdateAdminRoleResp struct {
 
 func (x *UpdateAdminRoleResp) Reset() {
 	*x = UpdateAdminRoleResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[18]
+	mi := &file_servicehub_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1125,7 +1125,7 @@ func (x *UpdateAdminRoleResp) String() string {
 func (*UpdateAdminRoleResp) ProtoMessage() {}
 
 func (x *UpdateAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[18]
+	mi := &file_servicehub_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1138,7 +1138,7 @@ func (x *UpdateAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{18}
+	return file_servicehub_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateAdminRoleResp) GetRole() *AdminRole {
@@ -1157,7 +1157,7 @@ type DeleteAdminRoleReq struct {
 
 func (x *DeleteAdminRoleReq) Reset() {
 	*x = DeleteAdminRoleReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[19]
+	mi := &file_servicehub_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1169,7 +1169,7 @@ func (x *DeleteAdminRoleReq) String() string {
 func (*DeleteAdminRoleReq) ProtoMessage() {}
 
 func (x *DeleteAdminRoleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[19]
+	mi := &file_servicehub_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1182,7 +1182,7 @@ func (x *DeleteAdminRoleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminRoleReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminRoleReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{19}
+	return file_servicehub_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DeleteAdminRoleReq) GetId() int64 {
@@ -1201,7 +1201,7 @@ type DeleteAdminRoleResp struct {
 
 func (x *DeleteAdminRoleResp) Reset() {
 	*x = DeleteAdminRoleResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[20]
+	mi := &file_servicehub_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1213,7 +1213,7 @@ func (x *DeleteAdminRoleResp) String() string {
 func (*DeleteAdminRoleResp) ProtoMessage() {}
 
 func (x *DeleteAdminRoleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[20]
+	mi := &file_servicehub_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1226,7 +1226,7 @@ func (x *DeleteAdminRoleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminRoleResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminRoleResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{20}
+	return file_servicehub_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeleteAdminRoleResp) GetOk() bool {
@@ -1244,7 +1244,7 @@ type ListAdminMenusReq struct {
 
 func (x *ListAdminMenusReq) Reset() {
 	*x = ListAdminMenusReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[21]
+	mi := &file_servicehub_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1256,7 +1256,7 @@ func (x *ListAdminMenusReq) String() string {
 func (*ListAdminMenusReq) ProtoMessage() {}
 
 func (x *ListAdminMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[21]
+	mi := &file_servicehub_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1269,7 +1269,7 @@ func (x *ListAdminMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminMenusReq.ProtoReflect.Descriptor instead.
 func (*ListAdminMenusReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{21}
+	return file_servicehub_proto_rawDescGZIP(), []int{21}
 }
 
 type ListAdminMenusResp struct {
@@ -1281,7 +1281,7 @@ type ListAdminMenusResp struct {
 
 func (x *ListAdminMenusResp) Reset() {
 	*x = ListAdminMenusResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[22]
+	mi := &file_servicehub_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1293,7 +1293,7 @@ func (x *ListAdminMenusResp) String() string {
 func (*ListAdminMenusResp) ProtoMessage() {}
 
 func (x *ListAdminMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[22]
+	mi := &file_servicehub_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1306,7 +1306,7 @@ func (x *ListAdminMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminMenusResp.ProtoReflect.Descriptor instead.
 func (*ListAdminMenusResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{22}
+	return file_servicehub_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListAdminMenusResp) GetMenus() []*AdminMenu {
@@ -1332,7 +1332,7 @@ type CreateAdminMenuReq struct {
 
 func (x *CreateAdminMenuReq) Reset() {
 	*x = CreateAdminMenuReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[23]
+	mi := &file_servicehub_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1344,7 +1344,7 @@ func (x *CreateAdminMenuReq) String() string {
 func (*CreateAdminMenuReq) ProtoMessage() {}
 
 func (x *CreateAdminMenuReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[23]
+	mi := &file_servicehub_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1357,7 +1357,7 @@ func (x *CreateAdminMenuReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminMenuReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminMenuReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{23}
+	return file_servicehub_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CreateAdminMenuReq) GetParentId() int64 {
@@ -1425,7 +1425,7 @@ type CreateAdminMenuResp struct {
 
 func (x *CreateAdminMenuResp) Reset() {
 	*x = CreateAdminMenuResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[24]
+	mi := &file_servicehub_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1437,7 +1437,7 @@ func (x *CreateAdminMenuResp) String() string {
 func (*CreateAdminMenuResp) ProtoMessage() {}
 
 func (x *CreateAdminMenuResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[24]
+	mi := &file_servicehub_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +1450,7 @@ func (x *CreateAdminMenuResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminMenuResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminMenuResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{24}
+	return file_servicehub_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CreateAdminMenuResp) GetMenu() *AdminMenu {
@@ -1477,7 +1477,7 @@ type UpdateAdminMenuReq struct {
 
 func (x *UpdateAdminMenuReq) Reset() {
 	*x = UpdateAdminMenuReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[25]
+	mi := &file_servicehub_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1489,7 +1489,7 @@ func (x *UpdateAdminMenuReq) String() string {
 func (*UpdateAdminMenuReq) ProtoMessage() {}
 
 func (x *UpdateAdminMenuReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[25]
+	mi := &file_servicehub_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1502,7 +1502,7 @@ func (x *UpdateAdminMenuReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminMenuReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminMenuReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{25}
+	return file_servicehub_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UpdateAdminMenuReq) GetId() int64 {
@@ -1577,7 +1577,7 @@ type UpdateAdminMenuResp struct {
 
 func (x *UpdateAdminMenuResp) Reset() {
 	*x = UpdateAdminMenuResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[26]
+	mi := &file_servicehub_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +1589,7 @@ func (x *UpdateAdminMenuResp) String() string {
 func (*UpdateAdminMenuResp) ProtoMessage() {}
 
 func (x *UpdateAdminMenuResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[26]
+	mi := &file_servicehub_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1602,7 +1602,7 @@ func (x *UpdateAdminMenuResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminMenuResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminMenuResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{26}
+	return file_servicehub_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UpdateAdminMenuResp) GetMenu() *AdminMenu {
@@ -1621,7 +1621,7 @@ type DeleteAdminMenuReq struct {
 
 func (x *DeleteAdminMenuReq) Reset() {
 	*x = DeleteAdminMenuReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[27]
+	mi := &file_servicehub_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1633,7 +1633,7 @@ func (x *DeleteAdminMenuReq) String() string {
 func (*DeleteAdminMenuReq) ProtoMessage() {}
 
 func (x *DeleteAdminMenuReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[27]
+	mi := &file_servicehub_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1646,7 +1646,7 @@ func (x *DeleteAdminMenuReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminMenuReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminMenuReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{27}
+	return file_servicehub_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *DeleteAdminMenuReq) GetId() int64 {
@@ -1665,7 +1665,7 @@ type DeleteAdminMenuResp struct {
 
 func (x *DeleteAdminMenuResp) Reset() {
 	*x = DeleteAdminMenuResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[28]
+	mi := &file_servicehub_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1677,7 +1677,7 @@ func (x *DeleteAdminMenuResp) String() string {
 func (*DeleteAdminMenuResp) ProtoMessage() {}
 
 func (x *DeleteAdminMenuResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[28]
+	mi := &file_servicehub_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1690,7 +1690,7 @@ func (x *DeleteAdminMenuResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminMenuResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminMenuResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{28}
+	return file_servicehub_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DeleteAdminMenuResp) GetOk() bool {
@@ -1709,7 +1709,7 @@ type GetAdminRoleMenusReq struct {
 
 func (x *GetAdminRoleMenusReq) Reset() {
 	*x = GetAdminRoleMenusReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[29]
+	mi := &file_servicehub_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1721,7 +1721,7 @@ func (x *GetAdminRoleMenusReq) String() string {
 func (*GetAdminRoleMenusReq) ProtoMessage() {}
 
 func (x *GetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[29]
+	mi := &file_servicehub_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1734,7 +1734,7 @@ func (x *GetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRoleMenusReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRoleMenusReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{29}
+	return file_servicehub_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetAdminRoleMenusReq) GetRoleId() int64 {
@@ -1753,7 +1753,7 @@ type GetAdminRoleMenusResp struct {
 
 func (x *GetAdminRoleMenusResp) Reset() {
 	*x = GetAdminRoleMenusResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[30]
+	mi := &file_servicehub_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1765,7 +1765,7 @@ func (x *GetAdminRoleMenusResp) String() string {
 func (*GetAdminRoleMenusResp) ProtoMessage() {}
 
 func (x *GetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[30]
+	mi := &file_servicehub_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1778,7 +1778,7 @@ func (x *GetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRoleMenusResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRoleMenusResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{30}
+	return file_servicehub_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetAdminRoleMenusResp) GetMenuIds() []int64 {
@@ -1798,7 +1798,7 @@ type SetAdminRoleMenusReq struct {
 
 func (x *SetAdminRoleMenusReq) Reset() {
 	*x = SetAdminRoleMenusReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[31]
+	mi := &file_servicehub_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1810,7 +1810,7 @@ func (x *SetAdminRoleMenusReq) String() string {
 func (*SetAdminRoleMenusReq) ProtoMessage() {}
 
 func (x *SetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[31]
+	mi := &file_servicehub_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1823,7 +1823,7 @@ func (x *SetAdminRoleMenusReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRoleMenusReq.ProtoReflect.Descriptor instead.
 func (*SetAdminRoleMenusReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{31}
+	return file_servicehub_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *SetAdminRoleMenusReq) GetRoleId() int64 {
@@ -1849,7 +1849,7 @@ type SetAdminRoleMenusResp struct {
 
 func (x *SetAdminRoleMenusResp) Reset() {
 	*x = SetAdminRoleMenusResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[32]
+	mi := &file_servicehub_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1861,7 +1861,7 @@ func (x *SetAdminRoleMenusResp) String() string {
 func (*SetAdminRoleMenusResp) ProtoMessage() {}
 
 func (x *SetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[32]
+	mi := &file_servicehub_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1874,7 +1874,7 @@ func (x *SetAdminRoleMenusResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRoleMenusResp.ProtoReflect.Descriptor instead.
 func (*SetAdminRoleMenusResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{32}
+	return file_servicehub_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *SetAdminRoleMenusResp) GetOk() bool {
@@ -1893,7 +1893,7 @@ type GetAdminUserRolesReq struct {
 
 func (x *GetAdminUserRolesReq) Reset() {
 	*x = GetAdminUserRolesReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[33]
+	mi := &file_servicehub_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1905,7 +1905,7 @@ func (x *GetAdminUserRolesReq) String() string {
 func (*GetAdminUserRolesReq) ProtoMessage() {}
 
 func (x *GetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[33]
+	mi := &file_servicehub_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1918,7 +1918,7 @@ func (x *GetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserRolesReq.ProtoReflect.Descriptor instead.
 func (*GetAdminUserRolesReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{33}
+	return file_servicehub_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GetAdminUserRolesReq) GetAdminUserId() int64 {
@@ -1937,7 +1937,7 @@ type GetAdminUserRolesResp struct {
 
 func (x *GetAdminUserRolesResp) Reset() {
 	*x = GetAdminUserRolesResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[34]
+	mi := &file_servicehub_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1949,7 +1949,7 @@ func (x *GetAdminUserRolesResp) String() string {
 func (*GetAdminUserRolesResp) ProtoMessage() {}
 
 func (x *GetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[34]
+	mi := &file_servicehub_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1962,7 +1962,7 @@ func (x *GetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserRolesResp.ProtoReflect.Descriptor instead.
 func (*GetAdminUserRolesResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{34}
+	return file_servicehub_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetAdminUserRolesResp) GetRoleIds() []int64 {
@@ -1982,7 +1982,7 @@ type SetAdminUserRolesReq struct {
 
 func (x *SetAdminUserRolesReq) Reset() {
 	*x = SetAdminUserRolesReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[35]
+	mi := &file_servicehub_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1994,7 +1994,7 @@ func (x *SetAdminUserRolesReq) String() string {
 func (*SetAdminUserRolesReq) ProtoMessage() {}
 
 func (x *SetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[35]
+	mi := &file_servicehub_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2007,7 +2007,7 @@ func (x *SetAdminUserRolesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminUserRolesReq.ProtoReflect.Descriptor instead.
 func (*SetAdminUserRolesReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{35}
+	return file_servicehub_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *SetAdminUserRolesReq) GetAdminUserId() int64 {
@@ -2033,7 +2033,7 @@ type SetAdminUserRolesResp struct {
 
 func (x *SetAdminUserRolesResp) Reset() {
 	*x = SetAdminUserRolesResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[36]
+	mi := &file_servicehub_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2045,7 +2045,7 @@ func (x *SetAdminUserRolesResp) String() string {
 func (*SetAdminUserRolesResp) ProtoMessage() {}
 
 func (x *SetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[36]
+	mi := &file_servicehub_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2058,7 +2058,7 @@ func (x *SetAdminUserRolesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminUserRolesResp.ProtoReflect.Descriptor instead.
 func (*SetAdminUserRolesResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{36}
+	return file_servicehub_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *SetAdminUserRolesResp) GetOk() bool {
@@ -2077,7 +2077,7 @@ type GetAdminRbacMyPermsReq struct {
 
 func (x *GetAdminRbacMyPermsReq) Reset() {
 	*x = GetAdminRbacMyPermsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[37]
+	mi := &file_servicehub_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2089,7 +2089,7 @@ func (x *GetAdminRbacMyPermsReq) String() string {
 func (*GetAdminRbacMyPermsReq) ProtoMessage() {}
 
 func (x *GetAdminRbacMyPermsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[37]
+	mi := &file_servicehub_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2102,7 +2102,7 @@ func (x *GetAdminRbacMyPermsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyPermsReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyPermsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{37}
+	return file_servicehub_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetAdminRbacMyPermsReq) GetAdminUserId() int64 {
@@ -2122,7 +2122,7 @@ type GetAdminRbacMyPermsResp struct {
 
 func (x *GetAdminRbacMyPermsResp) Reset() {
 	*x = GetAdminRbacMyPermsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[38]
+	mi := &file_servicehub_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2134,7 +2134,7 @@ func (x *GetAdminRbacMyPermsResp) String() string {
 func (*GetAdminRbacMyPermsResp) ProtoMessage() {}
 
 func (x *GetAdminRbacMyPermsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[38]
+	mi := &file_servicehub_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2147,7 +2147,7 @@ func (x *GetAdminRbacMyPermsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRbacMyPermsResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRbacMyPermsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{38}
+	return file_servicehub_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetAdminRbacMyPermsResp) GetIsSuperAdmin() bool {
@@ -2179,7 +2179,7 @@ type AdminPermission struct {
 
 func (x *AdminPermission) Reset() {
 	*x = AdminPermission{}
-	mi := &file_proto_servicehub_proto_msgTypes[39]
+	mi := &file_servicehub_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2191,7 +2191,7 @@ func (x *AdminPermission) String() string {
 func (*AdminPermission) ProtoMessage() {}
 
 func (x *AdminPermission) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[39]
+	mi := &file_servicehub_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2204,7 +2204,7 @@ func (x *AdminPermission) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminPermission.ProtoReflect.Descriptor instead.
 func (*AdminPermission) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{39}
+	return file_servicehub_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *AdminPermission) GetId() int64 {
@@ -2262,7 +2262,7 @@ type ListAdminPermissionsReq struct {
 
 func (x *ListAdminPermissionsReq) Reset() {
 	*x = ListAdminPermissionsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[40]
+	mi := &file_servicehub_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +2274,7 @@ func (x *ListAdminPermissionsReq) String() string {
 func (*ListAdminPermissionsReq) ProtoMessage() {}
 
 func (x *ListAdminPermissionsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[40]
+	mi := &file_servicehub_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2287,7 +2287,7 @@ func (x *ListAdminPermissionsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminPermissionsReq.ProtoReflect.Descriptor instead.
 func (*ListAdminPermissionsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{40}
+	return file_servicehub_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListAdminPermissionsReq) GetPage() int64 {
@@ -2328,7 +2328,7 @@ type ListAdminPermissionsResp struct {
 
 func (x *ListAdminPermissionsResp) Reset() {
 	*x = ListAdminPermissionsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[41]
+	mi := &file_servicehub_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2340,7 +2340,7 @@ func (x *ListAdminPermissionsResp) String() string {
 func (*ListAdminPermissionsResp) ProtoMessage() {}
 
 func (x *ListAdminPermissionsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[41]
+	mi := &file_servicehub_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2353,7 +2353,7 @@ func (x *ListAdminPermissionsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminPermissionsResp.ProtoReflect.Descriptor instead.
 func (*ListAdminPermissionsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{41}
+	return file_servicehub_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListAdminPermissionsResp) GetPermissions() []*AdminPermission {
@@ -2383,7 +2383,7 @@ type CreateAdminPermissionReq struct {
 
 func (x *CreateAdminPermissionReq) Reset() {
 	*x = CreateAdminPermissionReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[42]
+	mi := &file_servicehub_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2395,7 +2395,7 @@ func (x *CreateAdminPermissionReq) String() string {
 func (*CreateAdminPermissionReq) ProtoMessage() {}
 
 func (x *CreateAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[42]
+	mi := &file_servicehub_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2408,7 +2408,7 @@ func (x *CreateAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{42}
+	return file_servicehub_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *CreateAdminPermissionReq) GetPermKey() string {
@@ -2455,7 +2455,7 @@ type CreateAdminPermissionResp struct {
 
 func (x *CreateAdminPermissionResp) Reset() {
 	*x = CreateAdminPermissionResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[43]
+	mi := &file_servicehub_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2467,7 +2467,7 @@ func (x *CreateAdminPermissionResp) String() string {
 func (*CreateAdminPermissionResp) ProtoMessage() {}
 
 func (x *CreateAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[43]
+	mi := &file_servicehub_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2480,7 +2480,7 @@ func (x *CreateAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{43}
+	return file_servicehub_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *CreateAdminPermissionResp) GetPermission() *AdminPermission {
@@ -2503,7 +2503,7 @@ type UpdateAdminPermissionReq struct {
 
 func (x *UpdateAdminPermissionReq) Reset() {
 	*x = UpdateAdminPermissionReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[44]
+	mi := &file_servicehub_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2515,7 +2515,7 @@ func (x *UpdateAdminPermissionReq) String() string {
 func (*UpdateAdminPermissionReq) ProtoMessage() {}
 
 func (x *UpdateAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[44]
+	mi := &file_servicehub_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2528,7 +2528,7 @@ func (x *UpdateAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{44}
+	return file_servicehub_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *UpdateAdminPermissionReq) GetId() int64 {
@@ -2575,7 +2575,7 @@ type UpdateAdminPermissionResp struct {
 
 func (x *UpdateAdminPermissionResp) Reset() {
 	*x = UpdateAdminPermissionResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[45]
+	mi := &file_servicehub_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2587,7 +2587,7 @@ func (x *UpdateAdminPermissionResp) String() string {
 func (*UpdateAdminPermissionResp) ProtoMessage() {}
 
 func (x *UpdateAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[45]
+	mi := &file_servicehub_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2600,7 +2600,7 @@ func (x *UpdateAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{45}
+	return file_servicehub_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *UpdateAdminPermissionResp) GetPermission() *AdminPermission {
@@ -2619,7 +2619,7 @@ type DeleteAdminPermissionReq struct {
 
 func (x *DeleteAdminPermissionReq) Reset() {
 	*x = DeleteAdminPermissionReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[46]
+	mi := &file_servicehub_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2631,7 +2631,7 @@ func (x *DeleteAdminPermissionReq) String() string {
 func (*DeleteAdminPermissionReq) ProtoMessage() {}
 
 func (x *DeleteAdminPermissionReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[46]
+	mi := &file_servicehub_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2644,7 +2644,7 @@ func (x *DeleteAdminPermissionReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminPermissionReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminPermissionReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{46}
+	return file_servicehub_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *DeleteAdminPermissionReq) GetId() int64 {
@@ -2663,7 +2663,7 @@ type DeleteAdminPermissionResp struct {
 
 func (x *DeleteAdminPermissionResp) Reset() {
 	*x = DeleteAdminPermissionResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[47]
+	mi := &file_servicehub_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2675,7 +2675,7 @@ func (x *DeleteAdminPermissionResp) String() string {
 func (*DeleteAdminPermissionResp) ProtoMessage() {}
 
 func (x *DeleteAdminPermissionResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[47]
+	mi := &file_servicehub_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2688,7 +2688,7 @@ func (x *DeleteAdminPermissionResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminPermissionResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminPermissionResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{47}
+	return file_servicehub_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *DeleteAdminPermissionResp) GetOk() bool {
@@ -2707,7 +2707,7 @@ type GetAdminRolePermKeysReq struct {
 
 func (x *GetAdminRolePermKeysReq) Reset() {
 	*x = GetAdminRolePermKeysReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[48]
+	mi := &file_servicehub_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2719,7 +2719,7 @@ func (x *GetAdminRolePermKeysReq) String() string {
 func (*GetAdminRolePermKeysReq) ProtoMessage() {}
 
 func (x *GetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[48]
+	mi := &file_servicehub_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2732,7 +2732,7 @@ func (x *GetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRolePermKeysReq.ProtoReflect.Descriptor instead.
 func (*GetAdminRolePermKeysReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{48}
+	return file_servicehub_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetAdminRolePermKeysReq) GetRoleId() int64 {
@@ -2751,7 +2751,7 @@ type GetAdminRolePermKeysResp struct {
 
 func (x *GetAdminRolePermKeysResp) Reset() {
 	*x = GetAdminRolePermKeysResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[49]
+	mi := &file_servicehub_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2763,7 +2763,7 @@ func (x *GetAdminRolePermKeysResp) String() string {
 func (*GetAdminRolePermKeysResp) ProtoMessage() {}
 
 func (x *GetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[49]
+	mi := &file_servicehub_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2776,7 +2776,7 @@ func (x *GetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminRolePermKeysResp.ProtoReflect.Descriptor instead.
 func (*GetAdminRolePermKeysResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{49}
+	return file_servicehub_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetAdminRolePermKeysResp) GetPermKeys() []string {
@@ -2796,7 +2796,7 @@ type SetAdminRolePermKeysReq struct {
 
 func (x *SetAdminRolePermKeysReq) Reset() {
 	*x = SetAdminRolePermKeysReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[50]
+	mi := &file_servicehub_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2808,7 +2808,7 @@ func (x *SetAdminRolePermKeysReq) String() string {
 func (*SetAdminRolePermKeysReq) ProtoMessage() {}
 
 func (x *SetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[50]
+	mi := &file_servicehub_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2821,7 +2821,7 @@ func (x *SetAdminRolePermKeysReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRolePermKeysReq.ProtoReflect.Descriptor instead.
 func (*SetAdminRolePermKeysReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{50}
+	return file_servicehub_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *SetAdminRolePermKeysReq) GetRoleId() int64 {
@@ -2847,7 +2847,7 @@ type SetAdminRolePermKeysResp struct {
 
 func (x *SetAdminRolePermKeysResp) Reset() {
 	*x = SetAdminRolePermKeysResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[51]
+	mi := &file_servicehub_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2859,7 +2859,7 @@ func (x *SetAdminRolePermKeysResp) String() string {
 func (*SetAdminRolePermKeysResp) ProtoMessage() {}
 
 func (x *SetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[51]
+	mi := &file_servicehub_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2872,7 +2872,7 @@ func (x *SetAdminRolePermKeysResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAdminRolePermKeysResp.ProtoReflect.Descriptor instead.
 func (*SetAdminRolePermKeysResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{51}
+	return file_servicehub_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *SetAdminRolePermKeysResp) GetOk() bool {
@@ -2896,7 +2896,7 @@ type AdminApiRule struct {
 
 func (x *AdminApiRule) Reset() {
 	*x = AdminApiRule{}
-	mi := &file_proto_servicehub_proto_msgTypes[52]
+	mi := &file_servicehub_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2908,7 +2908,7 @@ func (x *AdminApiRule) String() string {
 func (*AdminApiRule) ProtoMessage() {}
 
 func (x *AdminApiRule) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[52]
+	mi := &file_servicehub_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2921,7 +2921,7 @@ func (x *AdminApiRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminApiRule.ProtoReflect.Descriptor instead.
 func (*AdminApiRule) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{52}
+	return file_servicehub_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *AdminApiRule) GetId() int64 {
@@ -2978,7 +2978,7 @@ type ListAdminApiRulesReq struct {
 
 func (x *ListAdminApiRulesReq) Reset() {
 	*x = ListAdminApiRulesReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[53]
+	mi := &file_servicehub_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2990,7 +2990,7 @@ func (x *ListAdminApiRulesReq) String() string {
 func (*ListAdminApiRulesReq) ProtoMessage() {}
 
 func (x *ListAdminApiRulesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[53]
+	mi := &file_servicehub_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3003,7 +3003,7 @@ func (x *ListAdminApiRulesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminApiRulesReq.ProtoReflect.Descriptor instead.
 func (*ListAdminApiRulesReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{53}
+	return file_servicehub_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *ListAdminApiRulesReq) GetPage() int64 {
@@ -3044,7 +3044,7 @@ type ListAdminApiRulesResp struct {
 
 func (x *ListAdminApiRulesResp) Reset() {
 	*x = ListAdminApiRulesResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[54]
+	mi := &file_servicehub_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3056,7 +3056,7 @@ func (x *ListAdminApiRulesResp) String() string {
 func (*ListAdminApiRulesResp) ProtoMessage() {}
 
 func (x *ListAdminApiRulesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[54]
+	mi := &file_servicehub_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3069,7 +3069,7 @@ func (x *ListAdminApiRulesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminApiRulesResp.ProtoReflect.Descriptor instead.
 func (*ListAdminApiRulesResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{54}
+	return file_servicehub_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *ListAdminApiRulesResp) GetRules() []*AdminApiRule {
@@ -3099,7 +3099,7 @@ type UpsertAdminApiRuleReq struct {
 
 func (x *UpsertAdminApiRuleReq) Reset() {
 	*x = UpsertAdminApiRuleReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[55]
+	mi := &file_servicehub_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3111,7 +3111,7 @@ func (x *UpsertAdminApiRuleReq) String() string {
 func (*UpsertAdminApiRuleReq) ProtoMessage() {}
 
 func (x *UpsertAdminApiRuleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[55]
+	mi := &file_servicehub_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3124,7 +3124,7 @@ func (x *UpsertAdminApiRuleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertAdminApiRuleReq.ProtoReflect.Descriptor instead.
 func (*UpsertAdminApiRuleReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{55}
+	return file_servicehub_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *UpsertAdminApiRuleReq) GetMethod() string {
@@ -3171,7 +3171,7 @@ type UpsertAdminApiRuleResp struct {
 
 func (x *UpsertAdminApiRuleResp) Reset() {
 	*x = UpsertAdminApiRuleResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[56]
+	mi := &file_servicehub_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3183,7 +3183,7 @@ func (x *UpsertAdminApiRuleResp) String() string {
 func (*UpsertAdminApiRuleResp) ProtoMessage() {}
 
 func (x *UpsertAdminApiRuleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[56]
+	mi := &file_servicehub_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3196,7 +3196,7 @@ func (x *UpsertAdminApiRuleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertAdminApiRuleResp.ProtoReflect.Descriptor instead.
 func (*UpsertAdminApiRuleResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{56}
+	return file_servicehub_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *UpsertAdminApiRuleResp) GetRule() *AdminApiRule {
@@ -3215,7 +3215,7 @@ type DeleteAdminApiRuleReq struct {
 
 func (x *DeleteAdminApiRuleReq) Reset() {
 	*x = DeleteAdminApiRuleReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[57]
+	mi := &file_servicehub_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3227,7 +3227,7 @@ func (x *DeleteAdminApiRuleReq) String() string {
 func (*DeleteAdminApiRuleReq) ProtoMessage() {}
 
 func (x *DeleteAdminApiRuleReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[57]
+	mi := &file_servicehub_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3240,7 +3240,7 @@ func (x *DeleteAdminApiRuleReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminApiRuleReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminApiRuleReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{57}
+	return file_servicehub_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *DeleteAdminApiRuleReq) GetId() int64 {
@@ -3259,7 +3259,7 @@ type DeleteAdminApiRuleResp struct {
 
 func (x *DeleteAdminApiRuleResp) Reset() {
 	*x = DeleteAdminApiRuleResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[58]
+	mi := &file_servicehub_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3271,7 +3271,7 @@ func (x *DeleteAdminApiRuleResp) String() string {
 func (*DeleteAdminApiRuleResp) ProtoMessage() {}
 
 func (x *DeleteAdminApiRuleResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[58]
+	mi := &file_servicehub_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3284,7 +3284,7 @@ func (x *DeleteAdminApiRuleResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminApiRuleResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminApiRuleResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{58}
+	return file_servicehub_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *DeleteAdminApiRuleResp) GetOk() bool {
@@ -3305,7 +3305,7 @@ type CreateAdminUserReq struct {
 
 func (x *CreateAdminUserReq) Reset() {
 	*x = CreateAdminUserReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[59]
+	mi := &file_servicehub_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3317,7 +3317,7 @@ func (x *CreateAdminUserReq) String() string {
 func (*CreateAdminUserReq) ProtoMessage() {}
 
 func (x *CreateAdminUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[59]
+	mi := &file_servicehub_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3330,7 +3330,7 @@ func (x *CreateAdminUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminUserReq.ProtoReflect.Descriptor instead.
 func (*CreateAdminUserReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{59}
+	return file_servicehub_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *CreateAdminUserReq) GetUsername() string {
@@ -3363,7 +3363,7 @@ type CreateAdminUserResp struct {
 
 func (x *CreateAdminUserResp) Reset() {
 	*x = CreateAdminUserResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[60]
+	mi := &file_servicehub_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3375,7 +3375,7 @@ func (x *CreateAdminUserResp) String() string {
 func (*CreateAdminUserResp) ProtoMessage() {}
 
 func (x *CreateAdminUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[60]
+	mi := &file_servicehub_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3388,7 +3388,7 @@ func (x *CreateAdminUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdminUserResp.ProtoReflect.Descriptor instead.
 func (*CreateAdminUserResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{60}
+	return file_servicehub_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *CreateAdminUserResp) GetUser() *AdminUserPublic {
@@ -3411,7 +3411,7 @@ type UpdateAdminUserReq struct {
 
 func (x *UpdateAdminUserReq) Reset() {
 	*x = UpdateAdminUserReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[61]
+	mi := &file_servicehub_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3423,7 +3423,7 @@ func (x *UpdateAdminUserReq) String() string {
 func (*UpdateAdminUserReq) ProtoMessage() {}
 
 func (x *UpdateAdminUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[61]
+	mi := &file_servicehub_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3436,7 +3436,7 @@ func (x *UpdateAdminUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminUserReq.ProtoReflect.Descriptor instead.
 func (*UpdateAdminUserReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{61}
+	return file_servicehub_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *UpdateAdminUserReq) GetId() int64 {
@@ -3483,7 +3483,7 @@ type UpdateAdminUserResp struct {
 
 func (x *UpdateAdminUserResp) Reset() {
 	*x = UpdateAdminUserResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[62]
+	mi := &file_servicehub_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3495,7 +3495,7 @@ func (x *UpdateAdminUserResp) String() string {
 func (*UpdateAdminUserResp) ProtoMessage() {}
 
 func (x *UpdateAdminUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[62]
+	mi := &file_servicehub_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3508,7 +3508,7 @@ func (x *UpdateAdminUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdminUserResp.ProtoReflect.Descriptor instead.
 func (*UpdateAdminUserResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{62}
+	return file_servicehub_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *UpdateAdminUserResp) GetUser() *AdminUserPublic {
@@ -3527,7 +3527,7 @@ type DeleteAdminUserReq struct {
 
 func (x *DeleteAdminUserReq) Reset() {
 	*x = DeleteAdminUserReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[63]
+	mi := &file_servicehub_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3539,7 +3539,7 @@ func (x *DeleteAdminUserReq) String() string {
 func (*DeleteAdminUserReq) ProtoMessage() {}
 
 func (x *DeleteAdminUserReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[63]
+	mi := &file_servicehub_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3552,7 +3552,7 @@ func (x *DeleteAdminUserReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminUserReq.ProtoReflect.Descriptor instead.
 func (*DeleteAdminUserReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{63}
+	return file_servicehub_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *DeleteAdminUserReq) GetId() int64 {
@@ -3571,7 +3571,7 @@ type DeleteAdminUserResp struct {
 
 func (x *DeleteAdminUserResp) Reset() {
 	*x = DeleteAdminUserResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[64]
+	mi := &file_servicehub_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3583,7 +3583,7 @@ func (x *DeleteAdminUserResp) String() string {
 func (*DeleteAdminUserResp) ProtoMessage() {}
 
 func (x *DeleteAdminUserResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[64]
+	mi := &file_servicehub_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3596,7 +3596,7 @@ func (x *DeleteAdminUserResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdminUserResp.ProtoReflect.Descriptor instead.
 func (*DeleteAdminUserResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{64}
+	return file_servicehub_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *DeleteAdminUserResp) GetOk() bool {
@@ -3615,7 +3615,7 @@ type GetAdminUserByIdReq struct {
 
 func (x *GetAdminUserByIdReq) Reset() {
 	*x = GetAdminUserByIdReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[65]
+	mi := &file_servicehub_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3627,7 +3627,7 @@ func (x *GetAdminUserByIdReq) String() string {
 func (*GetAdminUserByIdReq) ProtoMessage() {}
 
 func (x *GetAdminUserByIdReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[65]
+	mi := &file_servicehub_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3640,7 +3640,7 @@ func (x *GetAdminUserByIdReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserByIdReq.ProtoReflect.Descriptor instead.
 func (*GetAdminUserByIdReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{65}
+	return file_servicehub_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *GetAdminUserByIdReq) GetId() int64 {
@@ -3659,7 +3659,7 @@ type GetAdminUserByIdResp struct {
 
 func (x *GetAdminUserByIdResp) Reset() {
 	*x = GetAdminUserByIdResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[66]
+	mi := &file_servicehub_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3671,7 +3671,7 @@ func (x *GetAdminUserByIdResp) String() string {
 func (*GetAdminUserByIdResp) ProtoMessage() {}
 
 func (x *GetAdminUserByIdResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[66]
+	mi := &file_servicehub_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3684,7 +3684,7 @@ func (x *GetAdminUserByIdResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminUserByIdResp.ProtoReflect.Descriptor instead.
 func (*GetAdminUserByIdResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{66}
+	return file_servicehub_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *GetAdminUserByIdResp) GetUser() *AdminUser {
@@ -3718,7 +3718,7 @@ type PublishPortalNotificationReq struct {
 
 func (x *PublishPortalNotificationReq) Reset() {
 	*x = PublishPortalNotificationReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[67]
+	mi := &file_servicehub_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3730,7 +3730,7 @@ func (x *PublishPortalNotificationReq) String() string {
 func (*PublishPortalNotificationReq) ProtoMessage() {}
 
 func (x *PublishPortalNotificationReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[67]
+	mi := &file_servicehub_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3743,7 +3743,7 @@ func (x *PublishPortalNotificationReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishPortalNotificationReq.ProtoReflect.Descriptor instead.
 func (*PublishPortalNotificationReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{67}
+	return file_servicehub_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *PublishPortalNotificationReq) GetPortal() NotificationPortal {
@@ -3825,7 +3825,7 @@ type PublishPortalNotificationResp struct {
 
 func (x *PublishPortalNotificationResp) Reset() {
 	*x = PublishPortalNotificationResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[68]
+	mi := &file_servicehub_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3837,7 +3837,7 @@ func (x *PublishPortalNotificationResp) String() string {
 func (*PublishPortalNotificationResp) ProtoMessage() {}
 
 func (x *PublishPortalNotificationResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[68]
+	mi := &file_servicehub_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3850,7 +3850,7 @@ func (x *PublishPortalNotificationResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PublishPortalNotificationResp.ProtoReflect.Descriptor instead.
 func (*PublishPortalNotificationResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{68}
+	return file_servicehub_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *PublishPortalNotificationResp) GetNotificationId() string {
@@ -3888,7 +3888,7 @@ type ScheduledJob struct {
 
 func (x *ScheduledJob) Reset() {
 	*x = ScheduledJob{}
-	mi := &file_proto_servicehub_proto_msgTypes[69]
+	mi := &file_servicehub_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3900,7 +3900,7 @@ func (x *ScheduledJob) String() string {
 func (*ScheduledJob) ProtoMessage() {}
 
 func (x *ScheduledJob) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[69]
+	mi := &file_servicehub_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3913,7 +3913,7 @@ func (x *ScheduledJob) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledJob.ProtoReflect.Descriptor instead.
 func (*ScheduledJob) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{69}
+	return file_servicehub_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *ScheduledJob) GetId() int64 {
@@ -4081,7 +4081,7 @@ type ScheduledJobRun struct {
 
 func (x *ScheduledJobRun) Reset() {
 	*x = ScheduledJobRun{}
-	mi := &file_proto_servicehub_proto_msgTypes[70]
+	mi := &file_servicehub_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4093,7 +4093,7 @@ func (x *ScheduledJobRun) String() string {
 func (*ScheduledJobRun) ProtoMessage() {}
 
 func (x *ScheduledJobRun) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[70]
+	mi := &file_servicehub_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4106,7 +4106,7 @@ func (x *ScheduledJobRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduledJobRun.ProtoReflect.Descriptor instead.
 func (*ScheduledJobRun) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{70}
+	return file_servicehub_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *ScheduledJobRun) GetId() int64 {
@@ -4238,7 +4238,7 @@ type ListScheduledJobsReq struct {
 
 func (x *ListScheduledJobsReq) Reset() {
 	*x = ListScheduledJobsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[71]
+	mi := &file_servicehub_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4250,7 +4250,7 @@ func (x *ListScheduledJobsReq) String() string {
 func (*ListScheduledJobsReq) ProtoMessage() {}
 
 func (x *ListScheduledJobsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[71]
+	mi := &file_servicehub_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4263,7 +4263,7 @@ func (x *ListScheduledJobsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduledJobsReq.ProtoReflect.Descriptor instead.
 func (*ListScheduledJobsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{71}
+	return file_servicehub_proto_rawDescGZIP(), []int{71}
 }
 
 func (x *ListScheduledJobsReq) GetLimit() int64 {
@@ -4290,7 +4290,7 @@ type ListScheduledJobsResp struct {
 
 func (x *ListScheduledJobsResp) Reset() {
 	*x = ListScheduledJobsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[72]
+	mi := &file_servicehub_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4302,7 +4302,7 @@ func (x *ListScheduledJobsResp) String() string {
 func (*ListScheduledJobsResp) ProtoMessage() {}
 
 func (x *ListScheduledJobsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[72]
+	mi := &file_servicehub_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4315,7 +4315,7 @@ func (x *ListScheduledJobsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduledJobsResp.ProtoReflect.Descriptor instead.
 func (*ListScheduledJobsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{72}
+	return file_servicehub_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *ListScheduledJobsResp) GetJobs() []*ScheduledJob {
@@ -4354,7 +4354,7 @@ type CreateScheduledJobReq struct {
 
 func (x *CreateScheduledJobReq) Reset() {
 	*x = CreateScheduledJobReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[73]
+	mi := &file_servicehub_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4366,7 +4366,7 @@ func (x *CreateScheduledJobReq) String() string {
 func (*CreateScheduledJobReq) ProtoMessage() {}
 
 func (x *CreateScheduledJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[73]
+	mi := &file_servicehub_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4379,7 +4379,7 @@ func (x *CreateScheduledJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateScheduledJobReq.ProtoReflect.Descriptor instead.
 func (*CreateScheduledJobReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{73}
+	return file_servicehub_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *CreateScheduledJobReq) GetJobKey() string {
@@ -4489,7 +4489,7 @@ type CreateScheduledJobResp struct {
 
 func (x *CreateScheduledJobResp) Reset() {
 	*x = CreateScheduledJobResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[74]
+	mi := &file_servicehub_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4501,7 +4501,7 @@ func (x *CreateScheduledJobResp) String() string {
 func (*CreateScheduledJobResp) ProtoMessage() {}
 
 func (x *CreateScheduledJobResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[74]
+	mi := &file_servicehub_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4514,7 +4514,7 @@ func (x *CreateScheduledJobResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateScheduledJobResp.ProtoReflect.Descriptor instead.
 func (*CreateScheduledJobResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{74}
+	return file_servicehub_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *CreateScheduledJobResp) GetJob() *ScheduledJob {
@@ -4546,7 +4546,7 @@ type UpdateScheduledJobReq struct {
 
 func (x *UpdateScheduledJobReq) Reset() {
 	*x = UpdateScheduledJobReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[75]
+	mi := &file_servicehub_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4558,7 +4558,7 @@ func (x *UpdateScheduledJobReq) String() string {
 func (*UpdateScheduledJobReq) ProtoMessage() {}
 
 func (x *UpdateScheduledJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[75]
+	mi := &file_servicehub_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4571,7 +4571,7 @@ func (x *UpdateScheduledJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateScheduledJobReq.ProtoReflect.Descriptor instead.
 func (*UpdateScheduledJobReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{75}
+	return file_servicehub_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *UpdateScheduledJobReq) GetId() int64 {
@@ -4681,7 +4681,7 @@ type UpdateScheduledJobResp struct {
 
 func (x *UpdateScheduledJobResp) Reset() {
 	*x = UpdateScheduledJobResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[76]
+	mi := &file_servicehub_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4693,7 +4693,7 @@ func (x *UpdateScheduledJobResp) String() string {
 func (*UpdateScheduledJobResp) ProtoMessage() {}
 
 func (x *UpdateScheduledJobResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[76]
+	mi := &file_servicehub_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4706,7 +4706,7 @@ func (x *UpdateScheduledJobResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateScheduledJobResp.ProtoReflect.Descriptor instead.
 func (*UpdateScheduledJobResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{76}
+	return file_servicehub_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *UpdateScheduledJobResp) GetJob() *ScheduledJob {
@@ -4727,7 +4727,7 @@ type ToggleScheduledJobReq struct {
 
 func (x *ToggleScheduledJobReq) Reset() {
 	*x = ToggleScheduledJobReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[77]
+	mi := &file_servicehub_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4739,7 +4739,7 @@ func (x *ToggleScheduledJobReq) String() string {
 func (*ToggleScheduledJobReq) ProtoMessage() {}
 
 func (x *ToggleScheduledJobReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[77]
+	mi := &file_servicehub_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4752,7 +4752,7 @@ func (x *ToggleScheduledJobReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToggleScheduledJobReq.ProtoReflect.Descriptor instead.
 func (*ToggleScheduledJobReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{77}
+	return file_servicehub_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ToggleScheduledJobReq) GetId() int64 {
@@ -4785,7 +4785,7 @@ type ToggleScheduledJobResp struct {
 
 func (x *ToggleScheduledJobResp) Reset() {
 	*x = ToggleScheduledJobResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[78]
+	mi := &file_servicehub_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4797,7 +4797,7 @@ func (x *ToggleScheduledJobResp) String() string {
 func (*ToggleScheduledJobResp) ProtoMessage() {}
 
 func (x *ToggleScheduledJobResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[78]
+	mi := &file_servicehub_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4810,7 +4810,7 @@ func (x *ToggleScheduledJobResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ToggleScheduledJobResp.ProtoReflect.Descriptor instead.
 func (*ToggleScheduledJobResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{78}
+	return file_servicehub_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ToggleScheduledJobResp) GetJob() *ScheduledJob {
@@ -4830,7 +4830,7 @@ type RunScheduledJobNowReq struct {
 
 func (x *RunScheduledJobNowReq) Reset() {
 	*x = RunScheduledJobNowReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[79]
+	mi := &file_servicehub_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4842,7 +4842,7 @@ func (x *RunScheduledJobNowReq) String() string {
 func (*RunScheduledJobNowReq) ProtoMessage() {}
 
 func (x *RunScheduledJobNowReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[79]
+	mi := &file_servicehub_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4855,7 +4855,7 @@ func (x *RunScheduledJobNowReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunScheduledJobNowReq.ProtoReflect.Descriptor instead.
 func (*RunScheduledJobNowReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{79}
+	return file_servicehub_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *RunScheduledJobNowReq) GetId() int64 {
@@ -4881,7 +4881,7 @@ type RunScheduledJobNowResp struct {
 
 func (x *RunScheduledJobNowResp) Reset() {
 	*x = RunScheduledJobNowResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[80]
+	mi := &file_servicehub_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4893,7 +4893,7 @@ func (x *RunScheduledJobNowResp) String() string {
 func (*RunScheduledJobNowResp) ProtoMessage() {}
 
 func (x *RunScheduledJobNowResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[80]
+	mi := &file_servicehub_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4906,7 +4906,7 @@ func (x *RunScheduledJobNowResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunScheduledJobNowResp.ProtoReflect.Descriptor instead.
 func (*RunScheduledJobNowResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{80}
+	return file_servicehub_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *RunScheduledJobNowResp) GetOk() bool {
@@ -4929,7 +4929,7 @@ type ListScheduledJobRunsReq struct {
 
 func (x *ListScheduledJobRunsReq) Reset() {
 	*x = ListScheduledJobRunsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[81]
+	mi := &file_servicehub_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4941,7 +4941,7 @@ func (x *ListScheduledJobRunsReq) String() string {
 func (*ListScheduledJobRunsReq) ProtoMessage() {}
 
 func (x *ListScheduledJobRunsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[81]
+	mi := &file_servicehub_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4954,7 +4954,7 @@ func (x *ListScheduledJobRunsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduledJobRunsReq.ProtoReflect.Descriptor instead.
 func (*ListScheduledJobRunsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{81}
+	return file_servicehub_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *ListScheduledJobRunsReq) GetJobId() int64 {
@@ -5002,7 +5002,7 @@ type ListScheduledJobRunsResp struct {
 
 func (x *ListScheduledJobRunsResp) Reset() {
 	*x = ListScheduledJobRunsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[82]
+	mi := &file_servicehub_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5014,7 +5014,7 @@ func (x *ListScheduledJobRunsResp) String() string {
 func (*ListScheduledJobRunsResp) ProtoMessage() {}
 
 func (x *ListScheduledJobRunsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[82]
+	mi := &file_servicehub_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5027,7 +5027,7 @@ func (x *ListScheduledJobRunsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduledJobRunsResp.ProtoReflect.Descriptor instead.
 func (*ListScheduledJobRunsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{82}
+	return file_servicehub_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *ListScheduledJobRunsResp) GetRuns() []*ScheduledJobRun {
@@ -5053,7 +5053,7 @@ type GetScheduledJobRunReq struct {
 
 func (x *GetScheduledJobRunReq) Reset() {
 	*x = GetScheduledJobRunReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[83]
+	mi := &file_servicehub_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5065,7 +5065,7 @@ func (x *GetScheduledJobRunReq) String() string {
 func (*GetScheduledJobRunReq) ProtoMessage() {}
 
 func (x *GetScheduledJobRunReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[83]
+	mi := &file_servicehub_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5078,7 +5078,7 @@ func (x *GetScheduledJobRunReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScheduledJobRunReq.ProtoReflect.Descriptor instead.
 func (*GetScheduledJobRunReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{83}
+	return file_servicehub_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *GetScheduledJobRunReq) GetId() int64 {
@@ -5097,7 +5097,7 @@ type GetScheduledJobRunResp struct {
 
 func (x *GetScheduledJobRunResp) Reset() {
 	*x = GetScheduledJobRunResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[84]
+	mi := &file_servicehub_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5109,7 +5109,7 @@ func (x *GetScheduledJobRunResp) String() string {
 func (*GetScheduledJobRunResp) ProtoMessage() {}
 
 func (x *GetScheduledJobRunResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[84]
+	mi := &file_servicehub_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5122,7 +5122,7 @@ func (x *GetScheduledJobRunResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetScheduledJobRunResp.ProtoReflect.Descriptor instead.
 func (*GetScheduledJobRunResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{84}
+	return file_servicehub_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *GetScheduledJobRunResp) GetRun() *ScheduledJobRun {
@@ -5141,7 +5141,7 @@ type RetryScheduledJobRunReq struct {
 
 func (x *RetryScheduledJobRunReq) Reset() {
 	*x = RetryScheduledJobRunReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[85]
+	mi := &file_servicehub_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5153,7 +5153,7 @@ func (x *RetryScheduledJobRunReq) String() string {
 func (*RetryScheduledJobRunReq) ProtoMessage() {}
 
 func (x *RetryScheduledJobRunReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[85]
+	mi := &file_servicehub_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5166,7 +5166,7 @@ func (x *RetryScheduledJobRunReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryScheduledJobRunReq.ProtoReflect.Descriptor instead.
 func (*RetryScheduledJobRunReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{85}
+	return file_servicehub_proto_rawDescGZIP(), []int{85}
 }
 
 func (x *RetryScheduledJobRunReq) GetId() int64 {
@@ -5185,7 +5185,7 @@ type RetryScheduledJobRunResp struct {
 
 func (x *RetryScheduledJobRunResp) Reset() {
 	*x = RetryScheduledJobRunResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[86]
+	mi := &file_servicehub_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5197,7 +5197,7 @@ func (x *RetryScheduledJobRunResp) String() string {
 func (*RetryScheduledJobRunResp) ProtoMessage() {}
 
 func (x *RetryScheduledJobRunResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[86]
+	mi := &file_servicehub_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5210,7 +5210,7 @@ func (x *RetryScheduledJobRunResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryScheduledJobRunResp.ProtoReflect.Descriptor instead.
 func (*RetryScheduledJobRunResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{86}
+	return file_servicehub_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *RetryScheduledJobRunResp) GetOk() bool {
@@ -5228,7 +5228,7 @@ type ListJobWorkerNodesReq struct {
 
 func (x *ListJobWorkerNodesReq) Reset() {
 	*x = ListJobWorkerNodesReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[87]
+	mi := &file_servicehub_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5240,7 +5240,7 @@ func (x *ListJobWorkerNodesReq) String() string {
 func (*ListJobWorkerNodesReq) ProtoMessage() {}
 
 func (x *ListJobWorkerNodesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[87]
+	mi := &file_servicehub_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5253,7 +5253,7 @@ func (x *ListJobWorkerNodesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListJobWorkerNodesReq.ProtoReflect.Descriptor instead.
 func (*ListJobWorkerNodesReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{87}
+	return file_servicehub_proto_rawDescGZIP(), []int{87}
 }
 
 type JobWorkerNode struct {
@@ -5269,7 +5269,7 @@ type JobWorkerNode struct {
 
 func (x *JobWorkerNode) Reset() {
 	*x = JobWorkerNode{}
-	mi := &file_proto_servicehub_proto_msgTypes[88]
+	mi := &file_servicehub_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5281,7 +5281,7 @@ func (x *JobWorkerNode) String() string {
 func (*JobWorkerNode) ProtoMessage() {}
 
 func (x *JobWorkerNode) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[88]
+	mi := &file_servicehub_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5294,7 +5294,7 @@ func (x *JobWorkerNode) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobWorkerNode.ProtoReflect.Descriptor instead.
 func (*JobWorkerNode) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{88}
+	return file_servicehub_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *JobWorkerNode) GetWorkerId() string {
@@ -5342,7 +5342,7 @@ type ListJobWorkerNodesResp struct {
 
 func (x *ListJobWorkerNodesResp) Reset() {
 	*x = ListJobWorkerNodesResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[89]
+	mi := &file_servicehub_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5354,7 +5354,7 @@ func (x *ListJobWorkerNodesResp) String() string {
 func (*ListJobWorkerNodesResp) ProtoMessage() {}
 
 func (x *ListJobWorkerNodesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[89]
+	mi := &file_servicehub_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5367,7 +5367,7 @@ func (x *ListJobWorkerNodesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListJobWorkerNodesResp.ProtoReflect.Descriptor instead.
 func (*ListJobWorkerNodesResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{89}
+	return file_servicehub_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *ListJobWorkerNodesResp) GetNodes() []*JobWorkerNode {
@@ -5405,7 +5405,7 @@ type RecordAdminOperationLogReq struct {
 
 func (x *RecordAdminOperationLogReq) Reset() {
 	*x = RecordAdminOperationLogReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[90]
+	mi := &file_servicehub_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5417,7 +5417,7 @@ func (x *RecordAdminOperationLogReq) String() string {
 func (*RecordAdminOperationLogReq) ProtoMessage() {}
 
 func (x *RecordAdminOperationLogReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[90]
+	mi := &file_servicehub_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5430,7 +5430,7 @@ func (x *RecordAdminOperationLogReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAdminOperationLogReq.ProtoReflect.Descriptor instead.
 func (*RecordAdminOperationLogReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{90}
+	return file_servicehub_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *RecordAdminOperationLogReq) GetRequestId() string {
@@ -5532,7 +5532,7 @@ type RecordAdminOperationLogResp struct {
 
 func (x *RecordAdminOperationLogResp) Reset() {
 	*x = RecordAdminOperationLogResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[91]
+	mi := &file_servicehub_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5544,7 +5544,7 @@ func (x *RecordAdminOperationLogResp) String() string {
 func (*RecordAdminOperationLogResp) ProtoMessage() {}
 
 func (x *RecordAdminOperationLogResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[91]
+	mi := &file_servicehub_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5557,7 +5557,7 @@ func (x *RecordAdminOperationLogResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecordAdminOperationLogResp.ProtoReflect.Descriptor instead.
 func (*RecordAdminOperationLogResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{91}
+	return file_servicehub_proto_rawDescGZIP(), []int{91}
 }
 
 type ListAdminOperationLogsReq struct {
@@ -5577,7 +5577,7 @@ type ListAdminOperationLogsReq struct {
 
 func (x *ListAdminOperationLogsReq) Reset() {
 	*x = ListAdminOperationLogsReq{}
-	mi := &file_proto_servicehub_proto_msgTypes[92]
+	mi := &file_servicehub_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5589,7 +5589,7 @@ func (x *ListAdminOperationLogsReq) String() string {
 func (*ListAdminOperationLogsReq) ProtoMessage() {}
 
 func (x *ListAdminOperationLogsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[92]
+	mi := &file_servicehub_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5602,7 +5602,7 @@ func (x *ListAdminOperationLogsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminOperationLogsReq.ProtoReflect.Descriptor instead.
 func (*ListAdminOperationLogsReq) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{92}
+	return file_servicehub_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *ListAdminOperationLogsReq) GetStartSec() int64 {
@@ -5691,7 +5691,7 @@ type AdminOperationLogRow struct {
 
 func (x *AdminOperationLogRow) Reset() {
 	*x = AdminOperationLogRow{}
-	mi := &file_proto_servicehub_proto_msgTypes[93]
+	mi := &file_servicehub_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5703,7 +5703,7 @@ func (x *AdminOperationLogRow) String() string {
 func (*AdminOperationLogRow) ProtoMessage() {}
 
 func (x *AdminOperationLogRow) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[93]
+	mi := &file_servicehub_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5716,7 +5716,7 @@ func (x *AdminOperationLogRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminOperationLogRow.ProtoReflect.Descriptor instead.
 func (*AdminOperationLogRow) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{93}
+	return file_servicehub_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *AdminOperationLogRow) GetId() int64 {
@@ -5834,7 +5834,7 @@ type ListAdminOperationLogsResp struct {
 
 func (x *ListAdminOperationLogsResp) Reset() {
 	*x = ListAdminOperationLogsResp{}
-	mi := &file_proto_servicehub_proto_msgTypes[94]
+	mi := &file_servicehub_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5846,7 +5846,7 @@ func (x *ListAdminOperationLogsResp) String() string {
 func (*ListAdminOperationLogsResp) ProtoMessage() {}
 
 func (x *ListAdminOperationLogsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_servicehub_proto_msgTypes[94]
+	mi := &file_servicehub_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5859,7 +5859,7 @@ func (x *ListAdminOperationLogsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdminOperationLogsResp.ProtoReflect.Descriptor instead.
 func (*ListAdminOperationLogsResp) Descriptor() ([]byte, []int) {
-	return file_proto_servicehub_proto_rawDescGZIP(), []int{94}
+	return file_servicehub_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *ListAdminOperationLogsResp) GetRows() []*AdminOperationLogRow {
@@ -5876,11 +5876,11 @@ func (x *ListAdminOperationLogsResp) GetTotal() int64 {
 	return 0
 }
 
-var File_proto_servicehub_proto protoreflect.FileDescriptor
+var File_servicehub_proto protoreflect.FileDescriptor
 
-const file_proto_servicehub_proto_rawDesc = "" +
+const file_servicehub_proto_rawDesc = "" +
 	"\n" +
-	"\x16proto/servicehub.proto\x12\n" +
+	"\x10servicehub.proto\x12\n" +
 	"servicehub\"8\n" +
 	"\x1aFindAdminUserByUsernameReq\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\"H\n" +
@@ -6351,7 +6351,12 @@ const file_proto_servicehub_proto_rawDesc = "" +
 	"\x12UpsertAdminApiRule\x12!.servicehub.UpsertAdminApiRuleReq\x1a\".servicehub.UpsertAdminApiRuleResp\x12[\n" +
 	"\x12DeleteAdminApiRule\x12!.servicehub.DeleteAdminApiRuleReq\x1a\".servicehub.DeleteAdminApiRuleResp\x12j\n" +
 	"\x17RecordAdminOperationLog\x12&.servicehub.RecordAdminOperationLogReq\x1a'.servicehub.RecordAdminOperationLogResp\x12g\n" +
-	"\x16ListAdminOperationLogs\x12%.servicehub.ListAdminOperationLogsReq\x1a&.servicehub.ListAdminOperationLogsResp\x12X\n" +
+	"\x16ListAdminOperationLogs\x12%.servicehub.ListAdminOperationLogsReq\x1a&.servicehub.ListAdminOperationLogsResp\x12R\n" +
+	"\x0fCreateAdminUser\x12\x1e.servicehub.CreateAdminUserReq\x1a\x1f.servicehub.CreateAdminUserResp\x12R\n" +
+	"\x0fUpdateAdminUser\x12\x1e.servicehub.UpdateAdminUserReq\x1a\x1f.servicehub.UpdateAdminUserResp\x12R\n" +
+	"\x0fDeleteAdminUser\x12\x1e.servicehub.DeleteAdminUserReq\x1a\x1f.servicehub.DeleteAdminUserResp\x12U\n" +
+	"\x10GetAdminUserById\x12\x1f.servicehub.GetAdminUserByIdReq\x1a .servicehub.GetAdminUserByIdResp\x12p\n" +
+	"\x19PublishPortalNotification\x12(.servicehub.PublishPortalNotificationReq\x1a).servicehub.PublishPortalNotificationResp\x12X\n" +
 	"\x11ListScheduledJobs\x12 .servicehub.ListScheduledJobsReq\x1a!.servicehub.ListScheduledJobsResp\x12[\n" +
 	"\x12CreateScheduledJob\x12!.servicehub.CreateScheduledJobReq\x1a\".servicehub.CreateScheduledJobResp\x12[\n" +
 	"\x12UpdateScheduledJob\x12!.servicehub.UpdateScheduledJobReq\x1a\".servicehub.UpdateScheduledJobResp\x12[\n" +
@@ -6360,28 +6365,23 @@ const file_proto_servicehub_proto_rawDesc = "" +
 	"\x14ListScheduledJobRuns\x12#.servicehub.ListScheduledJobRunsReq\x1a$.servicehub.ListScheduledJobRunsResp\x12[\n" +
 	"\x12GetScheduledJobRun\x12!.servicehub.GetScheduledJobRunReq\x1a\".servicehub.GetScheduledJobRunResp\x12a\n" +
 	"\x14RetryScheduledJobRun\x12#.servicehub.RetryScheduledJobRunReq\x1a$.servicehub.RetryScheduledJobRunResp\x12[\n" +
-	"\x12ListJobWorkerNodes\x12!.servicehub.ListJobWorkerNodesReq\x1a\".servicehub.ListJobWorkerNodesResp\x12R\n" +
-	"\x0fCreateAdminUser\x12\x1e.servicehub.CreateAdminUserReq\x1a\x1f.servicehub.CreateAdminUserResp\x12R\n" +
-	"\x0fUpdateAdminUser\x12\x1e.servicehub.UpdateAdminUserReq\x1a\x1f.servicehub.UpdateAdminUserResp\x12R\n" +
-	"\x0fDeleteAdminUser\x12\x1e.servicehub.DeleteAdminUserReq\x1a\x1f.servicehub.DeleteAdminUserResp\x12U\n" +
-	"\x10GetAdminUserById\x12\x1f.servicehub.GetAdminUserByIdReq\x1a .servicehub.GetAdminUserByIdResp\x12p\n" +
-	"\x19PublishPortalNotification\x12(.servicehub.PublishPortalNotificationReq\x1a).servicehub.PublishPortalNotificationRespB8Z6github.com/gloopai/platform/common/pb/servicehub;servicehubb\x06proto3"
+	"\x12ListJobWorkerNodes\x12!.servicehub.ListJobWorkerNodesReq\x1a\".servicehub.ListJobWorkerNodesRespB=Z;github.com/gloopai/platform/common/pb/servicehub;servicehubb\x06proto3"
 
 var (
-	file_proto_servicehub_proto_rawDescOnce sync.Once
-	file_proto_servicehub_proto_rawDescData []byte
+	file_servicehub_proto_rawDescOnce sync.Once
+	file_servicehub_proto_rawDescData []byte
 )
 
-func file_proto_servicehub_proto_rawDescGZIP() []byte {
-	file_proto_servicehub_proto_rawDescOnce.Do(func() {
-		file_proto_servicehub_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_servicehub_proto_rawDesc), len(file_proto_servicehub_proto_rawDesc)))
+func file_servicehub_proto_rawDescGZIP() []byte {
+	file_servicehub_proto_rawDescOnce.Do(func() {
+		file_servicehub_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)))
 	})
-	return file_proto_servicehub_proto_rawDescData
+	return file_servicehub_proto_rawDescData
 }
 
-var file_proto_servicehub_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 95)
-var file_proto_servicehub_proto_goTypes = []any{
+var file_servicehub_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 95)
+var file_servicehub_proto_goTypes = []any{
 	(NotificationPortal)(0),               // 0: servicehub.NotificationPortal
 	(*FindAdminUserByUsernameReq)(nil),    // 1: servicehub.FindAdminUserByUsernameReq
 	(*FindAdminUserByUsernameResp)(nil),   // 2: servicehub.FindAdminUserByUsernameResp
@@ -6479,7 +6479,7 @@ var file_proto_servicehub_proto_goTypes = []any{
 	(*AdminOperationLogRow)(nil),          // 94: servicehub.AdminOperationLogRow
 	(*ListAdminOperationLogsResp)(nil),    // 95: servicehub.ListAdminOperationLogsResp
 }
-var file_proto_servicehub_proto_depIdxs = []int32{
+var file_servicehub_proto_depIdxs = []int32{
 	3,  // 0: servicehub.FindAdminUserByUsernameResp.user:type_name -> servicehub.AdminUser
 	4,  // 1: servicehub.ListAdminUsersResp.users:type_name -> servicehub.AdminUserPublic
 	11, // 2: servicehub.GetAdminRbacMyMenusResp.menus:type_name -> servicehub.AdminMenu
@@ -6535,20 +6535,20 @@ var file_proto_servicehub_proto_depIdxs = []int32{
 	58, // 52: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
 	91, // 53: servicehub.ServiceHub.RecordAdminOperationLog:input_type -> servicehub.RecordAdminOperationLogReq
 	93, // 54: servicehub.ServiceHub.ListAdminOperationLogs:input_type -> servicehub.ListAdminOperationLogsReq
-	72, // 55: servicehub.ServiceHub.ListScheduledJobs:input_type -> servicehub.ListScheduledJobsReq
-	74, // 56: servicehub.ServiceHub.CreateScheduledJob:input_type -> servicehub.CreateScheduledJobReq
-	76, // 57: servicehub.ServiceHub.UpdateScheduledJob:input_type -> servicehub.UpdateScheduledJobReq
-	78, // 58: servicehub.ServiceHub.ToggleScheduledJob:input_type -> servicehub.ToggleScheduledJobReq
-	80, // 59: servicehub.ServiceHub.RunScheduledJobNow:input_type -> servicehub.RunScheduledJobNowReq
-	82, // 60: servicehub.ServiceHub.ListScheduledJobRuns:input_type -> servicehub.ListScheduledJobRunsReq
-	84, // 61: servicehub.ServiceHub.GetScheduledJobRun:input_type -> servicehub.GetScheduledJobRunReq
-	86, // 62: servicehub.ServiceHub.RetryScheduledJobRun:input_type -> servicehub.RetryScheduledJobRunReq
-	88, // 63: servicehub.ServiceHub.ListJobWorkerNodes:input_type -> servicehub.ListJobWorkerNodesReq
-	60, // 64: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
-	62, // 65: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
-	64, // 66: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
-	66, // 67: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
-	68, // 68: servicehub.ServiceHub.PublishPortalNotification:input_type -> servicehub.PublishPortalNotificationReq
+	60, // 55: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
+	62, // 56: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
+	64, // 57: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
+	66, // 58: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
+	68, // 59: servicehub.ServiceHub.PublishPortalNotification:input_type -> servicehub.PublishPortalNotificationReq
+	72, // 60: servicehub.ServiceHub.ListScheduledJobs:input_type -> servicehub.ListScheduledJobsReq
+	74, // 61: servicehub.ServiceHub.CreateScheduledJob:input_type -> servicehub.CreateScheduledJobReq
+	76, // 62: servicehub.ServiceHub.UpdateScheduledJob:input_type -> servicehub.UpdateScheduledJobReq
+	78, // 63: servicehub.ServiceHub.ToggleScheduledJob:input_type -> servicehub.ToggleScheduledJobReq
+	80, // 64: servicehub.ServiceHub.RunScheduledJobNow:input_type -> servicehub.RunScheduledJobNowReq
+	82, // 65: servicehub.ServiceHub.ListScheduledJobRuns:input_type -> servicehub.ListScheduledJobRunsReq
+	84, // 66: servicehub.ServiceHub.GetScheduledJobRun:input_type -> servicehub.GetScheduledJobRunReq
+	86, // 67: servicehub.ServiceHub.RetryScheduledJobRun:input_type -> servicehub.RetryScheduledJobRunReq
+	88, // 68: servicehub.ServiceHub.ListJobWorkerNodes:input_type -> servicehub.ListJobWorkerNodesReq
 	2,  // 69: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
 	6,  // 70: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
 	8,  // 71: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
@@ -6578,20 +6578,20 @@ var file_proto_servicehub_proto_depIdxs = []int32{
 	59, // 95: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
 	92, // 96: servicehub.ServiceHub.RecordAdminOperationLog:output_type -> servicehub.RecordAdminOperationLogResp
 	95, // 97: servicehub.ServiceHub.ListAdminOperationLogs:output_type -> servicehub.ListAdminOperationLogsResp
-	73, // 98: servicehub.ServiceHub.ListScheduledJobs:output_type -> servicehub.ListScheduledJobsResp
-	75, // 99: servicehub.ServiceHub.CreateScheduledJob:output_type -> servicehub.CreateScheduledJobResp
-	77, // 100: servicehub.ServiceHub.UpdateScheduledJob:output_type -> servicehub.UpdateScheduledJobResp
-	79, // 101: servicehub.ServiceHub.ToggleScheduledJob:output_type -> servicehub.ToggleScheduledJobResp
-	81, // 102: servicehub.ServiceHub.RunScheduledJobNow:output_type -> servicehub.RunScheduledJobNowResp
-	83, // 103: servicehub.ServiceHub.ListScheduledJobRuns:output_type -> servicehub.ListScheduledJobRunsResp
-	85, // 104: servicehub.ServiceHub.GetScheduledJobRun:output_type -> servicehub.GetScheduledJobRunResp
-	87, // 105: servicehub.ServiceHub.RetryScheduledJobRun:output_type -> servicehub.RetryScheduledJobRunResp
-	90, // 106: servicehub.ServiceHub.ListJobWorkerNodes:output_type -> servicehub.ListJobWorkerNodesResp
-	61, // 107: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
-	63, // 108: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
-	65, // 109: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
-	67, // 110: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
-	69, // 111: servicehub.ServiceHub.PublishPortalNotification:output_type -> servicehub.PublishPortalNotificationResp
+	61, // 98: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
+	63, // 99: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
+	65, // 100: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
+	67, // 101: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
+	69, // 102: servicehub.ServiceHub.PublishPortalNotification:output_type -> servicehub.PublishPortalNotificationResp
+	73, // 103: servicehub.ServiceHub.ListScheduledJobs:output_type -> servicehub.ListScheduledJobsResp
+	75, // 104: servicehub.ServiceHub.CreateScheduledJob:output_type -> servicehub.CreateScheduledJobResp
+	77, // 105: servicehub.ServiceHub.UpdateScheduledJob:output_type -> servicehub.UpdateScheduledJobResp
+	79, // 106: servicehub.ServiceHub.ToggleScheduledJob:output_type -> servicehub.ToggleScheduledJobResp
+	81, // 107: servicehub.ServiceHub.RunScheduledJobNow:output_type -> servicehub.RunScheduledJobNowResp
+	83, // 108: servicehub.ServiceHub.ListScheduledJobRuns:output_type -> servicehub.ListScheduledJobRunsResp
+	85, // 109: servicehub.ServiceHub.GetScheduledJobRun:output_type -> servicehub.GetScheduledJobRunResp
+	87, // 110: servicehub.ServiceHub.RetryScheduledJobRun:output_type -> servicehub.RetryScheduledJobRunResp
+	90, // 111: servicehub.ServiceHub.ListJobWorkerNodes:output_type -> servicehub.ListJobWorkerNodesResp
 	69, // [69:112] is the sub-list for method output_type
 	26, // [26:69] is the sub-list for method input_type
 	26, // [26:26] is the sub-list for extension type_name
@@ -6599,28 +6599,28 @@ var file_proto_servicehub_proto_depIdxs = []int32{
 	0,  // [0:26] is the sub-list for field type_name
 }
 
-func init() { file_proto_servicehub_proto_init() }
-func file_proto_servicehub_proto_init() {
-	if File_proto_servicehub_proto != nil {
+func init() { file_servicehub_proto_init() }
+func file_servicehub_proto_init() {
+	if File_servicehub_proto != nil {
 		return
 	}
-	file_proto_servicehub_proto_msgTypes[92].OneofWrappers = []any{}
+	file_servicehub_proto_msgTypes[92].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_servicehub_proto_rawDesc), len(file_proto_servicehub_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   95,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_servicehub_proto_goTypes,
-		DependencyIndexes: file_proto_servicehub_proto_depIdxs,
-		EnumInfos:         file_proto_servicehub_proto_enumTypes,
-		MessageInfos:      file_proto_servicehub_proto_msgTypes,
+		GoTypes:           file_servicehub_proto_goTypes,
+		DependencyIndexes: file_servicehub_proto_depIdxs,
+		EnumInfos:         file_servicehub_proto_enumTypes,
+		MessageInfos:      file_servicehub_proto_msgTypes,
 	}.Build()
-	File_proto_servicehub_proto = out.File
-	file_proto_servicehub_proto_goTypes = nil
-	file_proto_servicehub_proto_depIdxs = nil
+	File_servicehub_proto = out.File
+	file_servicehub_proto_goTypes = nil
+	file_servicehub_proto_depIdxs = nil
 }

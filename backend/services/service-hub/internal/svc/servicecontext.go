@@ -5,32 +5,29 @@ import (
 	"time"
 
 	"github.com/gloopai/platform/common/dbdsn"
+	"github.com/gloopai/platform/common/gormx"
 	ntf "github.com/gloopai/platform/common/notify"
 	"github.com/gloopai/platform/service-hub/internal/config"
 	hubnotify "github.com/gloopai/platform/service-hub/internal/notify"
 	"github.com/gloopai/platform/service-hub/internal/store"
 	"github.com/nsqio/go-nsq"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type ServiceContext struct {
-	Config               config.Config
-	AdminUsers           *store.AdminUsersStore
-	AdminRbac            *store.AdminRbacStore
-	AdminRbacCfg         *store.AdminRbacConfigStore
-	AdminOpLogs          *store.AdminOperationLogsStore
-	ScheduledJobs        *store.ScheduledJobsStore
+	Config              config.Config
+	AdminUsers          *store.AdminUsersStore
+	AdminRbac           *store.AdminRbacStore
+	AdminRbacCfg        *store.AdminRbacConfigStore
+	AdminOpLogs         *store.AdminOperationLogsStore
+	ScheduledJobs       *store.ScheduledJobsStore
 	GlobalSettings      *store.GlobalSettingsStore
 	PortalNotifications *store.PortalNotificationsStore
-	NotifyPublisher      *hubnotify.Publisher
+	NotifyPublisher     *hubnotify.Publisher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	gdb, err := gorm.Open(mysql.Open(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone)), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
+	gdb := gormx.MustOpenMySQL(dbdsn.WithTimezone(c.Mysql.DataSource, c.Timezone))
 	sqlDB, err := gdb.DB()
 	if err != nil {
 		panic(err)
@@ -44,10 +41,18 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if sec := c.Mysql.ConnMaxLifetimeSeconds; sec > 0 {
 		sqlDB.SetConnMaxLifetime(time.Duration(sec) * time.Second)
 	}
-	if err := sqlDB.Ping(); err != nil {
-		panic(err)
-	}
+	return newServiceContextForDB(c, gdb)
+}
 
+// NewServiceContextWithRuntime wires stores and optional NSQ on an existing DB (e.g. embedded in pay core).
+func NewServiceContextWithRuntime(gdb *gorm.DB, nsqdAddr, portalTopic string) *ServiceContext {
+	var c config.Config
+	c.Nsq.NsqdTCPAddr = strings.TrimSpace(nsqdAddr)
+	c.Nsq.PortalNotifyTopic = strings.TrimSpace(portalTopic)
+	return newServiceContextForDB(c, gdb)
+}
+
+func newServiceContextForDB(c config.Config, gdb *gorm.DB) *ServiceContext {
 	portalNotifStore := store.NewPortalNotificationsStore(gdb)
 
 	var notifyPublisher *hubnotify.Publisher
@@ -66,7 +71,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		notifyPublisher = hubnotify.NewPublisher(producer, topic, portalNotifStore)
 	}
 
-	svcCtx := &ServiceContext{
+	return &ServiceContext{
 		Config:              c,
 		AdminUsers:          store.NewAdminUsersStore(gdb),
 		AdminRbac:           store.NewAdminRbacStore(gdb),
@@ -77,5 +82,4 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PortalNotifications: portalNotifStore,
 		NotifyPublisher:     notifyPublisher,
 	}
-	return svcCtx
 }

@@ -3,7 +3,7 @@ syntax = "proto3";
 package servicehub;
 option go_package = "github.com/gloopai/platform/common/pb/servicehub;servicehub";
 
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
+// 平台支撑数据（admin_users / global_settings / RBAC / 审计 / 定时任务 / 门户通知等；代付状态见 order 服务）
 service ServiceHub {
   rpc FindAdminUserByUsername(FindAdminUserByUsernameReq) returns (FindAdminUserByUsernameResp);
   rpc ListAdminUsers(ListAdminUsersReq) returns (ListAdminUsersResp);
@@ -43,6 +43,15 @@ service ServiceHub {
   rpc RecordAdminOperationLog(RecordAdminOperationLogReq) returns (RecordAdminOperationLogResp);
   rpc ListAdminOperationLogs(ListAdminOperationLogsReq) returns (ListAdminOperationLogsResp);
 
+  // ---- Admin users / MFA ----
+  rpc CreateAdminUser(CreateAdminUserReq) returns (CreateAdminUserResp);
+  rpc UpdateAdminUser(UpdateAdminUserReq) returns (UpdateAdminUserResp);
+  rpc DeleteAdminUser(DeleteAdminUserReq) returns (DeleteAdminUserResp);
+  rpc GetAdminUserById(GetAdminUserByIdReq) returns (GetAdminUserByIdResp);
+
+  // ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+  rpc PublishPortalNotification(PublishPortalNotificationReq) returns (PublishPortalNotificationResp);
+
   // ---- Scheduled jobs ----
   rpc ListScheduledJobs(ListScheduledJobsReq) returns (ListScheduledJobsResp);
   rpc CreateScheduledJob(CreateScheduledJobReq) returns (CreateScheduledJobResp);
@@ -53,15 +62,6 @@ service ServiceHub {
   rpc GetScheduledJobRun(GetScheduledJobRunReq) returns (GetScheduledJobRunResp);
   rpc RetryScheduledJobRun(RetryScheduledJobRunReq) returns (RetryScheduledJobRunResp);
   rpc ListJobWorkerNodes(ListJobWorkerNodesReq) returns (ListJobWorkerNodesResp);
-
-  // ---- Admin users / MFA ----
-  rpc CreateAdminUser(CreateAdminUserReq) returns (CreateAdminUserResp);
-  rpc UpdateAdminUser(UpdateAdminUserReq) returns (UpdateAdminUserResp);
-  rpc DeleteAdminUser(DeleteAdminUserReq) returns (DeleteAdminUserResp);
-  rpc GetAdminUserById(GetAdminUserByIdReq) returns (GetAdminUserByIdResp);
-
-  // ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
-  rpc PublishPortalNotification(PublishPortalNotificationReq) returns (PublishPortalNotificationResp);
 }
 
 message FindAdminUserByUsernameReq {

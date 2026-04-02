@@ -1,4 +1,4 @@
-package middleware
+package gatewaymw
 
 import (
 	"bytes"
@@ -9,15 +9,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/gloopai/platform/gateway/internal/apiresp"
 )
 
 type openAPIParamsKeyType struct{}
 
 var openAPIParamsContextKey = openAPIParamsKeyType{}
 
-// OpenAPIParamsFromContext returns merged query+JSON params set by OpenAPIParamsParse.
+// OpenAPIParamsFromContext returns merged query+JSON params set by [OpenAPIParamsParse].
 func OpenAPIParamsFromContext(ctx context.Context) (map[string]string, bool) {
 	p, ok := ctx.Value(openAPIParamsContextKey).(map[string]string)
 	if !ok || p == nil {
@@ -30,16 +28,35 @@ const defaultMaxOpenAPIBodyBytes int64 = 262144
 
 var errOpenAPIBodyTooLarge = errors.New("request body too large")
 
-// OpenAPIParamsParse reads query + JSON body once (with size limit) and stores merged params in request context.
-type OpenAPIParamsParse struct {
-	maxBodyBytes int64
+// OpenAPIParamsParseOptions configures [OpenAPIParamsParse].
+type OpenAPIParamsParseOptions struct {
+	MaxBodyBytes int64
+	// Fail writes a JSON error envelope (e.g. apiresp.Fail).
+	Fail func(w http.ResponseWriter, code int, message string)
+	CodePayloadTooLarge int
+	CodeInvalidParams   int
 }
 
-func NewOpenAPIParamsParse(maxBodyBytes int64) *OpenAPIParamsParse {
-	if maxBodyBytes <= 0 {
-		maxBodyBytes = defaultMaxOpenAPIBodyBytes
+// OpenAPIParamsParse reads query + JSON body once (with size limit) and stores merged params in request context.
+type OpenAPIParamsParse struct {
+	maxBodyBytes        int64
+	fail                func(w http.ResponseWriter, code int, message string)
+	codePayloadTooLarge int
+	codeInvalidParams   int
+}
+
+// NewOpenAPIParamsParse builds OpenAPI param middleware. MaxBodyBytes defaults when <= 0.
+func NewOpenAPIParamsParse(opt OpenAPIParamsParseOptions) *OpenAPIParamsParse {
+	max := opt.MaxBodyBytes
+	if max <= 0 {
+		max = defaultMaxOpenAPIBodyBytes
 	}
-	return &OpenAPIParamsParse{maxBodyBytes: maxBodyBytes}
+	return &OpenAPIParamsParse{
+		maxBodyBytes:        max,
+		fail:                opt.Fail,
+		codePayloadTooLarge: opt.CodePayloadTooLarge,
+		codeInvalidParams:   opt.CodeInvalidParams,
+	}
 }
 
 func (m *OpenAPIParamsParse) Handle(next http.HandlerFunc) http.HandlerFunc {
@@ -47,10 +64,10 @@ func (m *OpenAPIParamsParse) Handle(next http.HandlerFunc) http.HandlerFunc {
 		params, err := parseParamsFromRequestWithLimit(r, m.maxBodyBytes)
 		if err != nil {
 			if errors.Is(err, errOpenAPIBodyTooLarge) {
-				apiresp.Fail(w, apiresp.CodePayloadTooLarge, "request body too large")
+				m.fail(w, m.codePayloadTooLarge, "request body too large")
 				return
 			}
-			apiresp.Fail(w, apiresp.CodeInvalidParams, "invalid params")
+			m.fail(w, m.codeInvalidParams, "invalid params")
 			return
 		}
 		ctx := context.WithValue(r.Context(), openAPIParamsContextKey, params)
@@ -58,7 +75,9 @@ func (m *OpenAPIParamsParse) Handle(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func readParams(r *http.Request) (map[string]string, error) {
+// ReadMergedParams returns merged query+JSON params (from context if present, else reads body).
+// Used by rate limiting and merchant signing after [OpenAPIParamsParse] may have run.
+func ReadMergedParams(r *http.Request) (map[string]string, error) {
 	if p, ok := r.Context().Value(openAPIParamsContextKey).(map[string]string); ok && p != nil {
 		return p, nil
 	}

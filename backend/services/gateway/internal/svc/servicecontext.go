@@ -6,9 +6,11 @@ import (
 
 	"github.com/gloopai/platform/common/configkv"
 	"github.com/gloopai/platform/common/consulx"
+	"github.com/gloopai/platform/common/gatewaymw"
 	"github.com/gloopai/platform/common/grpcclient/servicehubclient"
+	"github.com/gloopai/platform/common/requestx"
+	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/gloopai/platform/gateway/internal/config"
-	"github.com/gloopai/platform/gateway/internal/middleware"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -42,7 +44,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if openAPIBodyMax <= 0 {
 		openAPIBodyMax = 262144
 	}
-	openAPIParamsParse := middleware.NewOpenAPIParamsParse(openAPIBodyMax).Handle
+	openAPIParamsParse := gatewaymw.NewOpenAPIParamsParse(gatewaymw.OpenAPIParamsParseOptions{
+		MaxBodyBytes:        openAPIBodyMax,
+		Fail:                apiresp.Fail,
+		CodePayloadTooLarge: apiresp.CodePayloadTooLarge,
+		CodeInvalidParams:   apiresp.CodeInvalidParams,
+	}).Handle
 
 	rateRedisAddr := strings.TrimSpace(c.RateLimit.RedisAddr)
 	if rateRedisAddr == "" {
@@ -53,7 +60,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Password: c.RateLimit.RedisPassword,
 		DB:       c.RateLimit.RedisDB,
 	})
-	rateLimiter := middleware.NewRedisRateLimiter(rateRedis)
+	rateLimiter := gatewaymw.NewRedisRateLimiter(rateRedis)
 	ratePrefix := strings.TrimSpace(c.RateLimit.KeyPrefix)
 	if ratePrefix == "" {
 		ratePrefix = "gateway:admin:ratelimit"
@@ -80,21 +87,51 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		runtimeCfg = cfg
 	}
 
+	serviceHub := servicehubclient.New(serviceHubCli)
+
 	return &ServiceContext{
 		Config: c,
 
 		OpenAPIParamsParse: openAPIParamsParse,
-		LoginRateLimit: middleware.NewLoginRateLimit(
-			rateLimiter, ratePrefix, loginLimit, loginWindow, trustForwarded,
-		).Handle,
-		AdminAuth:  middleware.NewAdminAuth(c.AdminToken, c.JwtSecret).Handle,
-		AdminRBAC:  middleware.NewAdminRBAC(servicehubclient.New(serviceHubCli), 10*time.Second).Handle,
-		AdminOpLog: middleware.NewAdminOpLog(servicehubclient.New(serviceHubCli), trustForwarded, c.AdminOpLog.Exclude).Handle,
+		LoginRateLimit: gatewaymw.NewLoginRateLimit(gatewaymw.LoginRateLimitOptions{
+			Limiter:             rateLimiter,
+			KeyPrefix:           ratePrefix,
+			Limit:               loginLimit,
+			Window:              loginWindow,
+			TrustForwarded:      trustForwarded,
+			Fail:                apiresp.Fail,
+			CodeInvalidParams:   apiresp.CodeInvalidParams,
+			CodeUnavailable:     apiresp.CodeUnavailable,
+			CodeTooManyRequests: apiresp.CodeTooManyRequests,
+		}).Handle,
+		AdminAuth: gatewaymw.NewAdminAuth(gatewaymw.AdminAuthOptions{
+			MasterToken:      c.AdminToken,
+			JWTSecret:        c.JwtSecret,
+			Fail:             apiresp.Fail,
+			CodeUnauthorized: apiresp.CodeUnauthorized,
+		}).Handle,
+		AdminRBAC: gatewaymw.NewAdminRBAC(gatewaymw.AdminRBACOptions[*servicehubclient.AdminApiRule]{
+			Hub:              serviceHub,
+			TTL:              10 * time.Second,
+			Fail:             apiresp.Fail,
+			AdminIDFromCtx:   gatewaymw.AdminIDFromContext,
+			CodeUnauthorized: apiresp.CodeUnauthorized,
+			CodeForbidden:    apiresp.CodeForbidden,
+		}).Handle,
+		AdminOpLog: gatewaymw.NewAdminOpLog(gatewaymw.AdminOpLogOptions[*servicehubclient.AdminApiRule]{
+			Hub:              oplogServiceHub{sh: serviceHub},
+			TrustForwarded:   trustForwarded,
+			Excludes:         c.AdminOpLog.Exclude,
+			RequestIDFromCtx: requestx.FromContext,
+			HeaderRequestID:  requestx.HeaderRequestID,
+			AdminIDFromCtx:   gatewaymw.AdminIDFromContext,
+		}).Handle,
 
-		ServiceHub: servicehubclient.New(serviceHubCli),
+		ServiceHub: serviceHub,
 
 		RuntimeConfig:  runtimeCfg,
 		RateRedis:      rateRedis,
 		ServiceHubConn: serviceHubCli.Conn(),
 	}
 }
+

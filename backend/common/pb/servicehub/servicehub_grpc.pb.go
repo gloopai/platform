@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: proto/servicehub.proto
+// source: servicehub.proto
 
 package servicehub
 
@@ -48,6 +48,11 @@ const (
 	ServiceHub_DeleteAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/DeleteAdminApiRule"
 	ServiceHub_RecordAdminOperationLog_FullMethodName   = "/servicehub.ServiceHub/RecordAdminOperationLog"
 	ServiceHub_ListAdminOperationLogs_FullMethodName    = "/servicehub.ServiceHub/ListAdminOperationLogs"
+	ServiceHub_CreateAdminUser_FullMethodName           = "/servicehub.ServiceHub/CreateAdminUser"
+	ServiceHub_UpdateAdminUser_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminUser"
+	ServiceHub_DeleteAdminUser_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminUser"
+	ServiceHub_GetAdminUserById_FullMethodName          = "/servicehub.ServiceHub/GetAdminUserById"
+	ServiceHub_PublishPortalNotification_FullMethodName = "/servicehub.ServiceHub/PublishPortalNotification"
 	ServiceHub_ListScheduledJobs_FullMethodName         = "/servicehub.ServiceHub/ListScheduledJobs"
 	ServiceHub_CreateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/CreateScheduledJob"
 	ServiceHub_UpdateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/UpdateScheduledJob"
@@ -57,18 +62,13 @@ const (
 	ServiceHub_GetScheduledJobRun_FullMethodName        = "/servicehub.ServiceHub/GetScheduledJobRun"
 	ServiceHub_RetryScheduledJobRun_FullMethodName      = "/servicehub.ServiceHub/RetryScheduledJobRun"
 	ServiceHub_ListJobWorkerNodes_FullMethodName        = "/servicehub.ServiceHub/ListJobWorkerNodes"
-	ServiceHub_CreateAdminUser_FullMethodName           = "/servicehub.ServiceHub/CreateAdminUser"
-	ServiceHub_UpdateAdminUser_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminUser"
-	ServiceHub_DeleteAdminUser_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminUser"
-	ServiceHub_GetAdminUserById_FullMethodName          = "/servicehub.ServiceHub/GetAdminUserById"
-	ServiceHub_PublishPortalNotification_FullMethodName = "/servicehub.ServiceHub/PublishPortalNotification"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
+// 平台支撑数据（admin_users / global_settings / RBAC / 审计 / 定时任务 / 门户通知等；代付状态见 order 服务）
 type ServiceHubClient interface {
 	FindAdminUserByUsername(ctx context.Context, in *FindAdminUserByUsernameReq, opts ...grpc.CallOption) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(ctx context.Context, in *ListAdminUsersReq, opts ...grpc.CallOption) (*ListAdminUsersResp, error)
@@ -103,6 +103,13 @@ type ServiceHubClient interface {
 	// ---- Admin operation audit logs ----
 	RecordAdminOperationLog(ctx context.Context, in *RecordAdminOperationLogReq, opts ...grpc.CallOption) (*RecordAdminOperationLogResp, error)
 	ListAdminOperationLogs(ctx context.Context, in *ListAdminOperationLogsReq, opts ...grpc.CallOption) (*ListAdminOperationLogsResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
+	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error)
+	GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error)
+	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+	PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error)
 	// ---- Scheduled jobs ----
 	ListScheduledJobs(ctx context.Context, in *ListScheduledJobsReq, opts ...grpc.CallOption) (*ListScheduledJobsResp, error)
 	CreateScheduledJob(ctx context.Context, in *CreateScheduledJobReq, opts ...grpc.CallOption) (*CreateScheduledJobResp, error)
@@ -113,13 +120,6 @@ type ServiceHubClient interface {
 	GetScheduledJobRun(ctx context.Context, in *GetScheduledJobRunReq, opts ...grpc.CallOption) (*GetScheduledJobRunResp, error)
 	RetryScheduledJobRun(ctx context.Context, in *RetryScheduledJobRunReq, opts ...grpc.CallOption) (*RetryScheduledJobRunResp, error)
 	ListJobWorkerNodes(ctx context.Context, in *ListJobWorkerNodesReq, opts ...grpc.CallOption) (*ListJobWorkerNodesResp, error)
-	// ---- Admin users / MFA ----
-	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
-	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
-	DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error)
-	GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error)
-	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
-	PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error)
 }
 
 type serviceHubClient struct {
@@ -420,6 +420,56 @@ func (c *serviceHubClient) ListAdminOperationLogs(ctx context.Context, in *ListA
 	return out, nil
 }
 
+func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminUserResp)
+	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdminUserByIdResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetAdminUserById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceHubClient) PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishPortalNotificationResp)
+	err := c.cc.Invoke(ctx, ServiceHub_PublishPortalNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceHubClient) ListScheduledJobs(ctx context.Context, in *ListScheduledJobsReq, opts ...grpc.CallOption) (*ListScheduledJobsResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListScheduledJobsResp)
@@ -510,61 +560,11 @@ func (c *serviceHubClient) ListJobWorkerNodes(ctx context.Context, in *ListJobWo
 	return out, nil
 }
 
-func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateAdminUserResp)
-	err := c.cc.Invoke(ctx, ServiceHub_CreateAdminUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateAdminUserResp)
-	err := c.cc.Invoke(ctx, ServiceHub_UpdateAdminUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) DeleteAdminUser(ctx context.Context, in *DeleteAdminUserReq, opts ...grpc.CallOption) (*DeleteAdminUserResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteAdminUserResp)
-	err := c.cc.Invoke(ctx, ServiceHub_DeleteAdminUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) GetAdminUserById(ctx context.Context, in *GetAdminUserByIdReq, opts ...grpc.CallOption) (*GetAdminUserByIdResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAdminUserByIdResp)
-	err := c.cc.Invoke(ctx, ServiceHub_GetAdminUserById_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *serviceHubClient) PublishPortalNotification(ctx context.Context, in *PublishPortalNotificationReq, opts ...grpc.CallOption) (*PublishPortalNotificationResp, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PublishPortalNotificationResp)
-	err := c.cc.Invoke(ctx, ServiceHub_PublishPortalNotification_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ServiceHubServer is the server API for ServiceHub service.
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
 //
-// 平台支撑数据（admin_users / global_settings / RBAC / 门户通知 / 操作审计 / 定时任务）
+// 平台支撑数据（admin_users / global_settings / RBAC / 审计 / 定时任务 / 门户通知等；代付状态见 order 服务）
 type ServiceHubServer interface {
 	FindAdminUserByUsername(context.Context, *FindAdminUserByUsernameReq) (*FindAdminUserByUsernameResp, error)
 	ListAdminUsers(context.Context, *ListAdminUsersReq) (*ListAdminUsersResp, error)
@@ -599,6 +599,13 @@ type ServiceHubServer interface {
 	// ---- Admin operation audit logs ----
 	RecordAdminOperationLog(context.Context, *RecordAdminOperationLogReq) (*RecordAdminOperationLogResp, error)
 	ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error)
+	// ---- Admin users / MFA ----
+	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
+	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
+	DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error)
+	GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error)
+	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
+	PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
 	// ---- Scheduled jobs ----
 	ListScheduledJobs(context.Context, *ListScheduledJobsReq) (*ListScheduledJobsResp, error)
 	CreateScheduledJob(context.Context, *CreateScheduledJobReq) (*CreateScheduledJobResp, error)
@@ -609,13 +616,6 @@ type ServiceHubServer interface {
 	GetScheduledJobRun(context.Context, *GetScheduledJobRunReq) (*GetScheduledJobRunResp, error)
 	RetryScheduledJobRun(context.Context, *RetryScheduledJobRunReq) (*RetryScheduledJobRunResp, error)
 	ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error)
-	// ---- Admin users / MFA ----
-	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
-	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
-	DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error)
-	GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error)
-	// ---- Portal notifications (SSE fan-out via Redis; merchant portal reserved) ----
-	PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
 	mustEmbedUnimplementedServiceHubServer()
 }
 
@@ -713,6 +713,21 @@ func (UnimplementedServiceHubServer) RecordAdminOperationLog(context.Context, *R
 func (UnimplementedServiceHubServer) ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdminOperationLogs not implemented")
 }
+func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminUser not implemented")
+}
+func (UnimplementedServiceHubServer) GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminUserById not implemented")
+}
+func (UnimplementedServiceHubServer) PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PublishPortalNotification not implemented")
+}
 func (UnimplementedServiceHubServer) ListScheduledJobs(context.Context, *ListScheduledJobsReq) (*ListScheduledJobsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledJobs not implemented")
 }
@@ -739,21 +754,6 @@ func (UnimplementedServiceHubServer) RetryScheduledJobRun(context.Context, *Retr
 }
 func (UnimplementedServiceHubServer) ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListJobWorkerNodes not implemented")
-}
-func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
-}
-func (UnimplementedServiceHubServer) UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateAdminUser not implemented")
-}
-func (UnimplementedServiceHubServer) DeleteAdminUser(context.Context, *DeleteAdminUserReq) (*DeleteAdminUserResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminUser not implemented")
-}
-func (UnimplementedServiceHubServer) GetAdminUserById(context.Context, *GetAdminUserByIdReq) (*GetAdminUserByIdResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAdminUserById not implemented")
-}
-func (UnimplementedServiceHubServer) PublishPortalNotification(context.Context, *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PublishPortalNotification not implemented")
 }
 func (UnimplementedServiceHubServer) mustEmbedUnimplementedServiceHubServer() {}
 func (UnimplementedServiceHubServer) testEmbeddedByValue()                    {}
@@ -1298,6 +1298,96 @@ func _ServiceHub_ListAdminOperationLogs_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_CreateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).CreateAdminUser(ctx, req.(*CreateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_UpdateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_UpdateAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).UpdateAdminUser(ctx, req.(*UpdateAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_DeleteAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_DeleteAdminUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).DeleteAdminUser(ctx, req.(*DeleteAdminUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_GetAdminUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminUserByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetAdminUserById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetAdminUserById(ctx, req.(*GetAdminUserByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceHub_PublishPortalNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishPortalNotificationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).PublishPortalNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_PublishPortalNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).PublishPortalNotification(ctx, req.(*PublishPortalNotificationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceHub_ListScheduledJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListScheduledJobsReq)
 	if err := dec(in); err != nil {
@@ -1460,96 +1550,6 @@ func _ServiceHub_ListJobWorkerNodes_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAdminUserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).CreateAdminUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_CreateAdminUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).CreateAdminUser(ctx, req.(*CreateAdminUserReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_UpdateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateAdminUserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).UpdateAdminUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_UpdateAdminUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).UpdateAdminUser(ctx, req.(*UpdateAdminUserReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_DeleteAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAdminUserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).DeleteAdminUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_DeleteAdminUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).DeleteAdminUser(ctx, req.(*DeleteAdminUserReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_GetAdminUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAdminUserByIdReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).GetAdminUserById(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_GetAdminUserById_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).GetAdminUserById(ctx, req.(*GetAdminUserByIdReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServiceHub_PublishPortalNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PublishPortalNotificationReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceHubServer).PublishPortalNotification(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceHub_PublishPortalNotification_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceHubServer).PublishPortalNotification(ctx, req.(*PublishPortalNotificationReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ServiceHub_ServiceDesc is the grpc.ServiceDesc for ServiceHub service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1674,6 +1674,26 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServiceHub_ListAdminOperationLogs_Handler,
 		},
 		{
+			MethodName: "CreateAdminUser",
+			Handler:    _ServiceHub_CreateAdminUser_Handler,
+		},
+		{
+			MethodName: "UpdateAdminUser",
+			Handler:    _ServiceHub_UpdateAdminUser_Handler,
+		},
+		{
+			MethodName: "DeleteAdminUser",
+			Handler:    _ServiceHub_DeleteAdminUser_Handler,
+		},
+		{
+			MethodName: "GetAdminUserById",
+			Handler:    _ServiceHub_GetAdminUserById_Handler,
+		},
+		{
+			MethodName: "PublishPortalNotification",
+			Handler:    _ServiceHub_PublishPortalNotification_Handler,
+		},
+		{
 			MethodName: "ListScheduledJobs",
 			Handler:    _ServiceHub_ListScheduledJobs_Handler,
 		},
@@ -1709,27 +1729,7 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ListJobWorkerNodes",
 			Handler:    _ServiceHub_ListJobWorkerNodes_Handler,
 		},
-		{
-			MethodName: "CreateAdminUser",
-			Handler:    _ServiceHub_CreateAdminUser_Handler,
-		},
-		{
-			MethodName: "UpdateAdminUser",
-			Handler:    _ServiceHub_UpdateAdminUser_Handler,
-		},
-		{
-			MethodName: "DeleteAdminUser",
-			Handler:    _ServiceHub_DeleteAdminUser_Handler,
-		},
-		{
-			MethodName: "GetAdminUserById",
-			Handler:    _ServiceHub_GetAdminUserById_Handler,
-		},
-		{
-			MethodName: "PublishPortalNotification",
-			Handler:    _ServiceHub_PublishPortalNotification_Handler,
-		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/servicehub.proto",
+	Metadata: "servicehub.proto",
 }

@@ -1,4 +1,4 @@
-package middleware
+package gatewaymw
 
 import (
 	"net"
@@ -16,12 +16,12 @@ func ClientHost(r *http.Request, trustForwarded bool) string {
 			if len(parts) > 0 {
 				host := strings.TrimSpace(parts[0])
 				if host != "" {
-					return stripZone(host)
+					return stripIPZone(host)
 				}
 			}
 		}
 		if xri := strings.TrimSpace(r.Header.Get("X-Real-IP")); xri != "" {
-			return stripZone(xri)
+			return stripIPZone(xri)
 		}
 	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -31,7 +31,8 @@ func ClientHost(r *http.Request, trustForwarded bool) string {
 	return host
 }
 
-func stripZone(ip string) string {
+func stripIPZone(ip string) string {
+	// IPv6 zone id: fe80::1%en0
 	if i := strings.IndexByte(ip, '%'); i >= 0 {
 		return ip[:i]
 	}

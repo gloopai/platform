@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gloopai/platform/common/gatewaymw"
 	"github.com/gloopai/platform/gateway/internal/apiresp"
 	"github.com/gloopai/platform/gateway/internal/logic"
-	"github.com/gloopai/platform/gateway/internal/middleware"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -26,7 +26,7 @@ func AdminMyMenuHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 // requireRbacManage 以“是否拥有 RBAC 配置相关菜单”为管理权限准入（含历史单页 menu.rbac 与拆分后的 menu.rbac_*）。
 func requireRbacManage(svcCtx *svc.ServiceContext, w http.ResponseWriter, r *http.Request) bool {
-	adminID := middleware.AdminIdFromContext(r.Context())
+	adminID := gatewaymw.AdminIDFromContext(r.Context())
 	if adminID <= 0 {
 		apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
 		return false
