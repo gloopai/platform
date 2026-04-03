@@ -76,6 +76,7 @@ type ServiceHub interface {
 	DeleteAdminApiRule(ctx context.Context, id int64) (bool, error)
 	RecordAdminOperationLog(ctx context.Context, req *servicehub.RecordAdminOperationLogReq) error
 	ListAdminOperationLogs(ctx context.Context, req *servicehub.ListAdminOperationLogsReq) ([]*AdminOperationLogRow, int64, error)
+	PurgeAdminOperationLogsBefore(ctx context.Context, cutoffUnixSec int64) (deleted int64, err error)
 
 	// Notifications (NSQ publish from core; SSE 由 notice-consumer 等消费侧提供)
 	PublishPortalNotification(ctx context.Context, req *PublishPortalNotificationReq) (*PublishPortalNotificationResp, error)
@@ -481,6 +482,17 @@ func (d *defaultClient) ListAdminOperationLogs(ctx context.Context, req *service
 		return nil, 0, nil
 	}
 	return r.Rows, r.Total, nil
+}
+
+func (d *defaultClient) PurgeAdminOperationLogsBefore(ctx context.Context, cutoffUnixSec int64) (int64, error) {
+	r, err := d.cli.PurgeAdminOperationLogsBefore(ctx, &servicehub.PurgeAdminOperationLogsBeforeReq{CutoffUnixSec: cutoffUnixSec})
+	if err != nil {
+		return 0, err
+	}
+	if r == nil {
+		return 0, nil
+	}
+	return r.GetDeleted(), nil
 }
 
 func (d *defaultClient) PublishPortalNotification(ctx context.Context, req *servicehub.PublishPortalNotificationReq) (*PublishPortalNotificationResp, error) {

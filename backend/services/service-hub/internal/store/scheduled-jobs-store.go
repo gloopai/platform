@@ -351,6 +351,40 @@ type JobWorkerNode struct {
 	SuccessLastHour int64          `gorm:"column:success_last_hour"`
 }
 
+// UpsertHeartbeat 由 job-worker 经 gRPC 调用，供管理台列出节点。
+func (s *ScheduledJobsStore) UpsertHeartbeat(ctx context.Context, workerID, hostname string) error {
+	workerID = strings.TrimSpace(workerID)
+	if workerID == "" {
+		return errors.New("worker_id required")
+	}
+	return s.db.WithContext(ctx).Exec(
+		`INSERT INTO job_worker_heartbeats (worker_id, hostname, last_heartbeat_at) VALUES (?, ?, NOW())
+		 ON DUPLICATE KEY UPDATE hostname = VALUES(hostname), last_heartbeat_at = VALUES(last_heartbeat_at)`,
+		workerID, strings.TrimSpace(hostname),
+	).Error
+}
+
+// ResetStaleRunningRuns 将长时间未结束的 running 标记为失败。
+func (s *ScheduledJobsStore) ResetStaleRunningRuns(ctx context.Context, maxAge time.Duration) (int64, error) {
+	if maxAge <= 0 {
+		return 0, nil
+	}
+	cutoff := time.Now().Add(-maxAge)
+	res := s.db.WithContext(ctx).Exec(
+		`UPDATE scheduled_job_runs
+		    SET status = 'failed',
+		        finished_at = NOW(),
+		        duration_ms = GREATEST(0, TIMESTAMPDIFF(MICROSECOND, started_at, NOW()) DIV 1000),
+		        summary = 'stale: worker lost before finish',
+		        error_code = 'STALE_RUN',
+		        error_message = 'running exceeded stale timeout; reset so queue can proceed'
+		  WHERE status = 'running'
+		    AND started_at IS NOT NULL
+		    AND started_at < ?`, cutoff,
+	)
+	return res.RowsAffected, res.Error
+}
+
 func (s *ScheduledJobsStore) ListJobWorkerNodes(ctx context.Context) ([]JobWorkerNode, int64, error) {
 	var queuedTotal int64
 	if err := s.db.WithContext(ctx).Raw(
@@ -518,6 +552,21 @@ func (s *ScheduledJobsStore) FinishRun(ctx context.Context, runID int64, status,
 		b, _ := json.Marshal(output)
 		outJSON = string(b)
 	}
+	return s.finishRunWithOutputJSON(ctx, runID, status, summary, errCode, errMessage, outJSON)
+}
+
+// FinishRunWithOutputJSON 供 gRPC 传入已序列化的 output_json（避免 double-json）。
+func (s *ScheduledJobsStore) FinishRunWithOutputJSON(ctx context.Context, runID int64, status, summary, errCode, errMessage, outputJSON string) error {
+	if runID <= 0 {
+		return errors.New("run_id required")
+	}
+	if status == "" {
+		status = JobStatusSuccess
+	}
+	return s.finishRunWithOutputJSON(ctx, runID, status, summary, errCode, errMessage, strings.TrimSpace(outputJSON))
+}
+
+func (s *ScheduledJobsStore) finishRunWithOutputJSON(ctx context.Context, runID int64, status, summary, errCode, errMessage, outJSON string) error {
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var run ScheduledJobRun
 		if err := tx.Table("scheduled_job_runs").
@@ -540,19 +589,34 @@ func (s *ScheduledJobsStore) FinishRun(ctx context.Context, runID int64, status,
 		).Error; err != nil {
 			return err
 		}
+		job, err := s.getScheduledJobForRuntime(tx, run.JobID)
+		if err != nil {
+			return err
+		}
+		nextRunAt, nerr := calcServiceHubNextRunAt(job.ScheduleType, job.CronExpr, job.IntervalSeconds, job.Timezone, time.Now())
+		if nerr != nil {
+			nextRunAt = time.Now().Add(time.Minute)
+		}
 		return tx.Exec(
 			`UPDATE scheduled_jobs
-			    SET last_run_at = NOW(),
-			        last_status = ?,
-			        last_error = ?,
-			        next_run_at = CASE
-			          WHEN schedule_type = 'fixed_interval' THEN DATE_ADD(NOW(), INTERVAL interval_seconds SECOND)
-			          ELSE DATE_ADD(NOW(), INTERVAL 60 SECOND)
-			        END
+			    SET last_run_at = NOW(), last_status = ?, last_error = ?, next_run_at = ?
 			  WHERE id = ?`,
-			status, truncate(errMessage, 255), run.JobID,
+			status, truncate(errMessage, 255), nextRunAt, run.JobID,
 		).Error
 	})
+}
+
+func (s *ScheduledJobsStore) getScheduledJobForRuntime(tx *gorm.DB, jobID int64) (*ScheduledJob, error) {
+	if jobID <= 0 {
+		return nil, errors.New("job_id required")
+	}
+	var job ScheduledJob
+	if err := tx.Table("scheduled_jobs").
+		Select(`id, job_key, schedule_type, cron_expr, interval_seconds, timezone`).
+		Where("id = ?", jobID).Limit(1).Take(&job).Error; err != nil {
+		return nil, err
+	}
+	return &job, nil
 }
 
 func boolToInt64(v bool) int64 {

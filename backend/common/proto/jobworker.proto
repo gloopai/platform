@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package jobworker;
+option go_package = "github.com/gloopai/platform/common/pb/jobworker;jobworker";
+
+// JobWorkerRuntime 供 job-worker 进程通过 gRPC 与 core 上的调度存储交互（与 ServiceHub 管理面分离）。
+service JobWorkerRuntime {
+  rpc Heartbeat(HeartbeatReq) returns (HeartbeatResp);
+  rpc ResetStaleRunningRuns(ResetStaleRunningRunsReq) returns (ResetStaleRunningRunsResp);
+  rpc EnqueueDueJobs(EnqueueDueJobsReq) returns (EnqueueDueJobsResp);
+  rpc ClaimQueuedRuns(ClaimQueuedRunsReq) returns (ClaimQueuedRunsResp);
+  rpc GetScheduledJob(GetScheduledJobReq) returns (GetScheduledJobResp);
+  rpc FinishJobRun(FinishJobRunReq) returns (FinishJobRunResp);
+}
+
+message HeartbeatReq {
+  string worker_id = 1;
+  string hostname = 2;
+}
+
+message HeartbeatResp {}
+
+message ResetStaleRunningRunsReq {
+  int64 max_age_seconds = 1;
+}
+
+message ResetStaleRunningRunsResp {
+  int64 rows_affected = 1;
+}
+
+message EnqueueDueJobsReq {
+  int64 limit = 1;
+}
+
+message EnqueueDueJobsResp {
+  int64 enqueued = 1;
+}
+
+message ClaimQueuedRunsReq {
+  string worker_id = 1;
+  int64 limit = 2;
+}
+
+message ClaimedRun {
+  int64 run_id = 1;
+  int64 job_id = 2;
+  string job_key = 3;
+  int64 attempt = 4;
+}
+
+message ClaimQueuedRunsResp {
+  repeated ClaimedRun runs = 1;
+}
+
+message GetScheduledJobReq {
+  int64 job_id = 1;
+}
+
+message ScheduledJobRow {
+  int64 id = 1;
+  string job_key = 2;
+  string schedule_type = 3;
+  string cron_expr = 4;
+  int64 interval_seconds = 5;
+  string timezone = 6;
+  string payload_json = 7;
+}
+
+message GetScheduledJobResp {
+  ScheduledJobRow job = 1;
+}
+
+message FinishJobRunReq {
+  int64 run_id = 1;
+  int64 job_id = 2;
+  string status = 3;
+  string summary = 4;
+  string error_code = 5;
+  string error_message = 6;
+  string output_json = 7;
+}
+
+message FinishJobRunResp {}

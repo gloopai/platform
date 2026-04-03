@@ -5876,6 +5876,94 @@ func (x *ListAdminOperationLogsResp) GetTotal() int64 {
 	return 0
 }
 
+type PurgeAdminOperationLogsBeforeReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CutoffUnixSec int64                  `protobuf:"varint,1,opt,name=cutoff_unix_sec,json=cutoffUnixSec,proto3" json:"cutoff_unix_sec,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PurgeAdminOperationLogsBeforeReq) Reset() {
+	*x = PurgeAdminOperationLogsBeforeReq{}
+	mi := &file_servicehub_proto_msgTypes[95]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PurgeAdminOperationLogsBeforeReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PurgeAdminOperationLogsBeforeReq) ProtoMessage() {}
+
+func (x *PurgeAdminOperationLogsBeforeReq) ProtoReflect() protoreflect.Message {
+	mi := &file_servicehub_proto_msgTypes[95]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PurgeAdminOperationLogsBeforeReq.ProtoReflect.Descriptor instead.
+func (*PurgeAdminOperationLogsBeforeReq) Descriptor() ([]byte, []int) {
+	return file_servicehub_proto_rawDescGZIP(), []int{95}
+}
+
+func (x *PurgeAdminOperationLogsBeforeReq) GetCutoffUnixSec() int64 {
+	if x != nil {
+		return x.CutoffUnixSec
+	}
+	return 0
+}
+
+type PurgeAdminOperationLogsBeforeResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Deleted       int64                  `protobuf:"varint,1,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PurgeAdminOperationLogsBeforeResp) Reset() {
+	*x = PurgeAdminOperationLogsBeforeResp{}
+	mi := &file_servicehub_proto_msgTypes[96]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PurgeAdminOperationLogsBeforeResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PurgeAdminOperationLogsBeforeResp) ProtoMessage() {}
+
+func (x *PurgeAdminOperationLogsBeforeResp) ProtoReflect() protoreflect.Message {
+	mi := &file_servicehub_proto_msgTypes[96]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PurgeAdminOperationLogsBeforeResp.ProtoReflect.Descriptor instead.
+func (*PurgeAdminOperationLogsBeforeResp) Descriptor() ([]byte, []int) {
+	return file_servicehub_proto_rawDescGZIP(), []int{96}
+}
+
+func (x *PurgeAdminOperationLogsBeforeResp) GetDeleted() int64 {
+	if x != nil {
+		return x.Deleted
+	}
+	return 0
+}
+
 var File_servicehub_proto protoreflect.FileDescriptor
 
 const file_servicehub_proto_rawDesc = "" +
@@ -6316,11 +6404,15 @@ const file_servicehub_proto_rawDesc = "" +
 	"\rerror_message\x18\x0f \x01(\tR\ferrorMessage\"h\n" +
 	"\x1aListAdminOperationLogsResp\x124\n" +
 	"\x04rows\x18\x01 \x03(\v2 .servicehub.AdminOperationLogRowR\x04rows\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total*z\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"J\n" +
+	" PurgeAdminOperationLogsBeforeReq\x12&\n" +
+	"\x0fcutoff_unix_sec\x18\x01 \x01(\x03R\rcutoffUnixSec\"=\n" +
+	"!PurgeAdminOperationLogsBeforeResp\x12\x18\n" +
+	"\adeleted\x18\x01 \x01(\x03R\adeleted*z\n" +
 	"\x12NotificationPortal\x12#\n" +
 	"\x1fNOTIFICATION_PORTAL_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19NOTIFICATION_PORTAL_ADMIN\x10\x01\x12 \n" +
-	"\x1cNOTIFICATION_PORTAL_MERCHANT\x10\x022\xa2\x1f\n" +
+	"\x1cNOTIFICATION_PORTAL_MERCHANT\x10\x022\xa0 \n" +
 	"\n" +
 	"ServiceHub\x12j\n" +
 	"\x17FindAdminUserByUsername\x12&.servicehub.FindAdminUserByUsernameReq\x1a'.servicehub.FindAdminUserByUsernameResp\x12O\n" +
@@ -6351,7 +6443,8 @@ const file_servicehub_proto_rawDesc = "" +
 	"\x12UpsertAdminApiRule\x12!.servicehub.UpsertAdminApiRuleReq\x1a\".servicehub.UpsertAdminApiRuleResp\x12[\n" +
 	"\x12DeleteAdminApiRule\x12!.servicehub.DeleteAdminApiRuleReq\x1a\".servicehub.DeleteAdminApiRuleResp\x12j\n" +
 	"\x17RecordAdminOperationLog\x12&.servicehub.RecordAdminOperationLogReq\x1a'.servicehub.RecordAdminOperationLogResp\x12g\n" +
-	"\x16ListAdminOperationLogs\x12%.servicehub.ListAdminOperationLogsReq\x1a&.servicehub.ListAdminOperationLogsResp\x12R\n" +
+	"\x16ListAdminOperationLogs\x12%.servicehub.ListAdminOperationLogsReq\x1a&.servicehub.ListAdminOperationLogsResp\x12|\n" +
+	"\x1dPurgeAdminOperationLogsBefore\x12,.servicehub.PurgeAdminOperationLogsBeforeReq\x1a-.servicehub.PurgeAdminOperationLogsBeforeResp\x12R\n" +
 	"\x0fCreateAdminUser\x12\x1e.servicehub.CreateAdminUserReq\x1a\x1f.servicehub.CreateAdminUserResp\x12R\n" +
 	"\x0fUpdateAdminUser\x12\x1e.servicehub.UpdateAdminUserReq\x1a\x1f.servicehub.UpdateAdminUserResp\x12R\n" +
 	"\x0fDeleteAdminUser\x12\x1e.servicehub.DeleteAdminUserReq\x1a\x1f.servicehub.DeleteAdminUserResp\x12U\n" +
@@ -6380,104 +6473,106 @@ func file_servicehub_proto_rawDescGZIP() []byte {
 }
 
 var file_servicehub_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 95)
+var file_servicehub_proto_msgTypes = make([]protoimpl.MessageInfo, 97)
 var file_servicehub_proto_goTypes = []any{
-	(NotificationPortal)(0),               // 0: servicehub.NotificationPortal
-	(*FindAdminUserByUsernameReq)(nil),    // 1: servicehub.FindAdminUserByUsernameReq
-	(*FindAdminUserByUsernameResp)(nil),   // 2: servicehub.FindAdminUserByUsernameResp
-	(*AdminUser)(nil),                     // 3: servicehub.AdminUser
-	(*AdminUserPublic)(nil),               // 4: servicehub.AdminUserPublic
-	(*ListAdminUsersReq)(nil),             // 5: servicehub.ListAdminUsersReq
-	(*ListAdminUsersResp)(nil),            // 6: servicehub.ListAdminUsersResp
-	(*GetDisplaySettingsReq)(nil),         // 7: servicehub.GetDisplaySettingsReq
-	(*GetDisplaySettingsResp)(nil),        // 8: servicehub.GetDisplaySettingsResp
-	(*UpsertDisplaySettingsReq)(nil),      // 9: servicehub.UpsertDisplaySettingsReq
-	(*GetAdminRbacMyMenusReq)(nil),        // 10: servicehub.GetAdminRbacMyMenusReq
-	(*AdminMenu)(nil),                     // 11: servicehub.AdminMenu
-	(*GetAdminRbacMyMenusResp)(nil),       // 12: servicehub.GetAdminRbacMyMenusResp
-	(*ListAdminRolesReq)(nil),             // 13: servicehub.ListAdminRolesReq
-	(*AdminRole)(nil),                     // 14: servicehub.AdminRole
-	(*ListAdminRolesResp)(nil),            // 15: servicehub.ListAdminRolesResp
-	(*CreateAdminRoleReq)(nil),            // 16: servicehub.CreateAdminRoleReq
-	(*CreateAdminRoleResp)(nil),           // 17: servicehub.CreateAdminRoleResp
-	(*UpdateAdminRoleReq)(nil),            // 18: servicehub.UpdateAdminRoleReq
-	(*UpdateAdminRoleResp)(nil),           // 19: servicehub.UpdateAdminRoleResp
-	(*DeleteAdminRoleReq)(nil),            // 20: servicehub.DeleteAdminRoleReq
-	(*DeleteAdminRoleResp)(nil),           // 21: servicehub.DeleteAdminRoleResp
-	(*ListAdminMenusReq)(nil),             // 22: servicehub.ListAdminMenusReq
-	(*ListAdminMenusResp)(nil),            // 23: servicehub.ListAdminMenusResp
-	(*CreateAdminMenuReq)(nil),            // 24: servicehub.CreateAdminMenuReq
-	(*CreateAdminMenuResp)(nil),           // 25: servicehub.CreateAdminMenuResp
-	(*UpdateAdminMenuReq)(nil),            // 26: servicehub.UpdateAdminMenuReq
-	(*UpdateAdminMenuResp)(nil),           // 27: servicehub.UpdateAdminMenuResp
-	(*DeleteAdminMenuReq)(nil),            // 28: servicehub.DeleteAdminMenuReq
-	(*DeleteAdminMenuResp)(nil),           // 29: servicehub.DeleteAdminMenuResp
-	(*GetAdminRoleMenusReq)(nil),          // 30: servicehub.GetAdminRoleMenusReq
-	(*GetAdminRoleMenusResp)(nil),         // 31: servicehub.GetAdminRoleMenusResp
-	(*SetAdminRoleMenusReq)(nil),          // 32: servicehub.SetAdminRoleMenusReq
-	(*SetAdminRoleMenusResp)(nil),         // 33: servicehub.SetAdminRoleMenusResp
-	(*GetAdminUserRolesReq)(nil),          // 34: servicehub.GetAdminUserRolesReq
-	(*GetAdminUserRolesResp)(nil),         // 35: servicehub.GetAdminUserRolesResp
-	(*SetAdminUserRolesReq)(nil),          // 36: servicehub.SetAdminUserRolesReq
-	(*SetAdminUserRolesResp)(nil),         // 37: servicehub.SetAdminUserRolesResp
-	(*GetAdminRbacMyPermsReq)(nil),        // 38: servicehub.GetAdminRbacMyPermsReq
-	(*GetAdminRbacMyPermsResp)(nil),       // 39: servicehub.GetAdminRbacMyPermsResp
-	(*AdminPermission)(nil),               // 40: servicehub.AdminPermission
-	(*ListAdminPermissionsReq)(nil),       // 41: servicehub.ListAdminPermissionsReq
-	(*ListAdminPermissionsResp)(nil),      // 42: servicehub.ListAdminPermissionsResp
-	(*CreateAdminPermissionReq)(nil),      // 43: servicehub.CreateAdminPermissionReq
-	(*CreateAdminPermissionResp)(nil),     // 44: servicehub.CreateAdminPermissionResp
-	(*UpdateAdminPermissionReq)(nil),      // 45: servicehub.UpdateAdminPermissionReq
-	(*UpdateAdminPermissionResp)(nil),     // 46: servicehub.UpdateAdminPermissionResp
-	(*DeleteAdminPermissionReq)(nil),      // 47: servicehub.DeleteAdminPermissionReq
-	(*DeleteAdminPermissionResp)(nil),     // 48: servicehub.DeleteAdminPermissionResp
-	(*GetAdminRolePermKeysReq)(nil),       // 49: servicehub.GetAdminRolePermKeysReq
-	(*GetAdminRolePermKeysResp)(nil),      // 50: servicehub.GetAdminRolePermKeysResp
-	(*SetAdminRolePermKeysReq)(nil),       // 51: servicehub.SetAdminRolePermKeysReq
-	(*SetAdminRolePermKeysResp)(nil),      // 52: servicehub.SetAdminRolePermKeysResp
-	(*AdminApiRule)(nil),                  // 53: servicehub.AdminApiRule
-	(*ListAdminApiRulesReq)(nil),          // 54: servicehub.ListAdminApiRulesReq
-	(*ListAdminApiRulesResp)(nil),         // 55: servicehub.ListAdminApiRulesResp
-	(*UpsertAdminApiRuleReq)(nil),         // 56: servicehub.UpsertAdminApiRuleReq
-	(*UpsertAdminApiRuleResp)(nil),        // 57: servicehub.UpsertAdminApiRuleResp
-	(*DeleteAdminApiRuleReq)(nil),         // 58: servicehub.DeleteAdminApiRuleReq
-	(*DeleteAdminApiRuleResp)(nil),        // 59: servicehub.DeleteAdminApiRuleResp
-	(*CreateAdminUserReq)(nil),            // 60: servicehub.CreateAdminUserReq
-	(*CreateAdminUserResp)(nil),           // 61: servicehub.CreateAdminUserResp
-	(*UpdateAdminUserReq)(nil),            // 62: servicehub.UpdateAdminUserReq
-	(*UpdateAdminUserResp)(nil),           // 63: servicehub.UpdateAdminUserResp
-	(*DeleteAdminUserReq)(nil),            // 64: servicehub.DeleteAdminUserReq
-	(*DeleteAdminUserResp)(nil),           // 65: servicehub.DeleteAdminUserResp
-	(*GetAdminUserByIdReq)(nil),           // 66: servicehub.GetAdminUserByIdReq
-	(*GetAdminUserByIdResp)(nil),          // 67: servicehub.GetAdminUserByIdResp
-	(*PublishPortalNotificationReq)(nil),  // 68: servicehub.PublishPortalNotificationReq
-	(*PublishPortalNotificationResp)(nil), // 69: servicehub.PublishPortalNotificationResp
-	(*ScheduledJob)(nil),                  // 70: servicehub.ScheduledJob
-	(*ScheduledJobRun)(nil),               // 71: servicehub.ScheduledJobRun
-	(*ListScheduledJobsReq)(nil),          // 72: servicehub.ListScheduledJobsReq
-	(*ListScheduledJobsResp)(nil),         // 73: servicehub.ListScheduledJobsResp
-	(*CreateScheduledJobReq)(nil),         // 74: servicehub.CreateScheduledJobReq
-	(*CreateScheduledJobResp)(nil),        // 75: servicehub.CreateScheduledJobResp
-	(*UpdateScheduledJobReq)(nil),         // 76: servicehub.UpdateScheduledJobReq
-	(*UpdateScheduledJobResp)(nil),        // 77: servicehub.UpdateScheduledJobResp
-	(*ToggleScheduledJobReq)(nil),         // 78: servicehub.ToggleScheduledJobReq
-	(*ToggleScheduledJobResp)(nil),        // 79: servicehub.ToggleScheduledJobResp
-	(*RunScheduledJobNowReq)(nil),         // 80: servicehub.RunScheduledJobNowReq
-	(*RunScheduledJobNowResp)(nil),        // 81: servicehub.RunScheduledJobNowResp
-	(*ListScheduledJobRunsReq)(nil),       // 82: servicehub.ListScheduledJobRunsReq
-	(*ListScheduledJobRunsResp)(nil),      // 83: servicehub.ListScheduledJobRunsResp
-	(*GetScheduledJobRunReq)(nil),         // 84: servicehub.GetScheduledJobRunReq
-	(*GetScheduledJobRunResp)(nil),        // 85: servicehub.GetScheduledJobRunResp
-	(*RetryScheduledJobRunReq)(nil),       // 86: servicehub.RetryScheduledJobRunReq
-	(*RetryScheduledJobRunResp)(nil),      // 87: servicehub.RetryScheduledJobRunResp
-	(*ListJobWorkerNodesReq)(nil),         // 88: servicehub.ListJobWorkerNodesReq
-	(*JobWorkerNode)(nil),                 // 89: servicehub.JobWorkerNode
-	(*ListJobWorkerNodesResp)(nil),        // 90: servicehub.ListJobWorkerNodesResp
-	(*RecordAdminOperationLogReq)(nil),    // 91: servicehub.RecordAdminOperationLogReq
-	(*RecordAdminOperationLogResp)(nil),   // 92: servicehub.RecordAdminOperationLogResp
-	(*ListAdminOperationLogsReq)(nil),     // 93: servicehub.ListAdminOperationLogsReq
-	(*AdminOperationLogRow)(nil),          // 94: servicehub.AdminOperationLogRow
-	(*ListAdminOperationLogsResp)(nil),    // 95: servicehub.ListAdminOperationLogsResp
+	(NotificationPortal)(0),                   // 0: servicehub.NotificationPortal
+	(*FindAdminUserByUsernameReq)(nil),        // 1: servicehub.FindAdminUserByUsernameReq
+	(*FindAdminUserByUsernameResp)(nil),       // 2: servicehub.FindAdminUserByUsernameResp
+	(*AdminUser)(nil),                         // 3: servicehub.AdminUser
+	(*AdminUserPublic)(nil),                   // 4: servicehub.AdminUserPublic
+	(*ListAdminUsersReq)(nil),                 // 5: servicehub.ListAdminUsersReq
+	(*ListAdminUsersResp)(nil),                // 6: servicehub.ListAdminUsersResp
+	(*GetDisplaySettingsReq)(nil),             // 7: servicehub.GetDisplaySettingsReq
+	(*GetDisplaySettingsResp)(nil),            // 8: servicehub.GetDisplaySettingsResp
+	(*UpsertDisplaySettingsReq)(nil),          // 9: servicehub.UpsertDisplaySettingsReq
+	(*GetAdminRbacMyMenusReq)(nil),            // 10: servicehub.GetAdminRbacMyMenusReq
+	(*AdminMenu)(nil),                         // 11: servicehub.AdminMenu
+	(*GetAdminRbacMyMenusResp)(nil),           // 12: servicehub.GetAdminRbacMyMenusResp
+	(*ListAdminRolesReq)(nil),                 // 13: servicehub.ListAdminRolesReq
+	(*AdminRole)(nil),                         // 14: servicehub.AdminRole
+	(*ListAdminRolesResp)(nil),                // 15: servicehub.ListAdminRolesResp
+	(*CreateAdminRoleReq)(nil),                // 16: servicehub.CreateAdminRoleReq
+	(*CreateAdminRoleResp)(nil),               // 17: servicehub.CreateAdminRoleResp
+	(*UpdateAdminRoleReq)(nil),                // 18: servicehub.UpdateAdminRoleReq
+	(*UpdateAdminRoleResp)(nil),               // 19: servicehub.UpdateAdminRoleResp
+	(*DeleteAdminRoleReq)(nil),                // 20: servicehub.DeleteAdminRoleReq
+	(*DeleteAdminRoleResp)(nil),               // 21: servicehub.DeleteAdminRoleResp
+	(*ListAdminMenusReq)(nil),                 // 22: servicehub.ListAdminMenusReq
+	(*ListAdminMenusResp)(nil),                // 23: servicehub.ListAdminMenusResp
+	(*CreateAdminMenuReq)(nil),                // 24: servicehub.CreateAdminMenuReq
+	(*CreateAdminMenuResp)(nil),               // 25: servicehub.CreateAdminMenuResp
+	(*UpdateAdminMenuReq)(nil),                // 26: servicehub.UpdateAdminMenuReq
+	(*UpdateAdminMenuResp)(nil),               // 27: servicehub.UpdateAdminMenuResp
+	(*DeleteAdminMenuReq)(nil),                // 28: servicehub.DeleteAdminMenuReq
+	(*DeleteAdminMenuResp)(nil),               // 29: servicehub.DeleteAdminMenuResp
+	(*GetAdminRoleMenusReq)(nil),              // 30: servicehub.GetAdminRoleMenusReq
+	(*GetAdminRoleMenusResp)(nil),             // 31: servicehub.GetAdminRoleMenusResp
+	(*SetAdminRoleMenusReq)(nil),              // 32: servicehub.SetAdminRoleMenusReq
+	(*SetAdminRoleMenusResp)(nil),             // 33: servicehub.SetAdminRoleMenusResp
+	(*GetAdminUserRolesReq)(nil),              // 34: servicehub.GetAdminUserRolesReq
+	(*GetAdminUserRolesResp)(nil),             // 35: servicehub.GetAdminUserRolesResp
+	(*SetAdminUserRolesReq)(nil),              // 36: servicehub.SetAdminUserRolesReq
+	(*SetAdminUserRolesResp)(nil),             // 37: servicehub.SetAdminUserRolesResp
+	(*GetAdminRbacMyPermsReq)(nil),            // 38: servicehub.GetAdminRbacMyPermsReq
+	(*GetAdminRbacMyPermsResp)(nil),           // 39: servicehub.GetAdminRbacMyPermsResp
+	(*AdminPermission)(nil),                   // 40: servicehub.AdminPermission
+	(*ListAdminPermissionsReq)(nil),           // 41: servicehub.ListAdminPermissionsReq
+	(*ListAdminPermissionsResp)(nil),          // 42: servicehub.ListAdminPermissionsResp
+	(*CreateAdminPermissionReq)(nil),          // 43: servicehub.CreateAdminPermissionReq
+	(*CreateAdminPermissionResp)(nil),         // 44: servicehub.CreateAdminPermissionResp
+	(*UpdateAdminPermissionReq)(nil),          // 45: servicehub.UpdateAdminPermissionReq
+	(*UpdateAdminPermissionResp)(nil),         // 46: servicehub.UpdateAdminPermissionResp
+	(*DeleteAdminPermissionReq)(nil),          // 47: servicehub.DeleteAdminPermissionReq
+	(*DeleteAdminPermissionResp)(nil),         // 48: servicehub.DeleteAdminPermissionResp
+	(*GetAdminRolePermKeysReq)(nil),           // 49: servicehub.GetAdminRolePermKeysReq
+	(*GetAdminRolePermKeysResp)(nil),          // 50: servicehub.GetAdminRolePermKeysResp
+	(*SetAdminRolePermKeysReq)(nil),           // 51: servicehub.SetAdminRolePermKeysReq
+	(*SetAdminRolePermKeysResp)(nil),          // 52: servicehub.SetAdminRolePermKeysResp
+	(*AdminApiRule)(nil),                      // 53: servicehub.AdminApiRule
+	(*ListAdminApiRulesReq)(nil),              // 54: servicehub.ListAdminApiRulesReq
+	(*ListAdminApiRulesResp)(nil),             // 55: servicehub.ListAdminApiRulesResp
+	(*UpsertAdminApiRuleReq)(nil),             // 56: servicehub.UpsertAdminApiRuleReq
+	(*UpsertAdminApiRuleResp)(nil),            // 57: servicehub.UpsertAdminApiRuleResp
+	(*DeleteAdminApiRuleReq)(nil),             // 58: servicehub.DeleteAdminApiRuleReq
+	(*DeleteAdminApiRuleResp)(nil),            // 59: servicehub.DeleteAdminApiRuleResp
+	(*CreateAdminUserReq)(nil),                // 60: servicehub.CreateAdminUserReq
+	(*CreateAdminUserResp)(nil),               // 61: servicehub.CreateAdminUserResp
+	(*UpdateAdminUserReq)(nil),                // 62: servicehub.UpdateAdminUserReq
+	(*UpdateAdminUserResp)(nil),               // 63: servicehub.UpdateAdminUserResp
+	(*DeleteAdminUserReq)(nil),                // 64: servicehub.DeleteAdminUserReq
+	(*DeleteAdminUserResp)(nil),               // 65: servicehub.DeleteAdminUserResp
+	(*GetAdminUserByIdReq)(nil),               // 66: servicehub.GetAdminUserByIdReq
+	(*GetAdminUserByIdResp)(nil),              // 67: servicehub.GetAdminUserByIdResp
+	(*PublishPortalNotificationReq)(nil),      // 68: servicehub.PublishPortalNotificationReq
+	(*PublishPortalNotificationResp)(nil),     // 69: servicehub.PublishPortalNotificationResp
+	(*ScheduledJob)(nil),                      // 70: servicehub.ScheduledJob
+	(*ScheduledJobRun)(nil),                   // 71: servicehub.ScheduledJobRun
+	(*ListScheduledJobsReq)(nil),              // 72: servicehub.ListScheduledJobsReq
+	(*ListScheduledJobsResp)(nil),             // 73: servicehub.ListScheduledJobsResp
+	(*CreateScheduledJobReq)(nil),             // 74: servicehub.CreateScheduledJobReq
+	(*CreateScheduledJobResp)(nil),            // 75: servicehub.CreateScheduledJobResp
+	(*UpdateScheduledJobReq)(nil),             // 76: servicehub.UpdateScheduledJobReq
+	(*UpdateScheduledJobResp)(nil),            // 77: servicehub.UpdateScheduledJobResp
+	(*ToggleScheduledJobReq)(nil),             // 78: servicehub.ToggleScheduledJobReq
+	(*ToggleScheduledJobResp)(nil),            // 79: servicehub.ToggleScheduledJobResp
+	(*RunScheduledJobNowReq)(nil),             // 80: servicehub.RunScheduledJobNowReq
+	(*RunScheduledJobNowResp)(nil),            // 81: servicehub.RunScheduledJobNowResp
+	(*ListScheduledJobRunsReq)(nil),           // 82: servicehub.ListScheduledJobRunsReq
+	(*ListScheduledJobRunsResp)(nil),          // 83: servicehub.ListScheduledJobRunsResp
+	(*GetScheduledJobRunReq)(nil),             // 84: servicehub.GetScheduledJobRunReq
+	(*GetScheduledJobRunResp)(nil),            // 85: servicehub.GetScheduledJobRunResp
+	(*RetryScheduledJobRunReq)(nil),           // 86: servicehub.RetryScheduledJobRunReq
+	(*RetryScheduledJobRunResp)(nil),          // 87: servicehub.RetryScheduledJobRunResp
+	(*ListJobWorkerNodesReq)(nil),             // 88: servicehub.ListJobWorkerNodesReq
+	(*JobWorkerNode)(nil),                     // 89: servicehub.JobWorkerNode
+	(*ListJobWorkerNodesResp)(nil),            // 90: servicehub.ListJobWorkerNodesResp
+	(*RecordAdminOperationLogReq)(nil),        // 91: servicehub.RecordAdminOperationLogReq
+	(*RecordAdminOperationLogResp)(nil),       // 92: servicehub.RecordAdminOperationLogResp
+	(*ListAdminOperationLogsReq)(nil),         // 93: servicehub.ListAdminOperationLogsReq
+	(*AdminOperationLogRow)(nil),              // 94: servicehub.AdminOperationLogRow
+	(*ListAdminOperationLogsResp)(nil),        // 95: servicehub.ListAdminOperationLogsResp
+	(*PurgeAdminOperationLogsBeforeReq)(nil),  // 96: servicehub.PurgeAdminOperationLogsBeforeReq
+	(*PurgeAdminOperationLogsBeforeResp)(nil), // 97: servicehub.PurgeAdminOperationLogsBeforeResp
 }
 var file_servicehub_proto_depIdxs = []int32{
 	3,  // 0: servicehub.FindAdminUserByUsernameResp.user:type_name -> servicehub.AdminUser
@@ -6535,65 +6630,67 @@ var file_servicehub_proto_depIdxs = []int32{
 	58, // 52: servicehub.ServiceHub.DeleteAdminApiRule:input_type -> servicehub.DeleteAdminApiRuleReq
 	91, // 53: servicehub.ServiceHub.RecordAdminOperationLog:input_type -> servicehub.RecordAdminOperationLogReq
 	93, // 54: servicehub.ServiceHub.ListAdminOperationLogs:input_type -> servicehub.ListAdminOperationLogsReq
-	60, // 55: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
-	62, // 56: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
-	64, // 57: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
-	66, // 58: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
-	68, // 59: servicehub.ServiceHub.PublishPortalNotification:input_type -> servicehub.PublishPortalNotificationReq
-	72, // 60: servicehub.ServiceHub.ListScheduledJobs:input_type -> servicehub.ListScheduledJobsReq
-	74, // 61: servicehub.ServiceHub.CreateScheduledJob:input_type -> servicehub.CreateScheduledJobReq
-	76, // 62: servicehub.ServiceHub.UpdateScheduledJob:input_type -> servicehub.UpdateScheduledJobReq
-	78, // 63: servicehub.ServiceHub.ToggleScheduledJob:input_type -> servicehub.ToggleScheduledJobReq
-	80, // 64: servicehub.ServiceHub.RunScheduledJobNow:input_type -> servicehub.RunScheduledJobNowReq
-	82, // 65: servicehub.ServiceHub.ListScheduledJobRuns:input_type -> servicehub.ListScheduledJobRunsReq
-	84, // 66: servicehub.ServiceHub.GetScheduledJobRun:input_type -> servicehub.GetScheduledJobRunReq
-	86, // 67: servicehub.ServiceHub.RetryScheduledJobRun:input_type -> servicehub.RetryScheduledJobRunReq
-	88, // 68: servicehub.ServiceHub.ListJobWorkerNodes:input_type -> servicehub.ListJobWorkerNodesReq
-	2,  // 69: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
-	6,  // 70: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
-	8,  // 71: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	8,  // 72: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
-	12, // 73: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
-	15, // 74: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
-	17, // 75: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
-	19, // 76: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
-	21, // 77: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
-	23, // 78: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
-	25, // 79: servicehub.ServiceHub.CreateAdminMenu:output_type -> servicehub.CreateAdminMenuResp
-	27, // 80: servicehub.ServiceHub.UpdateAdminMenu:output_type -> servicehub.UpdateAdminMenuResp
-	29, // 81: servicehub.ServiceHub.DeleteAdminMenu:output_type -> servicehub.DeleteAdminMenuResp
-	31, // 82: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
-	33, // 83: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
-	35, // 84: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
-	37, // 85: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
-	39, // 86: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
-	42, // 87: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
-	44, // 88: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
-	46, // 89: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
-	48, // 90: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
-	50, // 91: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
-	52, // 92: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
-	55, // 93: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
-	57, // 94: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
-	59, // 95: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
-	92, // 96: servicehub.ServiceHub.RecordAdminOperationLog:output_type -> servicehub.RecordAdminOperationLogResp
-	95, // 97: servicehub.ServiceHub.ListAdminOperationLogs:output_type -> servicehub.ListAdminOperationLogsResp
-	61, // 98: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
-	63, // 99: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
-	65, // 100: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
-	67, // 101: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
-	69, // 102: servicehub.ServiceHub.PublishPortalNotification:output_type -> servicehub.PublishPortalNotificationResp
-	73, // 103: servicehub.ServiceHub.ListScheduledJobs:output_type -> servicehub.ListScheduledJobsResp
-	75, // 104: servicehub.ServiceHub.CreateScheduledJob:output_type -> servicehub.CreateScheduledJobResp
-	77, // 105: servicehub.ServiceHub.UpdateScheduledJob:output_type -> servicehub.UpdateScheduledJobResp
-	79, // 106: servicehub.ServiceHub.ToggleScheduledJob:output_type -> servicehub.ToggleScheduledJobResp
-	81, // 107: servicehub.ServiceHub.RunScheduledJobNow:output_type -> servicehub.RunScheduledJobNowResp
-	83, // 108: servicehub.ServiceHub.ListScheduledJobRuns:output_type -> servicehub.ListScheduledJobRunsResp
-	85, // 109: servicehub.ServiceHub.GetScheduledJobRun:output_type -> servicehub.GetScheduledJobRunResp
-	87, // 110: servicehub.ServiceHub.RetryScheduledJobRun:output_type -> servicehub.RetryScheduledJobRunResp
-	90, // 111: servicehub.ServiceHub.ListJobWorkerNodes:output_type -> servicehub.ListJobWorkerNodesResp
-	69, // [69:112] is the sub-list for method output_type
-	26, // [26:69] is the sub-list for method input_type
+	96, // 55: servicehub.ServiceHub.PurgeAdminOperationLogsBefore:input_type -> servicehub.PurgeAdminOperationLogsBeforeReq
+	60, // 56: servicehub.ServiceHub.CreateAdminUser:input_type -> servicehub.CreateAdminUserReq
+	62, // 57: servicehub.ServiceHub.UpdateAdminUser:input_type -> servicehub.UpdateAdminUserReq
+	64, // 58: servicehub.ServiceHub.DeleteAdminUser:input_type -> servicehub.DeleteAdminUserReq
+	66, // 59: servicehub.ServiceHub.GetAdminUserById:input_type -> servicehub.GetAdminUserByIdReq
+	68, // 60: servicehub.ServiceHub.PublishPortalNotification:input_type -> servicehub.PublishPortalNotificationReq
+	72, // 61: servicehub.ServiceHub.ListScheduledJobs:input_type -> servicehub.ListScheduledJobsReq
+	74, // 62: servicehub.ServiceHub.CreateScheduledJob:input_type -> servicehub.CreateScheduledJobReq
+	76, // 63: servicehub.ServiceHub.UpdateScheduledJob:input_type -> servicehub.UpdateScheduledJobReq
+	78, // 64: servicehub.ServiceHub.ToggleScheduledJob:input_type -> servicehub.ToggleScheduledJobReq
+	80, // 65: servicehub.ServiceHub.RunScheduledJobNow:input_type -> servicehub.RunScheduledJobNowReq
+	82, // 66: servicehub.ServiceHub.ListScheduledJobRuns:input_type -> servicehub.ListScheduledJobRunsReq
+	84, // 67: servicehub.ServiceHub.GetScheduledJobRun:input_type -> servicehub.GetScheduledJobRunReq
+	86, // 68: servicehub.ServiceHub.RetryScheduledJobRun:input_type -> servicehub.RetryScheduledJobRunReq
+	88, // 69: servicehub.ServiceHub.ListJobWorkerNodes:input_type -> servicehub.ListJobWorkerNodesReq
+	2,  // 70: servicehub.ServiceHub.FindAdminUserByUsername:output_type -> servicehub.FindAdminUserByUsernameResp
+	6,  // 71: servicehub.ServiceHub.ListAdminUsers:output_type -> servicehub.ListAdminUsersResp
+	8,  // 72: servicehub.ServiceHub.GetDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	8,  // 73: servicehub.ServiceHub.UpsertDisplaySettings:output_type -> servicehub.GetDisplaySettingsResp
+	12, // 74: servicehub.ServiceHub.GetAdminRbacMyMenus:output_type -> servicehub.GetAdminRbacMyMenusResp
+	15, // 75: servicehub.ServiceHub.ListAdminRoles:output_type -> servicehub.ListAdminRolesResp
+	17, // 76: servicehub.ServiceHub.CreateAdminRole:output_type -> servicehub.CreateAdminRoleResp
+	19, // 77: servicehub.ServiceHub.UpdateAdminRole:output_type -> servicehub.UpdateAdminRoleResp
+	21, // 78: servicehub.ServiceHub.DeleteAdminRole:output_type -> servicehub.DeleteAdminRoleResp
+	23, // 79: servicehub.ServiceHub.ListAdminMenus:output_type -> servicehub.ListAdminMenusResp
+	25, // 80: servicehub.ServiceHub.CreateAdminMenu:output_type -> servicehub.CreateAdminMenuResp
+	27, // 81: servicehub.ServiceHub.UpdateAdminMenu:output_type -> servicehub.UpdateAdminMenuResp
+	29, // 82: servicehub.ServiceHub.DeleteAdminMenu:output_type -> servicehub.DeleteAdminMenuResp
+	31, // 83: servicehub.ServiceHub.GetAdminRoleMenus:output_type -> servicehub.GetAdminRoleMenusResp
+	33, // 84: servicehub.ServiceHub.SetAdminRoleMenus:output_type -> servicehub.SetAdminRoleMenusResp
+	35, // 85: servicehub.ServiceHub.GetAdminUserRoles:output_type -> servicehub.GetAdminUserRolesResp
+	37, // 86: servicehub.ServiceHub.SetAdminUserRoles:output_type -> servicehub.SetAdminUserRolesResp
+	39, // 87: servicehub.ServiceHub.GetAdminRbacMyPerms:output_type -> servicehub.GetAdminRbacMyPermsResp
+	42, // 88: servicehub.ServiceHub.ListAdminPermissions:output_type -> servicehub.ListAdminPermissionsResp
+	44, // 89: servicehub.ServiceHub.CreateAdminPermission:output_type -> servicehub.CreateAdminPermissionResp
+	46, // 90: servicehub.ServiceHub.UpdateAdminPermission:output_type -> servicehub.UpdateAdminPermissionResp
+	48, // 91: servicehub.ServiceHub.DeleteAdminPermission:output_type -> servicehub.DeleteAdminPermissionResp
+	50, // 92: servicehub.ServiceHub.GetAdminRolePermKeys:output_type -> servicehub.GetAdminRolePermKeysResp
+	52, // 93: servicehub.ServiceHub.SetAdminRolePermKeys:output_type -> servicehub.SetAdminRolePermKeysResp
+	55, // 94: servicehub.ServiceHub.ListAdminApiRules:output_type -> servicehub.ListAdminApiRulesResp
+	57, // 95: servicehub.ServiceHub.UpsertAdminApiRule:output_type -> servicehub.UpsertAdminApiRuleResp
+	59, // 96: servicehub.ServiceHub.DeleteAdminApiRule:output_type -> servicehub.DeleteAdminApiRuleResp
+	92, // 97: servicehub.ServiceHub.RecordAdminOperationLog:output_type -> servicehub.RecordAdminOperationLogResp
+	95, // 98: servicehub.ServiceHub.ListAdminOperationLogs:output_type -> servicehub.ListAdminOperationLogsResp
+	97, // 99: servicehub.ServiceHub.PurgeAdminOperationLogsBefore:output_type -> servicehub.PurgeAdminOperationLogsBeforeResp
+	61, // 100: servicehub.ServiceHub.CreateAdminUser:output_type -> servicehub.CreateAdminUserResp
+	63, // 101: servicehub.ServiceHub.UpdateAdminUser:output_type -> servicehub.UpdateAdminUserResp
+	65, // 102: servicehub.ServiceHub.DeleteAdminUser:output_type -> servicehub.DeleteAdminUserResp
+	67, // 103: servicehub.ServiceHub.GetAdminUserById:output_type -> servicehub.GetAdminUserByIdResp
+	69, // 104: servicehub.ServiceHub.PublishPortalNotification:output_type -> servicehub.PublishPortalNotificationResp
+	73, // 105: servicehub.ServiceHub.ListScheduledJobs:output_type -> servicehub.ListScheduledJobsResp
+	75, // 106: servicehub.ServiceHub.CreateScheduledJob:output_type -> servicehub.CreateScheduledJobResp
+	77, // 107: servicehub.ServiceHub.UpdateScheduledJob:output_type -> servicehub.UpdateScheduledJobResp
+	79, // 108: servicehub.ServiceHub.ToggleScheduledJob:output_type -> servicehub.ToggleScheduledJobResp
+	81, // 109: servicehub.ServiceHub.RunScheduledJobNow:output_type -> servicehub.RunScheduledJobNowResp
+	83, // 110: servicehub.ServiceHub.ListScheduledJobRuns:output_type -> servicehub.ListScheduledJobRunsResp
+	85, // 111: servicehub.ServiceHub.GetScheduledJobRun:output_type -> servicehub.GetScheduledJobRunResp
+	87, // 112: servicehub.ServiceHub.RetryScheduledJobRun:output_type -> servicehub.RetryScheduledJobRunResp
+	90, // 113: servicehub.ServiceHub.ListJobWorkerNodes:output_type -> servicehub.ListJobWorkerNodesResp
+	70, // [70:114] is the sub-list for method output_type
+	26, // [26:70] is the sub-list for method input_type
 	26, // [26:26] is the sub-list for extension type_name
 	26, // [26:26] is the sub-list for extension extendee
 	0,  // [0:26] is the sub-list for field type_name
@@ -6611,7 +6708,7 @@ func file_servicehub_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_servicehub_proto_rawDesc), len(file_servicehub_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   95,
+			NumMessages:   97,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

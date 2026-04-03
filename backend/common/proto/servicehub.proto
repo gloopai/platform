@@ -42,6 +42,8 @@ service ServiceHub {
   // ---- Admin operation audit logs ----
   rpc RecordAdminOperationLog(RecordAdminOperationLogReq) returns (RecordAdminOperationLogResp);
   rpc ListAdminOperationLogs(ListAdminOperationLogsReq) returns (ListAdminOperationLogsResp);
+  // 删除早于 cutoff 的审计日志（供 job-worker 定时清理任务调用）
+  rpc PurgeAdminOperationLogsBefore(PurgeAdminOperationLogsBeforeReq) returns (PurgeAdminOperationLogsBeforeResp);
 
   // ---- Admin users / MFA ----
   rpc CreateAdminUser(CreateAdminUserReq) returns (CreateAdminUserResp);
@@ -578,4 +580,12 @@ message AdminOperationLogRow {
 message ListAdminOperationLogsResp {
   repeated AdminOperationLogRow rows = 1;
   int64 total = 2;
+}
+
+message PurgeAdminOperationLogsBeforeReq {
+  int64 cutoff_unix_sec = 1;
+}
+
+message PurgeAdminOperationLogsBeforeResp {
+  int64 deleted = 1;
 }

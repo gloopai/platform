@@ -571,6 +571,18 @@ func (s *ServiceHubServer) ListAdminOperationLogs(ctx context.Context, req *serv
 	return &servicehub.ListAdminOperationLogsResp{Rows: out, Total: total}, nil
 }
 
+func (s *ServiceHubServer) PurgeAdminOperationLogsBefore(ctx context.Context, req *servicehub.PurgeAdminOperationLogsBeforeReq) (*servicehub.PurgeAdminOperationLogsBeforeResp, error) {
+	sec := req.GetCutoffUnixSec()
+	if sec <= 0 {
+		return nil, status.Error(codes.InvalidArgument, "cutoff_unix_sec required")
+	}
+	n, err := s.svcCtx.AdminOpLogs.DeleteBefore(ctx, time.Unix(sec, 0))
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &servicehub.PurgeAdminOperationLogsBeforeResp{Deleted: n}, nil
+}
+
 func toUnixSec(v sql.NullTime) int64 {
 	if !v.Valid {
 		return 0

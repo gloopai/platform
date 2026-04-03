@@ -19,49 +19,50 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServiceHub_FindAdminUserByUsername_FullMethodName   = "/servicehub.ServiceHub/FindAdminUserByUsername"
-	ServiceHub_ListAdminUsers_FullMethodName            = "/servicehub.ServiceHub/ListAdminUsers"
-	ServiceHub_GetDisplaySettings_FullMethodName        = "/servicehub.ServiceHub/GetDisplaySettings"
-	ServiceHub_UpsertDisplaySettings_FullMethodName     = "/servicehub.ServiceHub/UpsertDisplaySettings"
-	ServiceHub_GetAdminRbacMyMenus_FullMethodName       = "/servicehub.ServiceHub/GetAdminRbacMyMenus"
-	ServiceHub_ListAdminRoles_FullMethodName            = "/servicehub.ServiceHub/ListAdminRoles"
-	ServiceHub_CreateAdminRole_FullMethodName           = "/servicehub.ServiceHub/CreateAdminRole"
-	ServiceHub_UpdateAdminRole_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminRole"
-	ServiceHub_DeleteAdminRole_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminRole"
-	ServiceHub_ListAdminMenus_FullMethodName            = "/servicehub.ServiceHub/ListAdminMenus"
-	ServiceHub_CreateAdminMenu_FullMethodName           = "/servicehub.ServiceHub/CreateAdminMenu"
-	ServiceHub_UpdateAdminMenu_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminMenu"
-	ServiceHub_DeleteAdminMenu_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminMenu"
-	ServiceHub_GetAdminRoleMenus_FullMethodName         = "/servicehub.ServiceHub/GetAdminRoleMenus"
-	ServiceHub_SetAdminRoleMenus_FullMethodName         = "/servicehub.ServiceHub/SetAdminRoleMenus"
-	ServiceHub_GetAdminUserRoles_FullMethodName         = "/servicehub.ServiceHub/GetAdminUserRoles"
-	ServiceHub_SetAdminUserRoles_FullMethodName         = "/servicehub.ServiceHub/SetAdminUserRoles"
-	ServiceHub_GetAdminRbacMyPerms_FullMethodName       = "/servicehub.ServiceHub/GetAdminRbacMyPerms"
-	ServiceHub_ListAdminPermissions_FullMethodName      = "/servicehub.ServiceHub/ListAdminPermissions"
-	ServiceHub_CreateAdminPermission_FullMethodName     = "/servicehub.ServiceHub/CreateAdminPermission"
-	ServiceHub_UpdateAdminPermission_FullMethodName     = "/servicehub.ServiceHub/UpdateAdminPermission"
-	ServiceHub_DeleteAdminPermission_FullMethodName     = "/servicehub.ServiceHub/DeleteAdminPermission"
-	ServiceHub_GetAdminRolePermKeys_FullMethodName      = "/servicehub.ServiceHub/GetAdminRolePermKeys"
-	ServiceHub_SetAdminRolePermKeys_FullMethodName      = "/servicehub.ServiceHub/SetAdminRolePermKeys"
-	ServiceHub_ListAdminApiRules_FullMethodName         = "/servicehub.ServiceHub/ListAdminApiRules"
-	ServiceHub_UpsertAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/UpsertAdminApiRule"
-	ServiceHub_DeleteAdminApiRule_FullMethodName        = "/servicehub.ServiceHub/DeleteAdminApiRule"
-	ServiceHub_RecordAdminOperationLog_FullMethodName   = "/servicehub.ServiceHub/RecordAdminOperationLog"
-	ServiceHub_ListAdminOperationLogs_FullMethodName    = "/servicehub.ServiceHub/ListAdminOperationLogs"
-	ServiceHub_CreateAdminUser_FullMethodName           = "/servicehub.ServiceHub/CreateAdminUser"
-	ServiceHub_UpdateAdminUser_FullMethodName           = "/servicehub.ServiceHub/UpdateAdminUser"
-	ServiceHub_DeleteAdminUser_FullMethodName           = "/servicehub.ServiceHub/DeleteAdminUser"
-	ServiceHub_GetAdminUserById_FullMethodName          = "/servicehub.ServiceHub/GetAdminUserById"
-	ServiceHub_PublishPortalNotification_FullMethodName = "/servicehub.ServiceHub/PublishPortalNotification"
-	ServiceHub_ListScheduledJobs_FullMethodName         = "/servicehub.ServiceHub/ListScheduledJobs"
-	ServiceHub_CreateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/CreateScheduledJob"
-	ServiceHub_UpdateScheduledJob_FullMethodName        = "/servicehub.ServiceHub/UpdateScheduledJob"
-	ServiceHub_ToggleScheduledJob_FullMethodName        = "/servicehub.ServiceHub/ToggleScheduledJob"
-	ServiceHub_RunScheduledJobNow_FullMethodName        = "/servicehub.ServiceHub/RunScheduledJobNow"
-	ServiceHub_ListScheduledJobRuns_FullMethodName      = "/servicehub.ServiceHub/ListScheduledJobRuns"
-	ServiceHub_GetScheduledJobRun_FullMethodName        = "/servicehub.ServiceHub/GetScheduledJobRun"
-	ServiceHub_RetryScheduledJobRun_FullMethodName      = "/servicehub.ServiceHub/RetryScheduledJobRun"
-	ServiceHub_ListJobWorkerNodes_FullMethodName        = "/servicehub.ServiceHub/ListJobWorkerNodes"
+	ServiceHub_FindAdminUserByUsername_FullMethodName       = "/servicehub.ServiceHub/FindAdminUserByUsername"
+	ServiceHub_ListAdminUsers_FullMethodName                = "/servicehub.ServiceHub/ListAdminUsers"
+	ServiceHub_GetDisplaySettings_FullMethodName            = "/servicehub.ServiceHub/GetDisplaySettings"
+	ServiceHub_UpsertDisplaySettings_FullMethodName         = "/servicehub.ServiceHub/UpsertDisplaySettings"
+	ServiceHub_GetAdminRbacMyMenus_FullMethodName           = "/servicehub.ServiceHub/GetAdminRbacMyMenus"
+	ServiceHub_ListAdminRoles_FullMethodName                = "/servicehub.ServiceHub/ListAdminRoles"
+	ServiceHub_CreateAdminRole_FullMethodName               = "/servicehub.ServiceHub/CreateAdminRole"
+	ServiceHub_UpdateAdminRole_FullMethodName               = "/servicehub.ServiceHub/UpdateAdminRole"
+	ServiceHub_DeleteAdminRole_FullMethodName               = "/servicehub.ServiceHub/DeleteAdminRole"
+	ServiceHub_ListAdminMenus_FullMethodName                = "/servicehub.ServiceHub/ListAdminMenus"
+	ServiceHub_CreateAdminMenu_FullMethodName               = "/servicehub.ServiceHub/CreateAdminMenu"
+	ServiceHub_UpdateAdminMenu_FullMethodName               = "/servicehub.ServiceHub/UpdateAdminMenu"
+	ServiceHub_DeleteAdminMenu_FullMethodName               = "/servicehub.ServiceHub/DeleteAdminMenu"
+	ServiceHub_GetAdminRoleMenus_FullMethodName             = "/servicehub.ServiceHub/GetAdminRoleMenus"
+	ServiceHub_SetAdminRoleMenus_FullMethodName             = "/servicehub.ServiceHub/SetAdminRoleMenus"
+	ServiceHub_GetAdminUserRoles_FullMethodName             = "/servicehub.ServiceHub/GetAdminUserRoles"
+	ServiceHub_SetAdminUserRoles_FullMethodName             = "/servicehub.ServiceHub/SetAdminUserRoles"
+	ServiceHub_GetAdminRbacMyPerms_FullMethodName           = "/servicehub.ServiceHub/GetAdminRbacMyPerms"
+	ServiceHub_ListAdminPermissions_FullMethodName          = "/servicehub.ServiceHub/ListAdminPermissions"
+	ServiceHub_CreateAdminPermission_FullMethodName         = "/servicehub.ServiceHub/CreateAdminPermission"
+	ServiceHub_UpdateAdminPermission_FullMethodName         = "/servicehub.ServiceHub/UpdateAdminPermission"
+	ServiceHub_DeleteAdminPermission_FullMethodName         = "/servicehub.ServiceHub/DeleteAdminPermission"
+	ServiceHub_GetAdminRolePermKeys_FullMethodName          = "/servicehub.ServiceHub/GetAdminRolePermKeys"
+	ServiceHub_SetAdminRolePermKeys_FullMethodName          = "/servicehub.ServiceHub/SetAdminRolePermKeys"
+	ServiceHub_ListAdminApiRules_FullMethodName             = "/servicehub.ServiceHub/ListAdminApiRules"
+	ServiceHub_UpsertAdminApiRule_FullMethodName            = "/servicehub.ServiceHub/UpsertAdminApiRule"
+	ServiceHub_DeleteAdminApiRule_FullMethodName            = "/servicehub.ServiceHub/DeleteAdminApiRule"
+	ServiceHub_RecordAdminOperationLog_FullMethodName       = "/servicehub.ServiceHub/RecordAdminOperationLog"
+	ServiceHub_ListAdminOperationLogs_FullMethodName        = "/servicehub.ServiceHub/ListAdminOperationLogs"
+	ServiceHub_PurgeAdminOperationLogsBefore_FullMethodName = "/servicehub.ServiceHub/PurgeAdminOperationLogsBefore"
+	ServiceHub_CreateAdminUser_FullMethodName               = "/servicehub.ServiceHub/CreateAdminUser"
+	ServiceHub_UpdateAdminUser_FullMethodName               = "/servicehub.ServiceHub/UpdateAdminUser"
+	ServiceHub_DeleteAdminUser_FullMethodName               = "/servicehub.ServiceHub/DeleteAdminUser"
+	ServiceHub_GetAdminUserById_FullMethodName              = "/servicehub.ServiceHub/GetAdminUserById"
+	ServiceHub_PublishPortalNotification_FullMethodName     = "/servicehub.ServiceHub/PublishPortalNotification"
+	ServiceHub_ListScheduledJobs_FullMethodName             = "/servicehub.ServiceHub/ListScheduledJobs"
+	ServiceHub_CreateScheduledJob_FullMethodName            = "/servicehub.ServiceHub/CreateScheduledJob"
+	ServiceHub_UpdateScheduledJob_FullMethodName            = "/servicehub.ServiceHub/UpdateScheduledJob"
+	ServiceHub_ToggleScheduledJob_FullMethodName            = "/servicehub.ServiceHub/ToggleScheduledJob"
+	ServiceHub_RunScheduledJobNow_FullMethodName            = "/servicehub.ServiceHub/RunScheduledJobNow"
+	ServiceHub_ListScheduledJobRuns_FullMethodName          = "/servicehub.ServiceHub/ListScheduledJobRuns"
+	ServiceHub_GetScheduledJobRun_FullMethodName            = "/servicehub.ServiceHub/GetScheduledJobRun"
+	ServiceHub_RetryScheduledJobRun_FullMethodName          = "/servicehub.ServiceHub/RetryScheduledJobRun"
+	ServiceHub_ListJobWorkerNodes_FullMethodName            = "/servicehub.ServiceHub/ListJobWorkerNodes"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
@@ -103,6 +104,8 @@ type ServiceHubClient interface {
 	// ---- Admin operation audit logs ----
 	RecordAdminOperationLog(ctx context.Context, in *RecordAdminOperationLogReq, opts ...grpc.CallOption) (*RecordAdminOperationLogResp, error)
 	ListAdminOperationLogs(ctx context.Context, in *ListAdminOperationLogsReq, opts ...grpc.CallOption) (*ListAdminOperationLogsResp, error)
+	// 删除早于 cutoff 的审计日志（供 job-worker 定时清理任务调用）
+	PurgeAdminOperationLogsBefore(ctx context.Context, in *PurgeAdminOperationLogsBeforeReq, opts ...grpc.CallOption) (*PurgeAdminOperationLogsBeforeResp, error)
 	// ---- Admin users / MFA ----
 	CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error)
 	UpdateAdminUser(ctx context.Context, in *UpdateAdminUserReq, opts ...grpc.CallOption) (*UpdateAdminUserResp, error)
@@ -420,6 +423,16 @@ func (c *serviceHubClient) ListAdminOperationLogs(ctx context.Context, in *ListA
 	return out, nil
 }
 
+func (c *serviceHubClient) PurgeAdminOperationLogsBefore(ctx context.Context, in *PurgeAdminOperationLogsBeforeReq, opts ...grpc.CallOption) (*PurgeAdminOperationLogsBeforeResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PurgeAdminOperationLogsBeforeResp)
+	err := c.cc.Invoke(ctx, ServiceHub_PurgeAdminOperationLogsBefore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceHubClient) CreateAdminUser(ctx context.Context, in *CreateAdminUserReq, opts ...grpc.CallOption) (*CreateAdminUserResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateAdminUserResp)
@@ -599,6 +612,8 @@ type ServiceHubServer interface {
 	// ---- Admin operation audit logs ----
 	RecordAdminOperationLog(context.Context, *RecordAdminOperationLogReq) (*RecordAdminOperationLogResp, error)
 	ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error)
+	// 删除早于 cutoff 的审计日志（供 job-worker 定时清理任务调用）
+	PurgeAdminOperationLogsBefore(context.Context, *PurgeAdminOperationLogsBeforeReq) (*PurgeAdminOperationLogsBeforeResp, error)
 	// ---- Admin users / MFA ----
 	CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error)
 	UpdateAdminUser(context.Context, *UpdateAdminUserReq) (*UpdateAdminUserResp, error)
@@ -712,6 +727,9 @@ func (UnimplementedServiceHubServer) RecordAdminOperationLog(context.Context, *R
 }
 func (UnimplementedServiceHubServer) ListAdminOperationLogs(context.Context, *ListAdminOperationLogsReq) (*ListAdminOperationLogsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdminOperationLogs not implemented")
+}
+func (UnimplementedServiceHubServer) PurgeAdminOperationLogsBefore(context.Context, *PurgeAdminOperationLogsBeforeReq) (*PurgeAdminOperationLogsBeforeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PurgeAdminOperationLogsBefore not implemented")
 }
 func (UnimplementedServiceHubServer) CreateAdminUser(context.Context, *CreateAdminUserReq) (*CreateAdminUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
@@ -1298,6 +1316,24 @@ func _ServiceHub_ListAdminOperationLogs_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_PurgeAdminOperationLogsBefore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PurgeAdminOperationLogsBeforeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).PurgeAdminOperationLogsBefore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_PurgeAdminOperationLogsBefore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).PurgeAdminOperationLogsBefore(ctx, req.(*PurgeAdminOperationLogsBeforeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceHub_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateAdminUserReq)
 	if err := dec(in); err != nil {
@@ -1672,6 +1708,10 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAdminOperationLogs",
 			Handler:    _ServiceHub_ListAdminOperationLogs_Handler,
+		},
+		{
+			MethodName: "PurgeAdminOperationLogsBefore",
+			Handler:    _ServiceHub_PurgeAdminOperationLogsBefore_Handler,
 		},
 		{
 			MethodName: "CreateAdminUser",

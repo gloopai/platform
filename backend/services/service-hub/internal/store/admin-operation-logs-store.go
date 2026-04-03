@@ -146,6 +146,15 @@ SELECT id, created_at, request_id, admin_user_id, admin_username, operator_ip, u
 	return out, total, rows.Err()
 }
 
+// DeleteBefore removes rows with created_at strictly before cutoff.
+func (s *AdminOperationLogsStore) DeleteBefore(ctx context.Context, cutoff time.Time) (int64, error) {
+	res := s.db.WithContext(ctx).Exec(`DELETE FROM admin_operation_logs WHERE created_at < ?`, cutoff)
+	if res.Error != nil {
+		return 0, res.Error
+	}
+	return res.RowsAffected, nil
+}
+
 func boolToTiny(b bool) int8 {
 	if b {
 		return 1
