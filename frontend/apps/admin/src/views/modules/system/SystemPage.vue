@@ -109,10 +109,10 @@
       <aside class="space-y-4 lg:col-span-4">
         <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
           <div class="text-sm font-semibold text-slate-900">安全策略</div>
-          <p class="mt-1 text-xs text-slate-500">后台登录二次校验策略。</p>
+          <p class="mt-1 text-xs text-slate-500">已绑定谷歌验证器的管理员登录时必须输入动态码；未绑定前仅可进入绑定流程。</p>
           <label class="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
             <input v-model="adminMfaEnabled" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300" />
-            <span>启用后台登录 MFA（仅对已绑定 MFA 的管理员强制校验）</span>
+            <span>保留项：后台 MFA 开关（当前登录校验以账号是否已绑定验证器为准，不依赖此项）</span>
           </label>
         </section>
 

@@ -1,6 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import {
+  adminGet,
+  clearAdminSession,
+  readAdminMfaGate,
+  setAdminMfaGate,
+} from './lib/adminApi'
 import LoginPage from './views/LoginPage.vue'
+import MfaSetupPage from './views/MfaSetupPage.vue'
 import AdminLayout from './views/AdminLayout.vue'
 import HomePage from './views/HomePage.vue'
 import OpsPage from './views/modules/ops/OpsPage.vue'
@@ -21,6 +28,7 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', component: LoginPage },
+    { path: '/mfa-setup', component: MfaSetupPage },
     {
       path: '/',
       component: AdminLayout,
@@ -52,10 +60,37 @@ export const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (to.path === '/login') return true
+
   const tok = localStorage.getItem('admin_token')
-  if (!tok) return '/login'
+  if (!tok) {
+    return '/login'
+  }
+
+  const gate = readAdminMfaGate()
+  if (gate) {
+    if (!gate.ok) {
+      if (to.path !== '/mfa-setup') return '/mfa-setup'
+      return true
+    }
+    if (to.path === '/mfa-setup') return '/home'
+  } else {
+    try {
+      const me = await adminGet<{ mfa_enabled: number }>('/v1/admin/me')
+      const complete = me.mfa_enabled === 1
+      setAdminMfaGate(complete)
+      if (!complete) {
+        if (to.path !== '/mfa-setup') return '/mfa-setup'
+        return true
+      }
+      if (to.path === '/mfa-setup') return '/home'
+    } catch {
+      clearAdminSession()
+      localStorage.removeItem('admin_allowed_paths')
+      return '/login'
+    }
+  }
 
   try {
     const raw = localStorage.getItem('admin_allowed_paths')

@@ -157,9 +157,9 @@
                   type="button"
                   class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800"
                   :disabled="saving"
-                  @click="disableMfa(selectedUserId)"
+                  @click="resetMfa(selectedUserId)"
                 >
-                  禁用 MFA
+                  重置 MFA
                 </button>
                 <button
                   type="button"
@@ -546,17 +546,20 @@ function clearMfaSetup() {
   mfaCode.value = ''
 }
 
-async function disableMfa(uid: number) {
-  const ok = await dialog.confirm('禁用该用户 MFA？禁用后登录无需验证码。', '禁用 MFA')
+async function resetMfa(uid: number) {
+  const ok = await dialog.confirm(
+    '将清除该账号的谷歌验证器绑定，对方需重新扫码绑定后才能使用后台。确定重置？',
+    '重置 MFA',
+  )
   if (!ok) return
   saving.value = true
   try {
     await adminPost(`/v1/admin/admin_users/${uid}/mfa/disable`, {})
     await load()
-    toast.success('MFA 已禁用')
+    toast.success('MFA 已重置')
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    toast.error(`禁用 MFA 失败：${msg}`)
+    toast.error(`重置 MFA 失败：${msg}`)
   } finally {
     saving.value = false
   }

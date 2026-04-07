@@ -98,12 +98,18 @@ func (a *AdminSystem) GetAdminMe(adminID int64) (*types.AdminMeResp, error) {
 	if roleName == "" {
 		roleName = "管理员"
 	}
+	mfaPending := int64(0)
+	if u.GetMfaEnabled() != 1 && strings.TrimSpace(u.GetMfaSecret()) != "" {
+		mfaPending = 1
+	}
 	return &types.AdminMeResp{
 		ID:          u.GetId(),
 		Username:    username,
 		Email:       email,
 		DisplayName: display,
 		Role:        roleName,
+		MfaEnabled:  u.GetMfaEnabled(),
+		MfaPending:  mfaPending,
 	}, nil
 }
 
@@ -332,6 +338,17 @@ func (a *AdminSystem) ConfirmAdminUserMfa(req *types.AdminMfaConfirmReq) (map[st
 		return nil, err
 	}
 	return map[string]any{"ok": true}, nil
+}
+
+// SetupAdminSelfMfa 当前登录用户发起 MFA 绑定（生成密钥与二维码）。
+func (a *AdminSystem) SetupAdminSelfMfa(adminID int64) (*types.AdminMfaSetupResp, error) {
+	return a.SetupAdminUserMfa(&types.AdminMfaSetupReq{Id: adminID})
+}
+
+// ConfirmAdminSelfMfa 当前登录用户确认 MFA 绑定。
+func (a *AdminSystem) ConfirmAdminSelfMfa(adminID int64, req *types.AdminMfaConfirmSelfReq) (map[string]any, error) {
+	code := strings.TrimSpace(req.Code)
+	return a.ConfirmAdminUserMfa(&types.AdminMfaConfirmReq{Id: adminID, Code: code})
 }
 
 func (a *AdminSystem) DisableAdminUserMfa(req *types.AdminMfaDisableReq) (map[string]any, error) {

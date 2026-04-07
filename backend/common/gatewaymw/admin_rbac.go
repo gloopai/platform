@@ -141,6 +141,9 @@ func adminSessionBaselineOK(r *http.Request) bool {
 	if method == http.MethodPost && path == "/v1/admin/logout" {
 		return true
 	}
+	if method == http.MethodPost && (path == "/v1/admin/mfa/setup" || path == "/v1/admin/mfa/confirm") {
+		return true
+	}
 	if method != http.MethodGet {
 		return false
 	}

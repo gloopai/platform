@@ -15,7 +15,7 @@
             <input v-model.trim="password" class="rounded-md border border-slate-200 px-3 py-2 text-sm" type="password" />
           </label>
           <label class="grid gap-1">
-            <span class="text-xs font-medium text-slate-600">MFA 验证码（如已启用）</span>
+            <span class="text-xs font-medium text-slate-600">谷歌验证码（已绑定验证器的账号必填）</span>
             <input v-model.trim="mfaCode" class="rounded-md border border-slate-200 px-3 py-2 text-sm font-mono" maxlength="8" />
           </label>
           <button
@@ -43,11 +43,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { parseApiEnvelope, unwrapApiData } from '../lib/apiEnvelope'
-import { adminApiUrl, saveAdminIdentity, saveAdminSession } from '../lib/adminApi'
+import { adminApiUrl, saveAdminIdentity, saveAdminSession, setAdminMfaGate } from '../lib/adminApi'
 
 type AdminLoginResp = {
   token: string
   expires_at: number
+  mfa_setup_required?: boolean
 }
 
 const router = useRouter()
@@ -76,7 +77,10 @@ async function login() {
     }
     saveAdminIdentity(username.value)
     saveAdminSession({ token: data.token, expiresAt: data.expires_at })
-    await router.replace('/home')
+    if (typeof data.mfa_setup_required === 'boolean') {
+      setAdminMfaGate(!data.mfa_setup_required)
+    }
+    await router.replace(data.mfa_setup_required ? '/mfa-setup' : '/home')
   } catch {
     error.value = '网络错误'
   } finally {

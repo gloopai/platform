@@ -50,6 +50,8 @@ type Handlers struct {
 	MfaSetup              http.HandlerFunc
 	MfaConfirm            http.HandlerFunc
 	MfaDisable            http.HandlerFunc
+	SelfMfaSetup          http.HandlerFunc
+	SelfMfaConfirm        http.HandlerFunc
 	DisplaySettings       http.HandlerFunc
 	OperationLogs         http.HandlerFunc
 	UpdateDisplaySettings http.HandlerFunc
@@ -108,6 +110,8 @@ func Register(server *rest.Server, mw Middlewares, h Handlers) {
 				{Method: http.MethodPut, Path: "/v1/admin/admin_users/:id", Handler: h.UpdateUser},
 				{Method: http.MethodDelete, Path: "/v1/admin/admin_users/:id", Handler: h.DeleteUser},
 				{Method: http.MethodPost, Path: "/v1/admin/admin_users/:id/reset_password", Handler: h.ResetUserPassword},
+				{Method: http.MethodPost, Path: "/v1/admin/mfa/setup", Handler: h.SelfMfaSetup},
+				{Method: http.MethodPost, Path: "/v1/admin/mfa/confirm", Handler: h.SelfMfaConfirm},
 				{Method: http.MethodPost, Path: "/v1/admin/admin_users/:id/mfa/setup", Handler: h.MfaSetup},
 				{Method: http.MethodPost, Path: "/v1/admin/admin_users/:id/mfa/confirm", Handler: h.MfaConfirm},
 				{Method: http.MethodPost, Path: "/v1/admin/admin_users/:id/mfa/disable", Handler: h.MfaDisable},

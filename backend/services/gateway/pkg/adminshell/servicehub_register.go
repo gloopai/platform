@@ -50,6 +50,8 @@ func ServiceHubHandlers(shellCtx *svc.ServiceContext) Handlers {
 		MfaSetup:              adminhandler.AdminMfaSetupHandler(shellCtx),
 		MfaConfirm:            adminhandler.AdminMfaConfirmHandler(shellCtx),
 		MfaDisable:            adminhandler.AdminMfaDisableHandler(shellCtx),
+		SelfMfaSetup:          adminhandler.AdminSelfMfaSetupHandler(shellCtx),
+		SelfMfaConfirm:        adminhandler.AdminSelfMfaConfirmHandler(shellCtx),
 		DisplaySettings:       adminhandler.AdminDisplaySettingsHandler(shellCtx),
 		OperationLogs:         adminhandler.AdminOperationLogsHandler(shellCtx),
 		UpdateDisplaySettings: adminhandler.AdminUpdateDisplaySettingsHandler(shellCtx),

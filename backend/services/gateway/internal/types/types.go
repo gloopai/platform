@@ -9,8 +9,9 @@ type AdminLoginReq struct {
 }
 
 type AdminLoginResp struct {
-	Token     string `json:"token"`
-	ExpiresAt int64  `json:"expires_at"`
+	Token            string `json:"token"`
+	ExpiresAt        int64  `json:"expires_at"`
+	MfaSetupRequired bool   `json:"mfa_setup_required"`
 }
 
 type AdminLogoutResp struct {
@@ -34,6 +35,8 @@ type AdminMeResp struct {
 	Email       string `json:"email"`
 	DisplayName string `json:"display_name"`
 	Role        string `json:"role"`
+	MfaEnabled  int64  `json:"mfa_enabled"`
+	MfaPending  int64  `json:"mfa_pending"`
 }
 
 type AdminDisplaySettingsReq struct{}
@@ -95,6 +98,11 @@ type AdminMfaConfirmReq struct {
 
 type AdminMfaDisableReq struct {
 	Id int64 `path:"id"`
+}
+
+// AdminMfaConfirmSelfReq 当前登录用户确认绑定 MFA（body）。
+type AdminMfaConfirmSelfReq struct {
+	Code string `json:"code"`
 }
 
 // --- 定时任务（scheduled_jobs / job-worker） ---

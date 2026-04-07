@@ -177,6 +177,45 @@ func AdminMfaDisableHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+func AdminSelfMfaSetupHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		adminID := gatewaymw.AdminIDFromContext(r.Context())
+		if adminID <= 0 {
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
+			return
+		}
+		l := logic.NewAdminSystem(r.Context(), svcCtx)
+		resp, err := l.SetupAdminSelfMfa(adminID)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
+func AdminSelfMfaConfirmHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		adminID := gatewaymw.AdminIDFromContext(r.Context())
+		if adminID <= 0 {
+			apiresp.Fail(w, apiresp.CodeUnauthorized, "unauthorized")
+			return
+		}
+		var req types.AdminMfaConfirmSelfReq
+		if err := httpx.Parse(r, &req); err != nil {
+			apiresp.Fail(w, apiresp.CodeInvalidParams, err.Error())
+			return
+		}
+		l := logic.NewAdminSystem(r.Context(), svcCtx)
+		resp, err := l.ConfirmAdminSelfMfa(adminID, &req)
+		if err != nil {
+			apiresp.WriteFromGRPC(w, err)
+		} else {
+			apiresp.OK(w, resp)
+		}
+	}
+}
+
 func AdminUpdateDisplaySettingsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.AdminDisplaySettingsUpdateReq

@@ -45,11 +45,8 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	ds, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
-	if err != nil {
-		return nil, err
-	}
-	if ds.GetAdminMfaEnabled() == 1 && u.GetMfaEnabled() == 1 {
+	// 已绑定谷歌验证器（MFA）的账号：登录时必须校验 TOTP。
+	if u.GetMfaEnabled() == 1 {
 		code := strings.TrimSpace(req.MfaCode)
 		if code == "" {
 			return nil, status.Error(codes.Unauthenticated, "mfa code required")
@@ -63,9 +60,11 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 	if err != nil {
 		return nil, err
 	}
+	mfaSetupRequired := u.GetMfaEnabled() != 1
 	return &types.AdminLoginResp{
-		Token:     tok,
-		ExpiresAt: expiresAt.Unix(),
+		Token:            tok,
+		ExpiresAt:        expiresAt.Unix(),
+		MfaSetupRequired: mfaSetupRequired,
 	}, nil
 }
 

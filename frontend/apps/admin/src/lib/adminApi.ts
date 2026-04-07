@@ -41,10 +41,43 @@ export function saveAdminIdentity(identity: string) {
   localStorage.setItem(ADMIN_IDENTITY_KEY, v)
 }
 
+const MFA_GATE_KEY = 'admin_mfa_gate_v1'
+
+/** 会话内缓存「是否已完成 MFA 绑定」，减少路由守卫重复请求 /v1/admin/me。 */
+export function setAdminMfaGate(mfaComplete: boolean) {
+  try {
+    sessionStorage.setItem(MFA_GATE_KEY, JSON.stringify({ ok: mfaComplete, ts: Date.now() }))
+  } catch {
+  }
+}
+
+export function clearAdminMfaGate() {
+  try {
+    sessionStorage.removeItem(MFA_GATE_KEY)
+  } catch {
+  }
+}
+
+function readAdminMfaGate(): { ok: boolean } | null {
+  try {
+    const raw = sessionStorage.getItem(MFA_GATE_KEY)
+    if (!raw) return null
+    const o = JSON.parse(raw) as { ok: boolean; ts: number }
+    if (typeof o.ok !== 'boolean' || typeof o.ts !== 'number') return null
+    if (Date.now() - o.ts > 3 * 60 * 1000) return null
+    return { ok: o.ok }
+  } catch {
+    return null
+  }
+}
+
+export { readAdminMfaGate }
+
 export function clearAdminSession() {
   localStorage.removeItem('admin_token')
   localStorage.removeItem('admin_token_expires_at')
   localStorage.removeItem(ADMIN_IDENTITY_KEY)
+  clearAdminMfaGate()
 }
 
 /** 与需登录后台接口统一的请求选项（自动带 X-Admin-Token；JSON body 自动序列化） */
