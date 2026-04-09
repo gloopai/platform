@@ -45,8 +45,15 @@ func (a *AdminAuth) AdminLogin(req *types.AdminLoginReq) (*types.AdminLoginResp,
 		return nil, status.Error(codes.Unauthenticated, "invalid credentials")
 	}
 
-	// 已绑定谷歌验证器（MFA）的账号：登录时必须校验 TOTP。
-	if u.GetMfaEnabled() == 1 {
+	// 已绑定 MFA 的账号：是否强制校验 TOTP 由全局配置 admin_mfa_enabled（系统管理）决定。
+	// - 开启：必须输入正确谷歌验证码；
+	// - 关闭：不校验 TOTP（便于内网/开发），验证码可任意填写。
+	ds, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
+	if err != nil {
+		return nil, err
+	}
+	globalMfaEnforced := ds.GetAdminMfaEnabled() == 1
+	if u.GetMfaEnabled() == 1 && globalMfaEnforced {
 		code := strings.TrimSpace(req.MfaCode)
 		if code == "" {
 			return nil, status.Error(codes.Unauthenticated, "mfa code required")

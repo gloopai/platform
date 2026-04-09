@@ -3,7 +3,8 @@
     <div>
       <h1 class="text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">系统管理</h1>
       <p class="mt-1 max-w-3xl text-sm text-slate-600">
-        管理全局展示参数（国家、货币、汇率）与后台登录安全开关。改动保存后会立即影响管理台的金额显示与登录策略。
+        管理全局展示参数（系统名称、国家、货币、汇率）与后台登录安全开关。改动保存后会立即影响管理台标题、MFA
+        展示名、金额显示与登录策略。
       </p>
     </div>
 
@@ -37,6 +38,18 @@
         </div>
 
         <div class="grid gap-3 sm:grid-cols-2">
+          <label class="grid gap-1 text-sm sm:col-span-2">
+            <span class="text-xs font-medium text-slate-500">系统名称</span>
+            <input
+              v-model.trim="systemName"
+              type="text"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              placeholder="例如：某某平台 · 总管理台"
+            />
+            <span class="text-[11px] font-normal text-slate-500">
+              用于浏览器标签页标题与谷歌验证器中的发行方名称（issuer）。留空则标题显示为「管理台」，MFA 仍使用服务端默认英文名称。
+            </span>
+          </label>
           <label class="grid gap-1 text-sm sm:col-span-2">
             <span class="text-xs font-medium text-slate-500">新建商户数字 ID 起始值</span>
             <input
@@ -109,16 +122,22 @@
       <aside class="space-y-4 lg:col-span-4">
         <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
           <div class="text-sm font-semibold text-slate-900">安全策略</div>
-          <p class="mt-1 text-xs text-slate-500">已绑定谷歌验证器的管理员登录时必须输入动态码；未绑定前仅可进入绑定流程。</p>
+          <p class="mt-1 text-xs text-slate-500">后台登录二次校验策略。</p>
           <label class="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
             <input v-model="adminMfaEnabled" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300" />
-            <span>保留项：后台 MFA 开关（当前登录校验以账号是否已绑定验证器为准，不依赖此项）</span>
+            <span>强制校验 MFA：开启后，已绑定 MFA 的管理员登录必须输入正确谷歌验证码；关闭时不校验验证码（可填任意数字通过）。</span>
           </label>
         </section>
 
         <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
           <div class="text-sm font-semibold text-slate-900">实时预览</div>
           <div class="mt-3 space-y-2 text-xs text-slate-600">
+            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+              <span>系统名称</span>
+              <span class="max-w-[12rem] truncate font-semibold text-slate-800" :title="systemName || '（默认）'">{{
+                systemName || '（默认）'
+              }}</span>
+            </div>
             <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
               <span>国家 / 货币</span>
               <span class="font-mono font-semibold text-slate-800">{{ countryCode.toUpperCase() }} / {{ currencyCode.toUpperCase() }}</span>
@@ -166,6 +185,7 @@ const loading = ref(true)
 const saving = ref(false)
 const saved = ref(false)
 const error = ref('')
+const systemName = ref('')
 const countryCode = ref('CN')
 const currencyCode = ref('CNY')
 const currencySymbol = ref('¥')
@@ -204,7 +224,9 @@ async function load() {
       fiat_to_usdt_rate: number
       admin_mfa_enabled: number
       merchant_numeric_id_start?: number
+      system_name?: string
     }>('/v1/admin/display_settings')
+    systemName.value = (ds.system_name || '').trim()
     countryCode.value = ds.country_code || 'CN'
     currencyCode.value = ds.currency_code || 'CNY'
     currencySymbol.value = ds.currency_symbol || '¥'
@@ -235,6 +257,7 @@ async function saveDisplaySettings() {
       fiat_to_usdt_rate: number
       admin_mfa_enabled: number
       merchant_numeric_id_start?: number
+      system_name?: string
     }>('/v1/admin/display_settings', {
       country_code: countryCode.value.trim().toUpperCase(),
       currency_code: currencyCode.value.trim().toUpperCase(),
@@ -242,8 +265,16 @@ async function saveDisplaySettings() {
       fiat_to_usdt_rate: fiatToUsdtRate.value,
       admin_mfa_enabled: adminMfaEnabled.value ? 1 : 0,
       merchant_numeric_id_start: Math.floor(Number(merchantNumericIdStart.value)),
+      system_name: systemName.value.trim(),
     })
-    applyAdminDisplaySettings(r)
+    applyAdminDisplaySettings({
+      country_code: r.country_code,
+      currency_code: r.currency_code,
+      currency_symbol: r.currency_symbol,
+      fiat_to_usdt_rate: r.fiat_to_usdt_rate,
+      system_name: r.system_name || '',
+    })
+    systemName.value = (r.system_name || '').trim()
     countryCode.value = r.country_code
     currencyCode.value = r.currency_code
     currencySymbol.value = r.currency_symbol

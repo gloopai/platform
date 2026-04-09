@@ -109,6 +109,8 @@ message GetDisplaySettingsResp {
   int64 admin_mfa_enabled = 5;
   // 新建商户自动分配的数字型 merchant_id 起始值（含），1～9999999999；与序列表联用取 max(已发号+1, 起始值)
   int64 merchant_numeric_id_start = 6;
+  // 管理台展示名：浏览器标题、MFA(TOTP) issuer 等
+  string system_name = 7;
 }
 
 message UpsertDisplaySettingsReq {
@@ -118,6 +120,8 @@ message UpsertDisplaySettingsReq {
   double fiat_to_usdt_rate = 4;
   int64 admin_mfa_enabled = 5;
   int64 merchant_numeric_id_start = 6;
+  // 未设置时服务端保留库中原值（兼容旧客户端）
+  optional string system_name = 7;
 }
 
 // ---------------- RBAC messages ----------------

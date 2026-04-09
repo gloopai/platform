@@ -129,6 +129,7 @@ func (a *AdminSystem) GetDisplaySettings(req *types.AdminDisplaySettingsReq) (*t
 		FiatToUsdtRate:         row.GetFiatToUsdtRate(),
 		AdminMfaEnabled:        row.GetAdminMfaEnabled(),
 		MerchantNumericIdStart: start,
+		SystemName:             strings.TrimSpace(row.GetSystemName()),
 	}, nil
 }
 
@@ -154,17 +155,10 @@ func (a *AdminSystem) UpdateDisplaySettings(req *types.AdminDisplaySettingsUpdat
 	if start < 1 || start > 9999999999 {
 		return nil, status.Error(codes.InvalidArgument, "merchant_numeric_id_start must be 1..9999999999")
 	}
-	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol, rate, req.AdminMfaEnabled, start); err != nil {
+	if err := a.svcCtx.ServiceHub.UpsertDisplaySettings(a.ctx, country, currency, symbol, rate, req.AdminMfaEnabled, start, req.SystemName); err != nil {
 		return nil, err
 	}
-	return &types.AdminDisplaySettingsResp{
-		CountryCode:            country,
-		CurrencyCode:           currency,
-		CurrencySymbol:         symbol,
-		FiatToUsdtRate:         rate,
-		AdminMfaEnabled:        req.AdminMfaEnabled,
-		MerchantNumericIdStart: start,
-	}, nil
+	return a.GetDisplaySettings(&types.AdminDisplaySettingsReq{})
 }
 
 func (a *AdminSystem) ListAdminOperationLogs(req *types.AdminOperationLogsReq) (*types.AdminOperationLogsResp, error) {
@@ -296,8 +290,9 @@ func (a *AdminSystem) SetupAdminUserMfa(req *types.AdminMfaSetupReq) (*types.Adm
 	if err != nil || user == nil {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
+	issuer := adminMfaIssuer(a)
 	key, err := totp.Generate(totp.GenerateOpts{
-		Issuer:      "Pay Platform Admin",
+		Issuer:      issuer,
 		AccountName: user.GetUsername(),
 	})
 	if err != nil {
@@ -364,3 +359,18 @@ func (a *AdminSystem) DisableAdminUserMfa(req *types.AdminMfaDisableReq) (map[st
 
 func ptrStr(v string) *string { return &v }
 func ptrI64(v int64) *int64   { return &v }
+
+// 与未配置「系统名称」时的历史 MFA issuer 一致
+const defaultAdminSystemName = "Pay Platform Admin"
+
+func adminMfaIssuer(a *AdminSystem) string {
+	ds, err := a.svcCtx.ServiceHub.GetDisplaySettings(a.ctx)
+	if err != nil || ds == nil {
+		return defaultAdminSystemName
+	}
+	s := strings.TrimSpace(ds.GetSystemName())
+	if s == "" {
+		return defaultAdminSystemName
+	}
+	return s
+}

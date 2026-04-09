@@ -83,6 +83,7 @@ func (s *ServiceHubServer) GetDisplaySettings(ctx context.Context, _ *servicehub
 		FiatToUsdtRate:         row.FiatToUsdtRate,
 		AdminMfaEnabled:        row.AdminMfaEnabled,
 		MerchantNumericIdStart: row.MerchantNumericIDStart,
+		SystemName:             row.SystemName,
 	}, nil
 }
 
@@ -105,6 +106,16 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 	if start < 1 || start > 9999999999 {
 		return nil, status.Error(codes.InvalidArgument, "merchant_numeric_id_start must be 1..9999999999")
 	}
+	sysName := ""
+	if req.SystemName != nil {
+		sysName = strings.TrimSpace(*req.SystemName)
+	} else {
+		cur, err := s.svcCtx.GlobalSettings.GetDisplaySettings(ctx)
+		if err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+		sysName = cur.SystemName
+	}
 	if err := s.svcCtx.GlobalSettings.UpsertDisplaySettings(ctx, &store.GlobalDisplaySettings{
 		CountryCode:            country,
 		CurrencyCode:           currency,
@@ -112,6 +123,7 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 		FiatToUsdtRate:         rate,
 		AdminMfaEnabled:        req.GetAdminMfaEnabled(),
 		MerchantNumericIDStart: start,
+		SystemName:             sysName,
 	}); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -122,6 +134,7 @@ func (s *ServiceHubServer) UpsertDisplaySettings(ctx context.Context, req *servi
 		FiatToUsdtRate:         rate,
 		AdminMfaEnabled:        req.GetAdminMfaEnabled(),
 		MerchantNumericIdStart: start,
+		SystemName:             sysName,
 	}, nil
 }
 

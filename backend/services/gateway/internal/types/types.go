@@ -48,6 +48,8 @@ type AdminDisplaySettingsUpdateReq struct {
 	FiatToUsdtRate         float64 `json:"fiat_to_usdt_rate"`
 	AdminMfaEnabled        int64   `json:"admin_mfa_enabled,optional"`
 	MerchantNumericIdStart int64   `json:"merchant_numeric_id_start,optional"`
+	// 未传时由服务端保留原值（兼容旧管理端）
+	SystemName *string `json:"system_name,optional"`
 }
 
 type AdminDisplaySettingsResp struct {
@@ -57,6 +59,7 @@ type AdminDisplaySettingsResp struct {
 	FiatToUsdtRate         float64 `json:"fiat_to_usdt_rate"`
 	AdminMfaEnabled        int64   `json:"admin_mfa_enabled"`
 	MerchantNumericIdStart int64   `json:"merchant_numeric_id_start"`
+	SystemName             string  `json:"system_name"`
 }
 
 type AdminCreateUserReq struct {

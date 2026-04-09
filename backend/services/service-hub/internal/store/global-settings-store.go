@@ -15,6 +15,7 @@ const (
 	GlobalSettingFiatToUsdtRate         = "fiat_to_usdt_rate"
 	GlobalSettingAdminMfaEnabled        = "admin_mfa_enabled"
 	GlobalSettingMerchantNumericIDStart = "merchant_numeric_id_start"
+	GlobalSettingSystemName             = "system_name"
 )
 
 type GlobalDisplaySettings struct {
@@ -24,6 +25,7 @@ type GlobalDisplaySettings struct {
 	FiatToUsdtRate           float64
 	AdminMfaEnabled          int64
 	MerchantNumericIDStart   int64 // 新建商户自动分配的数字型 merchant_id 下限（含），默认 5000000000
+	SystemName               string
 }
 
 type GlobalSettingsStore struct {
@@ -50,6 +52,7 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 			GlobalSettingFiatToUsdtRate,
 			GlobalSettingAdminMfaEnabled,
 			GlobalSettingMerchantNumericIDStart,
+			GlobalSettingSystemName,
 		}).
 		Find(&rows).Error; err != nil {
 		return nil, err
@@ -84,6 +87,8 @@ func (s *GlobalSettingsStore) GetDisplaySettings(ctx context.Context) (*GlobalDi
 			if v, err := strconv.ParseInt(strings.TrimSpace(r.V), 10, 64); err == nil && v >= 1 && v <= 9999999999 {
 				out.MerchantNumericIDStart = v
 			}
+		case GlobalSettingSystemName:
+			out.SystemName = strings.TrimSpace(r.V)
 		}
 	}
 	return out, nil
@@ -104,6 +109,7 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   (?, ?),
   (?, ?),
   (?, ?),
+  (?, ?),
   (?, ?)
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 `,
@@ -113,5 +119,6 @@ ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
 		GlobalSettingFiatToUsdtRate, strconv.FormatFloat(in.FiatToUsdtRate, 'f', 6, 64),
 		GlobalSettingAdminMfaEnabled, strconv.FormatInt(in.AdminMfaEnabled, 10),
 		GlobalSettingMerchantNumericIDStart, strconv.FormatInt(start, 10),
+		GlobalSettingSystemName, in.SystemName,
 	).Error
 }
