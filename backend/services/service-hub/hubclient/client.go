@@ -91,6 +91,9 @@ type ServiceHub interface {
 	GetScheduledJobRun(ctx context.Context, id int64) (*ScheduledJobRun, error)
 	RetryScheduledJobRun(ctx context.Context, id int64) (bool, error)
 	ListJobWorkerNodes(ctx context.Context) ([]*servicehub.JobWorkerNode, int64, error)
+
+	// Ops：Consul 服务实例（由 core 上 ServiceHub 查询，网关传入要展示的服务名列表）
+	GetOpsServicesStatus(ctx context.Context, serviceNames []string) (*servicehub.GetOpsServicesStatusResp, error)
 }
 
 type defaultClient struct {
@@ -590,4 +593,8 @@ func (d *defaultClient) ListJobWorkerNodes(ctx context.Context) ([]*servicehub.J
 		return nil, 0, nil
 	}
 	return r.Nodes, r.QueuedTotal, nil
+}
+
+func (d *defaultClient) GetOpsServicesStatus(ctx context.Context, serviceNames []string) (*servicehub.GetOpsServicesStatusResp, error) {
+	return d.cli.GetOpsServicesStatus(ctx, &servicehub.GetOpsServicesStatusReq{ServiceNames: serviceNames})
 }

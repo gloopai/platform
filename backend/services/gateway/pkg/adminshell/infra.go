@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterInfraRoutes registers GET /ready and GET /v1/admin/ops/services (behind adminAuth).
-// Readiness and ops/service discovery handlers are supplied by the gateway binary (svc wiring stays app-specific).
+// Pass [ReadyHandler] from the product gateway; for ops use [OpsServicesHandler]([ShellOptions]) so logic stays in this package.
 func RegisterInfraRoutes(server *rest.Server, adminAuth rest.Middleware, ready, opsServices http.HandlerFunc) {
 	server.AddRoutes([]rest.Route{
 		{Method: http.MethodGet, Path: "/ready", Handler: ready},

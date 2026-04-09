@@ -44,11 +44,21 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return newServiceContextForDB(c, gdb)
 }
 
-// NewServiceContextWithRuntime wires stores and optional NSQ on an existing DB (e.g. embedded in pay core).
-func NewServiceContextWithRuntime(gdb *gorm.DB, nsqdAddr, portalTopic string) *ServiceContext {
+// EmbedRuntime wires optional NSQ / Consul when ServiceHub is embedded in pay core (no standalone hub YAML).
+type EmbedRuntime struct {
+	NsqdTCPAddr       string
+	PortalNotifyTopic string
+	ConsulAddr        string
+}
+
+// NewServiceContextWithRuntime wires stores and optional NSQ / Consul on an existing DB (e.g. embedded in pay core).
+func NewServiceContextWithRuntime(gdb *gorm.DB, rt EmbedRuntime) *ServiceContext {
 	var c config.Config
-	c.Nsq.NsqdTCPAddr = strings.TrimSpace(nsqdAddr)
-	c.Nsq.PortalNotifyTopic = strings.TrimSpace(portalTopic)
+	c.Nsq.NsqdTCPAddr = strings.TrimSpace(rt.NsqdTCPAddr)
+	c.Nsq.PortalNotifyTopic = strings.TrimSpace(rt.PortalNotifyTopic)
+	if a := strings.TrimSpace(rt.ConsulAddr); a != "" {
+		c.Consul.Addr = a
+	}
 	return newServiceContextForDB(c, gdb)
 }
 

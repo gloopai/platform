@@ -63,6 +63,7 @@ const (
 	ServiceHub_GetScheduledJobRun_FullMethodName            = "/servicehub.ServiceHub/GetScheduledJobRun"
 	ServiceHub_RetryScheduledJobRun_FullMethodName          = "/servicehub.ServiceHub/RetryScheduledJobRun"
 	ServiceHub_ListJobWorkerNodes_FullMethodName            = "/servicehub.ServiceHub/ListJobWorkerNodes"
+	ServiceHub_GetOpsServicesStatus_FullMethodName          = "/servicehub.ServiceHub/GetOpsServicesStatus"
 )
 
 // ServiceHubClient is the client API for ServiceHub service.
@@ -123,6 +124,8 @@ type ServiceHubClient interface {
 	GetScheduledJobRun(ctx context.Context, in *GetScheduledJobRunReq, opts ...grpc.CallOption) (*GetScheduledJobRunResp, error)
 	RetryScheduledJobRun(ctx context.Context, in *RetryScheduledJobRunReq, opts ...grpc.CallOption) (*RetryScheduledJobRunResp, error)
 	ListJobWorkerNodes(ctx context.Context, in *ListJobWorkerNodesReq, opts ...grpc.CallOption) (*ListJobWorkerNodesResp, error)
+	// ---- Admin ops：Consul 服务实例状态（网关运维页聚合；逻辑在 ServiceHub 实现） ----
+	GetOpsServicesStatus(ctx context.Context, in *GetOpsServicesStatusReq, opts ...grpc.CallOption) (*GetOpsServicesStatusResp, error)
 }
 
 type serviceHubClient struct {
@@ -573,6 +576,16 @@ func (c *serviceHubClient) ListJobWorkerNodes(ctx context.Context, in *ListJobWo
 	return out, nil
 }
 
+func (c *serviceHubClient) GetOpsServicesStatus(ctx context.Context, in *GetOpsServicesStatusReq, opts ...grpc.CallOption) (*GetOpsServicesStatusResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOpsServicesStatusResp)
+	err := c.cc.Invoke(ctx, ServiceHub_GetOpsServicesStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceHubServer is the server API for ServiceHub service.
 // All implementations must embed UnimplementedServiceHubServer
 // for forward compatibility.
@@ -631,6 +644,8 @@ type ServiceHubServer interface {
 	GetScheduledJobRun(context.Context, *GetScheduledJobRunReq) (*GetScheduledJobRunResp, error)
 	RetryScheduledJobRun(context.Context, *RetryScheduledJobRunReq) (*RetryScheduledJobRunResp, error)
 	ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error)
+	// ---- Admin ops：Consul 服务实例状态（网关运维页聚合；逻辑在 ServiceHub 实现） ----
+	GetOpsServicesStatus(context.Context, *GetOpsServicesStatusReq) (*GetOpsServicesStatusResp, error)
 	mustEmbedUnimplementedServiceHubServer()
 }
 
@@ -772,6 +787,9 @@ func (UnimplementedServiceHubServer) RetryScheduledJobRun(context.Context, *Retr
 }
 func (UnimplementedServiceHubServer) ListJobWorkerNodes(context.Context, *ListJobWorkerNodesReq) (*ListJobWorkerNodesResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListJobWorkerNodes not implemented")
+}
+func (UnimplementedServiceHubServer) GetOpsServicesStatus(context.Context, *GetOpsServicesStatusReq) (*GetOpsServicesStatusResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOpsServicesStatus not implemented")
 }
 func (UnimplementedServiceHubServer) mustEmbedUnimplementedServiceHubServer() {}
 func (UnimplementedServiceHubServer) testEmbeddedByValue()                    {}
@@ -1586,6 +1604,24 @@ func _ServiceHub_ListJobWorkerNodes_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceHub_GetOpsServicesStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOpsServicesStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceHubServer).GetOpsServicesStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceHub_GetOpsServicesStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceHubServer).GetOpsServicesStatus(ctx, req.(*GetOpsServicesStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceHub_ServiceDesc is the grpc.ServiceDesc for ServiceHub service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1768,6 +1804,10 @@ var ServiceHub_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListJobWorkerNodes",
 			Handler:    _ServiceHub_ListJobWorkerNodes_Handler,
+		},
+		{
+			MethodName: "GetOpsServicesStatus",
+			Handler:    _ServiceHub_GetOpsServicesStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

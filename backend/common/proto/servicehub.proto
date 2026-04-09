@@ -64,6 +64,9 @@ service ServiceHub {
   rpc GetScheduledJobRun(GetScheduledJobRunReq) returns (GetScheduledJobRunResp);
   rpc RetryScheduledJobRun(RetryScheduledJobRunReq) returns (RetryScheduledJobRunResp);
   rpc ListJobWorkerNodes(ListJobWorkerNodesReq) returns (ListJobWorkerNodesResp);
+
+  // ---- Admin ops：Consul 服务实例状态（网关运维页聚合；逻辑在 ServiceHub 实现） ----
+  rpc GetOpsServicesStatus(GetOpsServicesStatusReq) returns (GetOpsServicesStatusResp);
 }
 
 message FindAdminUserByUsernameReq {
@@ -588,4 +591,36 @@ message PurgeAdminOperationLogsBeforeReq {
 
 message PurgeAdminOperationLogsBeforeResp {
   int64 deleted = 1;
+}
+
+// ---------------- Ops (Consul) ----------------
+
+message GetOpsServicesStatusReq {
+  // 要查询的 Consul 服务名（由网关按本地配置组装）
+  repeated string service_names = 1;
+}
+
+message OpsSvcNode {
+  string service_name = 1;
+  string service_id = 2;
+  string node = 3;
+  string address = 4;
+  int32 port = 5;
+  // passing / warning / critical / unknown
+  string status = 6;
+}
+
+message OpsSvcStatus {
+  string service_name = 1;
+  bool ok = 2;
+  int32 total = 3;
+  int32 passing = 4;
+  int32 warning = 5;
+  int32 critical = 6;
+  repeated OpsSvcNode nodes = 7;
+}
+
+message GetOpsServicesStatusResp {
+  bool ok = 1;
+  repeated OpsSvcStatus services = 2;
 }

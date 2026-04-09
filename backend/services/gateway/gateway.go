@@ -16,7 +16,6 @@ import (
 	"github.com/gloopai/platform/common/traceheader"
 	"github.com/gloopai/platform/gateway/internal/config"
 	"github.com/gloopai/platform/gateway/internal/handler"
-	adminhandler "github.com/gloopai/platform/gateway/internal/handler/admin"
 	"github.com/gloopai/platform/gateway/internal/svc"
 	"github.com/gloopai/platform/gateway/pkg/adminshell"
 
@@ -52,7 +51,7 @@ func main() {
 	handler.RegisterAdminHandlers(adminServer, ctx)
 	servers := []*rest.Server{adminServer}
 
-	adminshell.RegisterInfraRoutes(adminServer, ctx.AdminAuth, handler.ReadyHandler(ctx), adminhandler.AdminOpsServicesHandler(ctx))
+	adminshell.RegisterInfraRoutes(adminServer, ctx.AdminAuth, handler.ReadyHandler(ctx), adminshell.OpsServicesHandler(adminshell.ShellOptionsFromPlatformGateway(ctx)))
 
 	fmt.Printf("Starting admin API at %s:%d...\n", c.AdminServer.Host, c.AdminServer.Port)
 
