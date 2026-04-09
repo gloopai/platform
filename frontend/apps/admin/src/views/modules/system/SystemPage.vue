@@ -15,30 +15,26 @@
       {{ error }}
     </div>
 
-    <div v-if="loading" class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+    <div v-if="loading" class="max-w-3xl rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
       <div class="animate-pulse space-y-3">
         <div class="h-4 w-36 rounded bg-slate-200" />
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="h-16 rounded-xl bg-slate-100" />
-          <div class="h-16 rounded-xl bg-slate-100" />
-          <div class="h-16 rounded-xl bg-slate-100" />
-          <div class="h-16 rounded-xl bg-slate-100" />
+        <div class="space-y-3">
+          <div class="h-12 rounded-xl bg-slate-100" />
+          <div class="h-12 rounded-xl bg-slate-100" />
+          <div class="h-12 rounded-xl bg-slate-100" />
         </div>
       </div>
     </div>
 
-    <div v-else class="grid gap-6 lg:grid-cols-12">
-      <section class="lg:col-span-8 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
-        <div class="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
-          <div>
-            <div class="text-sm font-semibold text-slate-900">全局展示配置</div>
-            <div class="mt-1 text-xs text-slate-500">用于金额文案和汇率计算展示。</div>
-          </div>
-          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">MVP</span>
+    <div v-else class="max-w-3xl space-y-6">
+      <section class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div class="mb-4 border-b border-slate-100 pb-3">
+          <div class="text-sm font-semibold text-slate-900">全局展示配置</div>
+          <div class="mt-1 text-xs text-slate-500">用于金额文案和汇率计算展示。</div>
         </div>
 
-        <div class="grid gap-3 sm:grid-cols-2">
-          <label class="grid gap-1 text-sm sm:col-span-2">
+        <div class="space-y-4">
+          <label class="grid gap-1 text-sm">
             <span class="text-xs font-medium text-slate-500">系统名称</span>
             <input
               v-model.trim="systemName"
@@ -50,7 +46,7 @@
               用于浏览器标签页标题与谷歌验证器中的发行方名称（issuer）。留空则标题显示为「管理台」，MFA 仍使用服务端默认英文名称。
             </span>
           </label>
-          <label class="grid gap-1 text-sm sm:col-span-2">
+          <label class="grid gap-1 text-sm">
             <span class="text-xs font-medium text-slate-500">新建商户数字 ID 起始值</span>
             <input
               v-model.number="merchantNumericIdStart"
@@ -105,7 +101,7 @@
           </label>
         </div>
 
-        <div class="mt-4 flex items-center gap-3 border-t border-slate-100 pt-4">
+        <div class="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
           <button
             type="button"
             class="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
@@ -119,51 +115,25 @@
         </div>
       </section>
 
-      <aside class="space-y-4 lg:col-span-4">
-        <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">安全策略</div>
-          <p class="mt-1 text-xs text-slate-500">后台登录二次校验策略。</p>
-          <label class="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
-            <input v-model="adminMfaEnabled" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300" />
-            <span>强制校验 MFA：开启后，已绑定 MFA 的管理员登录必须输入正确谷歌验证码；关闭时不校验验证码（可填任意数字通过）。</span>
-          </label>
-        </section>
+      <section class="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <div class="text-sm font-semibold text-slate-900">安全策略</div>
+        <p class="mt-1 text-xs text-slate-500">后台登录二次校验策略。</p>
+        <label class="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+          <input v-model="adminMfaEnabled" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300" />
+          <span>强制校验 MFA：开启后，已绑定 MFA 的管理员登录必须输入正确谷歌验证码；关闭时不校验验证码（可填任意数字通过）。</span>
+        </label>
+      </section>
 
-        <section class="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
-          <div class="text-sm font-semibold text-slate-900">实时预览</div>
-          <div class="mt-3 space-y-2 text-xs text-slate-600">
-            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span>系统名称</span>
-              <span class="max-w-[12rem] truncate font-semibold text-slate-800" :title="systemName || '（默认）'">{{
-                systemName || '（默认）'
-              }}</span>
-            </div>
-            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span>国家 / 货币</span>
-              <span class="font-mono font-semibold text-slate-800">{{ countryCode.toUpperCase() }} / {{ currencyCode.toUpperCase() }}</span>
-            </div>
-            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span>金额样式</span>
-              <span class="font-semibold text-slate-800">{{ currencySymbol || '¥' }} 12,345.67</span>
-            </div>
-            <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-              <span>汇率</span>
-              <span class="font-mono font-semibold text-slate-800">{{ ratePreview }}</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
-          管理员账号与角色请在
-          <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">后台用户</RouterLink>
-          与
-          <RouterLink to="/rbac/roles" class="font-semibold text-indigo-600 underline">角色与授权</RouterLink>
-          中维护。
-        </section>
-      </aside>
+      <section class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+        管理员账号与角色请在
+        <RouterLink to="/rbac/admin-users" class="font-semibold text-indigo-600 underline">后台用户</RouterLink>
+        与
+        <RouterLink to="/rbac/roles" class="font-semibold text-indigo-600 underline">角色与授权</RouterLink>
+        中维护。
+      </section>
     </div>
 
-    <div class="rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+    <div class="max-w-3xl rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
       后续可继续扩展操作审计、参数中心、账号风险策略等系统治理能力。
     </div>
   </div>
@@ -205,12 +175,6 @@ const canSave = computed(() => {
     fiatToUsdtRate.value > 0 &&
     floorOk
   )
-})
-
-const ratePreview = computed(() => {
-  const v = Number(fiatToUsdtRate.value)
-  if (!Number.isFinite(v) || v <= 0) return '—'
-  return `${v.toFixed(6)}`
 })
 
 async function load() {
