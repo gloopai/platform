@@ -137,7 +137,8 @@ INSERT INTO global_settings (setting_key, setting_value) VALUES
   ('country_code', 'CN'),
   ('currency_code', 'CNY'),
   ('currency_symbol', '¥'),
-  ('merchant_numeric_id_start', '5000000000')
+  ('merchant_numeric_id_start', '5000000000'),
+  ('system_name', '')
 AS new
 ON DUPLICATE KEY UPDATE setting_value = new.setting_value;
 

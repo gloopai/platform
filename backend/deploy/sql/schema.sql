@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
   UNIQUE KEY uk_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- global_settings：键值存储（非独立列）。已知 key 含 country_code、currency_code、currency_symbol、
+--   fiat_to_usdt_rate、admin_mfa_enabled、merchant_numeric_id_start、system_name（管理台标题与 MFA issuer）等。
 CREATE TABLE IF NOT EXISTS global_settings (
   setting_key VARCHAR(64) NOT NULL,
   setting_value VARCHAR(255) NOT NULL,

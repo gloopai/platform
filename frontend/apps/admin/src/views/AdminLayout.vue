@@ -19,12 +19,13 @@
             >
               <div
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-500 text-sm font-bold text-white shadow-lg shadow-indigo-900/40 ring-1 ring-white/10"
+                :title="sidebarBrandTitle"
                 aria-hidden="true"
               >
-                P
+                {{ sidebarBrandInitial }}
               </div>
               <div v-show="!sidebarCollapsed" class="min-w-0">
-                <div class="truncate text-sm font-semibold tracking-tight text-white">平台脚手架</div>
+                <div class="truncate text-sm font-semibold tracking-tight text-white">{{ sidebarBrandTitle }}</div>
                 <div class="truncate text-[10px] font-medium text-slate-500">管理后台</div>
               </div>
             </div>
@@ -212,7 +213,7 @@
                 >
                   <div class="border-b border-slate-100 px-3 py-2">
                     <div class="text-xs font-semibold text-slate-900">{{ displayName }}</div>
-                    <div class="text-[10px] text-slate-500">已登录 · 总管理台</div>
+                    <div class="truncate text-[10px] text-slate-500">已登录 · {{ sidebarBrandTitle }}</div>
                   </div>
                   <RouterLink
                     v-for="a in avatarLinks"
@@ -293,7 +294,11 @@ import UiDialogHost from '../components/UiDialogHost.vue'
 import UiToastHost from '../components/UiToastHost.vue'
 import { adminPathTitle, findGroupKeyForPath, pathBelongsToGroup, type AdminMenuEntry, type AdminMenuGroup } from '../adminMenu'
 import { adminGet, adminPost, clearAdminSession, loadAdminIdentity, loadAdminToken, saveAdminIdentity } from '../lib/adminApi'
-import { loadAdminDisplaySettings } from '../lib/displaySettings'
+import {
+  adminDisplaySettings,
+  DEFAULT_ADMIN_APP_SHORT_NAME,
+  loadAdminDisplaySettings,
+} from '../lib/displaySettings'
 import { useServerClock } from '../composables/useServerClock'
 import { useUiDialog } from '../composables/useUiDialog'
 
@@ -466,6 +471,18 @@ const flyoutGroup = computed((): AdminMenuGroup | null => {
 
 const displayName = computed(() => adminIdentity.value || '管理员')
 const userInitial = computed(() => displayName.value.slice(0, 1).toUpperCase())
+
+const sidebarBrandTitle = computed(() => {
+  const s = adminDisplaySettings.value.system_name?.trim()
+  return s || DEFAULT_ADMIN_APP_SHORT_NAME
+})
+
+const sidebarBrandInitial = computed(() => {
+  const t = sidebarBrandTitle.value
+  const ch = [...t][0]
+  if (!ch) return '管'
+  return /[A-Za-z]/.test(ch) ? ch.toUpperCase() : ch
+})
 
 function broadcastRefresh() {
   for (const fn of refreshFns.value) fn()

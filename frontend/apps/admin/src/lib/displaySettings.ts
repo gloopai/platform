@@ -10,7 +10,10 @@ export type AdminDisplaySettings = {
   system_name: string
 }
 
-const DEFAULT_DOC_TITLE = '管理台'
+/** 未配置 system_name 时的展示名（与默认 `document.title`、侧栏品牌一致） */
+export const DEFAULT_ADMIN_APP_SHORT_NAME = '管理台'
+
+const DEFAULT_DOC_TITLE = DEFAULT_ADMIN_APP_SHORT_NAME
 
 const settings = ref<AdminDisplaySettings>({
   country_code: 'CN',
